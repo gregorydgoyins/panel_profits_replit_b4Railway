@@ -48,18 +48,33 @@ export default function AIStudio() {
   // Fetch AI predictions
   const { data: predictions = [], isLoading: predictionsLoading } = useQuery<PricePrediction[]>({
     queryKey: ['/api/ai/predictions'],
+    queryFn: async () => {
+      const response = await fetch('/api/ai/predictions');
+      if (!response.ok) throw new Error(`Failed to fetch predictions: ${response.statusText}`);
+      return response.json();
+    },
     refetchInterval: 300000 // Refresh every 5 minutes
   });
 
   // Fetch market insights
   const { data: insights = [], isLoading: insightsLoading } = useQuery<MarketInsight[]>({
     queryKey: ['/api/ai/insights'],
+    queryFn: async () => {
+      const response = await fetch('/api/ai/insights');
+      if (!response.ok) throw new Error(`Failed to fetch insights: ${response.statusText}`);
+      return response.json();
+    },
     refetchInterval: 600000 // Refresh every 10 minutes
   });
 
   // Fetch Beat the AI challenges
   const { data: challenges = [], isLoading: challengesLoading } = useQuery<BeatTheAIChallenge[]>({
-    queryKey: ['/api/ai/challenges']
+    queryKey: ['/api/ai/challenges'],
+    queryFn: async () => {
+      const response = await fetch('/api/ai/challenges');
+      if (!response.ok) throw new Error(`Failed to fetch challenges: ${response.statusText}`);
+      return response.json();
+    }
   });
 
   const formatPrice = (price: number) => {

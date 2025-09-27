@@ -45,15 +45,25 @@ export default function BeatTheAI() {
   }
 
   // Fetch active challenges
-  const { data: challenges = [], isLoading: challengesLoading } = useQuery<Challenge[]>({
-    queryKey: ['/api/ai/challenges']
+  const { data: challenges = [], isLoading: challengesLoading, error, isError } = useQuery<Challenge[]>({
+    queryKey: ['/api/ai/challenges'],
+    queryFn: async () => {
+      const response = await fetch('/api/ai/challenges');
+      if (!response.ok) {
+        throw new Error(`Failed to fetch challenges: ${response.statusText}`);
+      }
+      return response.json();
+    }
   });
 
   // Debug logging
   console.log('🔍 Beat the AI Debug:', {
     challengesLoading,
     challengesLength: challenges.length,
-    challenges: challenges
+    challenges: challenges,
+    isError,
+    error: error?.message,
+    queryKey: ['/api/ai/challenges']
   });
 
   // Mock leaderboard data
