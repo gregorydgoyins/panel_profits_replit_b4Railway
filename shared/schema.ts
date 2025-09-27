@@ -419,3 +419,33 @@ export type InsertOrder = z.infer<typeof insertOrderSchema>;
 
 export type MarketEvent = typeof marketEvents.$inferSelect;
 export type InsertMarketEvent = z.infer<typeof insertMarketEventSchema>;
+
+// Comic Grading Predictions Schema - AI-powered comic condition analysis
+export const comicGradingPredictions = pgTable("comic_grading_predictions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id), // Optional - for logged-in users
+  imageUrl: text("image_url").notNull(), // URL of uploaded comic image
+  imageName: text("image_name"), // Original filename
+  // CGC Grade prediction (0.5-10.0 scale matching CGC standards)
+  predictedGrade: decimal("predicted_grade", { precision: 3, scale: 1 }).notNull(),
+  gradeCategory: text("grade_category").notNull(), // 'Poor', 'Fair', 'Good', 'Very Good', 'Fine', 'Very Fine', 'Near Mint', 'Mint'
+  // Condition factors analysis
+  conditionFactors: jsonb("condition_factors").notNull(), // { corners, spine, pages, colors, creases, tears, etc. }
+  // AI analysis details
+  confidenceScore: decimal("confidence_score", { precision: 5, scale: 2 }).notNull(), // 0-100 percentage
+  analysisDetails: text("analysis_details").notNull(), // Detailed AI explanation
+  gradingNotes: text("grading_notes"), // Specific observations affecting grade
+  // Processing metadata
+  processingTimeMs: integer("processing_time_ms"), // Time taken for AI analysis
+  aiModel: text("ai_model").default("gpt-5"), // OpenAI model used
+  // Status and timestamps
+  status: text("status").notNull().default("completed"), // 'processing', 'completed', 'failed'
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type ComicGradingPrediction = typeof comicGradingPredictions.$inferSelect;
+export const insertComicGradingPredictionSchema = createInsertSchema(comicGradingPredictions).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertComicGradingPrediction = z.infer<typeof insertComicGradingPredictionSchema>;

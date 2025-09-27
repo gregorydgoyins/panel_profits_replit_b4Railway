@@ -13,13 +13,14 @@ import {
   type MarketEvent, type InsertMarketEvent,
   type BeatTheAIChallenge, type InsertBeatTheAIChallenge,
   type BeatTheAIPrediction, type InsertBeatTheAIPrediction,
-  type BeatTheAILeaderboard, type InsertBeatTheAILeaderboard
+  type BeatTheAILeaderboard, type InsertBeatTheAILeaderboard,
+  type ComicGradingPrediction, type InsertComicGradingPrediction
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 // Time-series data management with memory limits
 interface TimeSeriesBuffer<T> {
-  data: T[];
+  items: T[];
   maxSize: number;
   addDataPoint(point: T): void;
   getByTimeframe(timeframe: string, limit?: number, from?: Date, to?: Date): T[];
@@ -116,6 +117,12 @@ export interface IStorage {
   createBeatTheAILeaderboardEntry(entry: InsertBeatTheAILeaderboard): Promise<BeatTheAILeaderboard>;
   updateBeatTheAILeaderboardEntry(userId: string, entry: Partial<BeatTheAILeaderboard>): Promise<BeatTheAILeaderboard | undefined>;
   recalculateLeaderboard(): Promise<void>;
+
+  // Comic Grading Predictions
+  getComicGradingPrediction(id: string): Promise<ComicGradingPrediction | undefined>;
+  getComicGradingPredictions(filters?: { userId?: string; status?: string }): Promise<ComicGradingPrediction[]>;
+  createComicGradingPrediction(prediction: InsertComicGradingPrediction): Promise<ComicGradingPrediction>;
+  updateComicGradingPrediction(id: string, prediction: Partial<InsertComicGradingPrediction>): Promise<ComicGradingPrediction | undefined>;
 }
 
 // Time-series buffer implementation with memory limits and proper chronological ordering
@@ -130,7 +137,7 @@ class TimeSeriesBuffer<T extends { timeframe: string; periodStart: Date }> imple
   get data(): T[] {
     // Return all data points across all timeframes
     const allData: T[] = [];
-    for (const timeframeArray of this.timeframeData.values()) {
+    for (const timeframeArray of Array.from(this.timeframeData.values())) {
       allData.push(...timeframeArray);
     }
     // Sort by periodStart descending (latest first)
@@ -221,6 +228,7 @@ export class MemStorage implements IStorage {
   private beatTheAIChallenges: Map<string, BeatTheAIChallenge>;
   private beatTheAIPredictions: Map<string, BeatTheAIPrediction>;
   private beatTheAILeaderboard: Map<string, BeatTheAILeaderboard>;
+  private comicGradingPredictions: Map<string, ComicGradingPrediction>;
 
   constructor() {
     this.users = new Map();
@@ -238,6 +246,7 @@ export class MemStorage implements IStorage {
     this.beatTheAIChallenges = new Map();
     this.beatTheAIPredictions = new Map();
     this.beatTheAILeaderboard = new Map();
+    this.comicGradingPredictions = new Map();
   }
 
   // User methods
@@ -254,9 +263,22 @@ export class MemStorage implements IStorage {
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
     const user: User = { 
-      ...insertUser, 
-      id, 
-      createdAt: new Date()
+      id,
+      username: insertUser.username,
+      password: insertUser.password,
+      email: insertUser.email ?? null,
+      subscriptionTier: "free",
+      subscriptionStatus: "active",
+      subscriptionStartDate: null,
+      subscriptionEndDate: null,
+      stripeCustomerId: null,
+      monthlyTradingCredits: 0,
+      usedTradingCredits: 0,
+      competitionWins: 0,
+      competitionRanking: null,
+      preferences: null,
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
     this.users.set(id, user);
     return user;
@@ -288,9 +310,10 @@ export class MemStorage implements IStorage {
     
     if (filters?.publisher) {
       const publisherLower = filters.publisher.toLowerCase();
-      assets = assets.filter(asset => 
-        asset.metadata?.publisher?.toLowerCase() === publisherLower
-      );
+      assets = assets.filter(asset => {
+        const metadata = asset.metadata as { publisher?: string } | null;
+        return metadata?.publisher?.toLowerCase() === publisherLower;
+      });
     }
     
     return assets;
@@ -301,6 +324,9 @@ export class MemStorage implements IStorage {
     const asset: Asset = {
       ...insertAsset,
       id,
+      description: insertAsset.description ?? null,
+      imageUrl: insertAsset.imageUrl ?? null,
+      metadata: insertAsset.metadata ?? null,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -346,6 +372,10 @@ export class MemStorage implements IStorage {
     const marketData: MarketData = {
       ...insertMarketData,
       id,
+      change: insertMarketData.change ?? null,
+      percentChange: insertMarketData.percentChange ?? null,
+      marketCap: insertMarketData.marketCap ?? null,
+      technicalIndicators: insertMarketData.technicalIndicators ?? null,
       createdAt: new Date()
     };
     
@@ -391,6 +421,13 @@ export class MemStorage implements IStorage {
     const portfolio: Portfolio = {
       ...insertPortfolio,
       id,
+      description: insertPortfolio.description ?? null,
+      totalValue: insertPortfolio.totalValue ?? null,
+      dayChange: insertPortfolio.dayChange ?? null,
+      dayChangePercent: insertPortfolio.dayChangePercent ?? null,
+      totalReturn: insertPortfolio.totalReturn ?? null,
+      totalReturnPercent: insertPortfolio.totalReturnPercent ?? null,
+      diversificationScore: insertPortfolio.diversificationScore ?? null,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -432,6 +469,9 @@ export class MemStorage implements IStorage {
     const holding: Holding = {
       ...insertHolding,
       id,
+      currentValue: insertHolding.currentValue ?? null,
+      unrealizedGainLoss: insertHolding.unrealizedGainLoss ?? null,
+      unrealizedGainLossPercent: insertHolding.unrealizedGainLossPercent ?? null,
       updatedAt: new Date()
     };
     
@@ -443,7 +483,7 @@ export class MemStorage implements IStorage {
   }
 
   async updateHolding(id: string, updateData: Partial<InsertHolding>): Promise<Holding | undefined> {
-    for (const [portfolioId, holdings] of this.holdings.entries()) {
+    for (const [portfolioId, holdings] of Array.from(this.holdings.entries())) {
       const index = holdings.findIndex(h => h.id === id);
       if (index !== -1) {
         const updatedHolding: Holding = {
@@ -459,7 +499,7 @@ export class MemStorage implements IStorage {
   }
 
   async deleteHolding(id: string): Promise<boolean> {
-    for (const [portfolioId, holdings] of this.holdings.entries()) {
+    for (const [portfolioId, holdings] of Array.from(this.holdings.entries())) {
       const index = holdings.findIndex(h => h.id === id);
       if (index !== -1) {
         holdings.splice(index, 1);
@@ -491,6 +531,16 @@ export class MemStorage implements IStorage {
     const insight: MarketInsight = {
       ...insertInsight,
       id,
+      assetId: insertInsight.assetId ?? null,
+      sentimentScore: insertInsight.sentimentScore ?? null,
+      confidence: insertInsight.confidence ?? null,
+      tags: insertInsight.tags ?? null,
+      source: insertInsight.source ?? null,
+      videoUrl: insertInsight.videoUrl ?? null,
+      thumbnailUrl: insertInsight.thumbnailUrl ?? null,
+      category: insertInsight.category ?? null,
+      isActive: insertInsight.isActive ?? true,
+      expiresAt: insertInsight.expiresAt ?? null,
       createdAt: new Date()
     };
     this.marketInsights.set(id, insight);
@@ -523,6 +573,12 @@ export class MemStorage implements IStorage {
     const index: MarketIndex = {
       ...insertIndex,
       id,
+      description: insertIndex.description ?? null,
+      methodology: insertIndex.methodology ?? null,
+      constituents: insertIndex.constituents ?? null,
+      rebalanceFrequency: insertIndex.rebalanceFrequency ?? "monthly",
+      isActive: insertIndex.isActive ?? true,
+      createdAt: new Date(),
       updatedAt: new Date()
     };
     this.marketIndices.set(id, index);
@@ -562,6 +618,9 @@ export class MemStorage implements IStorage {
     const indexData: MarketIndexData = {
       ...insertIndexData,
       id,
+      volume: insertIndexData.volume ?? null,
+      change: insertIndexData.change ?? null,
+      percentChange: insertIndexData.percentChange ?? null,
       createdAt: new Date()
     };
     
@@ -589,6 +648,8 @@ export class MemStorage implements IStorage {
     const watchlist: Watchlist = {
       ...insertWatchlist,
       id,
+      description: insertWatchlist.description ?? null,
+      isDefault: insertWatchlist.isDefault ?? null,
       createdAt: new Date()
     };
     this.watchlists.set(id, watchlist);
@@ -646,6 +707,8 @@ export class MemStorage implements IStorage {
     const order: Order = {
       ...insertOrder,
       id,
+      totalValue: insertOrder.totalValue ?? null,
+      price: insertOrder.price ?? null,
       createdAt: new Date(),
       filledAt: null
     };
@@ -701,6 +764,12 @@ export class MemStorage implements IStorage {
     const event: MarketEvent = {
       ...insertEvent,
       id,
+      description: insertEvent.description ?? null,
+      category: insertEvent.category ?? null,
+      isActive: insertEvent.isActive ?? true,
+      impact: insertEvent.impact ?? null,
+      affectedAssets: insertEvent.affectedAssets ?? null,
+      eventDate: insertEvent.eventDate ?? null,
       createdAt: new Date()
     };
     this.marketEvents.set(id, event);
@@ -739,6 +808,8 @@ export class MemStorage implements IStorage {
     const challenge: BeatTheAIChallenge = {
       ...insertChallenge,
       id,
+      status: insertChallenge.status ?? "UPCOMING",
+      participantCount: insertChallenge.participantCount ?? null,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -834,6 +905,11 @@ export class MemStorage implements IStorage {
     const entry: BeatTheAILeaderboard = {
       ...insertEntry,
       id,
+      totalScore: insertEntry.totalScore ?? null,
+      accuracy: insertEntry.accuracy ?? null,
+      totalPredictions: insertEntry.totalPredictions ?? null,
+      winnings: insertEntry.winnings ?? null,
+      rank: insertEntry.rank ?? null,
       lastActive: new Date()
     };
     this.beatTheAILeaderboard.set(id, entry);
@@ -887,7 +963,7 @@ export class MemStorage implements IStorage {
     }
 
     // Calculate accuracy and update leaderboard
-    for (const [userId, stats] of userStats) {
+    for (const [userId, stats] of Array.from(userStats.entries())) {
       const correctPredictions = predictions.filter(p => 
         p.userId === userId && p.score && parseFloat(p.score.toString()) > 50
       ).length;
@@ -912,6 +988,57 @@ export class MemStorage implements IStorage {
         rank: i + 1
       });
     }
+  }
+
+  // Comic Grading Prediction methods
+  async getComicGradingPrediction(id: string): Promise<ComicGradingPrediction | undefined> {
+    return this.comicGradingPredictions.get(id);
+  }
+
+  async getComicGradingPredictions(filters?: { userId?: string; status?: string }): Promise<ComicGradingPrediction[]> {
+    let predictions = Array.from(this.comicGradingPredictions.values());
+    
+    if (filters?.userId) {
+      predictions = predictions.filter(prediction => prediction.userId === filters.userId);
+    }
+    
+    if (filters?.status) {
+      predictions = predictions.filter(prediction => prediction.status === filters.status);
+    }
+    
+    // Sort by creation date descending (newest first)
+    predictions.sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
+    
+    return predictions;
+  }
+
+  async createComicGradingPrediction(insertPrediction: InsertComicGradingPrediction): Promise<ComicGradingPrediction> {
+    const id = randomUUID();
+    const prediction: ComicGradingPrediction = {
+      ...insertPrediction,
+      id,
+      status: insertPrediction.status ?? "processing",
+      userId: insertPrediction.userId ?? null,
+      imageName: insertPrediction.imageName ?? null,
+      gradingNotes: insertPrediction.gradingNotes ?? null,
+      processingTimeMs: insertPrediction.processingTimeMs ?? null,
+      aiModel: insertPrediction.aiModel ?? null,
+      createdAt: new Date()
+    };
+    this.comicGradingPredictions.set(id, prediction);
+    return prediction;
+  }
+
+  async updateComicGradingPrediction(id: string, updateData: Partial<InsertComicGradingPrediction>): Promise<ComicGradingPrediction | undefined> {
+    const prediction = this.comicGradingPredictions.get(id);
+    if (!prediction) return undefined;
+    
+    const updatedPrediction: ComicGradingPrediction = {
+      ...prediction,
+      ...updateData
+    };
+    this.comicGradingPredictions.set(id, updatedPrediction);
+    return updatedPrediction;
   }
 }
 

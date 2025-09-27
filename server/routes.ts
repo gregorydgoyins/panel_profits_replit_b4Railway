@@ -13,7 +13,8 @@ import {
   insertWatchlistSchema,
   insertWatchlistAssetSchema,
   insertOrderSchema,
-  insertMarketEventSchema
+  insertMarketEventSchema,
+  insertComicGradingPredictionSchema
 } from "@shared/schema";
 import { z } from "zod";
 
@@ -793,6 +794,190 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: false,
         error: 'Failed to check feature access'
       });
+    }
+  });
+
+  // Comic Grading Analysis Route (OpenAI Vision API)
+  app.post("/api/grading/analyze", async (req, res) => {
+    try {
+      const { imageData, imageName, userId } = req.body;
+      
+      if (!imageData) {
+        return res.status(400).json({ error: "Image data is required" });
+      }
+
+      // Check if OpenAI API key is configured
+      if (!process.env.OPENAI_API_KEY) {
+        return res.status(500).json({ 
+          error: "OpenAI API key not configured. Please set OPENAI_API_KEY environment variable." 
+        });
+      }
+
+      const startTime = Date.now();
+
+      // Initialize OpenAI
+      const OpenAI = require('openai');
+      const openai = new OpenAI({ 
+        apiKey: process.env.OPENAI_API_KEY 
+      });
+
+      // Create detailed comic grading prompt
+      const gradingPrompt = `You are a professional comic book grader with expertise in CGC (Certified Guaranty Company) standards. Analyze this comic book image and provide a detailed grading assessment.
+
+Please analyze the following aspects and provide your assessment in JSON format:
+
+1. **Overall Grade**: Provide a numerical grade on the 0.5-10.0 CGC scale
+2. **Grade Category**: Classify as one of: "Poor", "Fair", "Good", "Very Good", "Fine", "Very Fine", "Near Mint", "Mint"
+3. **Condition Factors**: Assess each factor on a scale of 1-10:
+   - corners: Corner wear and damage
+   - spine: Spine condition and stress marks
+   - pages: Page quality, yellowing, brittleness
+   - colors: Color vibrancy and fading
+   - cover: Overall cover condition
+   - creases: Presence of creases and folds
+   - tears: Any tears or missing pieces
+   - staples: Staple condition and rust
+
+4. **Confidence Score**: Your confidence in this assessment (0-100%)
+5. **Analysis Details**: Detailed explanation of the grading decision
+6. **Grading Notes**: Specific observations that affect the grade
+
+Respond with valid JSON in this exact format:
+{
+  "predictedGrade": 8.5,
+  "gradeCategory": "Very Fine",
+  "conditionFactors": {
+    "corners": 8,
+    "spine": 7,
+    "pages": 9,
+    "colors": 8,
+    "cover": 8,
+    "creases": 9,
+    "tears": 10,
+    "staples": 8
+  },
+  "confidenceScore": 87.5,
+  "analysisDetails": "Detailed analysis of the comic's condition...",
+  "gradingNotes": "Specific notes about condition factors..."
+}`;
+
+      // Analyze image with OpenAI Vision API
+      const visionResponse = await openai.chat.completions.create({
+        model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "text",
+                text: gradingPrompt
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:image/jpeg;base64,${imageData}`
+                }
+              }
+            ],
+          },
+        ],
+        response_format: { type: "json_object" },
+        max_completion_tokens: 2048,
+      });
+
+      const processingTime = Date.now() - startTime;
+      
+      // Parse the AI response
+      const aiAnalysis = JSON.parse(visionResponse.choices[0].message.content);
+
+      // Create the grading prediction record
+      const predictionData = insertComicGradingPredictionSchema.parse({
+        userId: userId || null,
+        imageUrl: `data:image/jpeg;base64,${imageData.substring(0, 100)}...`, // Store truncated version
+        imageName: imageName || 'uploaded-comic.jpg',
+        predictedGrade: aiAnalysis.predictedGrade.toString(),
+        gradeCategory: aiAnalysis.gradeCategory,
+        conditionFactors: aiAnalysis.conditionFactors,
+        confidenceScore: aiAnalysis.confidenceScore.toString(),
+        analysisDetails: aiAnalysis.analysisDetails,
+        gradingNotes: aiAnalysis.gradingNotes,
+        processingTimeMs: processingTime,
+        aiModel: "gpt-5",
+        status: "completed"
+      });
+
+      // Save to storage
+      const prediction = await storage.createComicGradingPrediction(predictionData);
+
+      res.status(201).json({
+        success: true,
+        prediction: {
+          id: prediction.id,
+          predictedGrade: parseFloat(prediction.predictedGrade),
+          gradeCategory: prediction.gradeCategory,
+          conditionFactors: prediction.conditionFactors,
+          confidenceScore: parseFloat(prediction.confidenceScore),
+          analysisDetails: prediction.analysisDetails,
+          gradingNotes: prediction.gradingNotes,
+          processingTimeMs: prediction.processingTimeMs,
+          createdAt: prediction.createdAt
+        }
+      });
+
+    } catch (error: unknown) {
+      console.error('Comic grading analysis error:', error);
+      
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          error: "Invalid grading data", 
+          details: error.errors 
+        });
+      }
+
+      // Handle OpenAI API errors
+      if (error && typeof error === 'object' && 'response' in error) {
+        const apiError = error as { response?: { status?: number } };
+        if (apiError.response?.status === 401) {
+          return res.status(500).json({ 
+            error: "OpenAI API authentication failed. Please check your API key." 
+          });
+        }
+
+        if (apiError.response?.status === 429) {
+          return res.status(429).json({ 
+            error: "OpenAI API rate limit exceeded. Please try again later." 
+          });
+        }
+      }
+
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      res.status(500).json({ 
+        error: "Failed to analyze comic image",
+        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+      });
+    }
+  });
+
+  // Get comic grading history
+  app.get("/api/grading/history", async (req, res) => {
+    try {
+      const userId = req.query.userId as string;
+      const predictions = await storage.getComicGradingPredictions({ userId });
+      
+      res.json({
+        success: true,
+        predictions: predictions.map(p => ({
+          id: p.id,
+          predictedGrade: parseFloat(p.predictedGrade),
+          gradeCategory: p.gradeCategory,
+          confidenceScore: parseFloat(p.confidenceScore),
+          imageName: p.imageName,
+          createdAt: p.createdAt
+        }))
+      });
+    } catch (error) {
+      console.error('Error fetching grading history:', error);
+      res.status(500).json({ error: "Failed to fetch grading history" });
     }
   });
 

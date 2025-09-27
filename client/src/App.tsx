@@ -8,6 +8,7 @@ import { LiveMarketFeed } from '@/components/LiveMarketFeed';
 import { KeyComicSearchSection } from '@/components/KeyComicSearchSection';
 import AIStudio from '@/pages/AIStudio';
 import BeatTheAI from '@/pages/BeatTheAI';
+import ComicGrading from '@/pages/ComicGrading';
 import { ChartingStudio } from '@/components/ChartingStudio';
 import { MarketOverviewStats } from '@/components/MarketOverviewStats';
 import NotFound from '@/pages/not-found';
@@ -81,6 +82,7 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/ai-studio" component={AIStudio} />
       <Route path="/beat-ai" component={BeatTheAI} />
+      <Route path="/grading" component={ComicGrading} />
       <Route path="/charting" component={ChartingStudio} />
       
       {/* Trading routes */}

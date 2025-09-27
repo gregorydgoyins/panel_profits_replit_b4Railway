@@ -3,7 +3,7 @@ import { useLocation, Link } from 'wouter';
 import { 
   Home, DollarSign, Newspaper, Briefcase, Brain, LineChart, Layers, 
   Users, Building, Zap, BookOpen, Calendar, Settings, HelpCircle,
-  ChevronLeft, ChevronRight, Trophy
+  ChevronLeft, ChevronRight, Trophy, Camera
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -27,6 +27,7 @@ export function NavigationSidebar() {
     if (location === '/') return 'dashboard';
     if (location === '/ai-studio') return 'ai-studio';
     if (location === '/beat-ai') return 'beat-ai';
+    if (location === '/grading') return 'ai-grading';
     if (location === '/charting') return 'charting';
     if (location === '/trading') return 'order-desk';
     if (location === '/characters') return 'characters';
@@ -49,6 +50,7 @@ export function NavigationSidebar() {
     { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/', category: 'main' },
     { id: 'ai-studio', label: 'AI Studio', icon: Brain, path: '/ai-studio', category: 'main', badge: 'PRO' },
     { id: 'beat-ai', label: 'Beat the AI', icon: Trophy, path: '/beat-ai', category: 'main', badge: 'HOT' },
+    { id: 'ai-grading', label: 'AI Grading', icon: Camera, path: '/grading', category: 'main', badge: 'NEW' },
     { id: 'charting', label: 'Charting Studio', icon: LineChart, path: '/charting', category: 'main' },
     
     // Trading
@@ -79,6 +81,7 @@ export function NavigationSidebar() {
     const colors = {
       dashboard: 'text-indigo-400 bg-indigo-900/30 hover:bg-indigo-600',
       'ai-studio': 'text-cyan-400 bg-cyan-900/30 hover:bg-cyan-600',
+      'ai-grading': 'text-violet-400 bg-violet-900/30 hover:bg-violet-600',
       charting: 'text-pink-400 bg-pink-900/30 hover:bg-pink-600',
       'order-desk': 'text-green-400 bg-green-900/30 hover:bg-green-600',
       characters: 'text-purple-400 bg-purple-900/30 hover:bg-purple-600',
