@@ -3,7 +3,7 @@ import { useLocation, Link } from 'wouter';
 import { 
   Home, DollarSign, Newspaper, Briefcase, Brain, LineChart, Layers, 
   Users, Building, Zap, BookOpen, Calendar, Settings, HelpCircle,
-  ChevronLeft, ChevronRight, Trophy, Camera
+  ChevronLeft, ChevronRight, Trophy, Camera, Heart
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -28,6 +28,7 @@ export function NavigationSidebar() {
     if (location === '/ai-studio') return 'ai-studio';
     if (location === '/beat-ai') return 'beat-ai';
     if (location === '/grading') return 'ai-grading';
+    if (location === '/recommendations') return 'recommendations';
     if (location === '/charting') return 'charting';
     if (location === '/trading') return 'order-desk';
     if (location === '/characters') return 'characters';
@@ -51,6 +52,7 @@ export function NavigationSidebar() {
     { id: 'ai-studio', label: 'AI Studio', icon: Brain, path: '/ai-studio', category: 'main', badge: 'PRO' },
     { id: 'beat-ai', label: 'Beat the AI', icon: Trophy, path: '/beat-ai', category: 'main', badge: 'HOT' },
     { id: 'ai-grading', label: 'AI Grading', icon: Camera, path: '/grading', category: 'main', badge: 'NEW' },
+    { id: 'recommendations', label: 'Comics You Might Like', icon: Heart, path: '/recommendations', category: 'main', badge: 'AI' },
     { id: 'charting', label: 'Charting Studio', icon: LineChart, path: '/charting', category: 'main' },
     
     // Trading

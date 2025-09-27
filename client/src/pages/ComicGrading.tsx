@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Upload, Camera, CheckCircle, AlertCircle, Star, TrendingUp } from 'lucide-react';
+import { Upload, Camera, CheckCircle, AlertCircle, Star, TrendingUp, Search, Eye } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -38,11 +38,33 @@ interface GradingResponse {
   error?: string;
 }
 
+interface SimilarComic {
+  id: string;
+  predictedGrade: number;
+  gradeCategory: string;
+  conditionFactors: ConditionFactor;
+  confidenceScore: number;
+  analysisDetails: string;
+  imageName?: string;
+  similarityScore: number;
+  createdAt: Date;
+}
+
+interface SimilarComicsResponse {
+  success: boolean;
+  gradingId: string;
+  similarComics: SimilarComic[];
+  count: number;
+  error?: string;
+}
+
 export default function ComicGrading() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [gradingResult, setGradingResult] = useState<GradingResult | null>(null);
+  const [similarComics, setSimilarComics] = useState<SimilarComic[]>([]);
+  const [showSimilarComics, setShowSimilarComics] = useState(false);
   const { toast } = useToast();
 
   // Convert file to base64
@@ -79,6 +101,8 @@ export default function ComicGrading() {
     onSuccess: (data) => {
       if (data.success) {
         setGradingResult(data.prediction);
+        setSimilarComics([]); // Reset similar comics when new grading is done
+        setShowSimilarComics(false);
         toast({
           title: "Analysis Complete!",
           description: `Your comic received a grade of ${data.prediction.predictedGrade} (${data.prediction.gradeCategory})`,
@@ -90,6 +114,48 @@ export default function ComicGrading() {
       toast({
         title: "Analysis Failed",
         description: error.response?.data?.error || "Failed to analyze comic image. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Generate embedding and find similar comics mutation
+  const similarComicsMutation = useMutation({
+    mutationFn: async (): Promise<SimilarComicsResponse> => {
+      if (!gradingResult || !selectedFile) {
+        throw new Error('No grading result or image available');
+      }
+
+      // First, generate embedding for the current comic
+      const imageData = await fileToBase64(selectedFile);
+      const embeddingResponse = await apiRequest('POST', `/api/vectors/embeddings/comics/${gradingResult.id}`, {
+        imageData
+      });
+
+      if (!embeddingResponse.ok) {
+        throw new Error('Failed to generate image embedding');
+      }
+
+      // Then find similar comics
+      const similarResponse = await apiRequest('GET', `/api/vectors/comics/${gradingResult.id}/similar?limit=6&threshold=0.6`);
+      
+      return similarResponse.json();
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        setSimilarComics(data.similarComics);
+        setShowSimilarComics(true);
+        toast({
+          title: "Similar Comics Found!",
+          description: `Found ${data.count} visually similar comics for comparison`,
+        });
+      }
+    },
+    onError: (error: any) => {
+      console.error('Similar comics search failed:', error);
+      toast({
+        title: "Search Failed",
+        description: error.response?.data?.error || "Failed to find similar comics. Please try again.",
         variant: "destructive",
       });
     },
@@ -166,6 +232,8 @@ export default function ComicGrading() {
     setSelectedFile(null);
     setPreviewUrl(null);
     setGradingResult(null);
+    setSimilarComics([]);
+    setShowSimilarComics(false);
     setIsDragging(false);
   };
 
@@ -390,6 +458,34 @@ export default function ComicGrading() {
                   <span>Processed in {(gradingResult.processingTimeMs / 1000).toFixed(1)}s</span>
                   <span>Analyzed with GPT-5 Vision</span>
                 </div>
+
+                {/* Find Similar Comics Button */}
+                <div className="pt-4 border-t">
+                  <Button
+                    onClick={() => similarComicsMutation.mutate()}
+                    disabled={similarComicsMutation.isPending}
+                    className="w-full"
+                    variant="outline"
+                    data-testid="button-find-similar"
+                  >
+                    {similarComicsMutation.isPending ? (
+                      <>
+                        <Search className="w-4 h-4 mr-2 animate-spin" />
+                        Finding Similar Comics...
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="w-4 h-4 mr-2" />
+                        Find Similar Comics
+                      </>
+                    )}
+                  </Button>
+                  {similarComicsMutation.isPending && (
+                    <div className="mt-2 text-center text-sm text-muted-foreground">
+                      Analyzing visual patterns and generating embeddings...
+                    </div>
+                  )}
+                </div>
               </div>
             ) : (
               <div className="text-center py-12 text-muted-foreground" data-testid="no-results-placeholder">
@@ -399,6 +495,115 @@ export default function ComicGrading() {
             )}
           </CardContent>
         </Card>
+
+        {/* Similar Comics Results */}
+        {showSimilarComics && similarComics.length > 0 && (
+          <Card data-testid="card-similar-comics">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Eye className="w-5 h-5" />
+                Visually Similar Comics
+              </CardTitle>
+              <CardDescription>
+                Comics with similar visual patterns and condition factors
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" data-testid="similar-comics-grid">
+                {similarComics.map((comic) => (
+                  <div
+                    key={comic.id}
+                    className="border rounded-lg p-4 bg-slate-800/30 hover-elevate"
+                    data-testid={`similar-comic-${comic.id}`}
+                  >
+                    {/* Similarity Score Badge */}
+                    <div className="flex justify-between items-start mb-3">
+                      <Badge variant="secondary" data-testid={`similarity-score-${comic.id}`}>
+                        {(comic.similarityScore * 100).toFixed(1)}% Match
+                      </Badge>
+                      <Badge
+                        variant={comic.predictedGrade >= 8.0 ? "default" : "outline"}
+                        data-testid={`similar-grade-${comic.id}`}
+                      >
+                        Grade {comic.predictedGrade.toFixed(1)}
+                      </Badge>
+                    </div>
+
+                    {/* Grade Category */}
+                    <div className="text-sm font-medium mb-2" data-testid={`similar-category-${comic.id}`}>
+                      {comic.gradeCategory}
+                    </div>
+
+                    {/* Condition Factors Mini Display */}
+                    <div className="grid grid-cols-2 gap-2 text-xs mb-3">
+                      <div className="flex justify-between">
+                        <span>Corners:</span>
+                        <span className="font-medium">{comic.conditionFactors.corners}/10</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Cover:</span>
+                        <span className="font-medium">{comic.conditionFactors.cover}/10</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Pages:</span>
+                        <span className="font-medium">{comic.conditionFactors.pages}/10</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Colors:</span>
+                        <span className="font-medium">{comic.conditionFactors.colors}/10</span>
+                      </div>
+                    </div>
+
+                    {/* Analysis Preview */}
+                    <div className="text-xs text-muted-foreground line-clamp-3" data-testid={`similar-analysis-${comic.id}`}>
+                      {comic.analysisDetails}
+                    </div>
+
+                    {/* Confidence & Date */}
+                    <div className="flex justify-between items-center mt-3 pt-3 border-t text-xs text-muted-foreground">
+                      <span>{comic.confidenceScore.toFixed(1)}% confidence</span>
+                      <span>{new Date(comic.createdAt).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Summary Stats */}
+              <div className="mt-6 pt-4 border-t">
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <div className="text-lg font-semibold" data-testid="text-similar-count">
+                      {similarComics.length}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Similar Comics</div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-semibold" data-testid="text-avg-similarity">
+                      {(similarComics.reduce((acc, comic) => acc + comic.similarityScore, 0) / similarComics.length * 100).toFixed(1)}%
+                    </div>
+                    <div className="text-sm text-muted-foreground">Avg Similarity</div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-semibold" data-testid="text-avg-grade">
+                      {(similarComics.reduce((acc, comic) => acc + comic.predictedGrade, 0) / similarComics.length).toFixed(1)}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Avg Grade</div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Error handling for similar comics */}
+        {similarComicsMutation.isError && (
+          <Alert variant="destructive" data-testid="alert-similar-error">
+            <AlertCircle className="w-4 h-4" />
+            <AlertDescription>
+              {similarComicsMutation.error?.message || "Failed to find similar comics. Please try again."}
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
     </div>
   );

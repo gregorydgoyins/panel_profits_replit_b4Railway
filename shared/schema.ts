@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, decimal, integer, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, decimal, integer, timestamp, boolean, jsonb, vector } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -32,6 +32,8 @@ export const assets = pgTable("assets", {
   description: text("description"),
   imageUrl: text("image_url"),
   metadata: jsonb("metadata"), // Additional asset-specific data
+  // Vector embeddings for semantic search and recommendations
+  metadataEmbedding: vector("metadata_embedding", { dimensions: 1536 }), // OpenAI ada-002 embedding dimensions
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -51,6 +53,8 @@ export const marketData = pgTable("market_data", {
   percentChange: decimal("percent_change", { precision: 5, scale: 2 }),
   marketCap: decimal("market_cap", { precision: 15, scale: 2 }),
   technicalIndicators: jsonb("technical_indicators"), // RSI, MACD, SMA, EMA, etc.
+  // Vector embeddings for price pattern recognition and similarity matching
+  pricePatternEmbedding: vector("price_pattern_embedding", { dimensions: 1536 }), // Price movement pattern vectors
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -98,6 +102,8 @@ export const marketInsights = pgTable("market_insights", {
   category: text("category"), // 'bullish', 'bearish', 'neutral', 'alert'
   isActive: boolean("is_active").default(true),
   expiresAt: timestamp("expires_at"),
+  // Vector embeddings for semantic search through market insights and analysis
+  contentEmbedding: vector("content_embedding", { dimensions: 1536 }), // Content semantic vectors for search
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -440,6 +446,8 @@ export const comicGradingPredictions = pgTable("comic_grading_predictions", {
   aiModel: text("ai_model").default("gpt-5"), // OpenAI model used
   // Status and timestamps
   status: text("status").notNull().default("completed"), // 'processing', 'completed', 'failed'
+  // Vector embeddings for visual similarity search and pattern matching
+  imageEmbedding: vector("image_embedding", { dimensions: 1536 }), // Image visual features for similarity matching
   createdAt: timestamp("created_at").defaultNow(),
 });
 

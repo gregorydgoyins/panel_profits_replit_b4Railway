@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import comicDataRoutes from "./routes/comicData.js";
+import vectorRoutes from "./routes/vectorRoutes.js";
 import { 
   insertAssetSchema, 
   insertMarketDataSchema,
@@ -597,6 +598,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // AI Market Intelligence Routes
   const aiRoutes = (await import('./routes/aiRoutes.js')).default;
   app.use("/api/ai", aiRoutes);
+
+  // Vector-Powered AI Routes (pgvector enhanced features)
+  app.use("/api/vectors", vectorRoutes);
 
   // PPIx Index Routes (Comic Book Market Indices) - SCHOLARLY INVESTMENT FRAMEWORK
   app.get("/api/ppix/indices", async (req, res) => {

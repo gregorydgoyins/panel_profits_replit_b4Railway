@@ -4,8 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { TrendingUpIcon, TrendingDownIcon, BrainIcon, TrophyIcon, AlertTriangleIcon, InfoIcon, DollarSignIcon, CalendarIcon, UsersIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { TrendingUpIcon, TrendingDownIcon, BrainIcon, TrophyIcon, AlertTriangleIcon, InfoIcon, DollarSignIcon, CalendarIcon, UsersIcon, SearchIcon, Sparkles } from "lucide-react";
 import { useState } from "react";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface PricePrediction {
   assetId: string;
@@ -42,8 +45,25 @@ interface BeatTheAIChallenge {
   status: 'ACTIVE' | 'UPCOMING' | 'COMPLETED';
 }
 
+interface SemanticInsight extends MarketInsight {
+  id: string;
+  similarityScore?: number;
+  createdAt: string;
+}
+
+interface SemanticSearchResponse {
+  success: boolean;
+  query: string;
+  insights: SemanticInsight[];
+  count: number;
+}
+
 export default function AIStudio() {
   const [selectedPrediction, setSelectedPrediction] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchResults, setSearchResults] = useState<SemanticInsight[]>([]);
+  const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
+  const { toast } = useToast();
 
   // Fetch AI predictions
   const { data: predictions = [], isLoading: predictionsLoading } = useQuery<PricePrediction[]>({
@@ -76,6 +96,50 @@ export default function AIStudio() {
       return response.json();
     }
   });
+
+  // Semantic search mutation for market insights
+  const semanticSearchMutation = useMutation({
+    mutationFn: async (query: string): Promise<SemanticSearchResponse> => {
+      if (!query.trim()) {
+        throw new Error('Search query cannot be empty');
+      }
+
+      const response = await apiRequest('GET', `/api/vectors/insights/search?q=${encodeURIComponent(query)}&limit=10&threshold=0.6`);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        setSearchResults(data.insights);
+        setShowSearchResults(true);
+        toast({
+          title: "Search Complete!",
+          description: `Found ${data.count} relevant market insights`,
+        });
+      }
+    },
+    onError: (error: any) => {
+      console.error('Semantic search failed:', error);
+      toast({
+        title: "Search Failed",
+        description: error.response?.data?.error || "Failed to search market insights. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Handle semantic search
+  const handleSemanticSearch = () => {
+    if (searchQuery.trim()) {
+      semanticSearchMutation.mutate(searchQuery);
+    }
+  };
+
+  // Handle search input key press
+  const handleSearchKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSemanticSearch();
+    }
+  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -266,53 +330,195 @@ export default function AIStudio() {
 
         {/* Market Insights Tab */}
         <TabsContent value="insights" className="space-y-4">
-          <div className="grid gap-4">
-            {insights?.map((insight: MarketInsight, index: number) => {
-              const IconComponent = getInsightIcon(insight.type);
-              
-              return (
-                <Card key={index} data-testid={`insight-${index}`}>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <IconComponent className="w-5 h-5" />
-                      {insight.title}
-                      <Badge 
-                        variant={insight.impact === 'POSITIVE' ? 'default' : insight.impact === 'NEGATIVE' ? 'destructive' : 'secondary'}
-                        className="text-xs"
-                      >
-                        {insight.type}
-                      </Badge>
-                    </CardTitle>
-                    <CardDescription>{insight.timeframe}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-3">{insight.description}</p>
+          {/* Semantic Search Interface */}
+          <Card data-testid="card-semantic-search">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5" />
+                AI-Powered Market Research
+              </CardTitle>
+              <CardDescription>
+                Search through market insights using natural language and discover patterns
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Search market insights... (e.g., 'Marvel comics performance trends', 'DC investment opportunities')"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyPress={handleSearchKeyPress}
+                  className="flex-1"
+                  data-testid="input-semantic-search"
+                />
+                <Button
+                  onClick={handleSemanticSearch}
+                  disabled={semanticSearchMutation.isPending || !searchQuery.trim()}
+                  data-testid="button-semantic-search"
+                >
+                  {semanticSearchMutation.isPending ? (
+                    <>
+                      <SearchIcon className="w-4 h-4 mr-2 animate-spin" />
+                      Searching...
+                    </>
+                  ) : (
+                    <>
+                      <SearchIcon className="w-4 h-4 mr-2" />
+                      Search
+                    </>
+                  )}
+                </Button>
+              </div>
+              {semanticSearchMutation.isPending && (
+                <div className="mt-2 text-center text-sm text-muted-foreground">
+                  AI is analyzing patterns and semantic content...
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Search Results */}
+          {showSearchResults && searchResults.length > 0 && (
+            <Card data-testid="card-search-results">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <SearchIcon className="w-5 h-5" />
+                  Search Results
+                  <Badge variant="secondary">{searchResults.length} found</Badge>
+                </CardTitle>
+                <CardDescription>
+                  Market insights matching: "{searchQuery}"
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4">
+                  {searchResults.map((insight: SemanticInsight, index: number) => {
+                    const IconComponent = getInsightIcon(insight.type);
                     
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs text-muted-foreground">Confidence</span>
-                        <span className="text-xs font-medium">{Math.round(insight.confidence * 100)}%</span>
-                      </div>
-                      <Progress value={insight.confidence * 100} className="h-2" />
-                    </div>
-                    
-                    {insight.affectedAssets.length > 0 && (
-                      <div className="mt-3">
-                        <div className="text-xs text-muted-foreground mb-1">Affected Assets</div>
-                        <div className="flex flex-wrap gap-1">
-                          {insight.affectedAssets.map((asset, idx) => (
-                            <Badge key={idx} variant="outline" className="text-xs">
-                              {asset}
+                    return (
+                      <Card key={insight.id} className="bg-slate-800/30" data-testid={`search-result-${index}`}>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <IconComponent className="w-5 h-5" />
+                            {insight.title}
+                            <Badge 
+                              variant={insight.impact === 'POSITIVE' ? 'default' : insight.impact === 'NEGATIVE' ? 'destructive' : 'secondary'}
+                              className="text-xs"
+                            >
+                              {insight.type}
                             </Badge>
-                          ))}
+                            {insight.similarityScore && (
+                              <Badge variant="outline" className="text-xs" data-testid={`similarity-${index}`}>
+                                {(insight.similarityScore * 100).toFixed(1)}% match
+                              </Badge>
+                            )}
+                          </CardTitle>
+                          <CardDescription>{insight.timeframe}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-sm mb-3">{insight.description}</p>
+                          
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs text-muted-foreground">Confidence</span>
+                              <span className="text-xs font-medium">{Math.round(insight.confidence * 100)}%</span>
+                            </div>
+                            <Progress value={insight.confidence * 100} className="h-2" />
+                          </div>
+                          
+                          {insight.affectedAssets.length > 0 && (
+                            <div className="mt-3">
+                              <div className="text-xs text-muted-foreground mb-1">Affected Assets</div>
+                              <div className="flex flex-wrap gap-1">
+                                {insight.affectedAssets.map((asset, idx) => (
+                                  <Badge key={idx} variant="outline" className="text-xs">
+                                    {asset}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+                
+                {/* Clear Results Button */}
+                <div className="mt-4 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowSearchResults(false);
+                      setSearchResults([]);
+                      setSearchQuery('');
+                    }}
+                    className="w-full"
+                    data-testid="button-clear-search"
+                  >
+                    Clear Search Results
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Regular Market Insights */}
+          <Card data-testid="card-regular-insights">
+            <CardHeader>
+              <CardTitle>Latest Market Insights</CardTitle>
+              <CardDescription>Real-time analysis from our AI market intelligence</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4">
+                {insights?.map((insight: MarketInsight, index: number) => {
+                  const IconComponent = getInsightIcon(insight.type);
+                  
+                  return (
+                    <Card key={index} data-testid={`insight-${index}`}>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <IconComponent className="w-5 h-5" />
+                          {insight.title}
+                          <Badge 
+                            variant={insight.impact === 'POSITIVE' ? 'default' : insight.impact === 'NEGATIVE' ? 'destructive' : 'secondary'}
+                            className="text-xs"
+                          >
+                            {insight.type}
+                          </Badge>
+                        </CardTitle>
+                        <CardDescription>{insight.timeframe}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm mb-3">{insight.description}</p>
+                        
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs text-muted-foreground">Confidence</span>
+                            <span className="text-xs font-medium">{Math.round(insight.confidence * 100)}%</span>
+                          </div>
+                          <Progress value={insight.confidence * 100} className="h-2" />
                         </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+                        
+                        {insight.affectedAssets.length > 0 && (
+                          <div className="mt-3">
+                            <div className="text-xs text-muted-foreground mb-1">Affected Assets</div>
+                            <div className="flex flex-wrap gap-1">
+                              {insight.affectedAssets.map((asset, idx) => (
+                                <Badge key={idx} variant="outline" className="text-xs">
+                                  {asset}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Beat the AI Tab */}

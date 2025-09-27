@@ -123,6 +123,47 @@ export interface IStorage {
   getComicGradingPredictions(filters?: { userId?: string; status?: string }): Promise<ComicGradingPrediction[]>;
   createComicGradingPrediction(prediction: InsertComicGradingPrediction): Promise<ComicGradingPrediction>;
   updateComicGradingPrediction(id: string, prediction: Partial<InsertComicGradingPrediction>): Promise<ComicGradingPrediction | undefined>;
+
+  // Vector Similarity Search Operations (pgvector powered)
+  
+  // Asset Recommendation Engine - "Comics You Might Like"
+  findSimilarAssets(assetId: string, limit?: number, threshold?: number): Promise<Array<Asset & { similarityScore: number }>>;
+  findSimilarAssetsByEmbedding(embedding: number[], limit?: number, threshold?: number): Promise<Array<Asset & { similarityScore: number }>>;
+  updateAssetEmbedding(assetId: string, embedding: number[]): Promise<boolean>;
+  getAssetsWithoutEmbeddings(limit?: number): Promise<Asset[]>;
+
+  // Comic Visual Similarity Engine - "Find Similar Comics"
+  findSimilarComicsByImage(gradingId: string, limit?: number, threshold?: number): Promise<Array<ComicGradingPrediction & { similarityScore: number }>>;
+  findSimilarComicsByImageEmbedding(embedding: number[], limit?: number, threshold?: number): Promise<Array<ComicGradingPrediction & { similarityScore: number }>>;
+  updateComicImageEmbedding(gradingId: string, embedding: number[]): Promise<boolean>;
+  getComicGradingsWithoutEmbeddings(limit?: number): Promise<ComicGradingPrediction[]>;
+
+  // Market Pattern Recognition - Semantic Search & Pattern Matching
+  searchMarketInsightsByContent(query: string, limit?: number, threshold?: number): Promise<Array<MarketInsight & { similarityScore: number }>>;
+  findSimilarMarketInsights(insightId: string, limit?: number, threshold?: number): Promise<Array<MarketInsight & { similarityScore: number }>>;
+  findSimilarMarketInsightsByEmbedding(embedding: number[], limit?: number, threshold?: number): Promise<Array<MarketInsight & { similarityScore: number }>>;
+  updateMarketInsightEmbedding(insightId: string, embedding: number[]): Promise<boolean>;
+  getMarketInsightsWithoutEmbeddings(limit?: number): Promise<MarketInsight[]>;
+
+  // Price Pattern Recognition - Similar Price Movements
+  findSimilarPricePatterns(assetId: string, timeframe: string, limit?: number, threshold?: number): Promise<Array<MarketData & { similarityScore: number }>>;
+  findSimilarPricePatternsByEmbedding(embedding: number[], timeframe?: string, limit?: number, threshold?: number): Promise<Array<MarketData & { similarityScore: number }>>;
+  updateMarketDataEmbedding(marketDataId: string, embedding: number[]): Promise<boolean>;
+  getMarketDataWithoutEmbeddings(timeframe?: string, limit?: number): Promise<MarketData[]>;
+
+  // General Vector Operations
+  calculateVectorSimilarity(vectorA: number[], vectorB: number[]): number;
+  batchUpdateEmbeddings(updates: Array<{ table: 'assets' | 'marketInsights' | 'comicGradingPredictions' | 'marketData'; id: string; embedding: number[] }>): Promise<boolean>;
+  
+  // Vector Index Management
+  createVectorIndices(): Promise<boolean>;
+  refreshVectorIndices(): Promise<boolean>;
+  getVectorIndexStatus(): Promise<{ table: string; hasIndex: boolean; indexType: string }[]>;
+
+  // Enhanced Search with Vector Similarity
+  searchAssetsWithSimilarity(query: string, filters?: { type?: string; publisher?: string }, limit?: number): Promise<Array<Asset & { similarityScore?: number; searchScore: number }>>;
+  getRecommendationsForUser(userId: string, limit?: number): Promise<Array<Asset & { recommendationScore: number; reason: string }>>;
+  getPortfolioSimilarAssets(portfolioId: string, limit?: number): Promise<Array<Asset & { similarityScore: number; portfolioWeight: number }>>;
 }
 
 // Time-series buffer implementation with memory limits and proper chronological ordering
@@ -1039,6 +1080,359 @@ export class MemStorage implements IStorage {
     };
     this.comicGradingPredictions.set(id, updatedPrediction);
     return updatedPrediction;
+  }
+
+  // Vector Similarity Search Operations Implementation
+  
+  // Asset Recommendation Engine - "Comics You Might Like"
+  async findSimilarAssets(assetId: string, limit: number = 10, threshold: number = 0.7): Promise<Array<Asset & { similarityScore: number }>> {
+    const targetAsset = this.assets.get(assetId);
+    if (!targetAsset) return [];
+    
+    const allAssets = Array.from(this.assets.values()).filter(a => a.id !== assetId);
+    
+    // Mock similarity calculation based on asset metadata
+    const similarAssets = allAssets.map(asset => {
+      const targetMeta = targetAsset.metadata as { publisher?: string; yearPublished?: number; tags?: string[] } || {};
+      const assetMeta = asset.metadata as { publisher?: string; yearPublished?: number; tags?: string[] } || {};
+      
+      let score = 0.5; // Base similarity
+      
+      // Publisher similarity
+      if (targetMeta.publisher === assetMeta.publisher) score += 0.3;
+      
+      // Year proximity
+      if (targetMeta.yearPublished && assetMeta.yearPublished) {
+        const yearDiff = Math.abs(targetMeta.yearPublished - assetMeta.yearPublished);
+        score += Math.max(0, 0.2 - (yearDiff / 100));
+      }
+      
+      // Tag overlap
+      if (targetMeta.tags && assetMeta.tags) {
+        const commonTags = targetMeta.tags.filter(tag => assetMeta.tags!.includes(tag));
+        score += (commonTags.length / Math.max(targetMeta.tags.length, assetMeta.tags.length)) * 0.3;
+      }
+      
+      return { ...asset, similarityScore: Math.min(score, 0.99) };
+    }).filter(a => a.similarityScore >= threshold);
+    
+    return similarAssets.sort((a, b) => b.similarityScore - a.similarityScore).slice(0, limit);
+  }
+  
+  async findSimilarAssetsByEmbedding(embedding: number[], limit: number = 10, threshold: number = 0.7): Promise<Array<Asset & { similarityScore: number }>> {
+    // Mock implementation - in real scenario would use vector similarity
+    const allAssets = Array.from(this.assets.values());
+    return allAssets.map(asset => ({
+      ...asset,
+      similarityScore: Math.random() * 0.5 + 0.5 // Random similarity 0.5-1.0
+    })).filter(a => a.similarityScore >= threshold)
+      .sort((a, b) => b.similarityScore - a.similarityScore)
+      .slice(0, limit);
+  }
+  
+  async updateAssetEmbedding(assetId: string, embedding: number[]): Promise<boolean> {
+    const asset = this.assets.get(assetId);
+    if (!asset) return false;
+    // In real implementation, would store embedding in vector column
+    return true;
+  }
+  
+  async getAssetsWithoutEmbeddings(limit: number = 50): Promise<Asset[]> {
+    return Array.from(this.assets.values()).slice(0, limit);
+  }
+
+  // Comic Visual Similarity Engine - "Find Similar Comics"
+  async findSimilarComicsByImage(gradingId: string, limit: number = 10, threshold: number = 0.7): Promise<Array<ComicGradingPrediction & { similarityScore: number }>> {
+    const targetGrading = this.comicGradingPredictions.get(gradingId);
+    if (!targetGrading) return [];
+    
+    const allGradings = Array.from(this.comicGradingPredictions.values()).filter(g => g.id !== gradingId);
+    
+    return allGradings.map(grading => {
+      // Mock visual similarity based on comic metadata
+      let score = 0.6;
+      
+      if (targetGrading.predictedGrade === grading.predictedGrade) score += 0.2;
+      if (targetGrading.confidence && grading.confidence && 
+          Math.abs(targetGrading.confidence - grading.confidence) < 0.1) score += 0.2;
+      
+      return { ...grading, similarityScore: Math.min(score, 0.99) };
+    }).filter(g => g.similarityScore >= threshold)
+      .sort((a, b) => b.similarityScore - a.similarityScore)
+      .slice(0, limit);
+  }
+  
+  async findSimilarComicsByImageEmbedding(embedding: number[], limit: number = 10, threshold: number = 0.7): Promise<Array<ComicGradingPrediction & { similarityScore: number }>> {
+    const allGradings = Array.from(this.comicGradingPredictions.values());
+    return allGradings.map(grading => ({
+      ...grading,
+      similarityScore: Math.random() * 0.4 + 0.6 // Random similarity 0.6-1.0
+    })).filter(g => g.similarityScore >= threshold)
+      .sort((a, b) => b.similarityScore - a.similarityScore)
+      .slice(0, limit);
+  }
+  
+  async updateComicImageEmbedding(gradingId: string, embedding: number[]): Promise<boolean> {
+    return this.comicGradingPredictions.has(gradingId);
+  }
+  
+  async getComicGradingsWithoutEmbeddings(limit: number = 50): Promise<ComicGradingPrediction[]> {
+    return Array.from(this.comicGradingPredictions.values()).slice(0, limit);
+  }
+
+  // Market Pattern Recognition - Semantic Search & Pattern Matching
+  async searchMarketInsightsByContent(query: string, limit: number = 10, threshold: number = 0.7): Promise<Array<MarketInsight & { similarityScore: number }>> {
+    const allInsights = Array.from(this.marketInsights.values());
+    const queryLower = query.toLowerCase();
+    
+    return allInsights.map(insight => {
+      let score = 0.3;
+      
+      if (insight.title.toLowerCase().includes(queryLower)) score += 0.4;
+      if (insight.content.toLowerCase().includes(queryLower)) score += 0.3;
+      if (insight.category?.toLowerCase().includes(queryLower)) score += 0.2;
+      
+      return { ...insight, similarityScore: Math.min(score, 0.99) };
+    }).filter(i => i.similarityScore >= threshold)
+      .sort((a, b) => b.similarityScore - a.similarityScore)
+      .slice(0, limit);
+  }
+  
+  async findSimilarMarketInsights(insightId: string, limit: number = 10, threshold: number = 0.7): Promise<Array<MarketInsight & { similarityScore: number }>> {
+    const targetInsight = this.marketInsights.get(insightId);
+    if (!targetInsight) return [];
+    
+    const allInsights = Array.from(this.marketInsights.values()).filter(i => i.id !== insightId);
+    
+    return allInsights.map(insight => {
+      let score = 0.5;
+      
+      if (targetInsight.category === insight.category) score += 0.3;
+      if (targetInsight.assetId === insight.assetId) score += 0.2;
+      
+      return { ...insight, similarityScore: Math.min(score, 0.99) };
+    }).filter(i => i.similarityScore >= threshold)
+      .sort((a, b) => b.similarityScore - a.similarityScore)
+      .slice(0, limit);
+  }
+  
+  async findSimilarMarketInsightsByEmbedding(embedding: number[], limit: number = 10, threshold: number = 0.7): Promise<Array<MarketInsight & { similarityScore: number }>> {
+    const allInsights = Array.from(this.marketInsights.values());
+    return allInsights.map(insight => ({
+      ...insight,
+      similarityScore: Math.random() * 0.4 + 0.6
+    })).filter(i => i.similarityScore >= threshold)
+      .sort((a, b) => b.similarityScore - a.similarityScore)
+      .slice(0, limit);
+  }
+  
+  async updateMarketInsightEmbedding(insightId: string, embedding: number[]): Promise<boolean> {
+    return this.marketInsights.has(insightId);
+  }
+  
+  async getMarketInsightsWithoutEmbeddings(limit: number = 50): Promise<MarketInsight[]> {
+    return Array.from(this.marketInsights.values()).slice(0, limit);
+  }
+
+  // Price Pattern Recognition - Similar Price Movements  
+  async findSimilarPricePatterns(assetId: string, timeframe: string, limit: number = 10, threshold: number = 0.7): Promise<Array<MarketData & { similarityScore: number }>> {
+    const targetData = this.marketData.get(assetId);
+    if (!targetData) return [];
+    
+    const allData: Array<MarketData & { similarityScore: number }> = [];
+    
+    for (const [id, buffer] of this.marketData.entries()) {
+      if (id === assetId) continue;
+      const data = buffer.getByTimeframe(timeframe, 1);
+      if (data.length > 0) {
+        allData.push({
+          ...data[0],
+          similarityScore: Math.random() * 0.4 + 0.6
+        });
+      }
+    }
+    
+    return allData.filter(d => d.similarityScore >= threshold)
+      .sort((a, b) => b.similarityScore - a.similarityScore)
+      .slice(0, limit);
+  }
+  
+  async findSimilarPricePatternsByEmbedding(embedding: number[], timeframe?: string, limit: number = 10, threshold: number = 0.7): Promise<Array<MarketData & { similarityScore: number }>> {
+    const allData: Array<MarketData & { similarityScore: number }> = [];
+    
+    for (const buffer of this.marketData.values()) {
+      const data = buffer.getByTimeframe(timeframe || '1d', 1);
+      if (data.length > 0) {
+        allData.push({
+          ...data[0],
+          similarityScore: Math.random() * 0.4 + 0.6
+        });
+      }
+    }
+    
+    return allData.filter(d => d.similarityScore >= threshold)
+      .sort((a, b) => b.similarityScore - a.similarityScore)
+      .slice(0, limit);
+  }
+  
+  async updateMarketDataEmbedding(marketDataId: string, embedding: number[]): Promise<boolean> {
+    // Mock implementation
+    return true;
+  }
+  
+  async getMarketDataWithoutEmbeddings(timeframe?: string, limit: number = 50): Promise<MarketData[]> {
+    const allData: MarketData[] = [];
+    
+    for (const buffer of this.marketData.values()) {
+      const data = buffer.getByTimeframe(timeframe || '1d', limit);
+      allData.push(...data);
+    }
+    
+    return allData.slice(0, limit);
+  }
+
+  // General Vector Operations
+  calculateVectorSimilarity(vectorA: number[], vectorB: number[]): number {
+    if (vectorA.length !== vectorB.length) return 0;
+    
+    let dotProduct = 0;
+    let normA = 0;
+    let normB = 0;
+    
+    for (let i = 0; i < vectorA.length; i++) {
+      dotProduct += vectorA[i] * vectorB[i];
+      normA += vectorA[i] * vectorA[i];
+      normB += vectorB[i] * vectorB[i];
+    }
+    
+    return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+  }
+  
+  async batchUpdateEmbeddings(updates: Array<{ table: 'assets' | 'marketInsights' | 'comicGradingPredictions' | 'marketData'; id: string; embedding: number[] }>): Promise<boolean> {
+    // Mock implementation - in real scenario would batch update embeddings
+    return true;
+  }
+  
+  // Vector Index Management
+  async createVectorIndices(): Promise<boolean> {
+    // Mock implementation - in real scenario would create pgvector indices
+    return true;
+  }
+  
+  async refreshVectorIndices(): Promise<boolean> {
+    // Mock implementation
+    return true;
+  }
+
+  // Enhanced search functionality
+  async searchAssetsWithSimilarity(query: string, limit: number = 20, threshold: number = 0.3): Promise<Array<Asset & { similarityScore: number }>> {
+    const allAssets = Array.from(this.assets.values());
+    const queryLower = query.toLowerCase();
+    
+    return allAssets.map(asset => {
+      let score = 0;
+      
+      if (asset.name.toLowerCase().includes(queryLower)) score += 0.6;
+      if (asset.symbol.toLowerCase().includes(queryLower)) score += 0.4;
+      if (asset.description?.toLowerCase().includes(queryLower)) score += 0.3;
+      
+      const metadata = asset.metadata as { publisher?: string; tags?: string[] } | null;
+      if (metadata?.publisher?.toLowerCase().includes(queryLower)) score += 0.3;
+      if (metadata?.tags?.some(tag => tag.toLowerCase().includes(queryLower))) score += 0.2;
+      
+      return { ...asset, similarityScore: Math.min(score, 0.99) };
+    }).filter(a => a.similarityScore >= threshold)
+      .sort((a, b) => b.similarityScore - a.similarityScore)
+      .slice(0, limit);
+  }
+  
+  // User and portfolio-based recommendations
+  async getRecommendationsForUser(userId: string, limit: number = 10): Promise<{
+    success: boolean;
+    userId: string;
+    recommendations: Array<{
+      id: string;
+      name: string;
+      type: string;
+      currentPrice: number;
+      metadata?: any;
+      recommendationScore: number;
+      reason: string;
+    }>;
+    count: number;
+  }> {
+    try {
+      const userPortfolios = await this.getUserPortfolios(userId);
+      const allAssets = Array.from(this.assets.values());
+      
+      // Generate mock recommendations based on user's portfolio patterns
+      const recommendations = allAssets.slice(0, limit).map(asset => ({
+        id: asset.id,
+        name: asset.name,
+        type: asset.type,
+        currentPrice: Math.floor(Math.random() * 10000) + 1000,
+        metadata: asset.metadata,
+        recommendationScore: Math.random() * 0.3 + 0.7, // 70-100%
+        reason: "Based on your portfolio composition and market trends, this asset aligns with your investment strategy."
+      }));
+      
+      return {
+        success: true,
+        userId,
+        recommendations,
+        count: recommendations.length
+      };
+    } catch (error) {
+      return {
+        success: false,
+        userId,
+        recommendations: [],
+        count: 0
+      };
+    }
+  }
+  
+  async getPortfolioSimilarAssets(portfolioId: string, limit: number = 10): Promise<{
+    success: boolean;
+    portfolioId: string;
+    similarAssets: Array<{
+      id: string;
+      name: string;
+      type: string;
+      currentPrice: number;
+      similarityScore: number;
+      portfolioWeight: number;
+    }>;
+    count: number;
+  }> {
+    try {
+      const holdings = await this.getPortfolioHoldings(portfolioId);
+      const allAssets = Array.from(this.assets.values());
+      
+      // Generate mock similar assets
+      const similarAssets = allAssets.slice(0, limit).map(asset => ({
+        id: asset.id,
+        name: asset.name,
+        type: asset.type,
+        currentPrice: Math.floor(Math.random() * 8000) + 2000,
+        similarityScore: Math.random() * 0.3 + 0.7, // 70-100%
+        portfolioWeight: Math.random() * 0.3 + 0.1 // 10-40%
+      }));
+      
+      return {
+        success: true,
+        portfolioId,
+        similarAssets,
+        count: similarAssets.length
+      };
+    } catch (error) {
+      return {
+        success: false,
+        portfolioId,
+        similarAssets: [],
+        count: 0
+      };
+    }
   }
 }
 

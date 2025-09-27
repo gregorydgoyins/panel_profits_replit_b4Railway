@@ -9,6 +9,7 @@ import { LiveDataTerminal } from '@/components/LiveDataTerminal';
 import AIStudio from '@/pages/AIStudio';
 import BeatTheAI from '@/pages/BeatTheAI';
 import ComicGrading from '@/pages/ComicGrading';
+import Recommendations from '@/pages/Recommendations';
 import { ChartingStudio } from '@/components/ChartingStudio';
 import NotFound from '@/pages/not-found';
 
@@ -68,6 +69,7 @@ function Router() {
       <Route path="/ai-studio" component={AIStudio} />
       <Route path="/beat-ai" component={BeatTheAI} />
       <Route path="/grading" component={ComicGrading} />
+      <Route path="/recommendations" component={Recommendations} />
       <Route path="/charting" component={ChartingStudio} />
       
       {/* Trading routes */}
