@@ -35,24 +35,28 @@ export interface IStorage {
   getAssets(filters?: { type?: string; search?: string }): Promise<Asset[]>;
   createAsset(asset: InsertAsset): Promise<Asset>;
   updateAsset(id: string, asset: Partial<InsertAsset>): Promise<Asset | undefined>;
+  deleteAsset(id: string): Promise<boolean>;
 
   // Market data (OHLC time-series)
   getLatestMarketData(assetId: string, timeframe?: string): Promise<MarketData | undefined>;
   getMarketDataHistory(assetId: string, timeframe: string, limit?: number, from?: Date, to?: Date): Promise<MarketData[]>;
   createMarketData(marketData: InsertMarketData): Promise<MarketData>;
   getBulkLatestMarketData(assetIds: string[], timeframe?: string): Promise<MarketData[]>;
+  createBulkMarketData(marketDataList: InsertMarketData[]): Promise<MarketData[]>;
 
   // Portfolio management
   getPortfolio(id: string): Promise<Portfolio | undefined>;
   getUserPortfolios(userId: string): Promise<Portfolio[]>;
   createPortfolio(portfolio: InsertPortfolio): Promise<Portfolio>;
   updatePortfolio(id: string, portfolio: Partial<InsertPortfolio>): Promise<Portfolio | undefined>;
+  deletePortfolio(id: string): Promise<boolean>;
 
   // Holdings
   getPortfolioHoldings(portfolioId: string): Promise<Holding[]>;
   getHolding(portfolioId: string, assetId: string): Promise<Holding | undefined>;
   createHolding(holding: InsertHolding): Promise<Holding>;
   updateHolding(id: string, holding: Partial<InsertHolding>): Promise<Holding | undefined>;
+  deleteHolding(id: string): Promise<boolean>;
 
   // Market insights
   getMarketInsights(filters?: { assetId?: string; category?: string; isActive?: boolean }): Promise<MarketInsight[]>;
@@ -76,12 +80,15 @@ export interface IStorage {
   createWatchlist(watchlist: InsertWatchlist): Promise<Watchlist>;
   addAssetToWatchlist(watchlistAsset: InsertWatchlistAsset): Promise<WatchlistAsset>;
   removeAssetFromWatchlist(watchlistId: string, assetId: string): Promise<boolean>;
+  deleteWatchlist(id: string): Promise<boolean>;
 
   // Orders and trading
   getOrder(id: string): Promise<Order | undefined>;
   getUserOrders(userId: string, status?: string): Promise<Order[]>;
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrder(id: string, order: Partial<InsertOrder>): Promise<Order | undefined>;
+  deleteOrder(id: string): Promise<boolean>;
+  cancelOrder(id: string): Promise<Order | undefined>;
 
   // Market events
   getMarketEvents(filters?: { isActive?: boolean; category?: string }): Promise<MarketEvent[]>;
@@ -279,6 +286,10 @@ export class MemStorage implements IStorage {
     return updatedAsset;
   }
 
+  async deleteAsset(id: string): Promise<boolean> {
+    return this.assets.delete(id);
+  }
+
   // Market data methods (OHLC time-series)
   async getLatestMarketData(assetId: string, timeframe: string = '1d'): Promise<MarketData | undefined> {
     const buffer = this.marketData.get(assetId);
@@ -322,6 +333,15 @@ export class MemStorage implements IStorage {
     return results;
   }
 
+  async createBulkMarketData(marketDataList: InsertMarketData[]): Promise<MarketData[]> {
+    const results: MarketData[] = [];
+    for (const insertData of marketDataList) {
+      const marketData = await this.createMarketData(insertData);
+      results.push(marketData);
+    }
+    return results;
+  }
+
   // Portfolio methods
   async getPortfolio(id: string): Promise<Portfolio | undefined> {
     return this.portfolios.get(id);
@@ -354,6 +374,12 @@ export class MemStorage implements IStorage {
     };
     this.portfolios.set(id, updatedPortfolio);
     return updatedPortfolio;
+  }
+
+  async deletePortfolio(id: string): Promise<boolean> {
+    // Also remove related holdings
+    this.holdings.delete(id);
+    return this.portfolios.delete(id);
   }
 
   // Holdings methods
@@ -395,6 +421,17 @@ export class MemStorage implements IStorage {
       }
     }
     return undefined;
+  }
+
+  async deleteHolding(id: string): Promise<boolean> {
+    for (const [portfolioId, holdings] of this.holdings.entries()) {
+      const index = holdings.findIndex(h => h.id === id);
+      if (index !== -1) {
+        holdings.splice(index, 1);
+        return true;
+      }
+    }
+    return false;
   }
 
   // Market insights methods
@@ -548,6 +585,12 @@ export class MemStorage implements IStorage {
     return false;
   }
 
+  async deleteWatchlist(id: string): Promise<boolean> {
+    // Remove related watchlist assets
+    this.watchlistAssets.delete(id);
+    return this.watchlists.delete(id);
+  }
+
   // Order methods
   async getOrder(id: string): Promise<Order | undefined> {
     return this.orders.get(id);
@@ -586,6 +629,22 @@ export class MemStorage implements IStorage {
     };
     this.orders.set(id, updatedOrder);
     return updatedOrder;
+  }
+
+  async deleteOrder(id: string): Promise<boolean> {
+    return this.orders.delete(id);
+  }
+
+  async cancelOrder(id: string): Promise<Order | undefined> {
+    const order = this.orders.get(id);
+    if (!order) return undefined;
+    
+    // Validate status transition
+    if (order.status !== 'pending') {
+      throw new Error(`Cannot cancel order with status: ${order.status}`);
+    }
+    
+    return this.updateOrder(id, { status: 'cancelled' });
   }
 
   // Market events methods
