@@ -3,7 +3,7 @@ import { useLocation, Link } from 'wouter';
 import { 
   Home, DollarSign, Newspaper, Briefcase, Brain, LineChart, Layers, 
   Users, Building, Zap, BookOpen, Calendar, Settings, HelpCircle,
-  ChevronLeft, ChevronRight
+  ChevronLeft, ChevronRight, Trophy
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -26,6 +26,7 @@ export function NavigationSidebar() {
   const getActiveItem = () => {
     if (location === '/') return 'dashboard';
     if (location === '/ai-studio') return 'ai-studio';
+    if (location === '/beat-ai') return 'beat-ai';
     if (location === '/charting') return 'charting';
     if (location === '/trading') return 'order-desk';
     if (location === '/characters') return 'characters';
@@ -46,7 +47,8 @@ export function NavigationSidebar() {
   const navigationItems: NavigationItem[] = [
     // Main Navigation
     { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/', category: 'main' },
-    { id: 'ai-studio', label: 'AI Studio', icon: Brain, path: '/ai-studio', category: 'main', badge: 'NEW' },
+    { id: 'ai-studio', label: 'AI Studio', icon: Brain, path: '/ai-studio', category: 'main', badge: 'PRO' },
+    { id: 'beat-ai', label: 'Beat the AI', icon: Trophy, path: '/beat-ai', category: 'main', badge: 'HOT' },
     { id: 'charting', label: 'Charting Studio', icon: LineChart, path: '/charting', category: 'main' },
     
     // Trading

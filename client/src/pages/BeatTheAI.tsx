@@ -31,9 +31,29 @@ export default function BeatTheAI() {
   const [selectedChallenge, setSelectedChallenge] = useState<string | null>(null);
   const [userPredictions, setUserPredictions] = useState<Record<string, number>>({});
 
+  interface Challenge {
+    id: string;
+    title: string;
+    description: string;
+    targetAssets: string[];
+    startDate: string;
+    endDate: string;
+    prizePool: number;
+    participantCount: number;
+    aiPrediction: number;
+    status: 'ACTIVE' | 'UPCOMING' | 'COMPLETED';
+  }
+
   // Fetch active challenges
-  const { data: challenges = [], isLoading: challengesLoading } = useQuery({
+  const { data: challenges = [], isLoading: challengesLoading } = useQuery<Challenge[]>({
     queryKey: ['/api/ai/challenges']
+  });
+
+  // Debug logging
+  console.log('🔍 Beat the AI Debug:', {
+    challengesLoading,
+    challengesLength: challenges.length,
+    challenges: challenges
   });
 
   // Mock leaderboard data
@@ -144,7 +164,8 @@ export default function BeatTheAI() {
 
         {/* Active Challenges Tab */}
         <TabsContent value="challenges" className="space-y-4">
-          {challenges.map((challenge: any) => (
+          {challenges.length > 0 ? (
+            challenges.map((challenge: Challenge) => (
             <Card key={challenge.id} className="border-2 border-yellow-200 dark:border-yellow-800" data-testid={`challenge-${challenge.id}`}>
               <CardHeader>
                 <div className="flex justify-between items-start">
@@ -252,7 +273,19 @@ export default function BeatTheAI() {
                 </div>
               </CardContent>
             </Card>
-          ))}
+          ))
+          ) : (
+            <Card>
+              <CardContent className="pt-6 text-center">
+                <div className="text-muted-foreground">
+                  {challengesLoading ? 'Loading challenges...' : 'No active challenges available'}
+                </div>
+                <div className="text-sm text-muted-foreground mt-2">
+                  Debug: {challenges.length} challenges loaded
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         {/* Leaderboard Tab */}

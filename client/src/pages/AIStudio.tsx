@@ -46,19 +46,19 @@ export default function AIStudio() {
   const [selectedPrediction, setSelectedPrediction] = useState<string | null>(null);
 
   // Fetch AI predictions
-  const { data: predictions = [], isLoading: predictionsLoading } = useQuery({
+  const { data: predictions = [], isLoading: predictionsLoading } = useQuery<PricePrediction[]>({
     queryKey: ['/api/ai/predictions'],
     refetchInterval: 300000 // Refresh every 5 minutes
   });
 
   // Fetch market insights
-  const { data: insights = [], isLoading: insightsLoading } = useQuery({
+  const { data: insights = [], isLoading: insightsLoading } = useQuery<MarketInsight[]>({
     queryKey: ['/api/ai/insights'],
     refetchInterval: 600000 // Refresh every 10 minutes
   });
 
   // Fetch Beat the AI challenges
-  const { data: challenges = [], isLoading: challengesLoading } = useQuery({
+  const { data: challenges = [], isLoading: challengesLoading } = useQuery<BeatTheAIChallenge[]>({
     queryKey: ['/api/ai/challenges']
   });
 
