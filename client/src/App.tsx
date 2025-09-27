@@ -27,6 +27,7 @@ import NewsPage from '@/pages/news';
 import CalendarPage from '@/pages/calendar';
 import SettingsPage from '@/pages/settings';
 import HelpPage from '@/pages/help';
+import SpectacularShowcase from '@/pages/SpectacularShowcase';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -94,6 +95,9 @@ function Router() {
       <Route path="/calendar" component={CalendarPage} />
       <Route path="/settings" component={SettingsPage} />
       <Route path="/help" component={HelpPage} />
+      
+      {/* Spectacular Components Showcase */}
+      <Route path="/spectacular" component={SpectacularShowcase} />
       
       <Route component={NotFound} />
     </Switch>

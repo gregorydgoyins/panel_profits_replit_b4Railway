@@ -23,9 +23,9 @@
 
 ### Typography
 **Font Stack**: 
-- Headers: 'Oswald' (600-700 weights) - Bold, superhero-inspired headings
-- Body: 'Hind' (300 weight) - Clean, readable interface text
-- Numbers/Data: System monospace for trading data consistency
+- Headers: 'Space Grotesk' (300-700 weights) - Modern, futuristic headings with geometric precision
+- Body: 'Hind' (300 weight) - Ultra-clean, lightweight interface text for optimal readability
+- Numbers/Data: 'Space Grotesk' (300 weight) for trading data consistency and modern appeal
 
 ### Layout System
 **Tailwind Spacing Primitives**: Consistent use of 2, 4, 6, and 8 units
