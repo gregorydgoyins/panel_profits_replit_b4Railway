@@ -32,9 +32,32 @@ interface PPIxResponse {
 export default function PPIxDashboard() {
   const [selectedIndex, setSelectedIndex] = useState<'ppix50' | 'ppix100'>('ppix50');
   
-  const { data: ppixData, isLoading, refetch } = useQuery<PPIxResponse>({
+  const { data: ppixData, isLoading, error, refetch } = useQuery<PPIxResponse>({
     queryKey: ['/api/ppix/indices'],
+    queryFn: async () => {
+      console.log('🔥 PPIx Dashboard - Making API call to /api/ppix/indices');
+      const response = await fetch('/api/ppix/indices', {
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('🔥 PPIx Dashboard - API Response received:', data);
+      return data;
+    },
     refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  // Debug logging
+  console.log('🔥 PPIx Dashboard - Query Status:', {
+    isLoading,
+    hasData: !!ppixData,
+    dataSuccess: ppixData?.success,
+    error: error?.message,
+    dataKeys: ppixData ? Object.keys(ppixData) : null
   });
 
   const { data: subscriptionData } = useQuery({

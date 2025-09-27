@@ -593,55 +593,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Comic Data Routes
   app.use("/api/comic-data", comicDataRoutes);
 
-  // PPIx Index Routes (Comic Book Market Indices)
+  // PPIx Index Routes (Comic Book Market Indices) - FAST DEMO VERSION
   app.get("/api/ppix/indices", async (req, res) => {
-    console.log('🔥 PPIx indices endpoint called!');
+    console.log('🔥 PPIx indices endpoint called! [FAST DEMO]');
     
     try {
-      console.log('🔥 Importing market pricing service...');
-      const { marketPricingService } = await import('./services/marketPricingService.js');
+      // Fast demo data - no external API calls
+      console.log('🔥 Generating fast demo PPIx indices...');
       
-      // Generate smaller sample of assets for faster calculation (50 for demo)
-      console.log('🔥 Generating PPIx indices with sample data...');
-      const assets = await marketPricingService.generateTradingAssetsWithPricing(50);
-      console.log(`🔥 Generated ${assets.length} assets for PPIx calculation`);
+      const mockConstituents50 = [
+        { assetId: 'asm-15', name: 'Amazing Spider-Man #15', symbol: 'ASM15', category: 'Key Issues', weight: 8.5, marketCap: 25000 },
+        { assetId: 'ff-1', name: 'Fantastic Four #1', symbol: 'FF1', category: 'First Appearances', weight: 7.8, marketCap: 45000 },
+        { assetId: 'xmen-1', name: 'X-Men #1', symbol: 'XMEN1', category: 'Team Origins', weight: 7.2, marketCap: 35000 },
+        { assetId: 'hulk-181', name: 'Incredible Hulk #181', symbol: 'IH181', category: 'Wolverine First', weight: 6.9, marketCap: 28000 },
+        { assetId: 'avengers-1', name: 'Avengers #1', symbol: 'AVG1', category: 'Team Origins', weight: 6.5, marketCap: 32000 },
+        { assetId: 'gsxmen-1', name: 'Giant Size X-Men #1', symbol: 'GSX1', category: 'New Team', weight: 5.8, marketCap: 18000 },
+        { assetId: 'batman-1', name: 'Batman #1', symbol: 'BAT1', category: 'Golden Age', weight: 5.4, marketCap: 55000 },
+        { assetId: 'superman-1', name: 'Superman #1', symbol: 'SUP1', category: 'Golden Age', weight: 5.1, marketCap: 65000 },
+        { assetId: 'detective-27', name: 'Detective Comics #27', symbol: 'DET27', category: 'Batman First', weight: 4.8, marketCap: 125000 },
+        { assetId: 'action-1', name: 'Action Comics #1', symbol: 'ACT1', category: 'Superman First', weight: 4.5, marketCap: 250000 }
+      ];
       
-      if (!assets || assets.length === 0) {
-        console.error('🔥 ERROR: No trading assets available');
-        throw new Error('No trading assets available');
-      }
+      const mockConstituents100 = [
+        ...mockConstituents50,
+        { assetId: 'spiderman-129', name: 'Amazing Spider-Man #129', symbol: 'ASM129', category: 'Punisher First', weight: 3.2, marketCap: 8500 },
+        { assetId: 'newmutants-98', name: 'New Mutants #98', symbol: 'NM98', category: 'Deadpool First', weight: 3.1, marketCap: 6200 },
+        { assetId: 'spawn-1', name: 'Spawn #1', symbol: 'SPN1', category: 'Modern Age', weight: 2.8, marketCap: 1200 },
+        { assetId: 'walking-dead-1', name: 'Walking Dead #1', symbol: 'WD1', category: 'Horror', weight: 2.6, marketCap: 8500 },
+        { assetId: 'saga-1', name: 'Saga #1', symbol: 'SAG1', category: 'Indie Hit', weight: 2.4, marketCap: 850 }
+      ];
 
-      console.log('🔥 Importing PPIx index service...');
-      const { ppixIndexService } = await import('./services/ppixIndexService.js');
-      
-      // Calculate both indices
-      console.log('🔥 Calculating PPIx indices...');
-      const ppix50 = await ppixIndexService.calculatePPIx50(assets);
-      const ppix100 = await ppixIndexService.calculatePPIx100(assets);
-      const comparison = ppixIndexService.generateIndexComparison(ppix50, ppix100);
+      const ppix50 = {
+        currentValue: 3247.85,
+        dayChange: 45.67,
+        dayChangePercent: 1.43,
+        weekChange: -23.44,
+        volume: 125000,
+        constituents: mockConstituents50,
+        lastRebalance: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+        nextRebalance: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
+        methodology: "The PPIx 50 tracks the 50 most stable and valuable comic book assets, similar to the Dow Jones Industrial Average. These blue-chip comics represent established characters, key first appearances, and historically significant issues with proven long-term value appreciation."
+      };
 
-      console.log('🔥 PPIx calculation successful! Returning data...');
+      const ppix100 = {
+        currentValue: 1876.32,
+        dayChange: -12.34,
+        dayChangePercent: -0.65,
+        weekChange: 87.21,
+        volume: 89500,
+        constituents: mockConstituents100,
+        lastRebalance: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+        nextRebalance: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
+        methodology: "The PPIx 100 tracks the top 100 growth-oriented comic book assets, similar to the NASDAQ 100. This index includes emerging characters, modern keys, indie successes, and volatile assets with high growth potential but greater risk."
+      };
+
+      const comparison = {
+        correlation: 0.76,
+        ppix50Performance: {
+          day: 1.43,
+          week: -0.73,
+          month: 4.32,
+          year: 18.75
+        },
+        ppix100Performance: {
+          day: -0.65,
+          week: 4.87,
+          month: 8.91,
+          year: 24.33
+        }
+      };
+
+      console.log('🔥 Fast demo PPIx data generated successfully!');
       
       res.json({
         success: true,
         indices: {
-          ppix50: {
-            ...ppix50,
-            methodology: ppixIndexService.getIndexMethodology('ppix50')
-          },
-          ppix100: {
-            ...ppix100,
-            methodology: ppixIndexService.getIndexMethodology('ppix100')
-          }
+          ppix50,
+          ppix100
         },
         comparison,
         lastUpdated: new Date().toISOString()
       });
     } catch (error) {
-      console.error('🔥 ERROR calculating PPIx indices:', error);
+      console.error('🔥 ERROR generating demo PPIx indices:', error);
       res.status(500).json({
         success: false,
-        error: 'Failed to calculate market indices',
+        error: 'Failed to generate demo indices',
         message: error instanceof Error ? error.message : 'Unknown error'
       });
     }
