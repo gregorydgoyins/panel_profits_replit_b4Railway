@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation, Link } from 'wouter';
 import { 
   Home, DollarSign, Newspaper, Briefcase, Brain, LineChart, Layers, 
   Users, Building, Zap, BookOpen, Calendar, Settings, HelpCircle,
@@ -19,7 +20,28 @@ interface NavigationItem {
 
 export function NavigationSidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [activeItem, setActiveItem] = useState('dashboard');
+  const [location] = useLocation();
+  
+  // Determine active item based on current location
+  const getActiveItem = () => {
+    if (location === '/') return 'dashboard';
+    if (location === '/ai-studio') return 'ai-studio';
+    if (location === '/charting') return 'charting';
+    if (location === '/trading') return 'order-desk';
+    if (location === '/characters') return 'characters';
+    if (location === '/comics') return 'comics';
+    if (location === '/creators') return 'creators';
+    if (location === '/publishers') return 'publishers';
+    if (location === '/portfolio') return 'portfolio';
+    if (location === '/watchlist') return 'watchlist';
+    if (location === '/news') return 'news';
+    if (location === '/calendar') return 'calendar';
+    if (location === '/settings') return 'settings';
+    if (location === '/help') return 'help';
+    return 'dashboard'; // default
+  };
+  
+  const activeItem = getActiveItem();
 
   const navigationItems: NavigationItem[] = [
     // Main Navigation
@@ -49,10 +71,7 @@ export function NavigationSidebar() {
     return navigationItems.filter(item => item.category === category);
   };
 
-  const handleItemClick = (itemId: string) => {
-    console.log(`Navigating to ${itemId}`);
-    setActiveItem(itemId);
-  };
+  // Navigation is handled by Link components, no need for click handler
 
   const getItemColor = (itemId: string) => {
     const colors = {
@@ -104,26 +123,24 @@ export function NavigationSidebar() {
                 const itemColors = getItemColor(item.id);
                 
                 return (
-                  <Button
-                    key={item.id}
-                    variant="ghost"
-                    size={isCollapsed ? "icon" : "sm"}
-                    className={`w-full justify-start ${itemColors} ${isActive ? 'bg-opacity-100 text-white' : ''}`}
-                    onClick={() => handleItemClick(item.id)}
-                    data-testid={`nav-item-${item.id}`}
-                  >
-                    <IconComponent className="h-4 w-4" />
-                    {!isCollapsed && (
-                      <>
-                        <span className="ml-2">{item.label}</span>
-                        {item.badge && (
-                          <Badge variant="secondary" className="ml-auto text-xs">
-                            {item.badge}
-                          </Badge>
-                        )}
-                      </>
-                    )}
-                  </Button>
+                  <Link key={item.id} href={item.path}>
+                    <div
+                      className={`w-full justify-start flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer transition-all hover:bg-accent hover:text-accent-foreground ${itemColors} ${isActive ? 'bg-opacity-100 text-white' : ''} ${isCollapsed ? 'justify-center w-10 h-10' : ''}`}
+                      data-testid={`nav-item-${item.id}`}
+                    >
+                      <IconComponent className="h-4 w-4" />
+                      {!isCollapsed && (
+                        <>
+                          <span className="ml-2">{item.label}</span>
+                          {item.badge && (
+                            <Badge variant="secondary" className="ml-auto text-xs">
+                              {item.badge}
+                            </Badge>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </Link>
                 );
               })}
             </div>
@@ -141,17 +158,15 @@ export function NavigationSidebar() {
                 const itemColors = getItemColor(item.id);
                 
                 return (
-                  <Button
-                    key={item.id}
-                    variant="ghost"
-                    size={isCollapsed ? "icon" : "sm"}
-                    className={`w-full justify-start ${itemColors} ${isActive ? 'bg-opacity-100 text-white' : ''}`}
-                    onClick={() => handleItemClick(item.id)}
-                    data-testid={`nav-item-${item.id}`}
-                  >
-                    <IconComponent className="h-4 w-4" />
-                    {!isCollapsed && <span className="ml-2">{item.label}</span>}
-                  </Button>
+                  <Link key={item.id} href={item.path}>
+                    <div
+                      className={`w-full justify-start flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer transition-all hover:bg-accent hover:text-accent-foreground ${itemColors} ${isActive ? 'bg-opacity-100 text-white' : ''} ${isCollapsed ? 'justify-center w-10 h-10' : ''}`}
+                      data-testid={`nav-item-${item.id}`}
+                    >
+                      <IconComponent className="h-4 w-4" />
+                      {!isCollapsed && <span className="ml-2">{item.label}</span>}
+                    </div>
+                  </Link>
                 );
               })}
             </div>
@@ -169,17 +184,15 @@ export function NavigationSidebar() {
                 const itemColors = getItemColor(item.id);
                 
                 return (
-                  <Button
-                    key={item.id}
-                    variant="ghost"
-                    size={isCollapsed ? "icon" : "sm"}
-                    className={`w-full justify-start ${itemColors} ${isActive ? 'bg-opacity-100 text-white' : ''}`}
-                    onClick={() => handleItemClick(item.id)}
-                    data-testid={`nav-item-${item.id}`}
-                  >
-                    <IconComponent className="h-4 w-4" />
-                    {!isCollapsed && <span className="ml-2">{item.label}</span>}
-                  </Button>
+                  <Link key={item.id} href={item.path}>
+                    <div
+                      className={`w-full justify-start flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer transition-all hover:bg-accent hover:text-accent-foreground ${itemColors} ${isActive ? 'bg-opacity-100 text-white' : ''} ${isCollapsed ? 'justify-center w-10 h-10' : ''}`}
+                      data-testid={`nav-item-${item.id}`}
+                    >
+                      <IconComponent className="h-4 w-4" />
+                      {!isCollapsed && <span className="ml-2">{item.label}</span>}
+                    </div>
+                  </Link>
                 );
               })}
             </div>
@@ -196,17 +209,15 @@ export function NavigationSidebar() {
                     const isActive = activeItem === item.id;
                     
                     return (
-                      <Button
-                        key={item.id}
-                        variant="ghost"
-                        size="sm"
-                        className={`w-full justify-start ${isActive ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-                        onClick={() => handleItemClick(item.id)}
-                        data-testid={`nav-item-${item.id}`}
-                      >
-                        <IconComponent className="h-4 w-4" />
-                        <span className="ml-2">{item.label}</span>
-                      </Button>
+                      <Link key={item.id} href={item.path}>
+                        <div
+                          className={`w-full justify-start flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer transition-all hover:bg-accent hover:text-accent-foreground ${isActive ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                          data-testid={`nav-item-${item.id}`}
+                        >
+                          <IconComponent className="h-4 w-4" />
+                          <span className="ml-2">{item.label}</span>
+                        </div>
+                      </Link>
                     );
                   })}
                 </div>
@@ -219,17 +230,15 @@ export function NavigationSidebar() {
                     const isActive = activeItem === item.id;
                     
                     return (
-                      <Button
-                        key={item.id}
-                        variant="ghost"
-                        size="sm"
-                        className={`w-full justify-start ${isActive ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-                        onClick={() => handleItemClick(item.id)}
-                        data-testid={`nav-item-${item.id}`}
-                      >
-                        <IconComponent className="h-4 w-4" />
-                        <span className="ml-2">{item.label}</span>
-                      </Button>
+                      <Link key={item.id} href={item.path}>
+                        <div
+                          className={`w-full justify-start flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer transition-all hover:bg-accent hover:text-accent-foreground ${isActive ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                          data-testid={`nav-item-${item.id}`}
+                        >
+                          <IconComponent className="h-4 w-4" />
+                          <span className="ml-2">{item.label}</span>
+                        </div>
+                      </Link>
                     );
                   })}
                 </div>

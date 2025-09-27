@@ -11,6 +11,23 @@ import { ChartingStudio } from '@/components/ChartingStudio';
 import { MarketOverviewStats } from '@/components/MarketOverviewStats';
 import NotFound from '@/pages/not-found';
 
+// Trading pages
+import TradingPage from '@/pages/trading';
+import CharactersPage from '@/pages/characters';
+import ComicsPage from '@/pages/comics';
+import CreatorsPage from '@/pages/creators';
+import PublishersPage from '@/pages/publishers';
+
+// Portfolio pages
+import PortfolioPage from '@/pages/portfolio';
+import WatchlistPage from '@/pages/watchlist';
+
+// Tools & Other pages
+import NewsPage from '@/pages/news';
+import CalendarPage from '@/pages/calendar';
+import SettingsPage from '@/pages/settings';
+import HelpPage from '@/pages/help';
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -60,6 +77,24 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/ai-studio" component={AIStudio} />
       <Route path="/charting" component={ChartingStudio} />
+      
+      {/* Trading routes */}
+      <Route path="/trading" component={TradingPage} />
+      <Route path="/characters" component={CharactersPage} />
+      <Route path="/comics" component={ComicsPage} />
+      <Route path="/creators" component={CreatorsPage} />
+      <Route path="/publishers" component={PublishersPage} />
+      
+      {/* Portfolio routes */}
+      <Route path="/portfolio" component={PortfolioPage} />
+      <Route path="/watchlist" component={WatchlistPage} />
+      
+      {/* Tools & Other routes */}
+      <Route path="/news" component={NewsPage} />
+      <Route path="/calendar" component={CalendarPage} />
+      <Route path="/settings" component={SettingsPage} />
+      <Route path="/help" component={HelpPage} />
+      
       <Route component={NotFound} />
     </Switch>
   );
