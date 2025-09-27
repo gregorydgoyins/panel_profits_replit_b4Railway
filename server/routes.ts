@@ -592,6 +592,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Comic Data Routes
   app.use("/api/comic-data", comicDataRoutes);
+  
+  // AI Market Intelligence Routes
+  const aiRoutes = (await import('./routes/aiRoutes.js')).default;
+  app.use("/api/ai", aiRoutes);
 
   // PPIx Index Routes (Comic Book Market Indices) - SCHOLARLY INVESTMENT FRAMEWORK
   app.get("/api/ppix/indices", async (req, res) => {

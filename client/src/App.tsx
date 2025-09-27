@@ -6,7 +6,7 @@ import { DashboardHeader } from '@/components/DashboardHeader';
 import { NavigationSidebar } from '@/components/NavigationSidebar';
 import { LiveMarketFeed } from '@/components/LiveMarketFeed';
 import { KeyComicSearchSection } from '@/components/KeyComicSearchSection';
-import { AIStudio } from '@/components/AIStudio';
+import AIStudio from '@/pages/AIStudio';
 import { ChartingStudio } from '@/components/ChartingStudio';
 import { MarketOverviewStats } from '@/components/MarketOverviewStats';
 import NotFound from '@/pages/not-found';
