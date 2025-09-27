@@ -183,7 +183,8 @@ class MarvelDcDataImportService {
         });
         
         if (embeddingResult) {
-          // Note: metadataEmbedding will be set when creating the asset
+          // Store the embedding in the asset
+          asset.metadataEmbedding = embeddingResult.embedding;
           console.log(`🔮 Generated embedding for ${asset.name} (${embeddingResult.dimensions} dimensions)`);
         }
       } catch (error) {
@@ -233,35 +234,39 @@ class MarvelDcDataImportService {
 
   /**
    * Categorize asset type based on content analysis
+   * Modified to ensure all assets have type='media' as required
    */
   private categorizeAsset(entry: MarvelDcEntry): { type: string; category: string } {
     const movie = entry.Movie.toLowerCase();
     const description = entry.Description.toLowerCase();
     const content = `${movie} ${description}`;
     
+    // All assets should be type='media' to match frontend search filters
+    // But we still categorize for better organization
+    
     // Character-focused content
     if (content.includes('spider-man') || content.includes('iron man') || 
         content.includes('captain america') || content.includes('thor') ||
         content.includes('hulk') || content.includes('batman') ||
         content.includes('superman') || content.includes('wonder woman')) {
-      return { type: 'character', category: 'superhero' };
+      return { type: 'media', category: 'superhero' };
     }
     
     // Franchise/Universe content
     if (content.includes('avengers') || content.includes('guardians') ||
         content.includes('x-men') || content.includes('fantastic four') ||
         content.includes('justice league')) {
-      return { type: 'franchise', category: 'team' };
+      return { type: 'media', category: 'team' };
     }
     
-    // Media content (movies, shows)
-    if (entry.RunTime || content.includes('movie') || content.includes('film') ||
-        content.includes('series') || content.includes('tv')) {
-      return { type: 'media', category: 'entertainment' };
+    // TV Series content
+    if (content.includes('series') || content.includes('tv') || 
+        entry.Year.includes('–') || entry.Year.includes('(')) {
+      return { type: 'media', category: 'series' };
     }
     
-    // Default to comic
-    return { type: 'comic', category: 'publication' };
+    // Default to media with movie category
+    return { type: 'media', category: 'movie' };
   }
 
   /**

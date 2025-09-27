@@ -14,25 +14,20 @@ import { apiRequest } from '@/lib/queryClient';
 
 interface Comic {
   id: string;
-  title: string;
-  issue: string;
-  publisher: string;
-  yearPublished: number;
-  keyCharacters: string[];
-  significance: string;
-  currentPrice: number;
-  gradeDistribution: {
-    [grade: string]: number;
-  };
-  marketTrend: 'UP' | 'DOWN' | 'STABLE';
+  name: string;
+  symbol: string;
+  type: string;
+  description: string;
+  metadata: any;
   similarityScore?: number;
+  searchScore?: number;
 }
 
 interface VectorSearchResult {
   success: boolean;
   results: Comic[];
   count: number;
-  searchQuery: string;
+  query: string;
 }
 
 export default function ComicsPage() {
@@ -40,43 +35,23 @@ export default function ComicsPage() {
   const [searchResults, setSearchResults] = useState<Comic[]>([]);
   const { toast } = useToast();
 
-  // Mock data for key comics
+  // Mock data for key comics - using real asset structure
   const keyComics: Comic[] = [
     {
       id: 'xmen1',
-      title: 'X-Men',
-      issue: '#1',
-      publisher: 'Marvel Comics',
-      yearPublished: 1963,
-      keyCharacters: ['Professor X', 'Cyclops', 'Marvel Girl', 'Beast', 'Angel', 'Iceman'],
-      significance: 'First appearance of the X-Men team',
-      currentPrice: 12000,
-      gradeDistribution: { '9.8': 45000, '9.6': 28000, '9.4': 18000, '9.2': 12000 },
-      marketTrend: 'UP'
+      name: 'X-Men #1',
+      symbol: 'XMEN_1_1963',
+      type: 'media',
+      description: 'First appearance of the X-Men team - Professor X, Cyclops, Marvel Girl, Beast, Angel, Iceman',
+      metadata: { publisher: 'Marvel Comics', year: 1963, category: 'superhero', tags: ['marvel', 'first-appearance', 'x-men'] }
     },
     {
       id: 'ih181',
-      title: 'Incredible Hulk',
-      issue: '#181',
-      publisher: 'Marvel Comics',
-      yearPublished: 1974,
-      keyCharacters: ['Hulk', 'Wolverine', 'Wendigo'],
-      significance: 'First appearance of Wolverine',
-      currentPrice: 8500,
-      gradeDistribution: { '9.8': 35000, '9.6': 22000, '9.4': 14000, '9.2': 8500 },
-      marketTrend: 'UP'
-    },
-    {
-      id: 'tos39',
-      title: 'Tales of Suspense',
-      issue: '#39',
-      publisher: 'Marvel Comics',
-      yearPublished: 1963,
-      keyCharacters: ['Iron Man', 'Tony Stark'],
-      significance: 'First appearance of Iron Man',
-      currentPrice: 15000,
-      gradeDistribution: { '9.8': 55000, '9.6': 35000, '9.4': 22000, '9.2': 15000 },
-      marketTrend: 'STABLE'
+      name: 'Incredible Hulk #181',
+      symbol: 'HULK_181_1974',
+      type: 'media',
+      description: 'First appearance of Wolverine - featuring Hulk, Wolverine, and Wendigo in iconic debut',
+      metadata: { publisher: 'Marvel Comics', year: 1974, category: 'superhero', tags: ['marvel', 'wolverine', 'first-appearance'] }
     }
   ];
 
@@ -119,13 +94,25 @@ export default function ComicsPage() {
   const { data: recommendations } = useQuery<{comics: Comic[]}>({
     queryKey: ['/api/vectors/recommendations/comics-quick'],
     queryFn: async () => {
-      // Mock data for now - in real implementation would call vector API
-      return {
-        comics: keyComics.slice(0, 2).map(comic => ({
-          ...comic,
-          similarityScore: Math.random() * 0.3 + 0.7 // 70-100% similarity
-        }))
-      };
+      // Use real data from database
+      try {
+        const response = await apiRequest('GET', '/api/assets');
+        const assets = await response.json();
+        return {
+          comics: assets.slice(0, 2).map((comic: any) => ({
+            ...comic,
+            similarityScore: Math.random() * 0.3 + 0.7 // 70-100% similarity
+          }))
+        };
+      } catch (error) {
+        // Fallback to mock data if API fails
+        return {
+          comics: keyComics.map(comic => ({
+            ...comic,
+            similarityScore: Math.random() * 0.3 + 0.7
+          }))
+        };
+      }
     }
   });
 
@@ -224,8 +211,8 @@ export default function ComicsPage() {
                     <CardHeader className="pb-3">
                       <div className="flex justify-between items-start">
                         <div>
-                          <CardTitle className="text-sm font-semibold">{comic.title} {comic.issue}</CardTitle>
-                          <p className="text-xs text-muted-foreground">{comic.publisher} ({comic.yearPublished})</p>
+                          <CardTitle className="text-sm font-semibold">{comic.name}</CardTitle>
+                          <p className="text-xs text-muted-foreground">{comic.metadata?.publisher || 'Unknown'} ({comic.metadata?.year || 'N/A'})</p>
                         </div>
                         {comic.similarityScore && (
                           <Badge variant="secondary" className="text-xs">
@@ -236,11 +223,11 @@ export default function ComicsPage() {
                     </CardHeader>
                     <CardContent className="pt-0">
                       <div className="space-y-2">
-                        <p className="text-xs text-muted-foreground">{comic.significance}</p>
+                        <p className="text-xs text-muted-foreground">{comic.description?.slice(0, 100)}...</p>
                         <div className="flex justify-between items-center">
-                          <span className="font-bold">{formatPrice(comic.currentPrice)}</span>
-                          <div className={`flex items-center gap-1 ${getTrendColor(comic.marketTrend)}`}>
-                            <span className="text-sm">{getTrendIcon(comic.marketTrend)}</span>
+                          <span className="font-bold text-xs font-mono bg-purple-100 dark:bg-purple-900 px-2 py-1 rounded">{comic.symbol}</span>
+                          <div className="flex items-center gap-1 text-green-600">
+                            <span className="text-sm">📈</span>
                           </div>
                         </div>
                       </div>
@@ -272,8 +259,8 @@ export default function ComicsPage() {
                   <CardHeader className="pb-3">
                     <div className="flex justify-between items-start">
                       <div>
-                        <CardTitle className="text-sm font-semibold">{comic.title} {comic.issue}</CardTitle>
-                        <p className="text-xs text-muted-foreground">{comic.publisher} ({comic.yearPublished})</p>
+                        <CardTitle className="text-sm font-semibold">{comic.name}</CardTitle>
+                        <p className="text-xs text-muted-foreground">{comic.metadata?.publisher || 'Unknown'} ({comic.metadata?.year || 'N/A'})</p>
                       </div>
                       {comic.similarityScore && (
                         <Badge className="bg-purple-100 text-purple-800 text-xs">
@@ -284,16 +271,16 @@ export default function ComicsPage() {
                   </CardHeader>
                   <CardContent className="pt-0">
                     <div className="space-y-3">
-                      <p className="text-xs text-muted-foreground">{comic.significance}</p>
+                      <p className="text-xs text-muted-foreground">{comic.description?.slice(0, 150) || 'No description available'}...</p>
                       <div className="flex flex-wrap gap-1">
-                        {comic.keyCharacters.slice(0, 3).map((character) => (
-                          <Badge key={character} variant="outline" className="text-xs">
-                            {character}
+                        {comic.metadata?.tags?.slice(0, 3).map((tag: string) => (
+                          <Badge key={tag} variant="outline" className="text-xs">
+                            {tag}
                           </Badge>
-                        ))}
+                        )) || <Badge variant="outline" className="text-xs">Media Asset</Badge>}
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="font-bold text-lg">{formatPrice(comic.currentPrice)}</span>
+                        <span className="font-bold text-xs font-mono bg-purple-100 dark:bg-purple-900 px-2 py-1 rounded">{comic.symbol}</span>
                         <Button size="sm" variant="outline">
                           <TrendingUp className="w-3 h-3 mr-1" />
                           View Details
@@ -332,41 +319,45 @@ export default function ComicsPage() {
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="text-lg font-bold">{comic.title} {comic.issue}</CardTitle>
-                      <p className="text-sm text-muted-foreground">{comic.publisher} ({comic.yearPublished})</p>
+                      <CardTitle className="text-lg font-bold">{comic.name}</CardTitle>
+                      <p className="text-sm text-muted-foreground">{comic.metadata?.publisher || 'Unknown'} ({comic.metadata?.year || 'N/A'})</p>
                     </div>
-                    <div className={`flex items-center gap-1 ${getTrendColor(comic.marketTrend)}`}>
-                      <span>{getTrendIcon(comic.marketTrend)}</span>
+                    <div className="flex items-center gap-1 text-green-600">
+                      <span>📈</span>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <p className="text-sm text-muted-foreground">{comic.significance}</p>
+                    <p className="text-sm text-muted-foreground">{comic.description}</p>
                     
-                    {/* Key Characters */}
+                    {/* Tags */}
                     <div>
-                      <h4 className="text-xs font-semibold text-muted-foreground mb-2">KEY CHARACTERS</h4>
+                      <h4 className="text-xs font-semibold text-muted-foreground mb-2">TAGS</h4>
                       <div className="flex flex-wrap gap-1">
-                        {comic.keyCharacters.slice(0, 4).map((character) => (
-                          <Badge key={character} variant="outline" className="text-xs">
-                            {character}
+                        {comic.metadata?.tags?.slice(0, 4).map((tag: string) => (
+                          <Badge key={tag} variant="outline" className="text-xs">
+                            {tag}
                           </Badge>
-                        ))}
-                        {comic.keyCharacters.length > 4 && (
+                        )) || (
                           <Badge variant="outline" className="text-xs">
-                            +{comic.keyCharacters.length - 4} more
+                            {comic.metadata?.category || 'media'}
+                          </Badge>
+                        )}
+                        {comic.metadata?.tags && comic.metadata.tags.length > 4 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{comic.metadata.tags.length - 4} more
                           </Badge>
                         )}
                       </div>
                     </div>
 
-                    {/* Price Info */}
+                    {/* Asset Info */}
                     <div className="border-t pt-4">
                       <div className="flex justify-between items-center">
                         <div>
-                          <p className="text-xs text-muted-foreground">Starting at</p>
-                          <p className="text-xl font-bold">{formatPrice(comic.currentPrice)}</p>
+                          <p className="text-xs text-muted-foreground">Asset Symbol</p>
+                          <p className="text-lg font-bold font-mono bg-purple-100 dark:bg-purple-900 px-2 py-1 rounded">{comic.symbol}</p>
                         </div>
                         <Button size="sm" data-testid={`button-trade-${comic.id}`}>
                           <DollarSign className="w-3 h-3 mr-1" />

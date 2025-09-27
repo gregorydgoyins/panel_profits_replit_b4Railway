@@ -1436,4 +1436,27 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Import database storage for persistent storage
+import { databaseStorage } from './databaseStorage.js';
+
+// Create and export the storage instance with fallback mechanism
+// Use database storage if available, fallback to MemStorage if no DATABASE_URL
+let storage: IStorage;
+
+try {
+  // Check if DATABASE_URL is available
+  const databaseUrl = process.env.DATABASE_URL;
+  
+  if (databaseUrl && databaseUrl.trim() !== '') {
+    console.log('🗄️ Using database storage (PostgreSQL)');
+    storage = databaseStorage;
+  } else {
+    console.log('⚠️ No DATABASE_URL found, falling back to in-memory storage');
+    storage = new MemStorage();
+  }
+} catch (error) {
+  console.warn('⚠️ Database storage failed, falling back to in-memory storage:', error);
+  storage = new MemStorage();
+}
+
+export { storage };
