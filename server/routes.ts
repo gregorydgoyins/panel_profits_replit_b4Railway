@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import comicDataRoutes from "./routes/comicData.js";
 import { 
   insertAssetSchema, 
   insertMarketDataSchema,
@@ -588,6 +589,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to create market insight" });
     }
   });
+
+  // Comic Data Routes
+  app.use("/api/comic-data", comicDataRoutes);
 
   const httpServer = createServer(app);
 

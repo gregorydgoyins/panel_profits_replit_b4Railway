@@ -28,6 +28,7 @@ import CalendarPage from '@/pages/calendar';
 import SettingsPage from '@/pages/settings';
 import HelpPage from '@/pages/help';
 import SpectacularShowcase from '@/pages/SpectacularShowcase';
+import RealDataShowcase from '@/pages/RealDataShowcase';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -98,6 +99,9 @@ function Router() {
       
       {/* Spectacular Components Showcase */}
       <Route path="/spectacular" component={SpectacularShowcase} />
+      
+      {/* Real Data Integration Showcase */}
+      <Route path="/real-data" component={RealDataShowcase} />
       
       <Route component={NotFound} />
     </Switch>
