@@ -85,7 +85,7 @@ export default function ComicsPage() {
     mutationFn: async (query: string) => {
       const response = await apiRequest('POST', '/api/vectors/search/assets', {
         query,
-        assetType: 'comic',
+        assetType: 'media',
         limit: 6
       });
       return response.json() as Promise<VectorSearchResult>;
@@ -95,7 +95,7 @@ export default function ComicsPage() {
         setSearchResults(data.results);
         toast({
           title: "Search Complete!",
-          description: `Found ${data.count} comics matching "${data.searchQuery}"`,
+          description: `Found ${data.count} comics matching "${data.query}"`,
         });
       } else {
         toast({

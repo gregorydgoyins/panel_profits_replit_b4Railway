@@ -304,6 +304,49 @@ router.get('/assets/search', async (req, res) => {
   }
 });
 
+// Frontend-Compatible Asset Search (POST /search/assets)
+router.post('/search/assets', async (req, res) => {
+  try {
+    const { query, assetType, publisher, limit } = req.body;
+
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        error: 'Search query is required',
+        message: 'Please provide a search query in the request body'
+      });
+    }
+
+    console.log(`🔍 Vector asset search: "${query}" (type: ${assetType}, publisher: ${publisher})`);
+
+    const searchResults = await storage.searchAssetsWithSimilarity(
+      query, 
+      { type: assetType, publisher }, 
+      limit || 10
+    );
+    
+    console.log(`🔍 Found ${searchResults.length} assets with vector search`);
+    res.json({
+      success: true,
+      query,
+      results: searchResults.map(asset => ({
+        ...asset,
+        similarityScore: asset.similarityScore ? Math.round(asset.similarityScore * 100) / 100 : undefined,
+        searchScore: Math.round(asset.searchScore * 100) / 100
+      })),
+      count: searchResults.length
+    });
+
+  } catch (error) {
+    console.error('🚨 Vector asset search error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to search assets',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 // Generate and update embeddings for assets
 router.post('/embeddings/assets/:assetId', async (req, res) => {
   try {
@@ -326,10 +369,10 @@ router.post('/embeddings/assets/:assetId', async (req, res) => {
       name: asset.name,
       type: asset.type,
       description: asset.description || undefined,
-      publisher: asset.metadata?.publisher || undefined,
-      yearPublished: asset.metadata?.yearPublished || undefined,
-      category: asset.metadata?.category || undefined,
-      tags: asset.metadata?.tags || undefined
+      publisher: (asset.metadata as any)?.publisher || undefined,
+      yearPublished: (asset.metadata as any)?.yearPublished || undefined,
+      category: (asset.metadata as any)?.category || undefined,
+      tags: (asset.metadata as any)?.tags || undefined
     });
 
     if (!embeddingResult) {
