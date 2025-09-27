@@ -10,7 +10,10 @@ import {
   type Watchlist, type InsertWatchlist,
   type WatchlistAsset, type InsertWatchlistAsset,
   type Order, type InsertOrder,
-  type MarketEvent, type InsertMarketEvent
+  type MarketEvent, type InsertMarketEvent,
+  type BeatTheAIChallenge, type InsertBeatTheAIChallenge,
+  type BeatTheAIPrediction, type InsertBeatTheAIPrediction,
+  type BeatTheAILeaderboard, type InsertBeatTheAILeaderboard
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -94,6 +97,25 @@ export interface IStorage {
   getMarketEvents(filters?: { isActive?: boolean; category?: string }): Promise<MarketEvent[]>;
   createMarketEvent(event: InsertMarketEvent): Promise<MarketEvent>;
   updateMarketEvent(id: string, event: Partial<InsertMarketEvent>): Promise<MarketEvent | undefined>;
+
+  // Beat the AI Challenges
+  getBeatTheAIChallenge(id: string): Promise<BeatTheAIChallenge | undefined>;
+  getBeatTheAIChallenges(filters?: { status?: string }): Promise<BeatTheAIChallenge[]>;
+  createBeatTheAIChallenge(challenge: InsertBeatTheAIChallenge): Promise<BeatTheAIChallenge>;
+  updateBeatTheAIChallenge(id: string, challenge: Partial<InsertBeatTheAIChallenge>): Promise<BeatTheAIChallenge | undefined>;
+
+  // Beat the AI Predictions
+  getBeatTheAIPrediction(id: string): Promise<BeatTheAIPrediction | undefined>;
+  getBeatTheAIPredictions(filters?: { challengeId?: string; userId?: string }): Promise<BeatTheAIPrediction[]>;
+  createBeatTheAIPrediction(prediction: InsertBeatTheAIPrediction): Promise<BeatTheAIPrediction>;
+  updateBeatTheAIPrediction(id: string, prediction: Partial<BeatTheAIPrediction>): Promise<BeatTheAIPrediction | undefined>;
+
+  // Beat the AI Leaderboard
+  getBeatTheAILeaderboard(limit?: number): Promise<BeatTheAILeaderboard[]>;
+  getBeatTheAILeaderboardEntry(userId: string): Promise<BeatTheAILeaderboard | undefined>;
+  createBeatTheAILeaderboardEntry(entry: InsertBeatTheAILeaderboard): Promise<BeatTheAILeaderboard>;
+  updateBeatTheAILeaderboardEntry(userId: string, entry: Partial<BeatTheAILeaderboard>): Promise<BeatTheAILeaderboard | undefined>;
+  recalculateLeaderboard(): Promise<void>;
 }
 
 // Time-series buffer implementation with memory limits and proper chronological ordering
@@ -196,6 +218,9 @@ export class MemStorage implements IStorage {
   private watchlistAssets: Map<string, WatchlistAsset[]>; // keyed by watchlistId
   private orders: Map<string, Order>;
   private marketEvents: Map<string, MarketEvent>;
+  private beatTheAIChallenges: Map<string, BeatTheAIChallenge>;
+  private beatTheAIPredictions: Map<string, BeatTheAIPrediction>;
+  private beatTheAILeaderboard: Map<string, BeatTheAILeaderboard>;
 
   constructor() {
     this.users = new Map();
@@ -210,6 +235,9 @@ export class MemStorage implements IStorage {
     this.watchlistAssets = new Map();
     this.orders = new Map();
     this.marketEvents = new Map();
+    this.beatTheAIChallenges = new Map();
+    this.beatTheAIPredictions = new Map();
+    this.beatTheAILeaderboard = new Map();
   }
 
   // User methods
@@ -689,6 +717,201 @@ export class MemStorage implements IStorage {
     };
     this.marketEvents.set(id, updatedEvent);
     return updatedEvent;
+  }
+
+  // Beat the AI Challenge methods
+  async getBeatTheAIChallenge(id: string): Promise<BeatTheAIChallenge | undefined> {
+    return this.beatTheAIChallenges.get(id);
+  }
+
+  async getBeatTheAIChallenges(filters?: { status?: string }): Promise<BeatTheAIChallenge[]> {
+    let challenges = Array.from(this.beatTheAIChallenges.values());
+    
+    if (filters?.status) {
+      challenges = challenges.filter(c => c.status === filters.status);
+    }
+    
+    return challenges;
+  }
+
+  async createBeatTheAIChallenge(insertChallenge: InsertBeatTheAIChallenge): Promise<BeatTheAIChallenge> {
+    const id = randomUUID();
+    const challenge: BeatTheAIChallenge = {
+      ...insertChallenge,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.beatTheAIChallenges.set(id, challenge);
+    return challenge;
+  }
+
+  async updateBeatTheAIChallenge(id: string, updateData: Partial<InsertBeatTheAIChallenge>): Promise<BeatTheAIChallenge | undefined> {
+    const challenge = this.beatTheAIChallenges.get(id);
+    if (!challenge) return undefined;
+    
+    const updatedChallenge: BeatTheAIChallenge = {
+      ...challenge,
+      ...updateData,
+      updatedAt: new Date()
+    };
+    this.beatTheAIChallenges.set(id, updatedChallenge);
+    return updatedChallenge;
+  }
+
+  // Beat the AI Prediction methods
+  async getBeatTheAIPrediction(id: string): Promise<BeatTheAIPrediction | undefined> {
+    return this.beatTheAIPredictions.get(id);
+  }
+
+  async getBeatTheAIPredictions(filters?: { challengeId?: string; userId?: string }): Promise<BeatTheAIPrediction[]> {
+    let predictions = Array.from(this.beatTheAIPredictions.values());
+    
+    if (filters?.challengeId) {
+      predictions = predictions.filter(p => p.challengeId === filters.challengeId);
+    }
+    
+    if (filters?.userId) {
+      predictions = predictions.filter(p => p.userId === filters.userId);
+    }
+    
+    return predictions;
+  }
+
+  async createBeatTheAIPrediction(insertPrediction: InsertBeatTheAIPrediction): Promise<BeatTheAIPrediction> {
+    const id = randomUUID();
+    const prediction: BeatTheAIPrediction = {
+      ...insertPrediction,
+      id,
+      submissionTime: new Date(),
+      actualChange: null,
+      score: null,
+      isWinner: false
+    };
+    this.beatTheAIPredictions.set(id, prediction);
+    
+    // Update challenge participant count
+    const challenge = await this.getBeatTheAIChallenge(insertPrediction.challengeId);
+    if (challenge) {
+      const uniqueUsers = new Set(
+        Array.from(this.beatTheAIPredictions.values())
+          .filter(p => p.challengeId === insertPrediction.challengeId)
+          .map(p => p.userId)
+      );
+      await this.updateBeatTheAIChallenge(insertPrediction.challengeId, {
+        participantCount: uniqueUsers.size
+      });
+    }
+    
+    return prediction;
+  }
+
+  async updateBeatTheAIPrediction(id: string, updateData: Partial<BeatTheAIPrediction>): Promise<BeatTheAIPrediction | undefined> {
+    const prediction = this.beatTheAIPredictions.get(id);
+    if (!prediction) return undefined;
+    
+    const updatedPrediction: BeatTheAIPrediction = {
+      ...prediction,
+      ...updateData
+    };
+    this.beatTheAIPredictions.set(id, updatedPrediction);
+    return updatedPrediction;
+  }
+
+  // Beat the AI Leaderboard methods
+  async getBeatTheAILeaderboard(limit: number = 100): Promise<BeatTheAILeaderboard[]> {
+    return Array.from(this.beatTheAILeaderboard.values())
+      .sort((a, b) => (b.rank || 0) - (a.rank || 0))
+      .slice(0, limit);
+  }
+
+  async getBeatTheAILeaderboardEntry(userId: string): Promise<BeatTheAILeaderboard | undefined> {
+    return Array.from(this.beatTheAILeaderboard.values()).find(entry => entry.userId === userId);
+  }
+
+  async createBeatTheAILeaderboardEntry(insertEntry: InsertBeatTheAILeaderboard): Promise<BeatTheAILeaderboard> {
+    const id = randomUUID();
+    const entry: BeatTheAILeaderboard = {
+      ...insertEntry,
+      id,
+      lastActive: new Date()
+    };
+    this.beatTheAILeaderboard.set(id, entry);
+    return entry;
+  }
+
+  async updateBeatTheAILeaderboardEntry(userId: string, updateData: Partial<BeatTheAILeaderboard>): Promise<BeatTheAILeaderboard | undefined> {
+    const existingEntry = await this.getBeatTheAILeaderboardEntry(userId);
+    if (!existingEntry) return undefined;
+    
+    const updatedEntry: BeatTheAILeaderboard = {
+      ...existingEntry,
+      ...updateData,
+      lastActive: new Date()
+    };
+    this.beatTheAILeaderboard.set(existingEntry.id, updatedEntry);
+    return updatedEntry;
+  }
+
+  async recalculateLeaderboard(): Promise<void> {
+    const predictions = Array.from(this.beatTheAIPredictions.values());
+    const userStats = new Map<string, {
+      username: string;
+      totalScore: number;
+      accuracy: number;
+      totalPredictions: number;
+      winnings: number;
+    }>();
+
+    // Calculate stats for each user
+    for (const prediction of predictions) {
+      let stats = userStats.get(prediction.userId);
+      if (!stats) {
+        stats = {
+          username: prediction.username,
+          totalScore: 0,
+          accuracy: 0,
+          totalPredictions: 0,
+          winnings: 0
+        };
+        userStats.set(prediction.userId, stats);
+      }
+
+      stats.totalPredictions++;
+      if (prediction.score) {
+        stats.totalScore += parseFloat(prediction.score.toString());
+      }
+      if (prediction.isWinner) {
+        stats.winnings += 1000; // Base prize per win
+      }
+    }
+
+    // Calculate accuracy and update leaderboard
+    for (const [userId, stats] of userStats) {
+      const correctPredictions = predictions.filter(p => 
+        p.userId === userId && p.score && parseFloat(p.score.toString()) > 50
+      ).length;
+      
+      stats.accuracy = stats.totalPredictions > 0 ? 
+        (correctPredictions / stats.totalPredictions) * 100 : 0;
+
+      await this.updateBeatTheAILeaderboardEntry(userId, {
+        totalScore: stats.totalScore.toString(),
+        accuracy: stats.accuracy.toString(),
+        totalPredictions: stats.totalPredictions,
+        winnings: stats.winnings.toString()
+      });
+    }
+
+    // Assign ranks
+    const entries = Array.from(this.beatTheAILeaderboard.values())
+      .sort((a, b) => parseFloat(b.totalScore || '0') - parseFloat(a.totalScore || '0'));
+    
+    for (let i = 0; i < entries.length; i++) {
+      await this.updateBeatTheAILeaderboardEntry(entries[i].userId, {
+        rank: i + 1
+      });
+    }
   }
 }
 

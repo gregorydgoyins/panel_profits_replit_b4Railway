@@ -315,6 +315,74 @@ export const insertMarketEventSchema = createInsertSchema(marketEvents).omit({
   createdAt: true,
 });
 
+// Beat the AI Challenge Schema
+export const beatTheAIChallenge = pgTable('beat_the_ai_challenges', {
+  id: varchar('id').primaryKey().default(sql`gen_random_uuid()`),
+  title: text('title').notNull(),
+  description: text('description').notNull(),
+  targetAssets: text('target_assets').array().notNull(),
+  startDate: timestamp('start_date').notNull(),
+  endDate: timestamp('end_date').notNull(),
+  prizePool: decimal('prize_pool', { precision: 10, scale: 2 }).notNull(),
+  participantCount: integer('participant_count').default(0),
+  aiPrediction: decimal('ai_prediction', { precision: 5, scale: 2 }).notNull(),
+  status: text('status', { enum: ['ACTIVE', 'UPCOMING', 'COMPLETED'] }).notNull().default('ACTIVE'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull()
+});
+
+export type BeatTheAIChallenge = typeof beatTheAIChallenge.$inferSelect;
+export const insertBeatTheAIChallenge = createInsertSchema(beatTheAIChallenge).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true
+});
+export type InsertBeatTheAIChallenge = z.infer<typeof insertBeatTheAIChallenge>;
+
+// Beat the AI Prediction Submission Schema
+export const beatTheAIPrediction = pgTable('beat_the_ai_predictions', {
+  id: varchar('id').primaryKey().default(sql`gen_random_uuid()`),
+  challengeId: varchar('challenge_id').references(() => beatTheAIChallenge.id).notNull(),
+  userId: varchar('user_id').notNull(),
+  username: text('username').notNull(),
+  assetSymbol: text('asset_symbol').notNull(),
+  predictedChange: decimal('predicted_change', { precision: 5, scale: 2 }).notNull(),
+  submissionTime: timestamp('submission_time').defaultNow().notNull(),
+  actualChange: decimal('actual_change', { precision: 5, scale: 2 }),
+  score: decimal('score', { precision: 8, scale: 2 }),
+  isWinner: boolean('is_winner').default(false)
+});
+
+export type BeatTheAIPrediction = typeof beatTheAIPrediction.$inferSelect;
+export const insertBeatTheAIPrediction = createInsertSchema(beatTheAIPrediction).omit({
+  id: true,
+  submissionTime: true,
+  actualChange: true,
+  score: true,
+  isWinner: true
+});
+export type InsertBeatTheAIPrediction = z.infer<typeof insertBeatTheAIPrediction>;
+
+// Beat the AI Leaderboard Schema  
+export const beatTheAILeaderboard = pgTable('beat_the_ai_leaderboard', {
+  id: varchar('id').primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar('user_id').notNull(),
+  username: text('username').notNull(),
+  totalScore: decimal('total_score', { precision: 10, scale: 2 }).default('0'),
+  accuracy: decimal('accuracy', { precision: 5, scale: 2 }).default('0'),
+  totalPredictions: integer('total_predictions').default(0),
+  winnings: decimal('winnings', { precision: 10, scale: 2 }).default('0'),
+  rank: integer('rank').default(0),
+  lastActive: timestamp('last_active').defaultNow().notNull()
+});
+
+export type BeatTheAILeaderboard = typeof beatTheAILeaderboard.$inferSelect;
+export const insertBeatTheAILeaderboard = createInsertSchema(beatTheAILeaderboard).omit({
+  id: true,
+  lastActive: true
+});
+export type InsertBeatTheAILeaderboard = z.infer<typeof insertBeatTheAILeaderboard>;
+
 // Export types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;

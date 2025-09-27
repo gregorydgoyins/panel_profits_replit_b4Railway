@@ -46,14 +46,19 @@ export default function BeatTheAI() {
 
   // Fetch active challenges
   const { data: challenges = [], isLoading: challengesLoading, error, isError } = useQuery<Challenge[]>({
-    queryKey: ['/api/ai/challenges'],
-    queryFn: async () => {
-      const response = await fetch('/api/ai/challenges');
-      if (!response.ok) {
-        throw new Error(`Failed to fetch challenges: ${response.statusText}`);
-      }
-      return response.json();
-    }
+    queryKey: ['/api/ai/challenges']
+  });
+
+  // Fetch competition stats
+  const { data: stats } = useQuery({
+    queryKey: ['/api/ai/stats'],
+    refetchInterval: 30000 // Refresh every 30 seconds
+  });
+
+  // Fetch leaderboard data  
+  const { data: leaderboard = [], isLoading: leaderboardLoading } = useQuery({
+    queryKey: ['/api/ai/leaderboard'],
+    refetchInterval: 60000 // Refresh every minute
   });
 
   // Debug logging
