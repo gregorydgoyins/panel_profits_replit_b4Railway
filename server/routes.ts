@@ -593,6 +593,194 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Comic Data Routes
   app.use("/api/comic-data", comicDataRoutes);
 
+  // PPIx Index Routes (Comic Book Market Indices)
+  app.get("/api/ppix/indices", async (req, res) => {
+    console.log('🔥 PPIx indices endpoint called!');
+    
+    try {
+      console.log('🔥 Importing market pricing service...');
+      const { marketPricingService } = await import('./services/marketPricingService.js');
+      
+      // Generate smaller sample of assets for faster calculation (50 for demo)
+      console.log('🔥 Generating PPIx indices with sample data...');
+      const assets = await marketPricingService.generateTradingAssetsWithPricing(50);
+      console.log(`🔥 Generated ${assets.length} assets for PPIx calculation`);
+      
+      if (!assets || assets.length === 0) {
+        console.error('🔥 ERROR: No trading assets available');
+        throw new Error('No trading assets available');
+      }
+
+      console.log('🔥 Importing PPIx index service...');
+      const { ppixIndexService } = await import('./services/ppixIndexService.js');
+      
+      // Calculate both indices
+      console.log('🔥 Calculating PPIx indices...');
+      const ppix50 = await ppixIndexService.calculatePPIx50(assets);
+      const ppix100 = await ppixIndexService.calculatePPIx100(assets);
+      const comparison = ppixIndexService.generateIndexComparison(ppix50, ppix100);
+
+      console.log('🔥 PPIx calculation successful! Returning data...');
+      
+      res.json({
+        success: true,
+        indices: {
+          ppix50: {
+            ...ppix50,
+            methodology: ppixIndexService.getIndexMethodology('ppix50')
+          },
+          ppix100: {
+            ...ppix100,
+            methodology: ppixIndexService.getIndexMethodology('ppix100')
+          }
+        },
+        comparison,
+        lastUpdated: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('🔥 ERROR calculating PPIx indices:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to calculate market indices',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.get("/api/ppix/:indexType", async (req, res) => {
+    try {
+      const indexType = req.params.indexType as 'ppix50' | 'ppix100';
+      
+      if (!['ppix50', 'ppix100'].includes(indexType)) {
+        return res.status(400).json({ error: 'Invalid index type. Use ppix50 or ppix100' });
+      }
+
+      const { marketPricingService } = await import('./services/marketPricingService.js');
+      
+      // Generate sample assets for faster calculation
+      console.log(`Generating ${indexType} with sample data...`);
+      const assets = await marketPricingService.generateTradingAssetsWithPricing(30);
+      
+      if (!assets || assets.length === 0) {
+        throw new Error('No trading assets available');
+      }
+
+      const { ppixIndexService } = await import('./services/ppixIndexService.js');
+      
+      // Calculate specific index
+      const indexData = indexType === 'ppix50' 
+        ? await ppixIndexService.calculatePPIx50(assets)
+        : await ppixIndexService.calculatePPIx100(assets);
+
+      res.json({
+        success: true,
+        index: {
+          ...indexData,
+          type: indexType,
+          methodology: ppixIndexService.getIndexMethodology(indexType)
+        },
+        lastUpdated: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error(`Error calculating ${req.params.indexType}:`, error);
+      res.status(500).json({
+        success: false,
+        error: `Failed to calculate ${req.params.indexType}`,
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  // Subscription Management Routes
+  app.get("/api/subscription/tiers", async (req, res) => {
+    try {
+      const { tierFeatures } = await import('./services/subscriptionService.js');
+      
+      res.json({
+        success: true,
+        tiers: {
+          free: {
+            name: 'Comic Curious',
+            price: 0,
+            features: tierFeatures.free,
+            description: 'Perfect for comic enthusiasts getting started'
+          },
+          pro: {
+            name: 'Serious Collector', 
+            price: 29,
+            features: tierFeatures.pro,
+            description: 'Advanced tools for dedicated collectors'
+          },
+          elite: {
+            name: 'Investment Powerhouse',
+            price: 99,
+            features: tierFeatures.elite,
+            description: 'Complete suite for professional investors'
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching subscription tiers:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch subscription tiers'
+      });
+    }
+  });
+
+  app.get("/api/subscription/user/:userId/access/:feature", async (req, res) => {
+    try {
+      const { userId, feature } = req.params;
+      
+      // Get user from storage (mock for now - you'll implement this)
+      const user = await storage.getUser?.(userId) || {
+        id: userId,
+        username: 'demo_user',
+        password: 'mock',
+        email: 'demo@example.com',
+        subscriptionTier: 'free' as const,
+        subscriptionStatus: 'active' as const,
+        subscriptionStartDate: null,
+        subscriptionEndDate: null,
+        stripeCustomerId: null,
+        monthlyTradingCredits: 0,
+        usedTradingCredits: 0,
+        competitionWins: 0,
+        competitionRanking: null,
+        preferences: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+
+      const { SubscriptionService } = await import('./services/subscriptionService.js');
+      
+      const hasAccess = SubscriptionService.hasFeatureAccess(user, feature as any);
+      const remainingCredits = SubscriptionService.getRemainingCredits(user);
+      
+      let upgradeRecommendation = null;
+      if (!hasAccess) {
+        upgradeRecommendation = SubscriptionService.getUpgradeRecommendations(user, feature as any);
+      }
+
+      res.json({
+        success: true,
+        hasAccess,
+        currentTier: user.subscriptionTier,
+        remainingCredits,
+        upgradeRecommendation,
+        featureGateMessage: !hasAccess ? 
+          SubscriptionService.getFeatureGateMessage(feature as any, upgradeRecommendation?.recommendedTier || 'pro') : 
+          null
+      });
+    } catch (error) {
+      console.error('Error checking feature access:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to check feature access'
+      });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

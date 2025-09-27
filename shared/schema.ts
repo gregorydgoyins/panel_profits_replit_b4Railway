@@ -3,13 +3,24 @@ import { pgTable, text, varchar, decimal, integer, timestamp, boolean, jsonb } f
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Users table
+// Users table with subscription tiers
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   email: text("email"),
+  subscriptionTier: text("subscription_tier").notNull().default("free"), // 'free', 'pro', 'elite'
+  subscriptionStatus: text("subscription_status").default("active"), // 'active', 'cancelled', 'past_due'
+  subscriptionStartDate: timestamp("subscription_start_date"),
+  subscriptionEndDate: timestamp("subscription_end_date"),
+  stripeCustomerId: text("stripe_customer_id"),
+  monthlyTradingCredits: integer("monthly_trading_credits").default(0),
+  usedTradingCredits: integer("used_trading_credits").default(0),
+  competitionWins: integer("competition_wins").default(0),
+  competitionRanking: integer("competition_ranking"),
+  preferences: jsonb("preferences"), // UI settings, notifications, etc.
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Asset types: characters, comics, creators, publishers
@@ -90,14 +101,19 @@ export const marketInsights = pgTable("market_insights", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Market indices (CCIX, PPIX100, etc.)
+// Market indices (PPIx 50, PPIx 100, etc.)
 export const marketIndices = pgTable("market_indices", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   symbol: text("symbol").notNull().unique(),
   name: text("name").notNull(),
   description: text("description"),
+  indexType: text("index_type").notNull(), // 'ppix50', 'ppix100', 'custom'
+  methodology: text("methodology"), // Explanation of how index is calculated
   constituents: jsonb("constituents"), // Array of asset IDs with weights
+  rebalanceFrequency: text("rebalance_frequency").default("monthly"), // 'daily', 'weekly', 'monthly', 'quarterly'
+  isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Historical market index data for time-series analysis
@@ -148,6 +164,77 @@ export const orders = pgTable("orders", {
   status: text("status").notNull(), // 'pending', 'filled', 'cancelled'
   filledAt: timestamp("filled_at"),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+// AI vs Human competition leagues
+export const competitionLeagues = pgTable("competition_leagues", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description"),
+  season: text("season").notNull(), // 'Q1-2025', 'Q2-2025', etc.
+  entryFee: decimal("entry_fee", { precision: 10, scale: 2 }).default("0"),
+  prizePool: decimal("prize_pool", { precision: 10, scale: 2 }).default("0"),
+  maxParticipants: integer("max_participants").default(100),
+  currentParticipants: integer("current_participants").default(0),
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
+  status: text("status").notNull().default("upcoming"), // 'upcoming', 'active', 'completed'
+  rules: jsonb("rules"), // Competition rules and constraints
+  aiOpponents: jsonb("ai_opponents"), // AI trading strategies and personalities
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Competition participants and their performance
+export const competitionParticipants = pgTable("competition_participants", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  leagueId: varchar("league_id").notNull().references(() => competitionLeagues.id),
+  userId: varchar("user_id").references(() => users.id), // null for AI participants
+  participantType: text("participant_type").notNull(), // 'human', 'ai'
+  participantName: text("participant_name").notNull(),
+  aiStrategy: text("ai_strategy"), // For AI participants
+  portfolioValue: decimal("portfolio_value", { precision: 15, scale: 2 }).default("100000"),
+  totalReturn: decimal("total_return", { precision: 10, scale: 2 }).default("0"),
+  totalReturnPercent: decimal("total_return_percent", { precision: 5, scale: 2 }).default("0"),
+  currentRank: integer("current_rank"),
+  trades: integer("trades").default(0),
+  winRate: decimal("win_rate", { precision: 5, scale: 2 }),
+  riskScore: decimal("risk_score", { precision: 3, scale: 1 }),
+  joinedAt: timestamp("joined_at").defaultNow(),
+});
+
+// Educational courses and content
+export const courses = pgTable("courses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description"),
+  category: text("category").notNull(), // 'pressing', 'grading', 'investing', 'collection'
+  difficulty: text("difficulty").notNull(), // 'beginner', 'intermediate', 'advanced'
+  requiredTier: text("required_tier").notNull().default("free"), // 'free', 'pro', 'elite'
+  duration: integer("duration"), // Duration in minutes
+  modules: jsonb("modules"), // Course modules and content
+  prerequisites: text("prerequisites").array(),
+  learningOutcomes: text("learning_outcomes").array(),
+  thumbnailUrl: text("thumbnail_url"),
+  videoUrl: text("video_url"),
+  isPublished: boolean("is_published").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// User course progress and certifications
+export const userCourseProgress = pgTable("user_course_progress", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  courseId: varchar("course_id").notNull().references(() => courses.id),
+  progress: decimal("progress", { precision: 5, scale: 2 }).default("0"), // 0-100%
+  currentModule: integer("current_module").default(1),
+  completedModules: integer("completed_modules").array(),
+  timeSpent: integer("time_spent").default(0), // Minutes
+  quizScores: jsonb("quiz_scores"),
+  certificateEarned: boolean("certificate_earned").default(false),
+  certificateUrl: text("certificate_url"),
+  startedAt: timestamp("started_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
 });
 
 // Market events that affect asset prices

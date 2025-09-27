@@ -29,6 +29,7 @@ import SettingsPage from '@/pages/settings';
 import HelpPage from '@/pages/help';
 import SpectacularShowcase from '@/pages/SpectacularShowcase';
 import RealDataShowcase from '@/pages/RealDataShowcase';
+import PPIxDashboard from '@/pages/PPIxDashboard';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -102,6 +103,9 @@ function Router() {
       
       {/* Real Data Integration Showcase */}
       <Route path="/real-data" component={RealDataShowcase} />
+      
+      {/* PPIx Market Indices Dashboard */}
+      <Route path="/ppix" component={PPIxDashboard} />
       
       <Route component={NotFound} />
     </Switch>
