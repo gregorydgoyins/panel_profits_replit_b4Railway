@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { BookOpen, Search, TrendingUp, TrendingDown, Star, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { apiRequest } from '@/lib/queryClient';
 
 interface Comic {
   symbol: string;
@@ -18,34 +20,54 @@ export function KeyComicSearchSection() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAge, setSelectedAge] = useState('all');
   const [selectedPublisher, setSelectedPublisher] = useState('all');
-  const [watchlistItems, setWatchlistItems] = useState<Set<string>>(new Set());
+  const queryClient = useQueryClient();
 
-  // Quick access comics for display
-  const quickAccessComics: Comic[] = [
-    { symbol: 'ACM1', title: 'Action Comics #1', price: 3200000, change: 4.06, publisher: 'DC' },
-    { symbol: 'DTM27', title: 'Detective Comics #27', price: 2800000, change: 3.13, publisher: 'DC' },
-    { symbol: 'AF15', title: 'Amazing Fantasy #15', price: 1800000, change: 5.57, publisher: 'Marvel' },
-    { symbol: 'ASM300', title: 'Amazing Spider-Man #300', price: 2500, change: 5.26, publisher: 'Marvel' },
-    { symbol: 'XMN1', title: 'X-Men #1 (1963)', price: 875000, change: -1.24, publisher: 'Marvel' },
-    { symbol: 'FF1', title: 'Fantastic Four #1', price: 650000, change: 2.89, publisher: 'Marvel' }
-  ];
+  // Fetch assets (comics) using React Query with filters
+  const { data: assets = [], isLoading, error } = useQuery({
+    queryKey: ['/api/assets', { type: 'comic', search: searchQuery, publisher: selectedPublisher }],
+    queryFn: async ({ queryKey }) => {
+      const [, filters] = queryKey as [string, { type?: string; search?: string; publisher?: string }];
+      const params = new URLSearchParams();
+      if (filters.type) params.append('type', filters.type);
+      if (filters.search) params.append('search', filters.search);
+      if (filters.publisher && filters.publisher !== 'all') params.append('publisher', filters.publisher);
+      
+      const response = await fetch(`/api/assets?${params.toString()}`);
+      if (!response.ok) throw new Error('Failed to fetch assets');
+      return response.json();
+    },
+    select: (data) => data || [], // Ensure we always have an array
+  });
 
-  // Filter comics based on search and filters
-  const filteredComics = quickAccessComics.filter(comic => {
-    const matchesSearch = searchQuery === '' || 
-      comic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      comic.symbol.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesPublisher = selectedPublisher === 'all' || 
-      comic.publisher.toLowerCase() === selectedPublisher.toLowerCase();
-    
-    return matchesSearch && matchesPublisher;
+  // Fetch current user's watchlist
+  const { data: watchlistAssets = [] } = useQuery({
+    queryKey: ['/api/watchlists', 'user-default'], // Assuming default user watchlist
+    select: (data) => data?.assets || [], // Extract assets from watchlist
+  });
+
+  // Add to watchlist mutation
+  const addToWatchlistMutation = useMutation({
+    mutationFn: async (assetId: string) => {
+      return apiRequest('POST', '/api/watchlists/user-default/assets', { assetId });
+    },
+    onSuccess: () => {
+      // Invalidate watchlist query to refetch updated data
+      queryClient.invalidateQueries({ queryKey: ['/api/watchlists', 'user-default'] });
+    },
   });
 
   const handleAddToWatchlist = (symbol: string) => {
-    console.log(`Adding ${symbol} to watchlist`);
-    setWatchlistItems(prev => new Set([...Array.from(prev), symbol]));
+    // Find the asset by symbol to get its ID
+    const asset = assets.find(a => a.symbol === symbol);
+    if (asset?.id) {
+      addToWatchlistMutation.mutate(asset.id);
+    } else {
+      console.warn(`Asset with symbol ${symbol} not found or missing ID`);
+    }
   };
+
+  // Assets are now filtered server-side via queryFn, but apply any remaining client-side filters
+  const filteredComics = assets;
 
   return (
     <Card className="p-6" data-testid="key-comic-search">
@@ -149,11 +171,12 @@ export function KeyComicSearchSection() {
                     <div className="ml-3">
                       <Button
                         size="icon"
-                        variant={watchlistItems.has(comic.symbol) ? "default" : "ghost"}
+                        variant={watchlistAssets.some(asset => asset.symbol === comic.symbol) ? "default" : "ghost"}
                         onClick={() => handleAddToWatchlist(comic.symbol)}
                         data-testid={`button-watchlist-${comic.symbol}`}
+                        disabled={addToWatchlistMutation.isPending}
                       >
-                        {watchlistItems.has(comic.symbol) ? (
+                        {watchlistAssets.some(asset => asset.symbol === comic.symbol) ? (
                           <Check className="h-4 w-4" />
                         ) : (
                           <Star className="h-4 w-4" />

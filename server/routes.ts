@@ -22,7 +22,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const type = req.query.type as string;
       const search = req.query.search as string;
-      const assets = await storage.getAssets({ type, search });
+      const publisher = req.query.publisher as string;
+      const assets = await storage.getAssets({ type, search, publisher });
       res.json(assets);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch assets" });
@@ -536,6 +537,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid event data", details: error.errors });
       }
       res.status(500).json({ error: "Failed to create market event" });
+    }
+  });
+
+  // Market Updates for live feed
+  app.get("/api/market-updates", async (req, res) => {
+    try {
+      // Get recent market events and activities for live feed
+      const recentEvents = await storage.getMarketEvents({ isActive: true });
+      
+      // Transform market events into market updates format
+      const updates = recentEvents.slice(0, 10).map(event => ({
+        id: event.id,
+        type: 'news-impact' as const,
+        symbol: event.title.split(' ')[0] || 'UNKNOWN',
+        name: event.title,
+        assetType: event.category === 'character' ? 'character' : 'comic' as const,
+        message: event.description,
+        impact: event.impact as 'positive' | 'negative' | 'neutral',
+        timestamp: event.eventDate,
+        value: Math.floor(Math.random() * 4000) + 1000, // Mock for now
+        change: (Math.random() - 0.5) * 10 // Mock for now
+      }));
+      
+      res.json(updates);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch market updates" });
+    }
+  });
+
+  // Market Insights Routes
+  app.get("/api/market-insights", async (req, res) => {
+    try {
+      const insights = await storage.getMarketInsights();
+      res.json(insights);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch market insights" });
+    }
+  });
+
+  app.post("/api/market-insights", async (req, res) => {
+    try {
+      const validatedData = insertMarketInsightSchema.parse(req.body);
+      const insight = await storage.createMarketInsight(validatedData);
+      res.status(201).json(insight);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid insight data", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create market insight" });
     }
   });
 

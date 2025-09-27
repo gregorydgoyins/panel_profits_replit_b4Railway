@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Activity, TrendingUp, TrendingDown, Clock, Eye, Pause, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -18,66 +19,15 @@ interface MarketUpdate {
 }
 
 export function LiveMarketFeed() {
-  const [updates, setUpdates] = useState<MarketUpdate[]>([]);
   const [isPaused, setIsPaused] = useState(false);
 
-  useEffect(() => {
-    // Generate initial updates
-    const generateUpdate = (): MarketUpdate => {
-      const symbols = ['SPDR', 'BATM', 'AF15', 'TMFS', 'JOKR', 'ASM300', 'WNDR', 'SUPN', 'HULK', 'XMEN'];
-      const names = [
-        'Spider-Man', 'Batman', 'Amazing Fantasy #15', 'Todd McFarlane', 'The Joker', 
-        'Amazing Spider-Man #300', 'Wonder Woman', 'Superman', 'The Hulk', 'X-Men'
-      ];
-      const types: Array<'character' | 'comic' | 'creator' | 'publisher'> = [
-        'character', 'character', 'comic', 'creator', 'character', 
-        'comic', 'character', 'character', 'character', 'character'
-      ];
-      
-      const updateTypes: Array<'price-alert' | 'volume-spike' | 'news-impact' | 'technical-signal'> = 
-        ['price-alert', 'volume-spike', 'news-impact', 'technical-signal'];
-      
-      const randomIndex = Math.floor(Math.random() * symbols.length);
-      const updateType = updateTypes[Math.floor(Math.random() * updateTypes.length)];
-      
-      const messages = {
-        'price-alert': ['broke through resistance at', 'approaching support level at', 'hit new 52-week high at', 'testing key support at'],
-        'volume-spike': ['unusual volume spike detected', 'trading volume 3x normal', 'heavy institutional buying', 'significant selling pressure'],
-        'news-impact': ['positive media coverage impact', 'movie announcement boost', 'creator interview influence', 'convention announcement effect'],
-        'technical-signal': ['bullish breakout pattern', 'bearish divergence signal', 'golden cross formation', 'death cross warning']
-      };
-      
-      const impacts: Array<'positive' | 'negative' | 'neutral'> = ['positive', 'negative', 'neutral'];
-      const impact = impacts[Math.floor(Math.random() * impacts.length)];
-      
-      return {
-        id: `${Date.now()}-${Math.random()}`,
-        type: updateType,
-        symbol: symbols[randomIndex],
-        name: names[randomIndex],
-        assetType: types[randomIndex],
-        message: messages[updateType][Math.floor(Math.random() * messages[updateType].length)],
-        impact,
-        timestamp: new Date(),
-        value: 1000 + Math.floor(Math.random() * 4000),
-        change: (Math.random() - 0.5) * 10
-      };
-    };
-
-    // Initialize with some updates
-    const initialUpdates = Array.from({ length: 6 }, generateUpdate);
-    setUpdates(initialUpdates);
-
-    // Add new updates every 4-7 seconds
-    const interval = setInterval(() => {
-      if (!isPaused) {
-        const newUpdate = generateUpdate();
-        setUpdates(prev => [newUpdate, ...prev.slice(0, 9)]); // Keep only 10 most recent
-      }
-    }, Math.random() * 3000 + 4000);
-
-    return () => clearInterval(interval);
-  }, [isPaused]);
+  // Fetch live market updates using React Query with polling
+  const { data: updates = [], isLoading, error } = useQuery({
+    queryKey: ['/api/market-updates'],
+    enabled: !isPaused, // Pause polling when user pauses the feed
+    refetchInterval: 5000, // Poll every 5 seconds for real-time updates
+    staleTime: 0, // Always consider data stale for live updates
+  });
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -168,7 +118,7 @@ export function LiveMarketFeed() {
             <div className="text-right">
               <div className="flex items-center space-x-1 text-xs text-muted-foreground">
                 <Clock className="h-3 w-3" />
-                <span>{formatTime(update.timestamp)}</span>
+                <span>{formatTime(new Date(update.timestamp))}</span>
               </div>
             </div>
           </div>

@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Brain, Zap, TrendingUp, Target, BarChart3, Lightbulb, MessageSquare, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { apiRequest } from '@/lib/queryClient';
 
 interface AIInsight {
   id: string;
@@ -17,55 +19,31 @@ interface AIInsight {
 
 export function AIStudio() {
   const [query, setQuery] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [insights, setInsights] = useState<AIInsight[]>([
-    {
-      id: '1',
-      type: 'market-analysis',
-      title: 'Spider-Man Stocks Showing Bullish Pattern',
-      confidence: 89,
-      summary: 'Technical analysis indicates SPDR is forming a bullish flag pattern with strong volume support. Recent movie announcements and comic releases are driving positive sentiment.',
-      timestamp: new Date(Date.now() - 1000 * 60 * 15)
+  const queryClient = useQueryClient();
+
+  // Fetch AI insights using React Query
+  const { data: insights = [], isLoading } = useQuery({
+    queryKey: ['/api/market-insights'],
+    select: (data) => data || [],
+  });
+
+  // Generate new AI insight mutation
+  const generateInsightMutation = useMutation({
+    mutationFn: async (userQuery: string) => {
+      return apiRequest('POST', '/api/market-insights', { 
+        type: 'trading-strategy',
+        query: userQuery 
+      });
     },
-    {
-      id: '2', 
-      type: 'character-spotlight',
-      title: 'Wolverine Undervalued Opportunity',
-      confidence: 76,
-      summary: 'Logan-related assets are trading below historical averages despite upcoming media projects. X-Men character diversification could provide portfolio balance.',
-      timestamp: new Date(Date.now() - 1000 * 60 * 45)
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/market-insights'] });
+      setQuery(''); // Clear input after successful generation
     },
-    {
-      id: '3',
-      type: 'trend-prediction',
-      title: 'Golden Age Comics Momentum Building',
-      confidence: 82,
-      summary: 'ML models indicate 1940s-1950s comic issues are entering a growth phase. Historical data suggests this trend could continue for 3-6 months.',
-      timestamp: new Date(Date.now() - 1000 * 60 * 120)
-    }
-  ]);
+  });
 
   const generateInsight = async () => {
     if (!query.trim()) return;
-    
-    setIsGenerating(true);
-    console.log('Generating AI insight for:', query);
-    
-    // Simulate AI processing
-    setTimeout(() => {
-      const newInsight: AIInsight = {
-        id: Date.now().toString(),
-        type: 'trading-strategy',
-        title: `Analysis: ${query}`,
-        confidence: Math.floor(Math.random() * 30) + 70,
-        summary: `Based on your query about "${query}", our AI analysis suggests monitoring current market conditions and considering diversification strategies. The comic market shows varying trends across different character types and publishers.`,
-        timestamp: new Date()
-      };
-      
-      setInsights(prev => [newInsight, ...prev.slice(0, 4)]);
-      setQuery('');
-      setIsGenerating(false);
-    }, 2000);
+    generateInsightMutation.mutate(query);
   };
 
   const getTypeIcon = (type: string) => {
@@ -144,7 +122,7 @@ export function AIStudio() {
                           {insight.confidence}% confidence
                         </Badge>
                         <p className="text-xs text-muted-foreground mt-1">
-                          {formatTime(insight.timestamp)}
+                          {formatTime(new Date(insight.timestamp))}
                         </p>
                       </div>
                     </div>
@@ -169,11 +147,11 @@ export function AIStudio() {
               </div>
               <Button 
                 onClick={generateInsight}
-                disabled={!query.trim() || isGenerating}
+                disabled={!query.trim() || generateInsightMutation.isPending}
                 className="w-full"
                 data-testid="button-generate-insight"
               >
-                {isGenerating ? (
+                {generateInsightMutation.isPending ? (
                   <>
                     <Wand2 className="h-4 w-4 mr-2 animate-spin" />
                     Analyzing...

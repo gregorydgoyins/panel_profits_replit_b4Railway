@@ -32,7 +32,7 @@ export interface IStorage {
   // Asset management
   getAsset(id: string): Promise<Asset | undefined>;
   getAssetBySymbol(symbol: string): Promise<Asset | undefined>;
-  getAssets(filters?: { type?: string; search?: string }): Promise<Asset[]>;
+  getAssets(filters?: { type?: string; search?: string; publisher?: string }): Promise<Asset[]>;
   createAsset(asset: InsertAsset): Promise<Asset>;
   updateAsset(id: string, asset: Partial<InsertAsset>): Promise<Asset | undefined>;
   deleteAsset(id: string): Promise<boolean>;
@@ -243,7 +243,7 @@ export class MemStorage implements IStorage {
     return Array.from(this.assets.values()).find(asset => asset.symbol === symbol);
   }
 
-  async getAssets(filters?: { type?: string; search?: string }): Promise<Asset[]> {
+  async getAssets(filters?: { type?: string; search?: string; publisher?: string }): Promise<Asset[]> {
     let assets = Array.from(this.assets.values());
     
     if (filters?.type) {
@@ -255,6 +255,13 @@ export class MemStorage implements IStorage {
       assets = assets.filter(asset => 
         asset.name.toLowerCase().includes(searchLower) ||
         asset.symbol.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    if (filters?.publisher) {
+      const publisherLower = filters.publisher.toLowerCase();
+      assets = assets.filter(asset => 
+        asset.metadata?.publisher?.toLowerCase() === publisherLower
       );
     }
     
