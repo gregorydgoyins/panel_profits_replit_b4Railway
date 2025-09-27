@@ -1,0 +1,400 @@
+/* Import button styles */
+@import './styles/buttons.css';
+@import './styles/effects.css';
+@import './styles/hyperlinks.css';
+@import './styles/hyperlinks.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer base {
+  html {
+    font-family: 'Hind', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Oswald', sans-serif;
+  }
+
+  body {
+    @apply bg-slate-900;
+  }
+}
+
+@layer components {
+  /* Universal Stop Light Color System */
+  .status-positive {
+    @apply bg-green-900/30 border-green-700/30 text-green-400;
+  }
+  
+  .status-neutral {
+    @apply bg-yellow-900/30 border-yellow-700/30 text-yellow-400;
+  }
+  
+  .status-negative {
+    @apply bg-red-900/30 border-red-700/30 text-red-400;
+  }
+  
+  .status-positive-hover {
+    @apply hover:bg-green-600 hover:border-green-500 hover:text-green-100;
+  }
+  
+  .status-neutral-hover {
+    @apply hover:bg-yellow-600 hover:border-yellow-500 hover:text-yellow-100;
+  }
+  
+  .status-negative-hover {
+    @apply hover:bg-red-600 hover:border-red-500 hover:text-red-100;
+  }
+  
+  /* Text-only status colors */
+  .text-positive {
+    @apply text-green-400;
+  }
+  
+  .text-neutral {
+    @apply text-yellow-400;
+  }
+  
+  .text-negative {
+    @apply text-red-400;
+  }
+  
+  /* Icon colors for performance indicators */
+  .icon-positive {
+    @apply text-green-400;
+  }
+  
+  .icon-neutral {
+    @apply text-yellow-400;
+  }
+  
+  .icon-negative {
+    @apply text-red-400;
+  }
+  
+  /* Badge variants */
+  .badge-positive {
+    @apply bg-green-900/50 text-green-200 border-green-700/50;
+  }
+  
+  .badge-neutral {
+    @apply bg-yellow-900/50 text-yellow-200 border-yellow-700/50;
+  }
+  
+  .badge-negative {
+    @apply bg-red-900/50 text-red-200 border-red-700/50;
+  }
+
+  /* Continuous scrolling animations */
+  @keyframes scroll-left {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  /* Enhanced ticker animation */
+  .animate-scroll {
+    animation: scroll-left var(--scroll-duration, 60s) linear infinite;
+  }
+
+  @keyframes scroll-right {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(0%);
+    }
+  }
+
+  /* Ticker animation classes */
+  .ticker-scroll {
+    animation: scroll-left var(--scroll-duration, 60s) linear infinite;
+  }
+
+  .ticker-scroll-fast {
+    animation: scroll-left var(--scroll-duration, 30s) linear infinite;
+  }
+
+  .ticker-scroll-slow {
+    animation: scroll-left var(--scroll-duration, 90s) linear infinite;
+  }
+
+  .ticker-scroll-paused {
+    animation-play-state: paused;
+  }
+
+  /* Parallax background for main content */
+  .main-content-parallax {
+    background-image: linear-gradient(135deg, 
+      rgba(15, 15, 15, 0.9) 0%, 
+      rgba(30, 30, 30, 0.9) 25%,
+      rgba(45, 45, 45, 0.9) 50%,
+      rgba(30, 30, 30, 0.9) 75%,
+      rgba(15, 15, 15, 0.9) 100%),
+      url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="%23404040" stroke-width="0.5" opacity="0.3"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    background-attachment: fixed;
+    background-size: cover, 50px 50px;
+    background-position: center, center;
+    min-height: calc(100vh - 4rem);
+  }
+
+  /* Trading Section Colors */
+  .trading-primary {
+    @apply bg-orange-600 hover:bg-orange-700 text-white;
+  }
+
+  .trading-secondary {
+    @apply bg-orange-900/50 text-orange-200 border-orange-700/50;
+  }
+
+  .trading-accent {
+    @apply text-orange-400 hover:text-orange-300;
+  }
+
+  /* Learning Section Colors */
+  .learn-primary {
+    @apply bg-red-600 hover:bg-red-700 text-white;
+  }
+
+  .learn-secondary {
+    @apply bg-red-900/50 text-red-200 border-red-700/50;
+  }
+
+  .learn-accent {
+    @apply text-red-400 hover:text-red-300;
+  }
+
+  /* Portfolio Section Colors */
+  .portfolio-primary {
+    @apply bg-orange-600 hover:bg-orange-700 text-white;
+  }
+
+  .portfolio-secondary {
+    @apply bg-orange-900/50 text-orange-200 border-orange-700/50;
+  }
+
+  .portfolio-accent {
+    @apply text-orange-400 hover:text-orange-300;
+  }
+
+  /* Hide scrollbars for tickers */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Navigation Components */
+  .nav-section {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+  }
+
+  .nav-link {
+    @apply text-gray-200 hover:text-white transition-colors duration-200 
+           hover:underline decoration-2 underline-offset-4;
+  }
+
+  .nav-link-active {
+    @apply font-semibold;
+  }
+
+  /* Button Components */
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 
+           shadow-sm hover:shadow-md active:shadow-inner
+           transform hover:-translate-y-0.5 active:translate-y-0;
+  }
+
+  /* Card Components */
+  .card {
+    @apply bg-slate-800 rounded-xl 
+           shadow-lg hover:shadow-xl
+           border border-slate-700/50
+           transition-all duration-200 ease-in-out
+           text-white p-6;
+  }
+
+  /* News Ticker Animation */
+
+
+  /* High Contrast Focus Styles */
+  :focus-visible {
+    @apply outline-none ring-2 ring-offset-2 ring-offset-slate-900;
+  }
+
+  /* Section-specific ring colors */
+  .trading-focus {
+    @apply ring-emerald-500;
+  }
+
+  .learn-focus {
+    @apply ring-indigo-500;
+  }
+
+  .portfolio-focus {
+    @apply ring-purple-500;
+  }
+
+  /* Interactive Elements */
+  .interactive-icon {
+    @apply hover:scale-110 active:scale-95
+           transition-transform duration-200
+           cursor-pointer;
+  }
+
+  /* Section Headers */
+  .section-header {
+    @apply text-2xl font-bold mb-6;
+  }
+
+  .trading-header {
+    @apply text-emerald-400;
+  }
+
+  .learn-header {
+    @apply text-indigo-400;
+  }
+
+  .portfolio-header {
+    @apply text-purple-400;
+  }
+  
+  /* Hero card styling */
+  .hero-card {
+    @apply bg-gradient-to-br from-slate-800/90 to-slate-900/90 
+           backdrop-blur-md border border-slate-700/50
+           shadow-2xl;
+  }
+  
+  /* Innovation Studio specific styles */
+  .idea-network-container {
+    @apply relative overflow-hidden rounded-lg;
+  }
+  
+  .idea-node-tooltip {
+    @apply absolute z-10 bg-slate-800/95 backdrop-blur-md p-3 rounded-lg 
+           shadow-xl border border-slate-700/50 text-sm text-white
+           transform -translate-x-1/2 -translate-y-full mb-2;
+  }
+  
+  .cluster-sorting-controls {
+    @apply flex items-center space-x-2 text-sm;
+  }
+  
+  /* Line clamp utility for long text */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+  
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+}
+
+/* Accessibility Helpers */
+.sr-only {
+  @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+}
+
+/* Smooth Transitions */
+.transition-smooth {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+/* Responsive design utilities */
+@media (max-width: 640px) {
+  .btn-responsive {
+    @apply w-full min-w-0;
+  }
+}
+
+@media (min-width: 641px) {
+  .btn-responsive {
+    @apply w-auto min-w-[200px];
+  }
+}
+
+/* Custom breakpoint styles */
+@media (max-width: 640px) {
+  .hide-on-mobile {
+    display: none;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .hide-on-tablet {
+    display: none;
+  }
+}
+
+@media (min-width: 1025px) {
+  .hide-on-desktop {
+    display: none;
+  }
+}
+
+/* Touch target sizes for mobile */
+@media (max-width: 640px) {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Responsive images */
+.img-responsive {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive tables */
+.table-responsive {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Text responsive utilities */
+.text-responsive {
+  @apply text-sm sm:text-base lg:text-lg;
+}
+
+.heading-responsive {
+  @apply text-xl sm:text-2xl lg:text-3xl font-bold;
+}
+
+.subheading-responsive {
+  @apply text-lg sm:text-xl lg:text-2xl font-semibold;
+}
+
+/* Container and spacing utilities */
+.section-spacing {
+  @apply py-4 sm:py-6 lg:py-8;
+}
+
+.container-responsive {
+  @apply px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl;
+}
