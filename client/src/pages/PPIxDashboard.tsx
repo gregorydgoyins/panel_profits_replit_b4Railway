@@ -319,7 +319,22 @@ export default function PPIxDashboard() {
                       #{index + 1}
                     </Badge>
                     <div>
-                      <div className="font-semibold">{constituent.name}</div>
+                      <div className="font-semibold flex items-center gap-2">
+                        {constituent.name}
+                        {constituent.investmentGrade && (
+                          <Badge 
+                            variant={
+                              constituent.investmentGrade === 'INSTITUTIONAL' ? 'default' :
+                              constituent.investmentGrade === 'INVESTMENT' ? 'secondary' :
+                              constituent.investmentGrade === 'SPECULATIVE' ? 'outline' : 'destructive'
+                            } 
+                            className="text-xs"
+                            data-testid={`grade-${constituent.investmentGrade.toLowerCase()}`}
+                          >
+                            {constituent.investmentGrade}
+                          </Badge>
+                        )}
+                      </div>
                       <div className="text-sm text-muted-foreground">
                         {constituent.symbol} • {constituent.category}
                       </div>
