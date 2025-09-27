@@ -1,0 +1,1 @@
+// This file has been removed as derivatives data is not currently used in the application

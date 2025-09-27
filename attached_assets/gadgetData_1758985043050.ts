@@ -1,0 +1,87 @@
+import { Gadget } from '../types';
+
+// All Gadgets Data
+export const gadgets: Gadget[] = [
+  {
+    id: '1',
+    name: 'Batman\'s Utility Belt',
+    symbol: 'BTUB',
+    price: 250,
+    change: 12.50,
+    percentageChange: 5.3,
+    marketCap: 1250000000,
+    volume: 1500,
+    rating: 'Strong Buy',
+    firstAppearance: 'Detective Comics #29 (1939)',
+    creator: 'Bob Kane',
+    owner: 'Batman',
+    publisher: 'DC',
+    capabilities: ['Grappling hook', 'Batarangs', 'Smoke bombs', 'First aid supplies', 'Communication devices'],
+    significance: 98,
+    mediaAppearances: 50,
+    description: 'Batman\'s iconic utility belt containing an array of crime-fighting tools and gadgets.',
+    image: 'https://images.unsplash.com/photo-1608889476561-6242cfdbf622?w=400&h=300&fit=crop'
+  },
+  {
+    id: '2',
+    name: 'Spider-Man\'s Web Shooters',
+    symbol: 'SPWS',
+    price: 180,
+    change: 9.00,
+    percentageChange: 5.3,
+    marketCap: 900000000,
+    volume: 1200,
+    rating: 'Strong Buy',
+    firstAppearance: 'Amazing Fantasy #15 (1962)',
+    creator: 'Stan Lee & Steve Ditko',
+    owner: 'Spider-Man',
+    publisher: 'Marvel',
+    capabilities: ['Web shooting', 'Swinging', 'Web constructs', 'Restraints', 'Shield generation'],
+    significance: 96,
+    mediaAppearances: 45,
+    description: 'Spider-Man\'s mechanical web shooters, allowing him to swing through New York City.',
+    image: 'https://images.unsplash.com/photo-1578493232451-5a3fce2c9921?w=400&h=300&fit=crop'
+  },
+  {
+    id: '3',
+    name: 'Captain America\'s Shield',
+    symbol: 'CAPS',
+    price: 220,
+    change: 11.00,
+    percentageChange: 5.3,
+    marketCap: 1100000000,
+    volume: 1300,
+    rating: 'Strong Buy',
+    firstAppearance: 'Captain America Comics #1 (1941)',
+    creator: 'Joe Simon & Jack Kirby',
+    owner: 'Captain America',
+    publisher: 'Marvel',
+    capabilities: ['Vibranium construction', 'Aerodynamic design', 'Energy absorption', 'Ricochet attacks', 'Defense'],
+    significance: 97,
+    mediaAppearances: 42,
+    description: 'Captain America\'s iconic vibranium shield, both weapon and symbol of freedom.',
+    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop'
+  },
+  {
+    id: '4',
+    name: 'Iron Man Suit',
+    symbol: 'IRMS',
+    price: 350,
+    change: 17.50,
+    percentageChange: 5.3,
+    marketCap: 1750000000,
+    volume: 2000,
+    rating: 'Strong Buy',
+    firstAppearance: 'Tales of Suspense #39 (1963)',
+    creator: 'Stan Lee & Jack Kirby',
+    owner: 'Iron Man',
+    publisher: 'Marvel',
+    capabilities: ['Flight', 'Repulsors', 'Arc reactor', 'AI interface', 'Armor plating', 'Weapon systems'],
+    significance: 99,
+    mediaAppearances: 48,
+    description: 'Tony Stark\'s high-tech powered armor suit with advanced weaponry and AI.',
+    image: 'https://images.unsplash.com/photo-1605117882932-f9e32b03fea9?w=400&h=300&fit=crop'
+  }
+];
+
+export default gadgets;
