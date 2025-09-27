@@ -45,20 +45,32 @@ export default function BeatTheAI() {
     status: 'ACTIVE' | 'UPCOMING' | 'COMPLETED';
   }
 
-  // Fetch active challenges
+  // Fetch active challenges using apiRequest
   const { data: challenges = [], isLoading: challengesLoading, error, isError } = useQuery<Challenge[]>({
-    queryKey: ['/api/ai/challenges']
+    queryKey: ['/api/ai/challenges'],
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/ai/challenges');
+      return response.json();
+    }
   });
 
-  // Fetch competition stats
+  // Fetch market statistics
   const { data: stats } = useQuery({
     queryKey: ['/api/ai/stats'],
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/ai/stats');
+      return response.json();
+    },
     refetchInterval: 30000 // Refresh every 30 seconds
   });
 
-  // Fetch leaderboard data  
+  // Fetch market intelligence leaderboard
   const { data: leaderboard = [], isLoading: leaderboardLoading } = useQuery({
     queryKey: ['/api/ai/leaderboard'],
+    queryFn: async () => {
+      const response = await apiRequest('GET', '/api/ai/leaderboard');
+      return response.json();
+    },
     refetchInterval: 60000 // Refresh every minute
   });
 
