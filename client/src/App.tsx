@@ -2,15 +2,14 @@ import { useState, useEffect } from 'react';
 import { Route, Switch } from 'wouter';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
-import { DashboardHeader } from '@/components/DashboardHeader';
 import { NavigationSidebar } from '@/components/NavigationSidebar';
-import { LiveMarketFeed } from '@/components/LiveMarketFeed';
-import { KeyComicSearchSection } from '@/components/KeyComicSearchSection';
+import { HeroBanner } from '@/components/HeroBanner';
+import { FeatureShowcase } from '@/components/FeatureShowcase';
+import { LiveDataTerminal } from '@/components/LiveDataTerminal';
 import AIStudio from '@/pages/AIStudio';
 import BeatTheAI from '@/pages/BeatTheAI';
 import ComicGrading from '@/pages/ComicGrading';
 import { ChartingStudio } from '@/components/ChartingStudio';
-import { MarketOverviewStats } from '@/components/MarketOverviewStats';
 import NotFound from '@/pages/not-found';
 
 // Trading pages
@@ -42,36 +41,22 @@ const queryClient = new QueryClient({
 });
 
 function Dashboard() {
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [marketSentiment] = useState(0.025); // Mock positive sentiment
-  const [marketIndex] = useState(14750); // Mock market index
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
   return (
-    <div className="space-y-6">
-      <DashboardHeader 
-        marketSentiment={marketSentiment}
-        marketIndex={marketIndex}
-        currentTime={currentTime}
-        aiConfidence={87.5}
-      />
+    <div className="min-h-screen" data-testid="homepage-dashboard">
+      {/* Hero Banner - Full width, mystical trading terminal intro */}
+      <section className="-mx-6 -mt-6">
+        <HeroBanner />
+      </section>
       
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2 space-y-6">
-          <MarketOverviewStats />
-          <KeyComicSearchSection />
-        </div>
-        <div className="space-y-6">
-          <LiveMarketFeed />
-        </div>
-      </div>
+      {/* Feature Showcase - AI Grading, Beat the AI, Market Intelligence */}
+      <section className="max-w-7xl mx-auto px-6">
+        <FeatureShowcase />
+      </section>
+      
+      {/* Live Data Terminal - Real-time market data visualization */}
+      <section className="max-w-7xl mx-auto px-6 pb-16">
+        <LiveDataTerminal />
+      </section>
     </div>
   );
 }
