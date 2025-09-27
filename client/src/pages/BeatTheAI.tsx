@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrophyIcon, BrainIcon, DollarSignIcon, UsersIcon, CalendarIcon, TrendingUpIcon, TrendingDownIcon } from "lucide-react";
-import { queryClient } from "@/lib/queryClient";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface UserPrediction {
   challengeId: string;
@@ -71,25 +72,39 @@ export default function BeatTheAI() {
     queryKey: ['/api/ai/challenges']
   });
 
-  // Mock leaderboard data
-  const leaderboard: LeaderboardEntry[] = [
-    { rank: 1, username: "ComicGenius2024", score: 2847, accuracy: 73.2, totalPredictions: 156, winnings: 12500 },
-    { rank: 2, username: "InvestorPro", score: 2534, accuracy: 69.8, totalPredictions: 143, winnings: 8750 },
-    { rank: 3, username: "MarketMaster", score: 2401, accuracy: 67.5, totalPredictions: 128, winnings: 6200 },
-    { rank: 4, username: "AI_Challenger", score: 2298, accuracy: 65.1, totalPredictions: 134, winnings: 4100 },
-    { rank: 5, username: "ComicOracle", score: 2187, accuracy: 62.9, totalPredictions: 119, winnings: 2800 }
-  ];
-
+  // Submit prediction mutation
   const submitPredictionMutation = useMutation({
-    mutationFn: async (prediction: UserPrediction) => {
-      // Mock API call - would submit to backend
-      console.log('Submitting prediction:', prediction);
-      return { success: true };
+    mutationFn: async ({ challengeId, assetSymbol, predictedChange }: {
+      challengeId: string;
+      assetSymbol: string;
+      predictedChange: number;
+    }) => {
+      const response = await apiRequest('POST', `/api/ai/challenges/${challengeId}/predictions`, {
+        assetSymbol,
+        predictedChange,
+        userId: `user_${Date.now()}`, // Mock user ID
+        username: `Trader${Math.floor(Math.random() * 1000)}`
+      });
+      return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/ai/challenges'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/ai/leaderboard'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/ai/stats'] });
+      toast({
+        title: "Prediction Submitted! 🎯",
+        description: "Your prediction has been entered into the competition.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Submission Failed",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   });
+
+  const { toast } = useToast();
 
   const handlePredictionSubmit = (challengeId: string, assetSymbol: string) => {
     const predictedChange = userPredictions[`${challengeId}-${assetSymbol}`];
@@ -98,9 +113,7 @@ export default function BeatTheAI() {
     submitPredictionMutation.mutate({
       challengeId,
       assetSymbol,
-      predictedChange,
-      confidence: 0.8,
-      reasoning: "User prediction submitted via Beat the AI interface"
+      predictedChange
     });
   };
 
