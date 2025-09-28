@@ -922,6 +922,12 @@ export class MarketSimulationEngine {
             return null;
           }
           
+          // CRITICAL: Check if asset ID looks like a character ID that could cause WebSocket errors
+          if (/^\d{4,6}$/.test(assetId)) {
+            console.error('🚨 BLOCKED: Character-like ID detected in WebSocket data:', assetId);
+            return null; // Block this from being sent via WebSocket
+          }
+          
           return {
             assetId: assetId,
             symbol: data.asset.symbol || 'UNKNOWN',

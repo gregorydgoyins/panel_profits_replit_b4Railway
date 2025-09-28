@@ -12,6 +12,7 @@ import {
 import fs from 'fs';
 import path from 'path';
 import { parse } from 'csv-parse/sync';
+import { sanitizeWebSocketData } from './utils/websocketSanitizer.js';
 
 // Initialize database connection
 const sql_connection = neon(process.env.DATABASE_URL!);

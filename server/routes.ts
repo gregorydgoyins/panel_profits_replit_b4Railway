@@ -2053,6 +2053,22 @@ Respond with valid JSON in this exact format:
     // Continue anyway - the engine can be manually restarted
   }
 
+  // FINAL FIX: Apply binary-level WebSocket frame protection
+  console.log('🔧 [FINAL] Applying final binary-level WebSocket fix...');
+  const { applyFinalWebSocketFix, overrideViteWebSocketProcessing } = await import('./utils/finalWebSocketFix.js');
+  applyFinalWebSocketFix();
+  overrideViteWebSocketProcessing();
+  
+  // ULTIMATE FIX: Apply comprehensive WebSocket character ID prevention
+  console.log('🚀 [ULTIMATE] Applying ultimate WebSocket character ID prevention...');
+  const { applyUltimateWebSocketFix } = await import('./utils/ultimateWebSocketFix.js');
+  applyUltimateWebSocketFix();
+  
+  // EMERGENCY FIX: Keep emergency fix as additional layer
+  console.log('🚨 [EMERGENCY] Applying final WebSocket character ID fix...');
+  const { applyEmergencyWebSocketFix } = await import('./utils/webSocketEmergencyFix.js');
+  applyEmergencyWebSocketFix();
+
   const httpServer = createServer(app);
 
   // Setup WebSocket for real-time market data
