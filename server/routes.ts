@@ -178,6 +178,225 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Trading Terminal API Endpoints
+  app.get("/api/market/orderbook/:symbol", async (req, res) => {
+    try {
+      const symbol = req.params.symbol;
+      const asset = await storage.getAssetBySymbol(symbol);
+      if (!asset) {
+        return res.status(404).json({ error: "Asset not found" });
+      }
+
+      const currentPrice = await storage.getAssetCurrentPrice(asset.id);
+      if (!currentPrice) {
+        return res.status(404).json({ error: "No price data found" });
+      }
+
+      // Generate simulated order book data
+      const price = parseFloat(currentPrice.currentPrice);
+      const spread = price * 0.002; // 0.2% spread
+      
+      const bids = [];
+      const asks = [];
+      
+      // Generate bid orders (below current price)
+      for (let i = 0; i < 20; i++) {
+        const bidPrice = price - spread/2 - (i * price * 0.001);
+        const quantity = Math.floor(Math.random() * 1000) + 100;
+        bids.push({
+          price: bidPrice,
+          quantity: quantity,
+          total: bidPrice * quantity
+        });
+      }
+      
+      // Generate ask orders (above current price)
+      for (let i = 0; i < 20; i++) {
+        const askPrice = price + spread/2 + (i * price * 0.001);
+        const quantity = Math.floor(Math.random() * 1000) + 100;
+        asks.push({
+          price: askPrice,
+          quantity: quantity,
+          total: askPrice * quantity
+        });
+      }
+
+      res.json({
+        symbol,
+        timestamp: new Date().toISOString(),
+        spread: spread,
+        spreadPercent: (spread / price) * 100,
+        bids: bids,
+        asks: asks
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch order book" });
+    }
+  });
+
+  app.get("/api/market/trades/:symbol", async (req, res) => {
+    try {
+      const symbol = req.params.symbol;
+      const limit = parseInt(req.query.limit as string) || 50;
+      
+      const asset = await storage.getAssetBySymbol(symbol);
+      if (!asset) {
+        return res.status(404).json({ error: "Asset not found" });
+      }
+
+      const currentPrice = await storage.getAssetCurrentPrice(asset.id);
+      if (!currentPrice) {
+        return res.status(404).json({ error: "No price data found" });
+      }
+
+      // Generate simulated recent trades
+      const price = parseFloat(currentPrice.currentPrice);
+      const trades = [];
+      const now = new Date();
+      
+      for (let i = 0; i < limit; i++) {
+        const tradeTime = new Date(now.getTime() - (i * 30000)); // 30 seconds apart
+        const tradePrice = price * (0.99 + Math.random() * 0.02); // ±1% from current price
+        const quantity = Math.floor(Math.random() * 500) + 50;
+        const side = Math.random() > 0.5 ? 'buy' : 'sell';
+        
+        trades.push({
+          id: `trade_${asset.id}_${i}`,
+          timestamp: tradeTime.toISOString(),
+          price: tradePrice,
+          quantity: quantity,
+          side: side,
+          value: tradePrice * quantity
+        });
+      }
+
+      res.json({
+        symbol,
+        trades: trades.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch trade history" });
+    }
+  });
+
+  app.get("/api/market/depth/:symbol", async (req, res) => {
+    try {
+      const symbol = req.params.symbol;
+      const levels = parseInt(req.query.levels as string) || 10;
+      
+      const asset = await storage.getAssetBySymbol(symbol);
+      if (!asset) {
+        return res.status(404).json({ error: "Asset not found" });
+      }
+
+      const currentPrice = await storage.getAssetCurrentPrice(asset.id);
+      if (!currentPrice) {
+        return res.status(404).json({ error: "No price data found" });
+      }
+
+      const price = parseFloat(currentPrice.currentPrice);
+      const spread = price * 0.002;
+      
+      // Generate market depth data with cumulative quantities
+      const bidDepth = [];
+      const askDepth = [];
+      
+      let cumulativeBidQty = 0;
+      let cumulativeAskQty = 0;
+      
+      for (let i = 0; i < levels; i++) {
+        // Bid depth
+        const bidPrice = price - spread/2 - (i * price * 0.001);
+        const bidQty = Math.floor(Math.random() * 1000) + 200;
+        cumulativeBidQty += bidQty;
+        
+        bidDepth.push({
+          price: bidPrice,
+          quantity: bidQty,
+          cumulative: cumulativeBidQty,
+          total: bidPrice * cumulativeBidQty
+        });
+        
+        // Ask depth
+        const askPrice = price + spread/2 + (i * price * 0.001);
+        const askQty = Math.floor(Math.random() * 1000) + 200;
+        cumulativeAskQty += askQty;
+        
+        askDepth.push({
+          price: askPrice,
+          quantity: askQty,
+          cumulative: cumulativeAskQty,
+          total: askPrice * cumulativeAskQty
+        });
+      }
+
+      res.json({
+        symbol,
+        timestamp: new Date().toISOString(),
+        bidDepth: bidDepth,
+        askDepth: askDepth,
+        totalBidVolume: cumulativeBidQty,
+        totalAskVolume: cumulativeAskQty
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch market depth" });
+    }
+  });
+
+  app.get("/api/analytics/performance", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const portfolios = await storage.getUserPortfolios(userId);
+      
+      if (!portfolios || portfolios.length === 0) {
+        return res.json({
+          totalValue: 0,
+          totalReturn: 0,
+          totalReturnPercent: 0,
+          dayChange: 0,
+          dayChangePercent: 0,
+          sharpeRatio: 0,
+          maxDrawdown: 0,
+          winRate: 0,
+          profitFactor: 0
+        });
+      }
+
+      const portfolio = portfolios[0];
+      const holdings = await storage.getPortfolioHoldings(portfolio.id);
+      
+      // Calculate basic performance metrics
+      const totalValue = parseFloat(portfolio.totalValue || '0');
+      const initialValue = parseFloat(portfolio.initialValue || '100000'); // Default starting balance
+      const totalReturn = totalValue - initialValue;
+      const totalReturnPercent = initialValue > 0 ? (totalReturn / initialValue) * 100 : 0;
+      
+      // Simulated additional metrics (in a real system, these would be calculated from historical data)
+      const dayChange = totalValue * (Math.random() * 0.02 - 0.01); // ±1% random
+      const dayChangePercent = totalValue > 0 ? (dayChange / totalValue) * 100 : 0;
+      const sharpeRatio = Math.max(0, Math.random() * 2); // 0-2 random Sharpe ratio
+      const maxDrawdown = Math.random() * 10; // 0-10% drawdown
+      const winRate = 50 + Math.random() * 30; // 50-80% win rate
+      const profitFactor = 1 + Math.random() * 1.5; // 1-2.5 profit factor
+
+      res.json({
+        totalValue,
+        totalReturn,
+        totalReturnPercent,
+        dayChange,
+        dayChangePercent,
+        sharpeRatio,
+        maxDrawdown,
+        winRate,
+        profitFactor,
+        positionCount: Array.isArray(holdings) ? holdings.length : 0
+      });
+    } catch (error) {
+      console.error("Error fetching performance analytics:", error);
+      res.status(500).json({ error: "Failed to fetch performance data" });
+    }
+  });
+
   // Portfolio Management Routes
   app.get("/api/portfolios/user/:userId", async (req, res) => {
     try {

@@ -20,6 +20,7 @@ import DashboardPage from '@/pages/DashboardPage';
 
 // Trading pages
 import TradingPage from '@/pages/trading';
+import TradingTerminalPage from '@/pages/TradingTerminal';
 import CharactersPage from '@/pages/characters';
 import ComicsPage from '@/pages/comics';
 import CreatorsPage from '@/pages/creators';
@@ -89,6 +90,7 @@ function Router() {
       
       {/* Trading routes */}
       <Route path="/trading" component={TradingPage} />
+      <Route path="/terminal" component={TradingTerminalPage} />
       <Route path="/characters" component={CharactersPage} />
       <Route path="/comics" component={ComicsPage} />
       <Route path="/creators" component={CreatorsPage} />

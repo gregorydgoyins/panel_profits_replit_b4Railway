@@ -31,6 +31,7 @@ export function NavigationSidebar() {
     if (location === '/recommendations') return 'recommendations';
     if (location === '/charting') return 'charting';
     if (location === '/trading') return 'order-desk';
+    if (location === '/terminal') return 'terminal';
     if (location === '/characters') return 'characters';
     if (location === '/comics') return 'comics';
     if (location === '/creators') return 'creators';
@@ -57,6 +58,7 @@ export function NavigationSidebar() {
     
     // Trading
     { id: 'order-desk', label: 'Order Desk', icon: DollarSign, path: '/trading', category: 'trading' },
+    { id: 'terminal', label: 'Trading Terminal', icon: LineChart, path: '/terminal', category: 'trading', badge: 'PRO' },
     { id: 'characters', label: 'Characters', icon: Users, path: '/characters', category: 'trading' },
     { id: 'comics', label: 'Key Comics', icon: BookOpen, path: '/comics', category: 'trading' },
     { id: 'creators', label: 'Creators', icon: Layers, path: '/creators', category: 'trading' },
