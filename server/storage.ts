@@ -14,7 +14,11 @@ import {
   type BeatTheAIChallenge, type InsertBeatTheAIChallenge,
   type BeatTheAIPrediction, type InsertBeatTheAIPrediction,
   type BeatTheAILeaderboard, type InsertBeatTheAILeaderboard,
-  type ComicGradingPrediction, type InsertComicGradingPrediction
+  type ComicGradingPrediction, type InsertComicGradingPrediction,
+  type ComicSeries, type InsertComicSeries,
+  type ComicIssue, type InsertComicIssue,
+  type ComicCreator, type InsertComicCreator,
+  type FeaturedComic, type InsertFeaturedComic
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -123,6 +127,43 @@ export interface IStorage {
   getComicGradingPredictions(filters?: { userId?: string; status?: string }): Promise<ComicGradingPrediction[]>;
   createComicGradingPrediction(prediction: InsertComicGradingPrediction): Promise<ComicGradingPrediction>;
   updateComicGradingPrediction(id: string, prediction: Partial<InsertComicGradingPrediction>): Promise<ComicGradingPrediction | undefined>;
+
+  // Comic Series management
+  getComicSeries(id: string): Promise<ComicSeries | undefined>;
+  getComicSeriesList(filters?: { publisher?: string; year?: number; search?: string; limit?: number }): Promise<ComicSeries[]>;
+  createComicSeries(series: InsertComicSeries): Promise<ComicSeries>;
+  updateComicSeries(id: string, series: Partial<InsertComicSeries>): Promise<ComicSeries | undefined>;
+  deleteComicSeries(id: string): Promise<boolean>;
+  createBulkComicSeries(seriesList: InsertComicSeries[]): Promise<ComicSeries[]>;
+
+  // Comic Issues management
+  getComicIssue(id: string): Promise<ComicIssue | undefined>;
+  getComicIssues(filters?: { seriesId?: string; search?: string; writer?: string; artist?: string; limit?: number }): Promise<ComicIssue[]>;
+  getComicIssuesBySeriesId(seriesId: string): Promise<ComicIssue[]>;
+  createComicIssue(issue: InsertComicIssue): Promise<ComicIssue>;
+  updateComicIssue(id: string, issue: Partial<InsertComicIssue>): Promise<ComicIssue | undefined>;
+  deleteComicIssue(id: string): Promise<boolean>;
+  createBulkComicIssues(issuesList: InsertComicIssue[]): Promise<ComicIssue[]>;
+
+  // Comic Creators management
+  getComicCreator(id: string): Promise<ComicCreator | undefined>;
+  getComicCreators(filters?: { role?: string; search?: string; limit?: number }): Promise<ComicCreator[]>;
+  getComicCreatorByName(name: string): Promise<ComicCreator | undefined>;
+  createComicCreator(creator: InsertComicCreator): Promise<ComicCreator>;
+  updateComicCreator(id: string, creator: Partial<InsertComicCreator>): Promise<ComicCreator | undefined>;
+  deleteComicCreator(id: string): Promise<boolean>;
+
+  // Featured Comics management
+  getFeaturedComic(id: string): Promise<FeaturedComic | undefined>;
+  getFeaturedComics(filters?: { featureType?: string; isActive?: boolean; limit?: number }): Promise<FeaturedComic[]>;
+  createFeaturedComic(featured: InsertFeaturedComic): Promise<FeaturedComic>;
+  updateFeaturedComic(id: string, featured: Partial<InsertFeaturedComic>): Promise<FeaturedComic | undefined>;
+  deleteFeaturedComic(id: string): Promise<boolean>;
+
+  // Comic data aggregation for dashboards
+  getComicMetrics(): Promise<{ totalSeries: number; totalIssues: number; totalCreators: number; totalCovers: number }>;
+  getTrendingComicSeries(limit?: number): Promise<ComicSeries[]>;
+  getFeaturedComicsForHomepage(): Promise<FeaturedComic[]>;
 
   // Vector Similarity Search Operations (pgvector powered)
   

@@ -426,6 +426,98 @@ export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type MarketEvent = typeof marketEvents.$inferSelect;
 export type InsertMarketEvent = z.infer<typeof insertMarketEventSchema>;
 
+// Comic Series - Information about comic book series (from comic_list CSV)
+export const comicSeries = pgTable("comic_series", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  seriesName: text("series_name").notNull(),
+  publisher: text("publisher").notNull(), // Marvel, DC, etc.
+  year: integer("year"),
+  issueCount: text("issue_count"), // "73 issues (73 indexed)"
+  coverStatus: text("cover_status"), // "Gallery", "Have 8 (Need 2)"
+  publishedPeriod: text("published_period"), // "March 1941 - July 1949"
+  seriesUrl: text("series_url"), // Link to comics.org series page
+  coversUrl: text("covers_url"), // Link to covers gallery
+  scansUrl: text("scans_url"), // Link to scans if available
+  featuredCoverUrl: text("featured_cover_url"), // Featured cover image for display
+  description: text("description"),
+  // Vector embeddings for series search and recommendations
+  seriesEmbedding: vector("series_embedding", { dimensions: 1536 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Comic Issues - Individual comic book issues (from Marvel_Comics 2 CSV)
+export const comicIssues = pgTable("comic_issues", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  seriesId: varchar("series_id").references(() => comicSeries.id),
+  comicName: text("comic_name").notNull(),
+  activeYears: text("active_years"), // "(2016)" or "(2012 - 2014)"
+  issueTitle: text("issue_title").notNull(),
+  publishDate: text("publish_date"), // "April 01, 2016"
+  issueDescription: text("issue_description"),
+  penciler: text("penciler"),
+  writer: text("writer"),
+  coverArtist: text("cover_artist"),
+  imprint: text("imprint"), // "Marvel Universe"
+  format: text("format"), // "Comic", "Infinite Comic"
+  rating: text("rating"), // "Rated T+"
+  price: text("price"), // "$3.99", "Free"
+  coverImageUrl: text("cover_image_url"), // Generated or extracted cover URL
+  issueNumber: integer("issue_number"),
+  volume: integer("volume"),
+  // Market data
+  currentValue: decimal("current_value", { precision: 10, scale: 2 }),
+  gradeCondition: text("grade_condition"), // CGC grade if known
+  marketTrend: text("market_trend"), // 'up', 'down', 'stable'
+  // Vector embeddings for content search and recommendations
+  contentEmbedding: vector("content_embedding", { dimensions: 1536 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Comic Creators - Artists, writers, and other creators
+export const comicCreators = pgTable("comic_creators", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  role: text("role").notNull(), // 'writer', 'penciler', 'inker', 'colorist', 'cover_artist', 'editor'
+  biography: text("biography"),
+  imageUrl: text("image_url"),
+  birthDate: text("birth_date"),
+  deathDate: text("death_date"), // If applicable
+  nationality: text("nationality"),
+  // Career statistics
+  totalIssues: integer("total_issues").default(0),
+  activeYears: text("active_years"), // "1960-2020"
+  notableWorks: text("notable_works").array(),
+  awards: text("awards").array(),
+  // Market influence
+  marketInfluence: decimal("market_influence", { precision: 5, scale: 2 }), // 0-100 score
+  trendingScore: decimal("trending_score", { precision: 5, scale: 2 }), // Current trending
+  // Vector embeddings for creator search and style matching
+  creatorEmbedding: vector("creator_embedding", { dimensions: 1536 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Featured Comics - Curated selections for homepage display
+export const featuredComics = pgTable("featured_comics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  issueId: varchar("issue_id").references(() => comicIssues.id),
+  seriesId: varchar("series_id").references(() => comicSeries.id),
+  featureType: text("feature_type").notNull(), // 'hero_banner', 'trending', 'new_release', 'classic'
+  displayOrder: integer("display_order").default(0),
+  title: text("title").notNull(),
+  subtitle: text("subtitle"),
+  description: text("description"),
+  featuredImageUrl: text("featured_image_url"),
+  callToAction: text("call_to_action"), // "Read Now", "Add to Watchlist"
+  isActive: boolean("is_active").default(true),
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Comic Grading Predictions Schema - AI-powered comic condition analysis
 export const comicGradingPredictions = pgTable("comic_grading_predictions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -451,9 +543,48 @@ export const comicGradingPredictions = pgTable("comic_grading_predictions", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export type ComicGradingPrediction = typeof comicGradingPredictions.$inferSelect;
+// Insert schemas for new comic tables
+export const insertComicSeriesSchema = createInsertSchema(comicSeries).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertComicIssueSchema = createInsertSchema(comicIssues).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertComicCreatorSchema = createInsertSchema(comicCreators).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertFeaturedComicSchema = createInsertSchema(featuredComics).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertComicGradingPredictionSchema = createInsertSchema(comicGradingPredictions).omit({
   id: true,
   createdAt: true,
 });
+
+// Export types for new comic tables
+export type ComicSeries = typeof comicSeries.$inferSelect;
+export type InsertComicSeries = z.infer<typeof insertComicSeriesSchema>;
+
+export type ComicIssue = typeof comicIssues.$inferSelect;
+export type InsertComicIssue = z.infer<typeof insertComicIssueSchema>;
+
+export type ComicCreator = typeof comicCreators.$inferSelect;
+export type InsertComicCreator = z.infer<typeof insertComicCreatorSchema>;
+
+export type FeaturedComic = typeof featuredComics.$inferSelect;
+export type InsertFeaturedComic = z.infer<typeof insertFeaturedComicSchema>;
+
+export type ComicGradingPrediction = typeof comicGradingPredictions.$inferSelect;
 export type InsertComicGradingPrediction = z.infer<typeof insertComicGradingPredictionSchema>;
