@@ -363,6 +363,15 @@ export const insertOrderSchema = createInsertSchema(orders).omit({
   id: true,
   createdAt: true,
   filledAt: true,
+}).refine((data) => {
+  // Validate limit orders require a valid price
+  if (data.orderType === 'limit' && (!data.price || parseFloat(data.price.toString()) <= 0)) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Limit price is required for limit orders and must be greater than 0',
+  path: ['price']
 });
 
 export const insertMarketEventSchema = createInsertSchema(marketEvents).omit({
