@@ -9,7 +9,9 @@ import {
   // Phase 1 Trading Extensions
   tradingSessions, assetCurrentPrices, tradingLimits,
   // Leaderboard System Tables
-  traderStats, leaderboardCategories, userAchievements
+  traderStats, leaderboardCategories, userAchievements,
+  // Enhanced Data Tables
+  enhancedCharacters, battleScenarios, enhancedComicIssues, moviePerformanceData
 } from '@shared/schema.js';
 import type {
   User, InsertUser, UpsertUser, Asset, InsertAsset, MarketData, InsertMarketData,
@@ -26,7 +28,10 @@ import type {
   TradingLimit, InsertTradingLimit,
   // Leaderboard System Types
   TraderStats, InsertTraderStats, LeaderboardCategory, InsertLeaderboardCategory,
-  UserAchievement, InsertUserAchievement
+  UserAchievement, InsertUserAchievement,
+  // Enhanced Data Types
+  EnhancedCharacter, InsertEnhancedCharacter, BattleScenario, InsertBattleScenario,
+  EnhancedComicIssue, InsertEnhancedComicIssue, MoviePerformanceData, InsertMoviePerformanceData
 } from '@shared/schema.js';
 import type { IStorage } from './storage.js';
 
@@ -1762,6 +1767,343 @@ export class DatabaseStorage implements IStorage {
       avgTradeSize,
       topMovers
     };
+  }
+
+  // ===== ENHANCED TRADING DATA METHODS =====
+
+  // Enhanced Characters - For character trading and battle data
+  async getEnhancedCharacters(filters?: {
+    universe?: string;
+    search?: string;
+    sort?: string;
+    limit?: number;
+    offset?: number;
+    minPowerLevel?: number;
+    maxPowerLevel?: number;
+  }): Promise<EnhancedCharacter[]> {
+    let query = db.select().from(enhancedCharacters);
+    const conditions = [];
+    
+    if (filters?.universe && filters.universe !== 'all') {
+      conditions.push(ilike(enhancedCharacters.universe, `%${filters.universe}%`));
+    }
+    
+    if (filters?.search) {
+      conditions.push(
+        sql`(
+          ${enhancedCharacters.name} ILIKE ${`%${filters.search}%`} OR 
+          ${enhancedCharacters.creators} @> ${[filters.search]} OR
+          ${enhancedCharacters.specialAbilities} @> ${[filters.search]}
+        )`
+      );
+    }
+    
+    if (filters?.minPowerLevel !== undefined) {
+      conditions.push(sql`${enhancedCharacters.powerLevel} >= ${filters.minPowerLevel}`);
+    }
+    
+    if (filters?.maxPowerLevel !== undefined) {
+      conditions.push(sql`${enhancedCharacters.powerLevel} <= ${filters.maxPowerLevel}`);
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    // Apply sorting
+    switch (filters?.sort) {
+      case 'power_level':
+        query = query.orderBy(desc(enhancedCharacters.powerLevel));
+        break;
+      case 'battle_win_rate':
+        query = query.orderBy(desc(enhancedCharacters.battleWinRate));
+        break;
+      case 'market_value':
+        query = query.orderBy(desc(enhancedCharacters.marketValue));
+        break;
+      case 'name':
+        query = query.orderBy(enhancedCharacters.name);
+        break;
+      default:
+        query = query.orderBy(desc(enhancedCharacters.powerLevel));
+        break;
+    }
+    
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+    
+    if (filters?.offset) {
+      query = query.offset(filters.offset);
+    }
+    
+    return await query;
+  }
+
+  async getEnhancedCharacter(id: string): Promise<EnhancedCharacter | undefined> {
+    const result = await db.select().from(enhancedCharacters).where(eq(enhancedCharacters.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getCharactersByUniverse(universe: string): Promise<EnhancedCharacter[]> {
+    return await db.select()
+      .from(enhancedCharacters)
+      .where(ilike(enhancedCharacters.universe, `%${universe}%`))
+      .orderBy(desc(enhancedCharacters.powerLevel))
+      .limit(50);
+  }
+
+  // Enhanced Comic Issues - For comic market data and discovery
+  async getEnhancedComicIssues(filters?: {
+    search?: string;
+    sort?: string;
+    limit?: number;
+    offset?: number;
+    minValue?: number;
+    maxValue?: number;
+    minKeyRating?: number;
+  }): Promise<EnhancedComicIssue[]> {
+    let query = db.select().from(enhancedComicIssues);
+    const conditions = [];
+    
+    if (filters?.search) {
+      conditions.push(
+        sql`(
+          ${enhancedComicIssues.categoryTitle} ILIKE ${`%${filters.search}%`} OR 
+          ${enhancedComicIssues.issueName} ILIKE ${`%${filters.search}%`} OR
+          ${enhancedComicIssues.comicSeries} ILIKE ${`%${filters.search}%`} OR
+          ${enhancedComicIssues.writers} @> ${[filters.search]}
+        )`
+      );
+    }
+    
+    if (filters?.minValue !== undefined) {
+      conditions.push(sql`${enhancedComicIssues.currentMarketValue} >= ${filters.minValue}`);
+    }
+    
+    if (filters?.maxValue !== undefined) {
+      conditions.push(sql`${enhancedComicIssues.currentMarketValue} <= ${filters.maxValue}`);
+    }
+    
+    if (filters?.minKeyRating !== undefined) {
+      conditions.push(sql`${enhancedComicIssues.keyIssueRating} >= ${filters.minKeyRating}`);
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    // Apply sorting
+    switch (filters?.sort) {
+      case 'current_market_value':
+        query = query.orderBy(desc(enhancedComicIssues.currentMarketValue));
+        break;
+      case 'key_issue_rating':
+        query = query.orderBy(desc(enhancedComicIssues.keyIssueRating));
+        break;
+      case 'rarity_score':
+        query = query.orderBy(desc(enhancedComicIssues.rarityScore));
+        break;
+      case 'issue_name':
+        query = query.orderBy(enhancedComicIssues.issueName);
+        break;
+      default:
+        query = query.orderBy(desc(enhancedComicIssues.currentMarketValue));
+        break;
+    }
+    
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+    
+    if (filters?.offset) {
+      query = query.offset(filters.offset);
+    }
+    
+    return await query;
+  }
+
+  async getEnhancedComicIssue(id: string): Promise<EnhancedComicIssue | undefined> {
+    const result = await db.select().from(enhancedComicIssues).where(eq(enhancedComicIssues.id, id)).limit(1);
+    return result[0];
+  }
+
+  // Battle Scenarios - For battle intelligence and outcomes
+  async getBattleScenarios(filters?: {
+    characterId?: string;
+    battleType?: string;
+    timeframe?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<BattleScenario[]> {
+    let query = db.select().from(battleScenarios);
+    const conditions = [];
+    
+    if (filters?.characterId) {
+      conditions.push(
+        sql`(${battleScenarios.character1Id} = ${filters.characterId} OR ${battleScenarios.character2Id} = ${filters.characterId})`
+      );
+    }
+    
+    if (filters?.battleType) {
+      conditions.push(eq(battleScenarios.battleType, filters.battleType));
+    }
+    
+    if (filters?.timeframe) {
+      switch (filters.timeframe) {
+        case '1h':
+          conditions.push(sql`${battleScenarios.eventDate} >= NOW() - INTERVAL '1 hour'`);
+          break;
+        case '24h':
+          conditions.push(sql`${battleScenarios.eventDate} >= NOW() - INTERVAL '24 hours'`);
+          break;
+        case '7d':
+          conditions.push(sql`${battleScenarios.eventDate} >= NOW() - INTERVAL '7 days'`);
+          break;
+        case '30d':
+          conditions.push(sql`${battleScenarios.eventDate} >= NOW() - INTERVAL '30 days'`);
+          break;
+      }
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    query = query.orderBy(desc(battleScenarios.eventDate));
+    
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+    
+    if (filters?.offset) {
+      query = query.offset(filters.offset);
+    }
+    
+    return await query;
+  }
+
+  async getBattleIntelligenceSummary(): Promise<{
+    recentBattles: Array<{
+      id: string;
+      character1Name: string;
+      character2Name?: string;
+      winner: string;
+      marketImpact: number;
+      timestamp: string;
+    }>;
+    totalBattles: number;
+    avgMarketImpact: number;
+  }> {
+    // Get recent battles with character names
+    const recentBattlesQuery = await db.execute(sql`
+      SELECT 
+        bs.id,
+        c1.name as character1_name,
+        c2.name as character2_name,
+        CASE 
+          WHEN bs.outcome = 1 THEN c1.name 
+          ELSE COALESCE(c2.name, 'Unknown')
+        END as winner,
+        bs.market_impact_percent as market_impact,
+        bs.event_date as timestamp
+      FROM battle_scenarios bs
+      LEFT JOIN enhanced_characters c1 ON bs.character1_id = c1.id
+      LEFT JOIN enhanced_characters c2 ON bs.character2_id = c2.id
+      ORDER BY bs.event_date DESC
+      LIMIT 20
+    `);
+
+    // Get battle statistics
+    const statsQuery = await db.execute(sql`
+      SELECT 
+        COUNT(*) as total_battles,
+        AVG(market_impact_percent::numeric) as avg_market_impact
+      FROM battle_scenarios
+      WHERE event_date >= NOW() - INTERVAL '30 days'
+    `);
+
+    const recentBattles = recentBattlesQuery.rows.map((row: any) => ({
+      id: row.id,
+      character1Name: row.character1_name,
+      character2Name: row.character2_name,
+      winner: row.winner,
+      marketImpact: parseFloat(row.market_impact || '0'),
+      timestamp: row.timestamp
+    }));
+
+    const stats = statsQuery.rows[0];
+
+    return {
+      recentBattles,
+      totalBattles: parseInt(stats?.total_battles || '0'),
+      avgMarketImpact: parseFloat(stats?.avg_market_impact || '0')
+    };
+  }
+
+  // Movie Performance Data - For box office impact analysis
+  async getMoviePerformanceData(filters?: {
+    franchise?: string;
+    characterFamily?: string;
+    sort?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<MoviePerformanceData[]> {
+    let query = db.select().from(moviePerformanceData);
+    const conditions = [];
+    
+    if (filters?.franchise && filters.franchise !== 'all') {
+      conditions.push(ilike(moviePerformanceData.franchise, `%${filters.franchise}%`));
+    }
+    
+    if (filters?.characterFamily) {
+      conditions.push(ilike(moviePerformanceData.characterFamily, `%${filters.characterFamily}%`));
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    // Apply sorting
+    switch (filters?.sort) {
+      case 'worldwide_gross':
+        query = query.orderBy(desc(moviePerformanceData.worldwideGross));
+        break;
+      case 'impact_score':
+        query = query.orderBy(desc(moviePerformanceData.marketImpactScore));
+        break;
+      case 'rotten_tomatoes_score':
+        query = query.orderBy(desc(moviePerformanceData.rottenTomatoesScore));
+        break;
+      case 'release_date':
+        query = query.orderBy(desc(moviePerformanceData.releaseDate));
+        break;
+      default:
+        query = query.orderBy(desc(moviePerformanceData.marketImpactScore));
+        break;
+    }
+    
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+    
+    if (filters?.offset) {
+      query = query.offset(filters.offset);
+    }
+    
+    return await query;
+  }
+
+  async getMoviePerformanceItem(id: string): Promise<MoviePerformanceData | undefined> {
+    const result = await db.select().from(moviePerformanceData).where(eq(moviePerformanceData.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getTopMoviesByImpact(limit: number = 10): Promise<MoviePerformanceData[]> {
+    return await db.select()
+      .from(moviePerformanceData)
+      .orderBy(desc(moviePerformanceData.marketImpactScore))
+      .limit(limit);
   }
 }
 

@@ -79,6 +79,70 @@
   --chart-4: 48 96% 65%;
   --chart-5: 0 84% 55%;
 
+  /* Seven Mythological Houses Color Palettes - Light Mode */
+  /* House of Eternity (Egyptian) - Gold with hieroglyphic accents */
+  --house-eternity-primary: 43 74% 49%;
+  --house-eternity-primary-foreground: 30 26% 9%;
+  --house-eternity-secondary: 45 93% 47%;
+  --house-eternity-accent: 48 95% 53%;
+  --house-eternity-background: 46 87% 65%;
+  --house-eternity-card: 45 86% 62%;
+  --house-eternity-border: 43 70% 45%;
+
+  /* House of Conquest (Roman) - Deep red with imperial elements */
+  --house-conquest-primary: 0 100% 27%;
+  --house-conquest-primary-foreground: 0 0% 98%;
+  --house-conquest-secondary: 0 84% 35%;
+  --house-conquest-accent: 14 91% 43%;
+  --house-conquest-background: 0 65% 51%;
+  --house-conquest-card: 0 70% 48%;
+  --house-conquest-border: 0 85% 32%;
+
+  /* House of Heroes (Greek) - Royal blue with heroic themes */
+  --house-heroes-primary: 225 73% 57%;
+  --house-heroes-primary-foreground: 0 0% 98%;
+  --house-heroes-secondary: 213 93% 68%;
+  --house-heroes-accent: 207 90% 61%;
+  --house-heroes-background: 220 60% 50%;
+  --house-heroes-card: 218 65% 52%;
+  --house-heroes-border: 225 68% 53%;
+
+  /* House of Ragnarok (Norse) - Storm blue with runic elements */
+  --house-ragnarok-primary: 210 46% 28%;
+  --house-ragnarok-primary-foreground: 0 0% 98%;
+  --house-ragnarok-secondary: 200 50% 35%;
+  --house-ragnarok-accent: 195 62% 45%;
+  --house-ragnarok-background: 205 42% 32%;
+  --house-ragnarok-card: 208 45% 30%;
+  --house-ragnarok-border: 210 40% 25%;
+
+  /* House of Balance (Asian) - Zen orange with harmony motifs */
+  --house-balance-primary: 11 100% 60%;
+  --house-balance-primary-foreground: 0 0% 98%;
+  --house-balance-secondary: 24 95% 53%;
+  --house-balance-accent: 33 92% 51%;
+  --house-balance-background: 18 90% 55%;
+  --house-balance-card: 16 88% 58%;
+  --house-balance-border: 11 95% 57%;
+
+  /* House of Ancestors (African) - Earth brown with tribal patterns */
+  --house-ancestors-primary: 25 50% 35%;
+  --house-ancestors-primary-foreground: 0 0% 98%;
+  --house-ancestors-secondary: 30 45% 40%;
+  --house-ancestors-accent: 35 55% 45%;
+  --house-ancestors-background: 28 48% 38%;
+  --house-ancestors-card: 32 52% 42%;
+  --house-ancestors-border: 25 45% 32%;
+
+  /* House of Karma (Indian) - Cosmic purple with spiritual symbols */
+  --house-karma-primary: 300 100% 25%;
+  --house-karma-primary-foreground: 0 0% 98%;
+  --house-karma-secondary: 270 75% 35%;
+  --house-karma-accent: 285 90% 40%;
+  --house-karma-background: 290 65% 30%;
+  --house-karma-card: 295 70% 32%;
+  --house-karma-border: 300 90% 28%;
+
   --font-sans: 'Hind', system-ui, sans-serif;
   --font-display: 'Space Grotesk', system-ui, sans-serif;
   --font-mono: 'Space Grotesk', ui-monospace, Menlo, monospace;
@@ -123,6 +187,28 @@
   /* Fallback for older browsers */
   --destructive-border: hsl(var(--destructive));
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  /* House Border Colors - Automatically computed */
+  --house-eternity-primary-border: hsl(var(--house-eternity-primary));
+  --house-eternity-primary-border: hsl(from hsl(var(--house-eternity-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  
+  --house-conquest-primary-border: hsl(var(--house-conquest-primary));
+  --house-conquest-primary-border: hsl(from hsl(var(--house-conquest-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  
+  --house-heroes-primary-border: hsl(var(--house-heroes-primary));
+  --house-heroes-primary-border: hsl(from hsl(var(--house-heroes-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  
+  --house-ragnarok-primary-border: hsl(var(--house-ragnarok-primary));
+  --house-ragnarok-primary-border: hsl(from hsl(var(--house-ragnarok-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  
+  --house-balance-primary-border: hsl(var(--house-balance-primary));
+  --house-balance-primary-border: hsl(from hsl(var(--house-balance-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  
+  --house-ancestors-primary-border: hsl(var(--house-ancestors-primary));
+  --house-ancestors-primary-border: hsl(from hsl(var(--house-ancestors-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  
+  --house-karma-primary-border: hsl(var(--house-karma-primary));
+  --house-karma-primary-border: hsl(from hsl(var(--house-karma-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
 .dark {
@@ -196,6 +282,70 @@
   --chart-3: 48 96% 89%;
   --chart-4: 0 84% 60%;
   --chart-5: 210 40% 75%;
+
+  /* Seven Mythological Houses Color Palettes - Dark Mode */
+  /* House of Eternity (Egyptian) - Enhanced gold for dark backgrounds */
+  --house-eternity-primary: 43 96% 56%;
+  --house-eternity-primary-foreground: 43 20% 9%;
+  --house-eternity-secondary: 45 100% 55%;
+  --house-eternity-accent: 48 100% 62%;
+  --house-eternity-background: 42 35% 15%;
+  --house-eternity-card: 44 40% 18%;
+  --house-eternity-border: 43 80% 35%;
+
+  /* House of Conquest (Roman) - Vivid red for dark mode */
+  --house-conquest-primary: 0 90% 65%;
+  --house-conquest-primary-foreground: 0 0% 98%;
+  --house-conquest-secondary: 0 100% 55%;
+  --house-conquest-accent: 14 100% 60%;
+  --house-conquest-background: 0 40% 12%;
+  --house-conquest-card: 0 45% 15%;
+  --house-conquest-border: 0 85% 45%;
+
+  /* House of Heroes (Greek) - Bright blue for dark theme */
+  --house-heroes-primary: 225 100% 70%;
+  --house-heroes-primary-foreground: 0 0% 98%;
+  --house-heroes-secondary: 213 100% 75%;
+  --house-heroes-accent: 207 100% 68%;
+  --house-heroes-background: 225 35% 12%;
+  --house-heroes-card: 220 40% 15%;
+  --house-heroes-border: 225 85% 50%;
+
+  /* House of Ragnarok (Norse) - Lighter storm blue for readability */
+  --house-ragnarok-primary: 200 80% 55%;
+  --house-ragnarok-primary-foreground: 0 0% 98%;
+  --house-ragnarok-secondary: 190 75% 60%;
+  --house-ragnarok-accent: 185 85% 65%;
+  --house-ragnarok-background: 210 40% 8%;
+  --house-ragnarok-card: 205 45% 12%;
+  --house-ragnarok-border: 200 70% 40%;
+
+  /* House of Balance (Asian) - Warm orange for dark backgrounds */
+  --house-balance-primary: 11 100% 68%;
+  --house-balance-primary-foreground: 0 0% 98%;
+  --house-balance-secondary: 24 100% 65%;
+  --house-balance-accent: 33 100% 62%;
+  --house-balance-background: 18 45% 12%;
+  --house-balance-card: 16 50% 15%;
+  --house-balance-border: 11 90% 50%;
+
+  /* House of Ancestors (African) - Rich earth tones for dark mode */
+  --house-ancestors-primary: 25 80% 55%;
+  --house-ancestors-primary-foreground: 0 0% 98%;
+  --house-ancestors-secondary: 30 75% 60%;
+  --house-ancestors-accent: 35 85% 65%;
+  --house-ancestors-background: 28 35% 10%;
+  --house-ancestors-card: 32 40% 13%;
+  --house-ancestors-border: 25 70% 40%;
+
+  /* House of Karma (Indian) - Luminous purple for dark theme */
+  --house-karma-primary: 285 100% 68%;
+  --house-karma-primary-foreground: 0 0% 98%;
+  --house-karma-secondary: 270 90% 65%;
+  --house-karma-accent: 300 95% 70%;
+  --house-karma-background: 290 35% 10%;
+  --house-karma-card: 295 40% 13%;
+  --house-karma-border: 285 85% 45%;
 
   --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
   --shadow-xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);

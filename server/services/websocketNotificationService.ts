@@ -2,6 +2,11 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { IncomingMessage } from 'http';
 import { parse } from 'url';
 import type { Notification } from '@shared/schema.js';
+import { 
+  patchWebSocketWithSanitization, 
+  safeWebSocketClose,
+  WebSocketCloseCodes 
+} from '../utils/websocketSanitizer.js';
 
 /**
  * WebSocket Notification Service for Panel Profits
@@ -58,9 +63,12 @@ export class WebSocketNotificationService {
       
       if (!userId) {
         console.warn('❌ WebSocket connection rejected: No user ID found');
-        ws.close(1008, 'Authentication required');
+        safeWebSocketClose(ws, WebSocketCloseCodes.POLICY_VIOLATION, 'Authentication required');
         return;
       }
+
+      // Apply WebSocket close code sanitization to this connection
+      patchWebSocketWithSanitization(ws);
 
       // Set up authenticated connection
       ws.userId = userId;
@@ -267,7 +275,7 @@ export class WebSocketNotificationService {
   disconnectUser(userId: string): void {
     const client = this.clients.get(userId);
     if (client) {
-      client.close(1000, 'Server initiated disconnect');
+      safeWebSocketClose(client, WebSocketCloseCodes.NORMAL_CLOSURE, 'Server initiated disconnect');
       this.clients.delete(userId);
       console.log(`🔌 Disconnected user ${userId} from notification WebSocket`);
     }
@@ -285,7 +293,7 @@ export class WebSocketNotificationService {
 
     // Close all client connections
     this.clients.forEach((ws, userId) => {
-      ws.close(1001, 'Server shutting down');
+      safeWebSocketClose(ws, WebSocketCloseCodes.GOING_AWAY, 'Server shutting down');
     });
     this.clients.clear();
 

@@ -6,13 +6,22 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   TrendingUp, Activity, DollarSign, Clock, BarChart3, 
-  Wallet, Target, AlertTriangle, RefreshCw, Eye
+  Wallet, Target, AlertTriangle, RefreshCw, Eye,
+  Crown, Swords, Trophy
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { OrderEntryForm } from '@/components/trading/OrderEntryForm';
 import { OrderHistory } from '@/components/trading/OrderHistory';
 import { MarketDataWidget } from '@/components/trading/MarketDataWidget';
+import { EnhancedTradingDashboard } from '@/components/trading/EnhancedTradingDashboard';
+import { BattleDrivenIntelligence } from '@/components/trading/BattleDrivenIntelligence';
+import { AssetDiscoveryEngine } from '@/components/trading/AssetDiscoveryEngine';
+import { GamifiedTradingWidgets } from '@/components/trading/GamifiedTradingWidgets';
+import { HouseSelector } from '@/components/ui/house-selector';
+import { HouseBadge } from '@/components/ui/house-badge';
+import { HouseEmblem } from '@/components/ui/house-emblem';
+import { useHouseTheme } from '@/hooks/useHouseTheme';
 
 interface TradingStats {
   availableBalance: number;
@@ -27,35 +36,36 @@ interface TradingStats {
 export default function TradingPage() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('order-entry');
+  const [activeTab, setActiveTab] = useState('mythic-dashboard');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const { houseTheme, currentHouse, getCurrentHouseColorClass } = useHouseTheme();
 
   // Fetch user data for trading limits and balance
   const { data: userData, isLoading: userLoading } = useQuery({
-    queryKey: '/api/auth/user',
+    queryKey: ['/api/auth/user'],
     enabled: !!user,
     refetchInterval: 30000, // Refresh every 30 seconds
   });
 
   // Fetch user portfolios for portfolio value
   const { data: userPortfolios, isLoading: portfoliosLoading } = useQuery({
-    queryKey: `/api/portfolios/user/${user?.id}`,
+    queryKey: ['/api/portfolios/user', user?.id],
     enabled: !!user?.id,
     refetchInterval: 30000,
   });
 
   // Fetch user orders for trading stats
   const { data: userOrders, isLoading: ordersLoading } = useQuery({
-    queryKey: `/api/orders/user/${user?.id}`,
+    queryKey: ['/api/orders/user', user?.id],
     enabled: !!user?.id,
     refetchInterval: 15000, // More frequent updates for orders
   });
 
   // Calculate trading statistics
   const tradingStats: TradingStats = {
-    availableBalance: userData?.virtualTradingBalance ? parseFloat(userData.virtualTradingBalance) : 0,
-    dayTradingUsed: userData?.dailyTradingUsed ? parseFloat(userData.dailyTradingUsed) : 0,
-    dayTradingLimit: userData?.dailyTradingLimit ? parseFloat(userData.dailyTradingLimit) : 10000,
+    availableBalance: userData?.virtualTradingBalance ? parseFloat(userData.virtualTradingBalance as string) : 100000, // Default virtual balance
+    dayTradingUsed: userData?.dailyTradingUsed ? parseFloat(userData.dailyTradingUsed as string) : 0,
+    dayTradingLimit: userData?.dailyTradingLimit ? parseFloat(userData.dailyTradingLimit as string) : 10000,
     totalPortfolioValue: userPortfolios && Array.isArray(userPortfolios) ? userPortfolios.reduce((total: number, portfolio: any) => {
       return total + (portfolio.totalValue ? parseFloat(portfolio.totalValue) : 0);
     }, 0) : 0,
@@ -104,15 +114,23 @@ export default function TradingPage() {
 
   return (
     <div className="space-y-6" data-testid="page-trading">
-      {/* Header */}
+      {/* Header with House Theme Integration */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Trading Desk</h1>
-          <p className="text-muted-foreground">
-            Execute buy and sell orders for comic book assets
-          </p>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <HouseEmblem size="lg" variant="soft" />
+            <div>
+              <h1 className="text-3xl font-bold flex items-center gap-2">
+                Trading Desk
+                <HouseBadge size="sm" variant="secondary" showIcon={false} />
+              </h1>
+              <p className="text-muted-foreground">
+                Execute buy and sell orders for comic book assets • {houseTheme.description}
+              </p>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Badge variant={isMarketOpen() ? 'default' : 'secondary'}>
             <Clock className="h-3 w-3 mr-1" />
             {isMarketOpen() ? 'Market Open' : 'Market Closed'}
@@ -121,6 +139,7 @@ export default function TradingPage() {
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
+          <HouseSelector variant="compact" size="sm" />
         </div>
       </div>
 
@@ -214,96 +233,138 @@ export default function TradingPage() {
         </Card>
       )}
 
-      {/* Main Trading Interface */}
-      <div className="grid gap-6 lg:grid-cols-12">
-        {/* Left Column - Trading Forms and Market Data */}
-        <div className="lg:col-span-8 space-y-6">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="order-entry" data-testid="tab-order-entry">
-                <DollarSign className="h-4 w-4 mr-2" />
-                Order Entry
-              </TabsTrigger>
-              <TabsTrigger value="order-history" data-testid="tab-order-history">
-                <Clock className="h-4 w-4 mr-2" />
-                Order History
-              </TabsTrigger>
-              <TabsTrigger value="market-watch" data-testid="tab-market-watch">
-                <Eye className="h-4 w-4 mr-2" />
-                Market Watch
-              </TabsTrigger>
-            </TabsList>
+      {/* Enhanced Mythological Trading Interface */}
+      <div className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5 bg-slate-800/50">
+            <TabsTrigger value="mythic-dashboard" data-testid="tab-mythic-dashboard">
+              <Crown className="h-4 w-4 mr-2" />
+              Mythic Nexus
+            </TabsTrigger>
+            <TabsTrigger value="battle-intel" data-testid="tab-battle-intel">
+              <Swords className="h-4 w-4 mr-2" />
+              Battle Intel
+            </TabsTrigger>
+            <TabsTrigger value="asset-discovery" data-testid="tab-asset-discovery">
+              <Target className="h-4 w-4 mr-2" />
+              Asset Oracle
+            </TabsTrigger>
+            <TabsTrigger value="gamified-trading" data-testid="tab-gamified-trading">
+              <Trophy className="h-4 w-4 mr-2" />
+              Achievements
+            </TabsTrigger>
+            <TabsTrigger value="classic-trading" data-testid="tab-classic-trading">
+              <DollarSign className="h-4 w-4 mr-2" />
+              Classic Trade
+            </TabsTrigger>
+          </TabsList>
 
-            <TabsContent value="order-entry" className="space-y-4">
-              <OrderEntryForm onOrderPlaced={handleOrderPlaced} />
-            </TabsContent>
+          <TabsContent value="mythic-dashboard">
+            <EnhancedTradingDashboard />
+          </TabsContent>
 
-            <TabsContent value="order-history" className="space-y-4">
-              <OrderHistory refreshTrigger={refreshTrigger} userId={user?.id} />
-            </TabsContent>
+          <TabsContent value="battle-intel">
+            <BattleDrivenIntelligence />
+          </TabsContent>
 
-            <TabsContent value="market-watch" className="space-y-4">
-              <div className="grid gap-4">
-                <MarketDataWidget showMarketOverview={true} />
-                
-                {/* Quick Trading Actions */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Quick Actions</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 gap-4">
-                      <Button 
-                        variant="default" 
-                        className="h-16 flex flex-col"
-                        onClick={() => setActiveTab('order-entry')}
-                        data-testid="button-quick-buy"
-                      >
-                        <TrendingUp className="h-6 w-6 mb-1" />
-                        Place Buy Order
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        className="h-16 flex flex-col"
-                        onClick={() => setActiveTab('order-entry')}
-                        data-testid="button-quick-sell"
-                      >
-                        <TrendingUp className="h-6 w-6 mb-1 rotate-180" />
-                        Place Sell Order
-                      </Button>
+          <TabsContent value="asset-discovery">
+            <AssetDiscoveryEngine />
+          </TabsContent>
+
+          <TabsContent value="gamified-trading">
+            <GamifiedTradingWidgets />
+          </TabsContent>
+
+          <TabsContent value="classic-trading" className="space-y-6">
+            <div className="grid gap-6 lg:grid-cols-12">
+              {/* Left Column - Trading Forms and Market Data */}
+              <div className="lg:col-span-8 space-y-6">
+                <Tabs value="order-entry" className="space-y-4">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="order-entry" data-testid="tab-order-entry">
+                      <DollarSign className="h-4 w-4 mr-2" />
+                      Order Entry
+                    </TabsTrigger>
+                    <TabsTrigger value="order-history" data-testid="tab-order-history">
+                      <Clock className="h-4 w-4 mr-2" />
+                      Order History
+                    </TabsTrigger>
+                    <TabsTrigger value="market-watch" data-testid="tab-market-watch">
+                      <Eye className="h-4 w-4 mr-2" />
+                      Market Watch
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="order-entry" className="space-y-4">
+                    <OrderEntryForm onOrderPlaced={handleOrderPlaced} />
+                  </TabsContent>
+
+                  <TabsContent value="order-history" className="space-y-4">
+                    <OrderHistory refreshTrigger={refreshTrigger} userId={user?.id} />
+                  </TabsContent>
+
+                  <TabsContent value="market-watch" className="space-y-4">
+                    <div className="grid gap-4">
+                      <MarketDataWidget showMarketOverview={true} />
+                      
+                      {/* Quick Trading Actions */}
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-lg">Quick Actions</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-2 gap-4">
+                            <Button 
+                              variant="default" 
+                              className="h-16 flex flex-col"
+                              onClick={() => setActiveTab('order-entry')}
+                              data-testid="button-quick-buy"
+                            >
+                              <TrendingUp className="h-6 w-6 mb-1" />
+                              Place Buy Order
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              className="h-16 flex flex-col"
+                              onClick={() => setActiveTab('order-entry')}
+                              data-testid="button-quick-sell"
+                            >
+                              <TrendingUp className="h-6 w-6 mb-1 rotate-180" />
+                              Place Sell Order
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
                     </div>
-                  </CardContent>
-                </Card>
+                  </TabsContent>
+                </Tabs>
               </div>
-            </TabsContent>
-          </Tabs>
-        </div>
 
-        {/* Right Column - Real-time Market Data */}
-        <div className="lg:col-span-4 space-y-6">
-          <MarketDataWidget showMarketOverview={true} />
+              {/* Right Column - Real-time Market Data */}
+              <div className="lg:col-span-4 space-y-6">
+                <MarketDataWidget showMarketOverview={true} />
           
-          {/* Account Summary */}
-          <Card data-testid="card-account-summary">
-            <CardHeader>
-              <CardTitle className="text-lg">Account Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Cash Balance:</span>
-                  <span className="font-medium">{formatCurrency(tradingStats.availableBalance)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Portfolio Value:</span>
-                  <span className="font-medium">{formatCurrency(tradingStats.totalPortfolioValue)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Total Value:</span>
-                  <span className="font-bold text-lg">
-                    {formatCurrency(tradingStats.availableBalance + tradingStats.totalPortfolioValue)}
-                  </span>
-                </div>
+                {/* Account Summary */}
+                <Card data-testid="card-account-summary">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Account Summary</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Cash Balance:</span>
+                        <span className="font-medium">{formatCurrency(tradingStats.availableBalance)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Portfolio Value:</span>
+                        <span className="font-medium">{formatCurrency(tradingStats.totalPortfolioValue)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Total Value:</span>
+                        <span className="font-bold text-lg">
+                          {formatCurrency(tradingStats.availableBalance + tradingStats.totalPortfolioValue)}
+                        </span>
+                      </div>
                 <div className="border-t pt-3">
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Daily P&L:</span>
@@ -342,33 +403,36 @@ export default function TradingPage() {
                     style={{ width: `${getProgressPercentage(tradingStats.dayTradingUsed, tradingStats.dayTradingLimit)}%` }}
                   />
                 </div>
-              </div>
-
-              {/* Risk Management */}
-              <div className="p-3 bg-muted/50 rounded-lg">
-                <h4 className="font-medium text-sm mb-2">Risk Management</h4>
-                <div className="space-y-1 text-xs text-muted-foreground">
-                  <div className="flex justify-between">
-                    <span>Risk Tolerance:</span>
-                    <Badge variant="outline" className="text-xs">
-                      {(userData as any)?.riskTolerance || 'Moderate'}
-                    </Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Max Position Size:</span>
-                    <span>{formatCurrency(parseFloat((userData as any)?.maxPositionSize || '5000'))}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Subscription Tier:</span>
-                    <Badge variant="outline" className="text-xs capitalize">
-                      {(userData as any)?.subscriptionTier || 'Free'}
-                    </Badge>
-                  </div>
+                
+                {/* Risk Management */}
+                    <div className="p-3 bg-muted/50 rounded-lg">
+                      <h4 className="font-medium text-sm mb-2">Risk Management</h4>
+                      <div className="space-y-1 text-xs text-muted-foreground">
+                        <div className="flex justify-between">
+                          <span>Risk Tolerance:</span>
+                          <Badge variant="outline" className="text-xs">
+                            {(userData as any)?.riskTolerance || 'Moderate'}
+                          </Badge>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Max Position Size:</span>
+                          <span>{formatCurrency(parseFloat((userData as any)?.maxPositionSize || '5000'))}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Subscription Tier:</span>
+                          <Badge variant="outline" className="text-xs capitalize">
+                            {(userData as any)?.subscriptionTier || 'Free'}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
                 </div>
+                  </CardContent>
+                </Card>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

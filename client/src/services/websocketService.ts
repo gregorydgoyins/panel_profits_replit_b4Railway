@@ -279,6 +279,7 @@ class WebSocketService {
   disconnect(): void {
     this.stopHeartbeat();
     if (this.ws) {
+      // Use RFC 6455 compliant close code
       this.ws.close(1000, 'Manual disconnect');
       this.ws = null;
     }

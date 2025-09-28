@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { ToastProvider } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { NotificationSystemProvider } from '@/components/notifications/NotificationSystemProvider';
+import { HouseThemeProvider } from '@/contexts/HouseThemeContext';
 import { LandingPage } from '@/components/LandingPage';
 import { NavigationSidebar } from '@/components/NavigationSidebar';
 import { HeroBanner } from '@/components/HeroBanner';
@@ -132,7 +133,9 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
         <NotificationSystemProvider>
-          <AuthenticatedLayout />
+          <HouseThemeProvider defaultHouse="heroes">
+            <AuthenticatedLayout />
+          </HouseThemeProvider>
         </NotificationSystemProvider>
         <Toaster />
       </ToastProvider>

@@ -182,7 +182,7 @@ export class MarketSimulationEngine {
       trend: (Math.random() - 0.5) * 2, // Random initial trend
       momentum: 0,
       volatility: parseFloat(currentPrice.volatility || '0.02'),
-      volume24h: currentPrice.volume,
+      volume24h: currentPrice.volume || 0,
       marketCap: this.calculateMarketCap(asset, parseFloat(currentPrice.currentPrice)),
     };
     
@@ -309,7 +309,7 @@ export class MarketSimulationEngine {
     
     const priceUpdates: Promise<void>[] = [];
     
-    for (const [assetId, marketData] of this.marketData) {
+    for (const [assetId, marketData] of Array.from(this.marketData.entries())) {
       priceUpdates.push(this.updateAssetPrice(assetId, marketData, timeDelta));
     }
     
@@ -455,7 +455,8 @@ export class MarketSimulationEngine {
         const impact = this.calculateEventImpact(event, asset);
         
         // Events decay over time with different rates based on type
-        const eventAge = new Date().getTime() - new Date(event.eventDate || event.createdAt).getTime();
+        const eventDate = event.eventDate || event.createdAt || new Date();
+        const eventAge = new Date().getTime() - new Date(eventDate).getTime();
         const ageInDays = eventAge / (1000 * 60 * 60 * 24);
         const decayFactor = this.getEventDecayFactor(event.category, ageInDays);
         
@@ -489,7 +490,8 @@ export class MarketSimulationEngine {
     const categoryMultiplier = this.getCategoryMultiplier(event.category, asset);
     
     // Significance multiplier (0.5x to 3x)
-    const significanceMultiplier = 0.5 + (parseFloat(event.significance || '5') / 10) * 2.5;
+    const significance = event.significance ? parseFloat(event.significance.toString()) : 5;
+    const significanceMultiplier = 0.5 + (significance / 10) * 2.5;
     
     // Asset-specific factors
     const assetMultiplier = this.getAssetEventMultiplier(asset, event);
@@ -519,7 +521,8 @@ export class MarketSimulationEngine {
       case 'publisher_announcement':
         // Publisher news impacts publisher and their properties
         const assetPublisher = metadata?.publisher;
-        return asset.type === 'publisher' || assetPublisher === event.title ? 2.2 : 1.0;
+        const eventTitle = event.title || '';
+        return asset.type === 'publisher' || assetPublisher === eventTitle ? 2.2 : 1.0;
       
       case 'industry_news':
         // Industry news has moderate impact across all assets
@@ -889,28 +892,65 @@ export class MarketSimulationEngine {
     topGainers: Array<{ assetId: string; symbol: string; change: number }>;
     topLosers: Array<{ assetId: string; symbol: string; change: number }>;
   }> {
-    const assets = Array.from(this.marketData.values());
-    
-    const totalMarketCap = assets.reduce((sum, data) => sum + (data.marketCap || 0), 0);
-    const totalVolume24h = assets.reduce((sum, data) => sum + data.volume24h, 0);
-    
-    // Sort by day change for gainers/losers
-    const sorted = assets
-      .map(data => ({
-        assetId: data.asset.id,
-        symbol: data.asset.symbol,
-        change: parseFloat(data.currentPrice.dayChangePercent || '0'),
-      }))
-      .sort((a, b) => b.change - a.change);
-    
-    return {
-      totalAssets: assets.length,
-      totalMarketCap,
-      totalVolume24h,
-      marketStatus: this.isMarketOpen() ? 'open' : 'closed',
-      topGainers: sorted.slice(0, 5),
-      topLosers: sorted.slice(-5).reverse(),
-    };
+    try {
+      const assets = Array.from(this.marketData.values());
+      
+      // Ensure we have valid market data before processing
+      if (assets.length === 0) {
+        console.warn('⚠️ Market simulation has no asset data - returning safe defaults');
+        return {
+          totalAssets: 0,
+          totalMarketCap: 0,
+          totalVolume24h: 0,
+          marketStatus: this.isMarketOpen() ? 'open' : 'closed',
+          topGainers: [],
+          topLosers: [],
+        };
+      }
+      
+      const totalMarketCap = assets.reduce((sum, data) => sum + (data.marketCap || 0), 0);
+      const totalVolume24h = assets.reduce((sum, data) => sum + data.volume24h, 0);
+      
+      // Sort by day change for gainers/losers with proper error handling
+      const sorted = assets
+        .filter(data => data.asset && data.currentPrice) // Ensure valid data
+        .map(data => {
+          // Validate that asset ID is a proper UUID, not a comic character ID
+          const assetId = data.asset.id;
+          if (!assetId || typeof assetId !== 'string') {
+            console.warn('⚠️ Invalid asset ID found in market data:', assetId);
+            return null;
+          }
+          
+          return {
+            assetId: assetId,
+            symbol: data.asset.symbol || 'UNKNOWN',
+            change: parseFloat(data.currentPrice.dayChangePercent || '0'),
+          };
+        })
+        .filter(item => item !== null) // Remove any invalid entries
+        .sort((a, b) => b.change - a.change);
+      
+      return {
+        totalAssets: assets.length,
+        totalMarketCap,
+        totalVolume24h,
+        marketStatus: this.isMarketOpen() ? 'open' : 'closed',
+        topGainers: sorted.slice(0, 5),
+        topLosers: sorted.slice(-5).reverse(),
+      };
+    } catch (error) {
+      console.error('❌ Error in getMarketOverview:', error);
+      // Return safe defaults to prevent WebSocket frame corruption
+      return {
+        totalAssets: 0,
+        totalMarketCap: 0,
+        totalVolume24h: 0,
+        marketStatus: 'closed',
+        topGainers: [],
+        topLosers: [],
+      };
+    }
   }
 
   /**
@@ -1142,7 +1182,6 @@ export class OrderMatchingEngine {
       filledQuantity: quantity.toString(),
       averageFillPrice: executionPrice.toString(),
       fees: fees.toString(),
-      filledAt: new Date(),
       executionDetails: {
         executionType: 'market',
         slippage: execution.slippage,
@@ -1212,7 +1251,6 @@ export class OrderMatchingEngine {
       filledQuantity: quantity.toString(),
       averageFillPrice: executionPrice.toString(),
       fees: fees.toString(),
-      filledAt: new Date(),
       executionDetails: {
         executionType: 'limit',
         limitPrice: limitPrice,
@@ -1274,21 +1312,21 @@ export class OrderMatchingEngine {
     const orderValue = quantity * currentPrice;
 
     // Check position size limits
-    const maxPositionSize = parseFloat(user.maxPositionSize);
+    const maxPositionSize = parseFloat(user.maxPositionSize || '5000');
     if (orderValue > maxPositionSize) {
       return { isValid: false, reason: `Order exceeds maximum position size of $${maxPositionSize}` };
     }
 
     // Check daily trading limits
-    const dailyLimit = parseFloat(user.dailyTradingLimit);
-    const dailyUsed = parseFloat(user.dailyTradingUsed);
+    const dailyLimit = parseFloat(user.dailyTradingLimit || '10000');
+    const dailyUsed = parseFloat(user.dailyTradingUsed || '0');
     if (dailyUsed + orderValue > dailyLimit) {
       return { isValid: false, reason: `Order exceeds daily trading limit` };
     }
 
     // For buy orders, check available cash
     if (order.type === 'buy') {
-      const cashBalance = parseFloat(portfolio.cashBalance);
+      const cashBalance = parseFloat(portfolio.cashBalance || '100000');
       const fees = this.calculateOrderFees(orderValue);
       const totalRequired = orderValue + fees;
       

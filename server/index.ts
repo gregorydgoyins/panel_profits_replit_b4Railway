@@ -1,6 +1,8 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { initializeWebSocketProtocolOverride, applyEmergencyProtocolOverride } from "./utils/webSocketProtocolOverride.js";
+
 
 const app = express();
 app.use(express.json());
@@ -37,6 +39,11 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Initialize critical WebSocket protocol override BEFORE any WebSocket servers start
+  console.log('🔒 Pre-initializing WebSocket protocol override for Vite HMR...');
+  initializeWebSocketProtocolOverride();
+  applyEmergencyProtocolOverride();
+  
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

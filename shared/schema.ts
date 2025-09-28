@@ -194,6 +194,7 @@ export const orders = pgTable("orders", {
   portfolioId: varchar("portfolio_id").notNull().references(() => portfolios.id),
   assetId: varchar("asset_id").notNull().references(() => assets.id),
   type: text("type").notNull(), // 'buy', 'sell'
+  side: text("side").notNull(), // 'buy', 'sell' - alias for type for compatibility
   orderType: text("order_type").notNull(), // 'market', 'limit', 'stop'
   quantity: decimal("quantity", { precision: 10, scale: 4 }).notNull(),
   price: decimal("price", { precision: 10, scale: 2 }),
@@ -290,6 +291,7 @@ export const marketEvents = pgTable("market_events", {
   description: text("description"),
   category: text("category"), // 'movie', 'tv', 'comic_release', 'convention', etc.
   impact: text("impact"), // 'positive', 'negative', 'neutral'
+  significance: decimal("significance", { precision: 2, scale: 1 }), // Impact significance 1-10
   affectedAssets: text("affected_assets").array(), // Asset IDs
   eventDate: timestamp("event_date"),
   isActive: boolean("is_active").default(true),
@@ -683,6 +685,7 @@ export const assetCurrentPrices = pgTable("asset_current_prices", {
   askPrice: decimal("ask_price", { precision: 10, scale: 2 }),
   dayChange: decimal("day_change", { precision: 10, scale: 2 }),
   dayChangePercent: decimal("day_change_percent", { precision: 5, scale: 2 }),
+  weekHigh: decimal("week_high", { precision: 10, scale: 2 }), // 52-week high price
   volume: integer("volume").default(0),
   lastTradePrice: decimal("last_trade_price", { precision: 10, scale: 2 }),
   lastTradeQuantity: decimal("last_trade_quantity", { precision: 10, scale: 4 }),

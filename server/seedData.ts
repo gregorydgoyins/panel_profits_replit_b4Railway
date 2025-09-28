@@ -115,7 +115,7 @@ export const SEED_MARKET_EVENTS: InsertMarketEvent[] = [
     description: 'The latest Spider-Man film breaks opening weekend records, driving massive interest in Spider-Man related properties.',
     category: 'movie_release',
     impact: 'positive',
-    significance: '9',
+    significance: 9,
     affectedAssets: [], // Will be filled after assets are created
     eventDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
     isActive: true
@@ -125,7 +125,7 @@ export const SEED_MARKET_EVENTS: InsertMarketEvent[] = [
     description: 'San Diego Comic-Con reports highest attendance in history, boosting overall market sentiment for comic properties.',
     category: 'comic_convention',
     impact: 'positive',
-    significance: '7',
+    significance: 7,
     affectedAssets: [], // Will affect all assets
     eventDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
     isActive: true
@@ -135,7 +135,7 @@ export const SEED_MARKET_EVENTS: InsertMarketEvent[] = [
     description: 'Marvel Studios reveals ambitious Phase 5 plans including multiple character debuts and returning favorites.',
     category: 'publisher_announcement',
     impact: 'positive',
-    significance: '8',
+    significance: 8,
     affectedAssets: [], // Will be filled with Marvel assets
     eventDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
     isActive: true
@@ -145,7 +145,7 @@ export const SEED_MARKET_EVENTS: InsertMarketEvent[] = [
     description: 'Industry reports suggest potential restructuring at DC Comics, creating uncertainty around future projects.',
     category: 'publisher_announcement',
     impact: 'negative',
-    significance: '6',
+    significance: 6,
     affectedAssets: [], // Will be filled with DC assets
     eventDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
     isActive: true
@@ -200,7 +200,6 @@ export async function seedMarketData(): Promise<void> {
           dayChange: '0.00',
           dayChangePercent: '0.00',
           weekHigh: Math.min(999.99, price * 1.1).toFixed(2),
-          weekLow: Math.max(0.01, price * 0.9).toFixed(2),
           lastTradePrice: price.toFixed(2),
           lastTradeTime: new Date(),
         };

@@ -6,7 +6,8 @@ import type {
   NotificationTemplate, InsertNotificationTemplate,
   Asset, AssetCurrentPrice, Order, User
 } from '@shared/schema.js';
-import { WebSocketServer } from 'ws';
+import { WebSocketServer, WebSocket as WSWebSocket } from 'ws';
+import { safeWebSocketClose, WebSocketCloseCodes } from '../utils/websocketSanitizer.js';
 
 /**
  * Comprehensive Notification Service for Panel Profits
@@ -42,7 +43,7 @@ export class NotificationService {
   private config: NotificationServiceConfig;
   private wsServer?: WebSocketServer;
   private priceCheckInterval?: NodeJS.Timeout;
-  private connectedClients: Map<string, WebSocket> = new Map();
+  private connectedClients: Map<string, WSWebSocket> = new Map();
   
   constructor(config: NotificationServiceConfig = DEFAULT_NOTIFICATION_CONFIG) {
     this.config = config;
@@ -175,7 +176,7 @@ export class NotificationService {
   private async sendWebSocketNotification(userId: string, notification: Notification): Promise<void> {
     const ws = this.connectedClients.get(userId);
     
-    if (ws && ws.readyState === WebSocket.OPEN) {
+    if (ws && ws.readyState === ws.OPEN) {
       try {
         ws.send(JSON.stringify({
           type: 'notification',
@@ -208,13 +209,13 @@ export class NotificationService {
     // Check type-specific preferences
     switch (notification.type) {
       case 'order':
-        return preferences.orderNotifications;
+        return preferences.orderNotifications || false;
       case 'price_alert':
-        return preferences.priceAlerts;
+        return preferences.priceAlerts || false;
       case 'market_update':
-        return preferences.marketUpdates;
+        return preferences.marketUpdates || false;
       case 'portfolio':
-        return preferences.portfolioAlerts;
+        return preferences.portfolioAlerts || false;
       default:
         return true;
     }
@@ -250,14 +251,14 @@ export class NotificationService {
       userId,
       type: 'order',
       title: `Order Filled: ${asset.symbol}`,
-      message: `Your ${order.side} order for ${order.quantity} shares of ${asset.name} has been filled at $${order.price}`,
+      message: `Your ${order.side || order.type} order for ${order.quantity} shares of ${asset.name} has been filled at $${order.price}`,
       priority: 'high',
       actionUrl: `/trading?order=${order.id}`,
       metadata: {
         orderId: order.id,
         assetId: asset.id,
         assetSymbol: asset.symbol,
-        orderSide: order.side,
+        orderSide: order.side || order.type,
         quantity: order.quantity,
         price: order.price,
         totalValue: order.totalValue
@@ -386,18 +387,13 @@ export class NotificationService {
         
         // Update alert trigger information
         await storage.updatePriceAlert(alert.id, {
-          triggeredAt: new Date(),
           lastTriggeredPrice: price.toString(),
-          triggerCount: (alert.triggerCount || 0) + 1,
-          lastCheckedAt: new Date()
+          triggerCount: (alert.triggerCount || 0) + 1
         });
         
         console.log(`🔔 Price alert triggered for user ${alert.userId}: ${asset.symbol} at $${price}`);
       } else {
-        // Update last checked time
-        await storage.updatePriceAlert(alert.id, {
-          lastCheckedAt: new Date()
-        });
+        // Alert not triggered, continue monitoring
       }
     } catch (error) {
       console.error(`Error checking price alert ${alert.id}:`, error);
@@ -408,7 +404,8 @@ export class NotificationService {
    * Get user notification preferences
    */
   async getUserNotificationPreferences(userId: string): Promise<NotificationPreferences | null> {
-    return await storage.getNotificationPreferences(userId);
+    const preferences = await storage.getNotificationPreferences(userId);
+    return preferences || null;
   }
 
   /**
@@ -419,7 +416,7 @@ export class NotificationService {
     
     // Send WebSocket update
     const ws = this.connectedClients.get(userId);
-    if (ws && ws.readyState === WebSocket.OPEN) {
+    if (ws && ws.readyState === ws.OPEN) {
       ws.send(JSON.stringify({
         type: 'notification_read',
         data: { notificationId }
@@ -435,7 +432,7 @@ export class NotificationService {
     
     // Send WebSocket update
     const ws = this.connectedClients.get(userId);
-    if (ws && ws.readyState === WebSocket.OPEN) {
+    if (ws && ws.readyState === ws.OPEN) {
       ws.send(JSON.stringify({
         type: 'all_notifications_read'
       }));
@@ -509,7 +506,7 @@ export class NotificationService {
     
     // Close all WebSocket connections
     this.connectedClients.forEach((ws) => {
-      ws.close();
+      safeWebSocketClose(ws, WebSocketCloseCodes.GOING_AWAY, 'Server shutting down');
     });
     this.connectedClients.clear();
     

@@ -9,8 +9,20 @@ import dataImportRoutes from "./routes/dataImportRoutes.js";
 import { registerComicRoutes } from "./routes/comicRoutes";
 import { registerComicCoverRoutes } from "./routes/comicCoverRoutes.js";
 import { registerNotificationRoutes } from "./routes/notificationRoutes.js";
+import enhancedDataRoutes from "./routes/enhancedDataRoutes.js";
 import { marketSimulation, orderMatching } from "./marketSimulation.js";
 import { leaderboardService } from "./leaderboardService.js";
+import { 
+  patchWebSocketWithSanitization, 
+  safeWebSocketClose,
+  safeWebSocketSend,
+  sanitizeWebSocketData,
+  WebSocketCloseCodes 
+} from "./utils/websocketSanitizer.js";
+import { 
+  initializeWebSocketProtocolOverride,
+  applyEmergencyProtocolOverride 
+} from "./utils/webSocketProtocolOverride.js";
 import { 
   insertAssetSchema, 
   insertMarketDataSchema,
@@ -1000,6 +1012,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Data import routes (Marvel vs DC dataset)
   app.use("/api/import", dataImportRoutes);
+
+  // Enhanced Trading Data Routes (Phase 3 Mythological Interface)
+  app.use("/api", enhancedDataRoutes);
 
   // PPIx Index Routes (Comic Book Market Indices) - SCHOLARLY INVESTMENT FRAMEWORK
   app.get("/api/ppix/indices", async (req, res) => {
@@ -2048,15 +2063,30 @@ Respond with valid JSON in this exact format:
   
   wss.on('connection', (ws) => {
     console.log('📡 New WebSocket client connected for market data');
+    
+    // Apply WebSocket close code sanitization to this connection
+    patchWebSocketWithSanitization(ws);
+    
     marketDataClients.add(ws);
     
-    // Send initial market overview
+    // Send initial market overview with comprehensive sanitization
     marketSimulation.getMarketOverview().then(overview => {
-      ws.send(JSON.stringify({
-        type: 'market_overview',
-        data: overview,
-        timestamp: new Date().toISOString()
-      }));
+      try {
+        const message = {
+          type: 'market_overview',
+          data: overview,
+          timestamp: new Date().toISOString()
+        };
+        
+        // Use sanitized send to prevent character IDs from causing protocol errors
+        safeWebSocketSend(ws, message);
+      } catch (error) {
+        console.error('Error sending initial market overview:', error);
+        safeWebSocketClose(ws, WebSocketCloseCodes.INTERNAL_SERVER_ERROR, 'Failed to send initial data');
+      }
+    }).catch(error => {
+      console.error('Error getting market overview:', error);
+      safeWebSocketClose(ws, WebSocketCloseCodes.INTERNAL_SERVER_ERROR, 'Market data unavailable');
     });
     
     ws.on('message', (message) => {
@@ -2065,28 +2095,44 @@ Respond with valid JSON in this exact format:
         
         // Handle client subscriptions to specific assets
         if (data.type === 'subscribe_asset') {
-          ws.assetSubscriptions = ws.assetSubscriptions || new Set();
-          ws.assetSubscriptions.add(data.assetId);
-          console.log(`📊 Client subscribed to asset: ${data.assetId}`);
+          // Validate that assetId is a string and not something that could be misused
+          if (typeof data.assetId === 'string' && data.assetId.length > 0) {
+            ws.assetSubscriptions = ws.assetSubscriptions || new Set();
+            ws.assetSubscriptions.add(data.assetId);
+            console.log(`📊 Client subscribed to asset: ${data.assetId}`);
+          } else {
+            console.warn('Invalid assetId in subscription request:', data.assetId);
+          }
         }
         
         if (data.type === 'unsubscribe_asset') {
-          ws.assetSubscriptions?.delete(data.assetId);
-          console.log(`📊 Client unsubscribed from asset: ${data.assetId}`);
+          if (typeof data.assetId === 'string') {
+            ws.assetSubscriptions?.delete(data.assetId);
+            console.log(`📊 Client unsubscribed from asset: ${data.assetId}`);
+          }
         }
+        
+        // Handle ping/pong for connection keepalive
+        if (data.type === 'ping') {
+          safeWebSocketSend(ws, { type: 'pong', timestamp: Date.now() });
+        }
+        
       } catch (error) {
         console.error('Error processing WebSocket message:', error);
+        // Don't close connection for message parsing errors, just log them
       }
     });
     
-    ws.on('close', () => {
-      console.log('📡 WebSocket client disconnected');
+    ws.on('close', (code, reason) => {
+      console.log(`📡 WebSocket client disconnected (code: ${code}, reason: ${reason?.toString()})`);
       marketDataClients.delete(ws);
     });
     
     ws.on('error', (error) => {
       console.error('WebSocket error:', error);
       marketDataClients.delete(ws);
+      // Use safe close for error conditions
+      safeWebSocketClose(ws, WebSocketCloseCodes.INTERNAL_SERVER_ERROR, 'Connection error');
     });
   });
   
@@ -2096,17 +2142,28 @@ Respond with valid JSON in this exact format:
     
     try {
       const overview = await marketSimulation.getMarketOverview();
-      const updateMessage = JSON.stringify({
+      
+      const updateMessage = {
         type: 'market_update',
         data: overview,
         timestamp: new Date().toISOString()
-      });
+      };
       
-      marketDataClients.forEach(client => {
-        if (client.readyState === 1) { // WebSocket.OPEN
-          client.send(updateMessage);
-        } else {
+      // Create array of clients to avoid Set modification during iteration
+      const clientsArray = Array.from(marketDataClients);
+      
+      clientsArray.forEach(client => {
+        try {
+          if (client.readyState === 1) { // WebSocket.OPEN
+            // Use sanitized send to prevent character IDs from causing protocol errors
+            safeWebSocketSend(client, updateMessage);
+          } else {
+            marketDataClients.delete(client);
+          }
+        } catch (error) {
+          console.error('Error sending update to client:', error);
           marketDataClients.delete(client);
+          // Don't try to close here as the client might already be disconnected
         }
       });
     } catch (error) {
