@@ -7,6 +7,17 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import ComicCoverImage from '@/components/ComicCoverImage';
 
+// Import actual comic cover images
+import spiderManCover1 from '@assets/stock_images/spider-man_comic_boo_275afde9.jpg';
+import spiderManCover2 from '@assets/stock_images/spider-man_comic_boo_63ce2e99.jpg';
+import spiderManCover3 from '@assets/stock_images/spider-man_comic_boo_155e6aae.jpg';
+import batmanCover1 from '@assets/stock_images/batman_comic_book_co_054b939e.jpg';
+import batmanCover2 from '@assets/stock_images/batman_comic_book_co_36c5d572.jpg';
+import xMenCover1 from '@assets/stock_images/x-men_comic_book_cov_4df97e0a.jpg';
+import xMenCover2 from '@assets/stock_images/x-men_comic_book_cov_57999c65.jpg';
+import avengersCover1 from '@assets/stock_images/avengers_comic_book__f9af90f1.jpg';
+import avengersCover2 from '@assets/stock_images/avengers_comic_book__cc39d6cd.jpg';
+
 interface FeaturedComic {
   id: string;
   title: string;
@@ -25,18 +36,68 @@ interface ComicMetric {
   icon: 'issues' | 'value' | 'creators' | 'series';
 }
 
+// Featured comics with actual cover images
+const featuredComicsCarousel: FeaturedComic[] = [
+  {
+    id: 'spider-man-1',
+    title: 'Spider-Man',
+    subtitle: 'Amazing Spider-Man',
+    description: 'The ultimate wall-crawler returns in this classic adventure. With great power comes great responsibility as Peter Parker faces his greatest challenges yet.',
+    coverUrl: spiderManCover1,
+    seriesId: 'spider-man-series',
+    displayOrder: 1,
+    type: 'hero_banner'
+  },
+  {
+    id: 'batman-1',
+    title: 'Batman',
+    subtitle: 'The Dark Knight',
+    description: 'Gotham City\'s protector emerges from the shadows to face a new threat. Justice never sleeps in this thrilling Batman adventure.',
+    coverUrl: batmanCover1,
+    seriesId: 'batman-series',
+    displayOrder: 2,
+    type: 'hero_banner'
+  },
+  {
+    id: 'x-men-1',
+    title: 'X-Men',
+    subtitle: 'Uncanny X-Men',
+    description: 'Professor Xavier\'s students unite to protect a world that fears and hates them. The next stage of human evolution begins here.',
+    coverUrl: xMenCover1,
+    seriesId: 'x-men-series',
+    displayOrder: 3,
+    type: 'hero_banner'
+  },
+  {
+    id: 'avengers-1',
+    title: 'Avengers',
+    subtitle: 'Earth\'s Mightiest Heroes',
+    description: 'When Earth faces threats too great for any single hero, the Avengers assemble! Join the ultimate superhero team in action.',
+    coverUrl: avengersCover1,
+    seriesId: 'avengers-series',
+    displayOrder: 4,
+    type: 'hero_banner'
+  },
+  {
+    id: 'spider-man-2',
+    title: 'Spider-Man',
+    subtitle: 'Web of Spider-Man',
+    description: 'New adventures await the friendly neighborhood Spider-Man as he swings through Manhattan facing both old foes and new challenges.',
+    coverUrl: spiderManCover2,
+    seriesId: 'spider-man-series-2',
+    displayOrder: 5,
+    type: 'hero_banner'
+  }
+];
+
 export function HeroBanner() {
   const [, setLocation] = useLocation();
   
   const [currentComicIndex, setCurrentComicIndex] = useState(0);
   
-  // Fetch real featured comics data for hero banner
-  const { data: heroComicsResponse, isLoading: featuredLoading } = useQuery({
-    queryKey: ['/api/comic-covers/hero-banner'],
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
-  
-  const featuredComics = heroComicsResponse?.data || [];
+  // Use local featured comics with actual cover images
+  const featuredComics = featuredComicsCarousel;
+  const featuredLoading = false;
   
   // Fetch real comic cover statistics
   const { data: statsResponse, isLoading: metricsLoading } = useQuery({

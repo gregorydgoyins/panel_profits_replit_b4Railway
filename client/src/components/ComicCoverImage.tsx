@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Loader2, ImageIcon } from 'lucide-react';
 
@@ -38,6 +38,13 @@ export function ComicCoverImage({
   const [hasError, setHasError] = useState(false);
   const [imageSrc, setImageSrc] = useState<string | null>(src || null);
 
+  // Update imageSrc when src prop changes
+  useEffect(() => {
+    setImageSrc(src || null);
+    setIsLoading(true);
+    setHasError(false);
+  }, [src]);
+
   const handleLoad = () => {
     setIsLoading(false);
     setHasError(false);
@@ -57,9 +64,14 @@ export function ComicCoverImage({
     }
   };
 
-  // Convert comics.org gallery URLs to potential direct image URLs
+  // Handle both direct image URLs and imported assets
   const getDirectImageUrl = (url: string | null): string | null => {
     if (!url) return null;
+    
+    // If it's a data URL or blob URL from imports, use it directly
+    if (url.startsWith('data:') || url.startsWith('blob:') || url.startsWith('/assets/')) {
+      return url;
+    }
     
     // If it's already a direct image URL, use it
     if (url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
