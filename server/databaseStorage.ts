@@ -5,7 +5,9 @@ import {
   assets, marketData, portfolios, holdings, marketInsights, marketIndices,
   marketIndexData, watchlists, watchlistAssets, orders, marketEvents,
   beatTheAIChallenge, beatTheAIPrediction, beatTheAILeaderboard,
-  comicGradingPredictions, users, comicSeries, comicIssues, comicCreators, featuredComics
+  comicGradingPredictions, users, comicSeries, comicIssues, comicCreators, featuredComics,
+  // Phase 1 Trading Extensions
+  tradingSessions, assetCurrentPrices, tradingLimits
 } from '@shared/schema.js';
 import type {
   User, InsertUser, UpsertUser, Asset, InsertAsset, MarketData, InsertMarketData,
@@ -16,7 +18,10 @@ import type {
   BeatTheAIChallenge, InsertBeatTheAIChallenge, BeatTheAIPrediction, InsertBeatTheAIPrediction,
   BeatTheAILeaderboard, InsertBeatTheAILeaderboard, ComicGradingPrediction, InsertComicGradingPrediction,
   ComicSeries, InsertComicSeries, ComicIssue, InsertComicIssue, ComicCreator, InsertComicCreator,
-  FeaturedComic, InsertFeaturedComic
+  FeaturedComic, InsertFeaturedComic,
+  // Phase 1 Trading Extensions
+  TradingSession, InsertTradingSession, AssetCurrentPrice, InsertAssetCurrentPrice,
+  TradingLimit, InsertTradingLimit
 } from '@shared/schema.js';
 import type { IStorage } from './storage.js';
 
@@ -873,6 +878,298 @@ export class DatabaseStorage implements IStorage {
 
   async getFeaturedComicsForHomepage(): Promise<FeaturedComic[]> {
     return this.getFeaturedComics({ isActive: true, limit: 10 });
+  }
+
+  // =========================================================================
+  // PHASE 1 TRADING EXTENSIONS
+  // =========================================================================
+
+  // Trading Sessions
+  async getTradingSession(id: string): Promise<TradingSession | undefined> {
+    const result = await db.select().from(tradingSessions).where(eq(tradingSessions.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getUserTradingSessions(userId: string, isActive?: boolean): Promise<TradingSession[]> {
+    let query = db.select().from(tradingSessions).where(eq(tradingSessions.userId, userId));
+    
+    if (isActive !== undefined) {
+      query = query.where(and(eq(tradingSessions.userId, userId), eq(tradingSessions.isActive, isActive)));
+    }
+    
+    return await query.orderBy(desc(tradingSessions.sessionStart));
+  }
+
+  async getActiveTradingSession(userId: string): Promise<TradingSession | undefined> {
+    const result = await db.select().from(tradingSessions)
+      .where(and(eq(tradingSessions.userId, userId), eq(tradingSessions.isActive, true)))
+      .limit(1);
+    return result[0];
+  }
+
+  async createTradingSession(session: InsertTradingSession): Promise<TradingSession> {
+    const result = await db.insert(tradingSessions).values(session).returning();
+    return result[0];
+  }
+
+  async updateTradingSession(id: string, session: Partial<InsertTradingSession>): Promise<TradingSession | undefined> {
+    const result = await db.update(tradingSessions).set(session).where(eq(tradingSessions.id, id)).returning();
+    return result[0];
+  }
+
+  async endTradingSession(id: string, endingBalance: string, sessionStats: Partial<TradingSession>): Promise<TradingSession | undefined> {
+    const result = await db.update(tradingSessions)
+      .set({
+        sessionEnd: new Date(),
+        endingBalance,
+        isActive: false,
+        ...sessionStats
+      })
+      .where(eq(tradingSessions.id, id))
+      .returning();
+    return result[0];
+  }
+
+  // Asset Current Prices  
+  async getAssetCurrentPrice(assetId: string): Promise<AssetCurrentPrice | undefined> {
+    const result = await db.select().from(assetCurrentPrices).where(eq(assetCurrentPrices.assetId, assetId)).limit(1);
+    return result[0];
+  }
+
+  async getAssetCurrentPrices(assetIds: string[]): Promise<AssetCurrentPrice[]> {
+    return await db.select().from(assetCurrentPrices).where(inArray(assetCurrentPrices.assetId, assetIds));
+  }
+
+  async getAllAssetCurrentPrices(marketStatus?: string): Promise<AssetCurrentPrice[]> {
+    let query = db.select().from(assetCurrentPrices);
+    
+    if (marketStatus) {
+      query = query.where(eq(assetCurrentPrices.marketStatus, marketStatus));
+    }
+    
+    return await query.orderBy(desc(assetCurrentPrices.updatedAt));
+  }
+
+  async createAssetCurrentPrice(price: InsertAssetCurrentPrice): Promise<AssetCurrentPrice> {
+    const result = await db.insert(assetCurrentPrices).values(price).returning();
+    return result[0];
+  }
+
+  async updateAssetCurrentPrice(assetId: string, price: Partial<InsertAssetCurrentPrice>): Promise<AssetCurrentPrice | undefined> {
+    const result = await db.update(assetCurrentPrices)
+      .set({ ...price, updatedAt: new Date() })
+      .where(eq(assetCurrentPrices.assetId, assetId))
+      .returning();
+    return result[0];
+  }
+
+  async updateBulkAssetPrices(prices: Partial<AssetCurrentPrice>[]): Promise<AssetCurrentPrice[]> {
+    if (prices.length === 0) return [];
+    
+    const results: AssetCurrentPrice[] = [];
+    
+    // Update each price individually since bulk updates with WHERE clauses are complex in Drizzle
+    for (const price of prices) {
+      if (price.assetId) {
+        const result = await this.updateAssetCurrentPrice(price.assetId, price);
+        if (result) results.push(result);
+      }
+    }
+    
+    return results;
+  }
+
+  // Trading Limits
+  async getTradingLimit(id: string): Promise<TradingLimit | undefined> {
+    const result = await db.select().from(tradingLimits).where(eq(tradingLimits.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getUserTradingLimits(userId: string, isActive?: boolean): Promise<TradingLimit[]> {
+    let query = db.select().from(tradingLimits).where(eq(tradingLimits.userId, userId));
+    
+    if (isActive !== undefined) {
+      query = query.where(and(eq(tradingLimits.userId, userId), eq(tradingLimits.isActive, isActive)));
+    }
+    
+    return await query.orderBy(desc(tradingLimits.createdAt));
+  }
+
+  async getUserTradingLimitsByType(userId: string, limitType: string): Promise<TradingLimit[]> {
+    return await db.select().from(tradingLimits)
+      .where(and(eq(tradingLimits.userId, userId), eq(tradingLimits.limitType, limitType)))
+      .orderBy(desc(tradingLimits.createdAt));
+  }
+
+  async createTradingLimit(limit: InsertTradingLimit): Promise<TradingLimit> {
+    const result = await db.insert(tradingLimits).values(limit).returning();
+    return result[0];
+  }
+
+  async updateTradingLimit(id: string, limit: Partial<InsertTradingLimit>): Promise<TradingLimit | undefined> {
+    const result = await db.update(tradingLimits)
+      .set({ ...limit, updatedAt: new Date() })
+      .where(eq(tradingLimits.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteTradingLimit(id: string): Promise<boolean> {
+    const result = await db.delete(tradingLimits).where(eq(tradingLimits.id, id));
+    return result.rowCount > 0;
+  }
+
+  async checkTradingLimitBreach(userId: string, limitType: string, proposedValue: number, assetId?: string): Promise<{ canProceed: boolean; limit?: TradingLimit; exceedsBy?: number }> {
+    let query = db.select().from(tradingLimits)
+      .where(and(
+        eq(tradingLimits.userId, userId),
+        eq(tradingLimits.limitType, limitType),
+        eq(tradingLimits.isActive, true)
+      ));
+    
+    if (assetId) {
+      query = query.where(and(
+        eq(tradingLimits.userId, userId),
+        eq(tradingLimits.limitType, limitType),
+        eq(tradingLimits.isActive, true),
+        eq(tradingLimits.assetId, assetId)
+      ));
+    }
+    
+    const limits = await query;
+    
+    for (const limit of limits) {
+      const currentUsage = parseFloat(limit.currentUsage);
+      const limitValue = parseFloat(limit.limitValue);
+      const newUsage = currentUsage + proposedValue;
+      
+      if (newUsage > limitValue) {
+        return {
+          canProceed: false,
+          limit,
+          exceedsBy: newUsage - limitValue
+        };
+      }
+    }
+    
+    return { canProceed: true };
+  }
+
+  async resetUserTradingLimits(userId: string, resetPeriod: string): Promise<boolean> {
+    const result = await db.update(tradingLimits)
+      .set({ 
+        currentUsage: "0.00",
+        lastReset: new Date(),
+        updatedAt: new Date()
+      })
+      .where(and(
+        eq(tradingLimits.userId, userId),
+        eq(tradingLimits.resetPeriod, resetPeriod),
+        eq(tradingLimits.isActive, true)
+      ));
+    
+    return result.rowCount > 0;
+  }
+
+  // Enhanced User Trading Operations
+  async updateUserTradingBalance(userId: string, amount: string): Promise<User | undefined> {
+    const result = await db.update(users)
+      .set({ 
+        virtualTradingBalance: amount,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return result[0];
+  }
+
+  async resetUserDailyLimits(userId: string): Promise<User | undefined> {
+    const result = await db.update(users)
+      .set({ 
+        dailyTradingUsed: "0.00",
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return result[0];
+  }
+
+  async getUserDefaultPortfolio(userId: string): Promise<Portfolio | undefined> {
+    const result = await db.select().from(portfolios)
+      .where(and(eq(portfolios.userId, userId), eq(portfolios.isDefault, true)))
+      .limit(1);
+    return result[0];
+  }
+
+  async createUserDefaultPortfolio(userId: string, initialCash: string): Promise<Portfolio> {
+    const portfolioData: InsertPortfolio = {
+      userId,
+      name: "Default Trading Portfolio",
+      description: "Your primary trading portfolio",
+      isDefault: true,
+      cashBalance: initialCash,
+      initialCashAllocation: initialCash,
+      portfolioType: "default"
+    };
+    
+    const result = await db.insert(portfolios).values(portfolioData).returning();
+    return result[0];
+  }
+
+  // Portfolio Cash Management
+  async updatePortfolioCashBalance(portfolioId: string, amount: string, operation: 'add' | 'subtract' | 'set'): Promise<Portfolio | undefined> {
+    const portfolio = await this.getPortfolio(portfolioId);
+    if (!portfolio) return undefined;
+    
+    let newBalance: string;
+    const currentBalance = parseFloat(portfolio.cashBalance || "0");
+    const changeAmount = parseFloat(amount);
+    
+    switch (operation) {
+      case 'add':
+        newBalance = (currentBalance + changeAmount).toFixed(2);
+        break;
+      case 'subtract':
+        newBalance = (currentBalance - changeAmount).toFixed(2);
+        break;
+      case 'set':
+        newBalance = changeAmount.toFixed(2);
+        break;
+      default:
+        return undefined;
+    }
+    
+    const result = await db.update(portfolios)
+      .set({ 
+        cashBalance: newBalance,
+        updatedAt: new Date()
+      })
+      .where(eq(portfolios.id, portfolioId))
+      .returning();
+    
+    return result[0];
+  }
+
+  async getPortfolioAvailableCash(portfolioId: string): Promise<{ cashBalance: string; reservedCash: string; availableCash: string }> {
+    const portfolio = await this.getPortfolio(portfolioId);
+    if (!portfolio) {
+      return { cashBalance: "0.00", reservedCash: "0.00", availableCash: "0.00" };
+    }
+    
+    // Calculate reserved cash from pending orders
+    const pendingOrders = await this.getUserOrders(portfolio.userId, "pending");
+    const reservedCash = pendingOrders
+      .filter(order => order.portfolioId === portfolioId && order.type === 'buy')
+      .reduce((total, order) => total + parseFloat(order.totalValue || "0"), 0);
+    
+    const cashBalance = parseFloat(portfolio.cashBalance || "0");
+    const availableCash = Math.max(0, cashBalance - reservedCash);
+    
+    return {
+      cashBalance: cashBalance.toFixed(2),
+      reservedCash: reservedCash.toFixed(2),
+      availableCash: availableCash.toFixed(2)
+    };
   }
 }
 

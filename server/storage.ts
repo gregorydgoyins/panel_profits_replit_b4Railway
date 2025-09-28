@@ -18,7 +18,11 @@ import {
   type ComicSeries, type InsertComicSeries,
   type ComicIssue, type InsertComicIssue,
   type ComicCreator, type InsertComicCreator,
-  type FeaturedComic, type InsertFeaturedComic
+  type FeaturedComic, type InsertFeaturedComic,
+  // Phase 1 Trading Extensions
+  type TradingSession, type InsertTradingSession,
+  type AssetCurrentPrice, type InsertAssetCurrentPrice,
+  type TradingLimit, type InsertTradingLimit
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -208,6 +212,44 @@ export interface IStorage {
   searchAssetsWithSimilarity(query: string, filters?: { type?: string; publisher?: string }, limit?: number): Promise<Array<Asset & { similarityScore?: number; searchScore: number }>>;
   getRecommendationsForUser(userId: string, limit?: number): Promise<Array<Asset & { recommendationScore: number; reason: string }>>;
   getPortfolioSimilarAssets(portfolioId: string, limit?: number): Promise<Array<Asset & { similarityScore: number; portfolioWeight: number }>>;
+
+  // Phase 1 Trading Extensions
+  
+  // Trading Sessions
+  getTradingSession(id: string): Promise<TradingSession | undefined>;
+  getUserTradingSessions(userId: string, isActive?: boolean): Promise<TradingSession[]>;
+  getActiveTradingSession(userId: string): Promise<TradingSession | undefined>;
+  createTradingSession(session: InsertTradingSession): Promise<TradingSession>;
+  updateTradingSession(id: string, session: Partial<InsertTradingSession>): Promise<TradingSession | undefined>;
+  endTradingSession(id: string, endingBalance: string, sessionStats: Partial<TradingSession>): Promise<TradingSession | undefined>;
+
+  // Asset Current Prices  
+  getAssetCurrentPrice(assetId: string): Promise<AssetCurrentPrice | undefined>;
+  getAssetCurrentPrices(assetIds: string[]): Promise<AssetCurrentPrice[]>;
+  getAllAssetCurrentPrices(marketStatus?: string): Promise<AssetCurrentPrice[]>;
+  createAssetCurrentPrice(price: InsertAssetCurrentPrice): Promise<AssetCurrentPrice>;
+  updateAssetCurrentPrice(assetId: string, price: Partial<InsertAssetCurrentPrice>): Promise<AssetCurrentPrice | undefined>;
+  updateBulkAssetPrices(prices: Partial<AssetCurrentPrice>[]): Promise<AssetCurrentPrice[]>;
+
+  // Trading Limits
+  getTradingLimit(id: string): Promise<TradingLimit | undefined>;
+  getUserTradingLimits(userId: string, isActive?: boolean): Promise<TradingLimit[]>;
+  getUserTradingLimitsByType(userId: string, limitType: string): Promise<TradingLimit[]>;
+  createTradingLimit(limit: InsertTradingLimit): Promise<TradingLimit>;
+  updateTradingLimit(id: string, limit: Partial<InsertTradingLimit>): Promise<TradingLimit | undefined>;
+  deleteTradingLimit(id: string): Promise<boolean>;
+  checkTradingLimitBreach(userId: string, limitType: string, proposedValue: number, assetId?: string): Promise<{ canProceed: boolean; limit?: TradingLimit; exceedsBy?: number }>;
+  resetUserTradingLimits(userId: string, resetPeriod: string): Promise<boolean>;
+
+  // Enhanced User Trading Operations
+  updateUserTradingBalance(userId: string, amount: string): Promise<User | undefined>;
+  resetUserDailyLimits(userId: string): Promise<User | undefined>;
+  getUserDefaultPortfolio(userId: string): Promise<Portfolio | undefined>;
+  createUserDefaultPortfolio(userId: string, initialCash: string): Promise<Portfolio>;
+
+  // Portfolio Cash Management
+  updatePortfolioCashBalance(portfolioId: string, amount: string, operation: 'add' | 'subtract' | 'set'): Promise<Portfolio | undefined>;
+  getPortfolioAvailableCash(portfolioId: string): Promise<{ cashBalance: string; reservedCash: string; availableCash: string }>;
 }
 
 // Time-series buffer implementation with memory limits and proper chronological ordering

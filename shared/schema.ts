@@ -34,6 +34,16 @@ export const users = pgTable("users", {
   usedTradingCredits: integer("used_trading_credits").default(0),
   competitionWins: integer("competition_wins").default(0),
   competitionRanking: integer("competition_ranking"),
+  // Phase 1 Trading Balance & Limits
+  virtualTradingBalance: decimal("virtual_trading_balance", { precision: 15, scale: 2 }).default("100000.00"), // Starting virtual cash for trading
+  dailyTradingLimit: decimal("daily_trading_limit", { precision: 15, scale: 2 }).default("10000.00"), // Daily trading limit
+  dailyTradingUsed: decimal("daily_trading_used", { precision: 15, scale: 2 }).default("0.00"), // Daily trading used
+  maxPositionSize: decimal("max_position_size", { precision: 10, scale: 2 }).default("5000.00"), // Max single position size
+  riskTolerance: text("risk_tolerance").default("moderate"), // 'conservative', 'moderate', 'aggressive'
+  tradingPermissions: jsonb("trading_permissions").default('{"canTrade": true, "canUseMargin": false, "canShort": false}'), // Trading permissions
+  lastTradingActivity: timestamp("last_trading_activity"),
+  tradingStreakDays: integer("trading_streak_days").default(0),
+  totalTradingProfit: decimal("total_trading_profit", { precision: 15, scale: 2 }).default("0.00"),
   preferences: jsonb("preferences"), // UI settings, notifications, etc.
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -86,6 +96,11 @@ export const portfolios = pgTable("portfolios", {
   totalReturn: decimal("total_return", { precision: 10, scale: 2 }),
   totalReturnPercent: decimal("total_return_percent", { precision: 5, scale: 2 }),
   diversificationScore: decimal("diversification_score", { precision: 3, scale: 1 }),
+  // Phase 1 Portfolio Cash Management
+  cashBalance: decimal("cash_balance", { precision: 15, scale: 2 }).default("100000.00"), // Available cash for trading
+  initialCashAllocation: decimal("initial_cash_allocation", { precision: 15, scale: 2 }).default("100000.00"), // Initial starting amount
+  portfolioType: text("portfolio_type").default("default"), // 'default', 'custom', 'competition'
+  isDefault: boolean("is_default").default(false), // True for user's default trading portfolio
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -183,7 +198,16 @@ export const orders = pgTable("orders", {
   quantity: decimal("quantity", { precision: 10, scale: 4 }).notNull(),
   price: decimal("price", { precision: 10, scale: 2 }),
   totalValue: decimal("total_value", { precision: 10, scale: 2 }),
-  status: text("status").notNull(), // 'pending', 'filled', 'cancelled'
+  status: text("status").notNull(), // 'pending', 'filled', 'cancelled', 'partially_filled'
+  // Phase 1 Enhanced Order Execution Tracking
+  filledQuantity: decimal("filled_quantity", { precision: 10, scale: 4 }).default("0"),
+  averageFillPrice: decimal("average_fill_price", { precision: 10, scale: 2 }),
+  fees: decimal("fees", { precision: 10, scale: 2 }).default("0.00"), // Trading fees/commissions
+  stopLossPrice: decimal("stop_loss_price", { precision: 10, scale: 2 }), // Stop loss level
+  takeProfitPrice: decimal("take_profit_price", { precision: 10, scale: 2 }), // Take profit level
+  orderExpiry: timestamp("order_expiry"), // Order expiration time
+  executionDetails: jsonb("execution_details"), // Detailed execution information
+  rejectionReason: text("rejection_reason"), // Reason if order was rejected
   filledAt: timestamp("filled_at"),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -614,3 +638,99 @@ export type InsertFeaturedComic = z.infer<typeof insertFeaturedComicSchema>;
 
 export type ComicGradingPrediction = typeof comicGradingPredictions.$inferSelect;
 export type InsertComicGradingPrediction = z.infer<typeof insertComicGradingPredictionSchema>;
+
+// Phase 1 Trading Extensions
+
+// Trading Sessions - Track user trading activity and performance
+export const tradingSessions = pgTable("trading_sessions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  portfolioId: varchar("portfolio_id").notNull().references(() => portfolios.id),
+  sessionStart: timestamp("session_start").defaultNow().notNull(),
+  sessionEnd: timestamp("session_end"),
+  // Session Performance Metrics
+  startingBalance: decimal("starting_balance", { precision: 15, scale: 2 }).notNull(),
+  endingBalance: decimal("ending_balance", { precision: 15, scale: 2 }),
+  totalTrades: integer("total_trades").default(0),
+  profitableTrades: integer("profitable_trades").default(0),
+  sessionProfit: decimal("session_profit", { precision: 15, scale: 2 }).default("0.00"),
+  sessionProfitPercent: decimal("session_profit_percent", { precision: 5, scale: 2 }).default("0.00"),
+  largestWin: decimal("largest_win", { precision: 15, scale: 2 }).default("0.00"),
+  largestLoss: decimal("largest_loss", { precision: 15, scale: 2 }).default("0.00"),
+  // Session Activity
+  assetsTraded: text("assets_traded").array(), // Array of asset IDs traded in this session
+  tradingStrategy: text("trading_strategy"), // 'day_trading', 'swing_trading', 'position_trading'
+  notes: text("notes"), // User notes about the session
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Asset Current Prices - Real-time pricing for trading
+export const assetCurrentPrices = pgTable("asset_current_prices", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  assetId: varchar("asset_id").notNull().references(() => assets.id),
+  currentPrice: decimal("current_price", { precision: 10, scale: 2 }).notNull(),
+  bidPrice: decimal("bid_price", { precision: 10, scale: 2 }),
+  askPrice: decimal("ask_price", { precision: 10, scale: 2 }),
+  dayChange: decimal("day_change", { precision: 10, scale: 2 }),
+  dayChangePercent: decimal("day_change_percent", { precision: 5, scale: 2 }),
+  volume: integer("volume").default(0),
+  lastTradePrice: decimal("last_trade_price", { precision: 10, scale: 2 }),
+  lastTradeQuantity: decimal("last_trade_quantity", { precision: 10, scale: 4 }),
+  lastTradeTime: timestamp("last_trade_time"),
+  // Market status
+  marketStatus: text("market_status").default("open"), // 'open', 'closed', 'suspended'
+  priceSource: text("price_source").default("simulation"), // 'simulation', 'external_api', 'manual'
+  // Volatility and risk metrics
+  volatility: decimal("volatility", { precision: 5, scale: 2 }), // Price volatility percentage
+  beta: decimal("beta", { precision: 3, scale: 2 }), // Beta relative to market
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Trading Limits - User-specific trading limits and restrictions
+export const tradingLimits = pgTable("trading_limits", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  assetId: varchar("asset_id").references(() => assets.id), // Asset-specific limits (null for general limits)
+  limitType: text("limit_type").notNull(), // 'daily_volume', 'position_size', 'loss_limit', 'exposure_limit'
+  limitValue: decimal("limit_value", { precision: 15, scale: 2 }).notNull(),
+  currentUsage: decimal("current_usage", { precision: 15, scale: 2 }).default("0.00"),
+  resetPeriod: text("reset_period").default("daily"), // 'daily', 'weekly', 'monthly', 'never'
+  lastReset: timestamp("last_reset").defaultNow(),
+  isActive: boolean("is_active").default(true),
+  // Breach tracking
+  breachCount: integer("breach_count").default(0),
+  lastBreach: timestamp("last_breach"),
+  breachAction: text("breach_action").default("block"), // 'block', 'warn', 'log'
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Insert schemas for new Phase 1 trading tables
+export const insertTradingSessionSchema = createInsertSchema(tradingSessions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertAssetCurrentPriceSchema = createInsertSchema(assetCurrentPrices).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertTradingLimitSchema = createInsertSchema(tradingLimits).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Export types for new Phase 1 trading tables
+export type TradingSession = typeof tradingSessions.$inferSelect;
+export type InsertTradingSession = z.infer<typeof insertTradingSessionSchema>;
+
+export type AssetCurrentPrice = typeof assetCurrentPrices.$inferSelect;
+export type InsertAssetCurrentPrice = z.infer<typeof insertAssetCurrentPriceSchema>;
+
+export type TradingLimit = typeof tradingLimits.$inferSelect;
+export type InsertTradingLimit = z.infer<typeof insertTradingLimitSchema>;
