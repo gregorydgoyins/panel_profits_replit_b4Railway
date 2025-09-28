@@ -99,6 +99,7 @@ export interface IStorage {
   // Orders and trading
   getOrder(id: string): Promise<Order | undefined>;
   getUserOrders(userId: string, status?: string): Promise<Order[]>;
+  getOrdersByStatus(status: string): Promise<Order[]>;
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrder(id: string, order: Partial<InsertOrder>): Promise<Order | undefined>;
   deleteOrder(id: string): Promise<boolean>;
@@ -868,6 +869,10 @@ export class MemStorage implements IStorage {
     }
     
     return orders;
+  }
+
+  async getOrdersByStatus(status: string): Promise<Order[]> {
+    return Array.from(this.orders.values()).filter(o => o.status === status);
   }
 
   async createOrder(insertOrder: InsertOrder): Promise<Order> {

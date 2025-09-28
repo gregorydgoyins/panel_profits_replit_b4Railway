@@ -2,11 +2,13 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { WebSocketServer } from 'ws';
 import comicDataRoutes from "./routes/comicData.js";
 import vectorRoutes from "./routes/vectorRoutes.js";
 import dataImportRoutes from "./routes/dataImportRoutes.js";
 import { registerComicRoutes } from "./routes/comicRoutes";
 import { registerComicCoverRoutes } from "./routes/comicCoverRoutes.js";
+import { marketSimulation, orderMatching } from "./marketSimulation.js";
 import { 
   insertAssetSchema, 
   insertMarketDataSchema,
@@ -1014,7 +1016,528 @@ Respond with valid JSON in this exact format:
     }
   });
 
+  // ================================
+  // MARKET SIMULATION ENGINE ROUTES
+  // ================================
+
+  // Market Overview - Real-time market statistics
+  app.get("/api/market/overview", async (req, res) => {
+    try {
+      const overview = await marketSimulation.getMarketOverview();
+      res.json({
+        success: true,
+        data: overview
+      });
+    } catch (error) {
+      console.error('Error fetching market overview:', error);
+      res.status(500).json({ error: "Failed to fetch market overview" });
+    }
+  });
+
+  // Current Asset Prices - Real-time prices with bid/ask spreads
+  app.get("/api/market/prices", async (req, res) => {
+    try {
+      const assetIds = req.query.assetIds as string;
+      const marketStatus = req.query.marketStatus as string;
+      
+      let prices;
+      if (assetIds) {
+        // Get specific assets
+        const idsArray = assetIds.split(',');
+        prices = await marketSimulation.getCurrentPrices(idsArray);
+      } else {
+        // Get all current prices
+        prices = await storage.getAllAssetCurrentPrices(marketStatus);
+      }
+      
+      res.json({
+        success: true,
+        data: prices,
+        marketOpen: marketSimulation.isMarketOpen()
+      });
+    } catch (error) {
+      console.error('Error fetching current prices:', error);
+      res.status(500).json({ error: "Failed to fetch current prices" });
+    }
+  });
+
+  // Market Depth - Simulated order book data
+  app.get("/api/market/depth/:assetId", async (req, res) => {
+    try {
+      const marketData = marketSimulation.getAssetMarketData(req.params.assetId);
+      
+      if (!marketData) {
+        return res.status(404).json({ error: "Asset not found" });
+      }
+
+      const currentPrice = parseFloat(marketData.currentPrice.currentPrice);
+      const spread = parseFloat(marketData.currentPrice.askPrice || '0') - parseFloat(marketData.currentPrice.bidPrice || '0');
+      
+      // Simulate market depth (order book)
+      const depth = {
+        bids: [] as Array<{ price: number; quantity: number; total: number }>,
+        asks: [] as Array<{ price: number; quantity: number; total: number }>
+      };
+
+      // Generate realistic bid/ask ladder
+      let runningBidTotal = 0;
+      let runningAskTotal = 0;
+      
+      for (let i = 0; i < 10; i++) {
+        // Bids (decreasing price)
+        const bidPrice = currentPrice * (1 - (i + 1) * spread / currentPrice);
+        const bidQuantity = Math.floor(Math.random() * 500 + 100);
+        runningBidTotal += bidQuantity;
+        depth.bids.push({
+          price: Math.round(bidPrice * 100) / 100,
+          quantity: bidQuantity,
+          total: runningBidTotal
+        });
+
+        // Asks (increasing price)
+        const askPrice = currentPrice * (1 + (i + 1) * spread / currentPrice);
+        const askQuantity = Math.floor(Math.random() * 500 + 100);
+        runningAskTotal += askQuantity;
+        depth.asks.push({
+          price: Math.round(askPrice * 100) / 100,
+          quantity: askQuantity,
+          total: runningAskTotal
+        });
+      }
+
+      res.json({
+        success: true,
+        data: {
+          assetId: req.params.assetId,
+          symbol: marketData.asset.symbol,
+          currentPrice,
+          spread: Math.round(spread * 100) / 100,
+          depth
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching market depth:', error);
+      res.status(500).json({ error: "Failed to fetch market depth" });
+    }
+  });
+
+  // Market History - OHLC data for charting
+  app.get("/api/market/history/:assetId", async (req, res) => {
+    try {
+      const timeframe = req.query.timeframe as string || '1d';
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 100;
+      const from = req.query.from ? new Date(req.query.from as string) : undefined;
+      const to = req.query.to ? new Date(req.query.to as string) : undefined;
+
+      const chartData = await storage.getMarketDataHistory(
+        req.params.assetId, 
+        timeframe, 
+        limit, 
+        from, 
+        to
+      );
+
+      // Get current price for latest data point
+      const currentPrice = await storage.getAssetCurrentPrice(req.params.assetId);
+
+      res.json({
+        success: true,
+        data: {
+          assetId: req.params.assetId,
+          timeframe,
+          currentPrice: currentPrice ? parseFloat(currentPrice.currentPrice) : null,
+          ohlc: chartData.map(d => ({
+            timestamp: d.periodStart,
+            open: parseFloat(d.open),
+            high: parseFloat(d.high),
+            low: parseFloat(d.low),
+            close: parseFloat(d.close),
+            volume: d.volume
+          }))
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching chart data:', error);
+      res.status(500).json({ error: "Failed to fetch chart data" });
+    }
+  });
+
+  // Place Order - Create pending order without immediate execution
+  app.post("/api/orders/place", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Validate order data
+      const orderData = insertOrderSchema.parse({
+        ...req.body,
+        userId,
+        status: 'pending' // Force pending status for placed orders
+      });
+
+      // Validate the order through the matching engine before placing
+      const tempOrder = await storage.createOrder(orderData);
+      const validation = await orderMatching.validateOrder(tempOrder);
+      
+      if (!validation.isValid) {
+        // Delete the temp order and return validation error
+        await storage.deleteOrder(tempOrder.id);
+        return res.status(400).json({
+          success: false,
+          error: validation.reason || 'Order validation failed'
+        });
+      }
+
+      // Order is valid, return the placed order
+      res.status(201).json({
+        success: true,
+        data: {
+          orderId: tempOrder.id,
+          status: 'pending',
+          message: 'Order placed successfully',
+          orderDetails: {
+            assetId: tempOrder.assetId,
+            type: tempOrder.type,
+            orderType: tempOrder.orderType,
+            quantity: tempOrder.quantity,
+            price: tempOrder.price,
+            estimatedValue: parseFloat(tempOrder.quantity) * parseFloat(tempOrder.price || '0')
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error placing order:', error);
+      
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          error: "Invalid order data", 
+          details: error.errors 
+        });
+      }
+
+      res.status(500).json({ error: "Failed to place order" });
+    }
+  });
+
+  // Order Execution - Process buy/sell orders immediately
+  app.post("/api/orders/execute", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // Validate order data
+      const orderData = insertOrderSchema.parse({
+        ...req.body,
+        userId
+      });
+
+      // Create the order
+      const order = await storage.createOrder(orderData);
+
+      // Process the order through the matching engine
+      const execution = await orderMatching.processOrder(order);
+
+      if (execution) {
+        res.status(201).json({
+          success: true,
+          data: {
+            orderId: execution.orderId,
+            status: 'filled',
+            executedQuantity: execution.executedQuantity,
+            executedPrice: execution.executedPrice,
+            fees: execution.fees,
+            slippage: execution.slippage,
+            timestamp: execution.timestamp
+          }
+        });
+      } else {
+        // Order was rejected or placed as pending
+        const updatedOrder = await storage.getOrder(order.id);
+        res.status(200).json({
+          success: true,
+          data: {
+            orderId: order.id,
+            status: updatedOrder?.status || 'pending',
+            message: updatedOrder?.rejectionReason || 'Order placed successfully'
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error executing order:', error);
+      
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          error: "Invalid order data", 
+          details: error.errors 
+        });
+      }
+
+      res.status(500).json({ error: "Failed to execute order" });
+    }
+  });
+
+  // Order Status and Management
+  app.get("/api/orders/user/:userId", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const status = req.query.status as string;
+      
+      // Ensure user can only access their own orders
+      if (req.params.userId !== userId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      const orders = await storage.getUserOrders(userId, status);
+      res.json({
+        success: true,
+        data: orders
+      });
+    } catch (error) {
+      console.error('Error fetching user orders:', error);
+      res.status(500).json({ error: "Failed to fetch orders" });
+    }
+  });
+
+  // Cancel Order
+  app.delete("/api/orders/:orderId", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const order = await storage.getOrder(req.params.orderId);
+      
+      if (!order) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+
+      // Ensure user can only cancel their own orders
+      if (order.userId !== userId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      // Only allow cancellation of pending orders
+      if (order.status !== 'pending') {
+        return res.status(400).json({ error: "Cannot cancel non-pending order" });
+      }
+
+      const cancelledOrder = await storage.cancelOrder(req.params.orderId);
+      res.json({
+        success: true,
+        data: cancelledOrder
+      });
+    } catch (error) {
+      console.error('Error cancelling order:', error);
+      res.status(500).json({ error: "Failed to cancel order" });
+    }
+  });
+
+  // Market Status
+  app.get("/api/market/status", async (req, res) => {
+    try {
+      res.json({
+        success: true,
+        data: {
+          isOpen: marketSimulation.isMarketOpen(),
+          timestamp: new Date().toISOString()
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching market status:', error);
+      res.status(500).json({ error: "Failed to fetch market status" });
+    }
+  });
+
+  // Market Overview
+  app.get("/api/market/overview", async (req, res) => {
+    try {
+      const overview = await marketSimulation.getMarketOverview();
+      res.json({
+        success: true,
+        data: overview
+      });
+    } catch (error) {
+      console.error('Error fetching market overview:', error);
+      res.status(500).json({ error: "Failed to fetch market overview" });
+    }
+  });
+
+  // Current Asset Prices
+  app.get("/api/market/prices", async (req, res) => {
+    try {
+      const assetIds = req.query.assetIds as string;
+      
+      if (!assetIds) {
+        // Get all asset prices
+        const assets = await storage.getAssets();
+        const allAssetIds = assets.map(asset => asset.id);
+        const prices = await storage.getAssetCurrentPrices(allAssetIds);
+        
+        res.json({
+          success: true,
+          data: prices
+        });
+      } else {
+        // Get specific asset prices
+        const assetIdArray = assetIds.split(',');
+        const prices = await storage.getAssetCurrentPrices(assetIdArray);
+        
+        res.json({
+          success: true,
+          data: prices
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching current prices:', error);
+      res.status(500).json({ error: "Failed to fetch current prices" });
+    }
+  });
+
+  // Historical Market Data for Asset
+  app.get("/api/market/data/:assetId", async (req, res) => {
+    try {
+      const { assetId } = req.params;
+      const timeframe = (req.query.timeframe as string) || '1h';
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 100;
+      const from = req.query.from ? new Date(req.query.from as string) : undefined;
+      const to = req.query.to ? new Date(req.query.to as string) : undefined;
+
+      const marketData = await storage.getMarketDataHistory(assetId, timeframe, limit, from, to);
+      
+      res.json({
+        success: true,
+        data: marketData,
+        meta: {
+          assetId,
+          timeframe,
+          limit,
+          count: marketData.length
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching market data:', error);
+      res.status(500).json({ error: "Failed to fetch market data" });
+    }
+  });
+
+  // Active Market Events
+  app.get("/api/market/events", async (req, res) => {
+    try {
+      const isActive = req.query.active !== 'false'; // Default to true
+      const category = req.query.category as string;
+      
+      const events = await storage.getMarketEvents({ 
+        isActive: isActive || undefined, 
+        category 
+      });
+      
+      res.json({
+        success: true,
+        data: events
+      });
+    } catch (error) {
+      console.error('Error fetching market events:', error);
+      res.status(500).json({ error: "Failed to fetch market events" });
+    }
+  });
+
+  // Initialize and start the market simulation engine
+  try {
+    console.log('🏪 Initializing market simulation engine...');
+    
+    // Import and run seed data
+    const { seedMarketData, generateHistoricalData } = await import('./seedData.js');
+    await seedMarketData();
+    await generateHistoricalData();
+    
+    await marketSimulation.initialize();
+    
+    // Start real-time price updates (every 30 seconds in development)
+    const updateInterval = process.env.NODE_ENV === 'development' ? 30000 : 60000;
+    marketSimulation.start(updateInterval);
+    
+    console.log('✅ Market simulation engine started successfully');
+  } catch (error) {
+    console.error('❌ Failed to initialize market simulation engine:', error);
+    // Continue anyway - the engine can be manually restarted
+  }
+
   const httpServer = createServer(app);
+
+  // Setup WebSocket for real-time market data
+  const wss = new WebSocketServer({ server: httpServer });
+  
+  // Store connected clients for broadcasting
+  const marketDataClients = new Set<any>();
+  
+  wss.on('connection', (ws) => {
+    console.log('📡 New WebSocket client connected for market data');
+    marketDataClients.add(ws);
+    
+    // Send initial market overview
+    marketSimulation.getMarketOverview().then(overview => {
+      ws.send(JSON.stringify({
+        type: 'market_overview',
+        data: overview,
+        timestamp: new Date().toISOString()
+      }));
+    });
+    
+    ws.on('message', (message) => {
+      try {
+        const data = JSON.parse(message.toString());
+        
+        // Handle client subscriptions to specific assets
+        if (data.type === 'subscribe_asset') {
+          ws.assetSubscriptions = ws.assetSubscriptions || new Set();
+          ws.assetSubscriptions.add(data.assetId);
+          console.log(`📊 Client subscribed to asset: ${data.assetId}`);
+        }
+        
+        if (data.type === 'unsubscribe_asset') {
+          ws.assetSubscriptions?.delete(data.assetId);
+          console.log(`📊 Client unsubscribed from asset: ${data.assetId}`);
+        }
+      } catch (error) {
+        console.error('Error processing WebSocket message:', error);
+      }
+    });
+    
+    ws.on('close', () => {
+      console.log('📡 WebSocket client disconnected');
+      marketDataClients.delete(ws);
+    });
+    
+    ws.on('error', (error) => {
+      console.error('WebSocket error:', error);
+      marketDataClients.delete(ws);
+    });
+  });
+  
+  // Broadcast market data updates to connected clients
+  const broadcastMarketUpdate = async () => {
+    if (marketDataClients.size === 0) return;
+    
+    try {
+      const overview = await marketSimulation.getMarketOverview();
+      const updateMessage = JSON.stringify({
+        type: 'market_update',
+        data: overview,
+        timestamp: new Date().toISOString()
+      });
+      
+      marketDataClients.forEach(client => {
+        if (client.readyState === 1) { // WebSocket.OPEN
+          client.send(updateMessage);
+        } else {
+          marketDataClients.delete(client);
+        }
+      });
+    } catch (error) {
+      console.error('Error broadcasting market update:', error);
+    }
+  };
+  
+  // Broadcast updates every 30 seconds
+  setInterval(broadcastMarketUpdate, 30000);
+  
+  // Store the broadcast function for use in market simulation
+  (marketSimulation as any).broadcastUpdate = broadcastMarketUpdate;
 
   return httpServer;
 }

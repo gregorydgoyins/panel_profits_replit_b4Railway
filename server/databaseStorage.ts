@@ -370,6 +370,12 @@ export class DatabaseStorage implements IStorage {
     return await query.orderBy(desc(orders.createdAt));
   }
 
+  async getOrdersByStatus(status: string): Promise<Order[]> {
+    return await db.select().from(orders)
+      .where(eq(orders.status, status))
+      .orderBy(desc(orders.createdAt));
+  }
+
   async createOrder(order: InsertOrder): Promise<Order> {
     const result = await db.insert(orders).values(order).returning();
     return result[0];
