@@ -5,7 +5,7 @@ import {
   assets, marketData, portfolios, holdings, marketInsights, marketIndices,
   marketIndexData, watchlists, watchlistAssets, orders, marketEvents,
   beatTheAIChallenge, beatTheAIPrediction, beatTheAILeaderboard,
-  comicGradingPredictions, users
+  comicGradingPredictions, users, comicSeries, comicIssues, comicCreators, featuredComics
 } from '@shared/schema.js';
 import type {
   User, InsertUser, Asset, InsertAsset, MarketData, InsertMarketData,
@@ -14,7 +14,9 @@ import type {
   Watchlist, InsertWatchlist, WatchlistAsset, InsertWatchlistAsset,
   Order, InsertOrder, MarketEvent, InsertMarketEvent,
   BeatTheAIChallenge, InsertBeatTheAIChallenge, BeatTheAIPrediction, InsertBeatTheAIPrediction,
-  BeatTheAILeaderboard, InsertBeatTheAILeaderboard, ComicGradingPrediction, InsertComicGradingPrediction
+  BeatTheAILeaderboard, InsertBeatTheAILeaderboard, ComicGradingPrediction, InsertComicGradingPrediction,
+  ComicSeries, InsertComicSeries, ComicIssue, InsertComicIssue, ComicCreator, InsertComicCreator,
+  FeaturedComic, InsertFeaturedComic
 } from '@shared/schema.js';
 import type { IStorage } from './storage.js';
 
@@ -572,6 +574,289 @@ export class DatabaseStorage implements IStorage {
   }
   async getRecommendationsForUser(): Promise<any> { return { success: false, userId: '', recommendations: [], count: 0 }; }
   async getPortfolioSimilarAssets(): Promise<any> { return { success: false, portfolioId: '', similarAssets: [], count: 0 }; }
+
+  // Comic Series management
+  async getComicSeries(id: string): Promise<ComicSeries | undefined> {
+    const result = await db.select().from(comicSeries).where(eq(comicSeries.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getComicSeriesList(filters?: { publisher?: string; year?: number; search?: string; limit?: number }): Promise<ComicSeries[]> {
+    let query = db.select().from(comicSeries);
+    
+    const conditions = [];
+    
+    if (filters?.publisher) {
+      conditions.push(ilike(comicSeries.publisher, `%${filters.publisher}%`));
+    }
+    
+    if (filters?.year) {
+      conditions.push(eq(comicSeries.year, filters.year));
+    }
+    
+    if (filters?.search) {
+      conditions.push(
+        sql`(
+          ${comicSeries.seriesName} ILIKE ${`%${filters.search}%`} OR 
+          ${comicSeries.description} ILIKE ${`%${filters.search}%`}
+        )`
+      );
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    query = query.orderBy(desc(comicSeries.createdAt));
+    
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+    
+    return await query;
+  }
+
+  async createComicSeries(series: InsertComicSeries): Promise<ComicSeries> {
+    const result = await db.insert(comicSeries).values(series).returning();
+    return result[0];
+  }
+
+  async updateComicSeries(id: string, series: Partial<InsertComicSeries>): Promise<ComicSeries | undefined> {
+    const result = await db.update(comicSeries).set(series).where(eq(comicSeries.id, id)).returning();
+    return result[0];
+  }
+
+  async deleteComicSeries(id: string): Promise<boolean> {
+    const result = await db.delete(comicSeries).where(eq(comicSeries.id, id));
+    return result.rowCount > 0;
+  }
+
+  async createBulkComicSeries(seriesList: InsertComicSeries[]): Promise<ComicSeries[]> {
+    if (seriesList.length === 0) return [];
+    const result = await db.insert(comicSeries).values(seriesList).returning();
+    return result;
+  }
+
+  // Comic Issues management
+  async getComicIssue(id: string): Promise<ComicIssue | undefined> {
+    const result = await db.select().from(comicIssues).where(eq(comicIssues.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getComicIssues(filters?: { seriesId?: string; search?: string; writer?: string; artist?: string; limit?: number }): Promise<ComicIssue[]> {
+    let query = db.select().from(comicIssues);
+    
+    const conditions = [];
+    
+    if (filters?.seriesId) {
+      conditions.push(eq(comicIssues.seriesId, filters.seriesId));
+    }
+    
+    if (filters?.search) {
+      conditions.push(
+        sql`(
+          ${comicIssues.issueTitle} ILIKE ${`%${filters.search}%`} OR 
+          ${comicIssues.issueDescription} ILIKE ${`%${filters.search}%`} OR
+          ${comicIssues.comicName} ILIKE ${`%${filters.search}%`}
+        )`
+      );
+    }
+    
+    if (filters?.writer) {
+      conditions.push(ilike(comicIssues.writer, `%${filters.writer}%`));
+    }
+    
+    if (filters?.artist) {
+      conditions.push(
+        sql`(
+          ${comicIssues.penciler} ILIKE ${`%${filters.artist}%`} OR 
+          ${comicIssues.coverArtist} ILIKE ${`%${filters.artist}%`}
+        )`
+      );
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    query = query.orderBy(desc(comicIssues.createdAt));
+    
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+    
+    return await query;
+  }
+
+  async getComicIssuesBySeriesId(seriesId: string): Promise<ComicIssue[]> {
+    return await db.select().from(comicIssues).where(eq(comicIssues.seriesId, seriesId)).orderBy(comicIssues.issueNumber);
+  }
+
+  async createComicIssue(issue: InsertComicIssue): Promise<ComicIssue> {
+    const result = await db.insert(comicIssues).values(issue).returning();
+    return result[0];
+  }
+
+  async updateComicIssue(id: string, issue: Partial<InsertComicIssue>): Promise<ComicIssue | undefined> {
+    const result = await db.update(comicIssues).set(issue).where(eq(comicIssues.id, id)).returning();
+    return result[0];
+  }
+
+  async deleteComicIssue(id: string): Promise<boolean> {
+    const result = await db.delete(comicIssues).where(eq(comicIssues.id, id));
+    return result.rowCount > 0;
+  }
+
+  async createBulkComicIssues(issuesList: InsertComicIssue[]): Promise<ComicIssue[]> {
+    if (issuesList.length === 0) return [];
+    const result = await db.insert(comicIssues).values(issuesList).returning();
+    return result;
+  }
+
+  // Comic Creators management
+  async getComicCreator(id: string): Promise<ComicCreator | undefined> {
+    const result = await db.select().from(comicCreators).where(eq(comicCreators.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getComicCreators(filters?: { role?: string; search?: string; limit?: number }): Promise<ComicCreator[]> {
+    let query = db.select().from(comicCreators);
+    
+    const conditions = [];
+    
+    if (filters?.role) {
+      conditions.push(eq(comicCreators.role, filters.role));
+    }
+    
+    if (filters?.search) {
+      conditions.push(
+        sql`(
+          ${comicCreators.name} ILIKE ${`%${filters.search}%`} OR 
+          ${comicCreators.biography} ILIKE ${`%${filters.search}%`}
+        )`
+      );
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    query = query.orderBy(desc(comicCreators.marketInfluence));
+    
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+    
+    return await query;
+  }
+
+  async getComicCreatorByName(name: string): Promise<ComicCreator | undefined> {
+    const result = await db.select().from(comicCreators).where(eq(comicCreators.name, name)).limit(1);
+    return result[0];
+  }
+
+  async createComicCreator(creator: InsertComicCreator): Promise<ComicCreator> {
+    const result = await db.insert(comicCreators).values(creator).returning();
+    return result[0];
+  }
+
+  async updateComicCreator(id: string, creator: Partial<InsertComicCreator>): Promise<ComicCreator | undefined> {
+    const result = await db.update(comicCreators).set(creator).where(eq(comicCreators.id, id)).returning();
+    return result[0];
+  }
+
+  async deleteComicCreator(id: string): Promise<boolean> {
+    const result = await db.delete(comicCreators).where(eq(comicCreators.id, id));
+    return result.rowCount > 0;
+  }
+
+  // Featured Comics management
+  async getFeaturedComic(id: string): Promise<FeaturedComic | undefined> {
+    const result = await db.select().from(featuredComics).where(eq(featuredComics.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getFeaturedComics(filters?: { featureType?: string; isActive?: boolean; limit?: number }): Promise<FeaturedComic[]> {
+    let query = db.select().from(featuredComics);
+    
+    const conditions = [];
+    
+    if (filters?.featureType) {
+      conditions.push(eq(featuredComics.featureType, filters.featureType));
+    }
+    
+    if (filters?.isActive !== undefined) {
+      conditions.push(eq(featuredComics.isActive, filters.isActive));
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    query = query.orderBy(featuredComics.displayOrder);
+    
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+    
+    return await query;
+  }
+
+  async createFeaturedComic(featured: InsertFeaturedComic): Promise<FeaturedComic> {
+    const result = await db.insert(featuredComics).values(featured).returning();
+    return result[0];
+  }
+
+  async updateFeaturedComic(id: string, featured: Partial<InsertFeaturedComic>): Promise<FeaturedComic | undefined> {
+    const result = await db.update(featuredComics).set(featured).where(eq(featuredComics.id, id)).returning();
+    return result[0];
+  }
+
+  async deleteFeaturedComic(id: string): Promise<boolean> {
+    const result = await db.delete(featuredComics).where(eq(featuredComics.id, id));
+    return result.rowCount > 0;
+  }
+
+  // Comic data aggregation for dashboards
+  async getComicMetrics(): Promise<{ totalSeries: number; totalIssues: number; totalCreators: number; totalCovers: number }> {
+    const [seriesCount, issuesCount, creatorsCount] = await Promise.all([
+      db.select({ count: sql<number>`count(*)` }).from(comicSeries),
+      db.select({ count: sql<number>`count(*)` }).from(comicIssues),
+      db.select({ count: sql<number>`count(*)` }).from(comicCreators)
+    ]);
+    
+    const coversCount = await db.select({ count: sql<number>`count(*)` })
+      .from(comicSeries)
+      .where(sql`${comicSeries.featuredCoverUrl} IS NOT NULL OR ${comicSeries.coversUrl} IS NOT NULL`);
+    
+    return {
+      totalSeries: seriesCount[0]?.count || 0,
+      totalIssues: issuesCount[0]?.count || 0,
+      totalCreators: creatorsCount[0]?.count || 0,
+      totalCovers: coversCount[0]?.count || 0
+    };
+  }
+  
+  async getFeaturedComicsCount(): Promise<number> {
+    const result = await db.select({ count: sql<number>`count(*)` }).from(featuredComics);
+    return result[0]?.count || 0;
+  }
+
+  async getTrendingComicSeries(limit?: number): Promise<ComicSeries[]> {
+    let query = db.select().from(comicSeries)
+      .where(sql`${comicSeries.featuredCoverUrl} IS NOT NULL OR ${comicSeries.coversUrl} IS NOT NULL`)
+      .orderBy(desc(comicSeries.year));
+    
+    if (limit) {
+      query = query.limit(limit);
+    }
+    
+    return await query;
+  }
+
+  async getFeaturedComicsForHomepage(): Promise<FeaturedComic[]> {
+    return this.getFeaturedComics({ isActive: true, limit: 10 });
+  }
 }
 
 export const databaseStorage = new DatabaseStorage();

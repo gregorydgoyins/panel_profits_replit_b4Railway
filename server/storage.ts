@@ -162,6 +162,7 @@ export interface IStorage {
 
   // Comic data aggregation for dashboards
   getComicMetrics(): Promise<{ totalSeries: number; totalIssues: number; totalCreators: number; totalCovers: number }>;
+  getFeaturedComicsCount(): Promise<number>;
   getTrendingComicSeries(limit?: number): Promise<ComicSeries[]>;
   getFeaturedComicsForHomepage(): Promise<FeaturedComic[]>;
 
@@ -311,6 +312,12 @@ export class MemStorage implements IStorage {
   private beatTheAIPredictions: Map<string, BeatTheAIPrediction>;
   private beatTheAILeaderboard: Map<string, BeatTheAILeaderboard>;
   private comicGradingPredictions: Map<string, ComicGradingPrediction>;
+  
+  // Comic-related storage
+  private comicSeries: Map<string, ComicSeries>;
+  private comicIssues: Map<string, ComicIssue>;
+  private comicCreators: Map<string, ComicCreator>;
+  private featuredComics: Map<string, FeaturedComic>;
 
   constructor() {
     this.users = new Map();
@@ -329,6 +336,12 @@ export class MemStorage implements IStorage {
     this.beatTheAIPredictions = new Map();
     this.beatTheAILeaderboard = new Map();
     this.comicGradingPredictions = new Map();
+    
+    // Initialize comic-related maps
+    this.comicSeries = new Map();
+    this.comicIssues = new Map();
+    this.comicCreators = new Map();
+    this.featuredComics = new Map();
   }
 
   // User methods
@@ -1474,6 +1487,248 @@ export class MemStorage implements IStorage {
         count: 0
       };
     }
+  }
+
+  // Comic Series management
+  async getComicSeries(id: string): Promise<ComicSeries | undefined> {
+    return this.comicSeries.get(id);
+  }
+
+  async getComicSeriesList(filters?: { publisher?: string; year?: number; search?: string; limit?: number }): Promise<ComicSeries[]> {
+    let series = Array.from(this.comicSeries.values());
+    
+    if (filters?.publisher) {
+      series = series.filter(s => s.publisher.toLowerCase().includes(filters.publisher!.toLowerCase()));
+    }
+    
+    if (filters?.year) {
+      series = series.filter(s => s.year === filters.year);
+    }
+    
+    if (filters?.search) {
+      const searchLower = filters.search.toLowerCase();
+      series = series.filter(s => 
+        s.seriesName.toLowerCase().includes(searchLower) ||
+        s.description?.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    if (filters?.limit) {
+      series = series.slice(0, filters.limit);
+    }
+    
+    return series;
+  }
+
+  async createComicSeries(insertSeries: InsertComicSeries): Promise<ComicSeries> {
+    const id = randomUUID();
+    const series: ComicSeries = {
+      ...insertSeries,
+      id,
+      year: insertSeries.year ?? null,
+      issueCount: insertSeries.issueCount ?? null,
+      coverStatus: insertSeries.coverStatus ?? null,
+      publishedPeriod: insertSeries.publishedPeriod ?? null,
+      seriesUrl: insertSeries.seriesUrl ?? null,
+      coversUrl: insertSeries.coversUrl ?? null,
+      scansUrl: insertSeries.scansUrl ?? null,
+      featuredCoverUrl: insertSeries.featuredCoverUrl ?? null,
+      description: insertSeries.description ?? null,
+      seriesEmbedding: insertSeries.seriesEmbedding ?? null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.comicSeries.set(id, series);
+    return series;
+  }
+
+  async updateComicSeries(id: string, updateData: Partial<InsertComicSeries>): Promise<ComicSeries | undefined> {
+    const series = this.comicSeries.get(id);
+    if (!series) return undefined;
+    
+    const updatedSeries: ComicSeries = {
+      ...series,
+      ...updateData,
+      updatedAt: new Date()
+    };
+    this.comicSeries.set(id, updatedSeries);
+    return updatedSeries;
+  }
+
+  async deleteComicSeries(id: string): Promise<boolean> {
+    return this.comicSeries.delete(id);
+  }
+
+  async createBulkComicSeries(seriesList: InsertComicSeries[]): Promise<ComicSeries[]> {
+    const results: ComicSeries[] = [];
+    for (const insertSeries of seriesList) {
+      const series = await this.createComicSeries(insertSeries);
+      results.push(series);
+    }
+    return results;
+  }
+
+  // Featured Comics management
+  async getFeaturedComic(id: string): Promise<FeaturedComic | undefined> {
+    return this.featuredComics.get(id);
+  }
+
+  async getFeaturedComics(filters?: { featureType?: string; isActive?: boolean; limit?: number }): Promise<FeaturedComic[]> {
+    let comics = Array.from(this.featuredComics.values());
+    
+    if (filters?.featureType) {
+      comics = comics.filter(comic => comic.featureType === filters.featureType);
+    }
+    
+    if (filters?.isActive !== undefined) {
+      comics = comics.filter(comic => comic.isActive === filters.isActive);
+    }
+    
+    // Sort by display order
+    comics.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+    
+    if (filters?.limit) {
+      comics = comics.slice(0, filters.limit);
+    }
+    
+    return comics;
+  }
+
+  async createFeaturedComic(insertFeatured: InsertFeaturedComic): Promise<FeaturedComic> {
+    const id = randomUUID();
+    const featured: FeaturedComic = {
+      ...insertFeatured,
+      id,
+      subtitle: insertFeatured.subtitle ?? null,
+      description: insertFeatured.description ?? null,
+      featuredImageUrl: insertFeatured.featuredImageUrl ?? null,
+      seriesId: insertFeatured.seriesId ?? null,
+      displayOrder: insertFeatured.displayOrder ?? 0,
+      isActive: insertFeatured.isActive ?? true,
+      startDate: insertFeatured.startDate ?? null,
+      endDate: insertFeatured.endDate ?? null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.featuredComics.set(id, featured);
+    return featured;
+  }
+
+  async updateFeaturedComic(id: string, updateData: Partial<InsertFeaturedComic>): Promise<FeaturedComic | undefined> {
+    const featured = this.featuredComics.get(id);
+    if (!featured) return undefined;
+    
+    const updatedFeatured: FeaturedComic = {
+      ...featured,
+      ...updateData,
+      updatedAt: new Date()
+    };
+    this.featuredComics.set(id, updatedFeatured);
+    return updatedFeatured;
+  }
+
+  async deleteFeaturedComic(id: string): Promise<boolean> {
+    return this.featuredComics.delete(id);
+  }
+
+  // Comic data aggregation for dashboards
+  async getComicMetrics(): Promise<{ totalSeries: number; totalIssues: number; totalCreators: number; totalCovers: number }> {
+    return {
+      totalSeries: this.comicSeries.size,
+      totalIssues: this.comicIssues.size,
+      totalCreators: this.comicCreators.size,
+      totalCovers: Array.from(this.comicSeries.values()).filter(s => s.featuredCoverUrl || s.coversUrl).length
+    };
+  }
+  
+  async getFeaturedComicsCount(): Promise<number> {
+    return this.featuredComics.size;
+  }
+
+  async getTrendingComicSeries(limit?: number): Promise<ComicSeries[]> {
+    const series = Array.from(this.comicSeries.values());
+    
+    // Simple trending logic - series with more recent years or more covers
+    const trending = series
+      .filter(s => s.featuredCoverUrl || s.coversUrl)
+      .sort((a, b) => {
+        const aYear = a.year || 0;
+        const bYear = b.year || 0;
+        return bYear - aYear;
+      });
+    
+    return limit ? trending.slice(0, limit) : trending;
+  }
+
+  async getFeaturedComicsForHomepage(): Promise<FeaturedComic[]> {
+    return this.getFeaturedComics({ isActive: true, limit: 10 });
+  }
+
+  // Placeholder methods for missing comic methods
+  async getComicIssue(id: string): Promise<ComicIssue | undefined> {
+    return this.comicIssues.get(id);
+  }
+
+  async getComicIssues(filters?: any): Promise<ComicIssue[]> {
+    return Array.from(this.comicIssues.values());
+  }
+
+  async getComicIssuesBySeriesId(seriesId: string): Promise<ComicIssue[]> {
+    return Array.from(this.comicIssues.values()).filter(issue => issue.seriesId === seriesId);
+  }
+
+  async createComicIssue(insertIssue: InsertComicIssue): Promise<ComicIssue> {
+    const id = randomUUID();
+    const issue: ComicIssue = { ...insertIssue, id, createdAt: new Date(), updatedAt: new Date() };
+    this.comicIssues.set(id, issue);
+    return issue;
+  }
+
+  async updateComicIssue(id: string, updateData: Partial<InsertComicIssue>): Promise<ComicIssue | undefined> {
+    const issue = this.comicIssues.get(id);
+    if (!issue) return undefined;
+    const updated = { ...issue, ...updateData, updatedAt: new Date() };
+    this.comicIssues.set(id, updated);
+    return updated;
+  }
+
+  async deleteComicIssue(id: string): Promise<boolean> {
+    return this.comicIssues.delete(id);
+  }
+
+  async createBulkComicIssues(issuesList: InsertComicIssue[]): Promise<ComicIssue[]> {
+    return issuesList.map(issue => this.createComicIssue(issue));
+  }
+
+  async getComicCreator(id: string): Promise<ComicCreator | undefined> {
+    return this.comicCreators.get(id);
+  }
+
+  async getComicCreators(filters?: any): Promise<ComicCreator[]> {
+    return Array.from(this.comicCreators.values());
+  }
+
+  async getComicCreatorByName(name: string): Promise<ComicCreator | undefined> {
+    return Array.from(this.comicCreators.values()).find(creator => creator.name === name);
+  }
+
+  async createComicCreator(insertCreator: InsertComicCreator): Promise<ComicCreator> {
+    const id = randomUUID();
+    const creator: ComicCreator = { ...insertCreator, id, createdAt: new Date(), updatedAt: new Date() };
+    this.comicCreators.set(id, creator);
+    return creator;
+  }
+
+  async updateComicCreator(id: string, updateData: Partial<InsertComicCreator>): Promise<ComicCreator | undefined> {
+    const creator = this.comicCreators.get(id);
+    if (!creator) return undefined;
+    const updated = { ...creator, ...updateData, updatedAt: new Date() };
+    this.comicCreators.set(id, updated);
+    return updated;
+  }
+
+  async deleteComicCreator(id: string): Promise<boolean> {
+    return this.comicCreators.delete(id);
   }
 }
 

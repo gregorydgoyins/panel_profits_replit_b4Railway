@@ -5,18 +5,17 @@ import { BookOpen, Zap, TrendingUp, Star, Sparkles, BarChart3, Shield, Trophy, U
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import ComicCoverImage from '@/components/ComicCoverImage';
 
 interface FeaturedComic {
   id: string;
   title: string;
   subtitle?: string;
   description: string;
-  featuredImageUrl?: string;
+  coverUrl?: string;
   seriesId?: string;
-  issueId?: string;
-  featureType: string;
   displayOrder: number;
-  isActive: boolean;
+  type: string;
 }
 
 interface ComicMetric {
@@ -31,17 +30,21 @@ export function HeroBanner() {
   
   const [currentComicIndex, setCurrentComicIndex] = useState(0);
   
-  // Fetch real featured comics data
-  const { data: featuredComics = [], isLoading: featuredLoading } = useQuery({
-    queryKey: ['/api/comics/featured/homepage'],
+  // Fetch real featured comics data for hero banner
+  const { data: heroComicsResponse, isLoading: featuredLoading } = useQuery({
+    queryKey: ['/api/comic-covers/hero-banner'],
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
   
-  // Fetch real comic metrics
-  const { data: rawMetrics, isLoading: metricsLoading } = useQuery({
-    queryKey: ['/api/comics/metrics'],
+  const featuredComics = heroComicsResponse?.data || [];
+  
+  // Fetch real comic cover statistics
+  const { data: statsResponse, isLoading: metricsLoading } = useQuery({
+    queryKey: ['/api/comic-covers/stats'],
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
+  
+  const rawMetrics = statsResponse?.data || {};
 
   // Transform raw metrics to display format
   const comicMetrics: ComicMetric[] = rawMetrics ? [
@@ -154,8 +157,8 @@ export function HeroBanner() {
                       {currentComic.title}
                     </span>
                     <br />
-                    <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent text-4xl lg:text-5xl">
-                      {currentComic.issue}
+                    <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent text-3xl lg:text-4xl">
+                      {currentComic.subtitle || 'Featured Comic'}
                     </span>
                   </h1>
                   <p className="text-xl lg:text-2xl text-gray-300 leading-relaxed max-w-3xl">
@@ -167,26 +170,26 @@ export function HeroBanner() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
-                      <Users className="h-4 w-4 text-blue-400" />
-                      <span className="text-sm text-gray-400">Writer:</span>
-                      <span className="text-white font-medium">{currentComic.writer}</span>
+                      <Star className="h-4 w-4 text-blue-400" />
+                      <span className="text-sm text-gray-400">Type:</span>
+                      <span className="text-white font-medium">{currentComic.type || 'Featured'}</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <BookOpen className="h-4 w-4 text-green-400" />
-                      <span className="text-sm text-gray-400">Artist:</span>
-                      <span className="text-white font-medium">{currentComic.artist}</span>
+                      <span className="text-sm text-gray-400">Series:</span>
+                      <span className="text-white font-medium">{currentComic.title}</span>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center space-x-2">
                       <Calendar className="h-4 w-4 text-purple-400" />
-                      <span className="text-sm text-gray-400">Published:</span>
-                      <span className="text-white font-medium">{currentComic.publishDate}</span>
+                      <span className="text-sm text-gray-400">Status:</span>
+                      <span className="text-white font-medium">Active</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <BarChart3 className="h-4 w-4 text-yellow-400" />
-                      <span className="text-sm text-gray-400">Value:</span>
-                      <span className="text-yellow-400 font-bold">{currentComic.value}</span>
+                      <span className="text-sm text-gray-400">Priority:</span>
+                      <span className="text-yellow-400 font-bold">#{currentComic.displayOrder || 1}</span>
                     </div>
                   </div>
                 </div>
@@ -227,17 +230,22 @@ export function HeroBanner() {
                     <span className="text-sm font-medium text-yellow-400">Featured Comic</span>
                   </div>
                   
-                  {/* Comic Cover Placeholder */}
+                  {/* Real Comic Cover */}
                   <div className="relative mx-auto">
-                    <div className="w-48 h-72 bg-gradient-to-br from-red-600 via-blue-600 to-purple-600 rounded-lg shadow-2xl transform hover:scale-105 transition-transform duration-300">
-                      <div className="absolute inset-0 bg-black/20 rounded-lg" />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="text-center text-white">
-                          <div className="text-2xl font-bold mb-2">{currentComic.title}</div>
-                          <div className="text-lg font-semibold mb-4">{currentComic.issue}</div>
-                          <div className="text-sm opacity-80">{currentComic.publishDate}</div>
-                        </div>
-                      </div>
+                    <div className="transform hover:scale-105 transition-transform duration-300">
+                      <ComicCoverImage
+                        src={currentComic.coverUrl}
+                        alt={currentComic.title}
+                        size="xl"
+                        className="shadow-2xl border-2 border-yellow-400/30"
+                        showHoverEffect={true}
+                        onClick={() => {
+                          if (currentComic.coverUrl?.includes('comics.org')) {
+                            window.open(currentComic.coverUrl, '_blank');
+                          }
+                        }}
+                        priority={true}
+                      />
                       {/* Comic book style shine effect */}
                       <div className="absolute top-4 left-4 w-8 h-8 bg-white/20 rounded-full blur-md" />
                     </div>

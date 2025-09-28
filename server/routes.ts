@@ -5,6 +5,7 @@ import comicDataRoutes from "./routes/comicData.js";
 import vectorRoutes from "./routes/vectorRoutes.js";
 import dataImportRoutes from "./routes/dataImportRoutes.js";
 import { registerComicRoutes } from "./routes/comicRoutes";
+import { registerComicCoverRoutes } from "./routes/comicCoverRoutes.js";
 import { 
   insertAssetSchema, 
   insertMarketDataSchema,
@@ -599,6 +600,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register new comic routes for real data integration
   registerComicRoutes(app);
+  
+  // Register comic cover routes for cover display
+  registerComicCoverRoutes(app);
   
   // AI Market Intelligence Routes
   const aiRoutes = (await import('./routes/aiRoutes.js')).default;

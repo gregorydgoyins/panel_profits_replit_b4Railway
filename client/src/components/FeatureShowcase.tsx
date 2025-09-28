@@ -4,6 +4,7 @@ import { BookOpen, Star, Users, Calendar, BarChart3, Zap, Eye, Shield, TrendingU
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import ComicCoverImage from '@/components/ComicCoverImage';
 
 interface ComicMetric {
   label: string;
@@ -34,11 +35,13 @@ interface ComicSeries {
 }
 
 export function FeatureShowcase() {
-  // Fetch real comic metrics
-  const { data: rawMetrics, isLoading: metricsLoading } = useQuery({
-    queryKey: ['/api/comics/metrics'],
+  // Fetch real comic cover statistics
+  const { data: statsResponse, isLoading: metricsLoading } = useQuery({
+    queryKey: ['/api/comic-covers/stats'],
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
+  
+  const rawMetrics = statsResponse?.data || {};
   
   // Transform raw metrics to display format
   const comicDatabaseMetrics: ComicMetric[] = rawMetrics ? [
@@ -88,11 +91,21 @@ export function FeatureShowcase() {
     }
   ];
 
-  // Fetch real trending comic series
-  const { data: trendingComics = [], isLoading: trendingLoading } = useQuery({
-    queryKey: ['/api/comics/trending', { limit: 6 }],
+  // Fetch real trending comic covers
+  const { data: trendingResponse, isLoading: trendingLoading } = useQuery({
+    queryKey: ['/api/comic-covers/trending', { limit: 6 }],
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
+  
+  const trendingComics = trendingResponse?.data || [];
+  
+  // Fetch comic series with covers
+  const { data: seriesResponse, isLoading: seriesLoading } = useQuery({
+    queryKey: ['/api/comic-covers/series', { limit: 6 }],
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+  
+  const comicSeries = seriesResponse?.data || [];
   
   // Use real creators data or fallback
   const displayCreators = featuredCreators.length > 0 ? featuredCreators : fallbackCreators;
@@ -216,28 +229,55 @@ export function FeatureShowcase() {
             </CardHeader>
             <CardContent className="px-0 pb-0">
               <div className="space-y-6">
-                {/* Featured comic display */}
+                {/* Featured comic display with real cover */}
                 <div className="p-4 bg-gradient-to-r from-red-500/10 to-blue-500/10 border border-red-500/20 rounded-lg">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium text-red-400">Marvel Classic</span>
+                    <span className="text-sm font-medium text-red-400">Featured Series</span>
                     <Badge className="bg-red-500/20 text-red-400 border-red-500/30">
-                      Key Issue
+                      Classic Collection
                     </Badge>
                   </div>
-                  <div className="text-sm space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-300">Title:</span>
-                      <span className="text-white font-mono">Amazing Fantasy #15</span>
+                  
+                  {trendingComics.length > 0 ? (
+                    <div className="space-y-4">
+                      <div className="flex items-start space-x-3">
+                        <ComicCoverImage
+                          src={trendingComics[0].coverUrl}
+                          alt={trendingComics[0].title}
+                          size="sm"
+                          showHoverEffect={true}
+                          onClick={() => {
+                            if (trendingComics[0].coverUrl?.includes('comics.org')) {
+                              window.open(trendingComics[0].coverUrl, '_blank');
+                            }
+                          }}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm space-y-2">
+                            <div className="flex justify-between">
+                              <span className="text-gray-300">Title:</span>
+                              <span className="text-white font-mono text-xs truncate">{trendingComics[0].title}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-300">Type:</span>
+                              <span className="text-white font-mono text-xs">{trendingComics[0].type}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-300">Status:</span>
+                              <span className="text-white font-mono text-xs">Featured</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-300">Published:</span>
-                      <span className="text-white font-mono">August 1962</span>
+                  ) : (
+                    <div className="text-sm space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-gray-300">Status:</span>
+                        <span className="text-white font-mono">Loading covers...</span>
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-300">Significance:</span>
-                      <span className="text-white font-mono">First Spider-Man</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
 
                 <Button className="w-full bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700" data-testid="button-explore-comics">
@@ -356,7 +396,7 @@ export function FeatureShowcase() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {trendingComics.map((series) => (
+          {comicSeries.slice(0, 6).map((series) => (
             <Card 
               key={series.id}
               className="p-6 bg-gradient-to-br from-green-500/5 to-blue-500/5 border-green-500/20 hover-elevate"
@@ -364,23 +404,46 @@ export function FeatureShowcase() {
             >
               <CardContent className="p-0">
                 <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-green-500/20 rounded-lg">
-                      <BookOpen className="h-5 w-5 text-green-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">{series.title}</h3>
-                      <div className="text-2xl font-bold font-mono text-green-400">
+                  {/* Comic Cover Display */}
+                  <div className="flex items-start space-x-4">
+                    <ComicCoverImage
+                      src={series.coverUrl}
+                      alt={series.seriesName || series.title}
+                      size="sm"
+                      className="flex-shrink-0"
+                      showHoverEffect={true}
+                      onClick={() => {
+                        if (series.galleryUrl) {
+                          window.open(series.galleryUrl, '_blank');
+                        }
+                      }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold truncate">{series.seriesName || series.title}</h3>
+                      <div className="text-xl font-bold font-mono text-green-400">
                         {series.year}
                       </div>
+                      <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
+                        {series.description || `Classic ${series.publisher} series from ${series.publishedPeriod || series.year}.`}
+                      </p>
                     </div>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {series.description}
-                  </p>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-gray-400">Publisher:</span>
-                    <span className="text-green-400 font-mono">{series.publisher}</span>
+                  
+                  <div className="space-y-1 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400">Publisher:</span>
+                      <span className="text-green-400 font-mono">{series.publisher}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400">Issues:</span>
+                      <span className="text-blue-400 font-mono">{series.issueCount || 'Multiple'}</span>
+                    </div>
+                    {series.publishedPeriod && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-400">Period:</span>
+                        <span className="text-purple-400 font-mono text-xs truncate">{series.publishedPeriod}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
