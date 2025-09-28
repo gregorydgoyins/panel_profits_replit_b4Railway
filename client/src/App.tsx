@@ -4,7 +4,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { useAuth } from '@/hooks/useAuth';
 import { LandingPage } from '@/components/LandingPage';
-import { HomePage } from '@/components/HomePage';
 import { NavigationSidebar } from '@/components/NavigationSidebar';
 import { HeroBanner } from '@/components/HeroBanner';
 import { FeatureShowcase } from '@/components/FeatureShowcase';
@@ -15,6 +14,9 @@ import ComicGrading from '@/pages/ComicGrading';
 import Recommendations from '@/pages/Recommendations';
 import { ChartingStudio } from '@/components/ChartingStudio';
 import NotFound from '@/pages/not-found';
+
+// Dashboard page (new main dashboard)
+import DashboardPage from '@/pages/DashboardPage';
 
 // Trading pages
 import TradingPage from '@/pages/trading';
@@ -36,6 +38,9 @@ import SpectacularShowcase from '@/pages/SpectacularShowcase';
 import RealDataShowcase from '@/pages/RealDataShowcase';
 import PPIxDashboard from '@/pages/PPIxDashboard';
 
+// WebSocket service for real-time data
+import { webSocketService } from '@/services/websocketService';
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -44,7 +49,8 @@ const queryClient = new QueryClient({
   },
 });
 
-function Dashboard() {
+// Landing page for non-authenticated users
+function LandingDashboard() {
   return (
     <div className="min-h-screen" data-testid="homepage-dashboard">
       {/* Hero Banner - Full width, mystical trading terminal intro */}
@@ -74,7 +80,7 @@ function Router() {
         <Route path="/" component={LandingPage} />
       ) : (
         <>
-          <Route path="/" component={HomePage} />
+          <Route path="/" component={DashboardPage} />
       <Route path="/ai-studio" component={AIStudio} />
       <Route path="/beat-ai" component={BeatTheAI} />
       <Route path="/grading" component={ComicGrading} />

@@ -415,27 +415,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/watchlists/assets", async (req, res) => {
+  app.post("/api/watchlists/assets", isAuthenticated, async (req: any, res) => {
     try {
-      const validatedData = insertWatchlistAssetSchema.parse(req.body);
-      const watchlistAsset = await storage.addAssetToWatchlist(validatedData);
-      res.status(201).json(watchlistAsset);
+      const userId = req.user.claims.sub;
+      const { assetId, watchlistId, alertPrice, notes } = req.body;
+      
+      // If no watchlistId provided, use user's default watchlist
+      let targetWatchlistId = watchlistId;
+      if (!targetWatchlistId) {
+        const userWatchlists = await storage.getUserWatchlists(userId);
+        const defaultWatchlist = userWatchlists.find(w => w.isDefault) || userWatchlists[0];
+        if (!defaultWatchlist) {
+          // Create default watchlist if none exists
+          const newWatchlist = await storage.createWatchlist({
+            userId,
+            name: "My Watchlist",
+            isDefault: true
+          });
+          targetWatchlistId = newWatchlist.id;
+        } else {
+          targetWatchlistId = defaultWatchlist.id;
+        }
+      }
+
+      const validatedData = insertWatchlistAssetSchema.parse({
+        watchlistId: targetWatchlistId,
+        assetId,
+        alertPrice,
+        notes
+      });
+      
+      await storage.addAssetToWatchlist(validatedData);
+      
+      // Return the updated watchlist with assets
+      const updatedWatchlists = await storage.getUserWatchlists(userId);
+      const updatedWatchlist = updatedWatchlists.find(w => w.id === targetWatchlistId);
+      
+      res.status(201).json({ success: true, watchlist: updatedWatchlist });
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: "Invalid watchlist asset data", details: error.errors });
       }
+      console.error("Error adding asset to watchlist:", error);
       res.status(500).json({ error: "Failed to add asset to watchlist" });
     }
   });
 
-  app.delete("/api/watchlists/:watchlistId/assets/:assetId", async (req, res) => {
+  app.delete("/api/watchlists/:watchlistId/assets/:assetId", isAuthenticated, async (req: any, res) => {
     try {
-      const removed = await storage.removeAssetFromWatchlist(req.params.watchlistId, req.params.assetId);
+      const userId = req.user.claims.sub;
+      const { watchlistId, assetId } = req.params;
+      
+      // Verify the watchlist belongs to the authenticated user
+      const userWatchlists = await storage.getUserWatchlists(userId);
+      const watchlist = userWatchlists.find(w => w.id === watchlistId);
+      
+      if (!watchlist) {
+        return res.status(404).json({ error: "Watchlist not found or access denied" });
+      }
+      
+      const removed = await storage.removeAssetFromWatchlist(watchlistId, assetId);
       if (!removed) {
         return res.status(404).json({ error: "Asset not found in watchlist" });
       }
-      res.status(204).send();
+      
+      // Return the updated watchlist with assets
+      const updatedWatchlists = await storage.getUserWatchlists(userId);
+      const updatedWatchlist = updatedWatchlists.find(w => w.id === watchlistId);
+      
+      res.json({ success: true, watchlist: updatedWatchlist });
     } catch (error) {
+      console.error("Error removing asset from watchlist:", error);
       res.status(500).json({ error: "Failed to remove asset from watchlist" });
     }
   });
@@ -548,6 +598,101 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(events);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch market events" });
+    }
+  });
+
+  // Dashboard-specific API endpoints (required for frontend integration)
+  
+  // Market overview endpoint for dashboard
+  app.get("/api/market/overview", async (req, res) => {
+    try {
+      // Get top gainers and losers from simulation
+      const assets = await storage.getAssets({ limit: 50 });
+      const currentPrices = await storage.getAssetCurrentPrices(assets.map(a => a.id));
+      
+      // Calculate performance metrics
+      const movers = currentPrices.map(price => {
+        const asset = assets.find(a => a.id === price.assetId);
+        return {
+          id: asset?.id,
+          symbol: asset?.symbol,
+          name: asset?.name,
+          type: asset?.type,
+          currentPrice: parseFloat(price.currentPrice),
+          change: parseFloat(price.dayChange || '0'),
+          changePercent: parseFloat(price.dayChangePercent || '0'),
+          volume: price.volume24h || 0
+        };
+      }).filter(m => m.id);
+
+      // Sort by performance
+      const topGainers = movers
+        .filter(m => m.changePercent > 0)
+        .sort((a, b) => b.changePercent - a.changePercent)
+        .slice(0, 5);
+
+      const topLosers = movers
+        .filter(m => m.changePercent < 0)
+        .sort((a, b) => a.changePercent - b.changePercent)
+        .slice(0, 5);
+
+      res.json({
+        topGainers,
+        topLosers,
+        totalAssets: assets.length,
+        activeVolume: currentPrices.reduce((sum, p) => sum + (p.volume24h || 0), 0)
+      });
+    } catch (error) {
+      console.error("Error fetching market overview:", error);
+      res.status(500).json({ error: "Failed to fetch market overview" });
+    }
+  });
+
+  // Market indices endpoint for dashboard
+  app.get("/api/market/indices", async (req, res) => {
+    try {
+      const indices = await storage.getMarketIndices();
+      res.json(indices);
+    } catch (error) {
+      console.error("Error fetching market indices:", error);
+      res.status(500).json({ error: "Failed to fetch market indices" });
+    }
+  });
+
+  // Market events endpoint for dashboard
+  app.get("/api/market/events", async (req, res) => {
+    try {
+      const isActive = req.query.isActive ? req.query.isActive === 'true' : true;
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+      const events = await storage.getMarketEvents({ isActive });
+      res.json(events.slice(0, limit));
+    } catch (error) {
+      console.error("Error fetching market events:", error);
+      res.status(500).json({ error: "Failed to fetch market events" });
+    }
+  });
+
+  // User watchlists endpoint for dashboard (authenticated)
+  app.get("/api/watchlists", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const watchlists = await storage.getUserWatchlists(userId);
+      res.json(watchlists);
+    } catch (error) {
+      console.error("Error fetching user watchlists:", error);
+      res.status(500).json({ error: "Failed to fetch watchlists" });
+    }
+  });
+
+  // Portfolios endpoint for dashboard (authenticated)
+  app.get("/api/portfolios", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const portfolios = await storage.getUserPortfolios(userId);
+      res.json(portfolios);
+    } catch (error) {
+      console.error("Error fetching user portfolios:", error);
+      res.status(500).json({ error: "Failed to fetch portfolios" });
     }
   });
 
