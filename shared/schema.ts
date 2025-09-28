@@ -848,6 +848,402 @@ export const insertNotificationTemplateSchema = createInsertSchema(notificationT
   updatedAt: true,
 });
 
+// PHASE 2: MYTHOLOGICAL TRADING RPG SYSTEM
+
+// Seven Mythological Houses - Core trading houses system
+export const mythologicalHouses = pgTable("mythological_houses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(), // "House of Eternity", "House of Conquest", etc.
+  mythology: text("mythology").notNull(), // "Egyptian", "Roman", "Greek", "Norse", "Asian", "African", "Indian"
+  firmName: text("firm_name").notNull(), // Hidden firm name overlay
+  description: text("description").notNull(),
+  philosophy: text("philosophy").notNull(), // Trading philosophy
+  // House specializations
+  primarySpecialization: text("primary_specialization").notNull(), // Asset type they excel in
+  weaknessSpecialization: text("weakness_specialization").notNull(), // Asset type they struggle with
+  // House modifiers and bonuses
+  tradingBonusPercent: decimal("trading_bonus_percent", { precision: 5, scale: 2 }).default("0.00"),
+  karmaMultiplier: decimal("karma_multiplier", { precision: 3, scale: 2 }).default("1.00"),
+  // Visual and thematic elements
+  primaryColor: text("primary_color"), // UI color theme
+  iconName: text("icon_name"), // Lucide icon
+  backgroundImageUrl: text("background_image_url"),
+  // House lore and storytelling
+  originStory: text("origin_story"),
+  notableMembers: text("notable_members").array(),
+  traditions: text("traditions").array(),
+  // House statistics
+  totalMembers: integer("total_members").default(0),
+  averagePerformance: decimal("average_performance", { precision: 5, scale: 2 }).default("0.00"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// User House Membership - Players belong to houses
+export const userHouseMembership = pgTable("user_house_membership", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  houseId: varchar("house_id").notNull().references(() => mythologicalHouses.id),
+  joinedAt: timestamp("joined_at").defaultNow(),
+  membershipLevel: text("membership_level").default("initiate"), // "initiate", "member", "senior", "elder"
+  // House-specific progression
+  houseLoyalty: decimal("house_loyalty", { precision: 5, scale: 2 }).default("0.00"), // 0-100
+  houseContributions: integer("house_contributions").default(0),
+  houseRank: integer("house_rank"),
+  // House bonuses and penalties
+  currentBonusPercent: decimal("current_bonus_percent", { precision: 5, scale: 2 }).default("0.00"),
+  totalBonusEarned: decimal("total_bonus_earned", { precision: 15, scale: 2 }).default("0.00"),
+  // Status tracking
+  isActive: boolean("is_active").default(true),
+  leftAt: timestamp("left_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Karmic Alignment System - Hidden behavior tracking
+export const userKarmicAlignment = pgTable("user_karmic_alignment", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  // Current karmic state
+  currentAlignment: text("current_alignment"), // "good", "neutral", "evil" (null until Reckoning)
+  karmaScore: decimal("karma_score", { precision: 8, scale: 2 }).default("0.00"), // Running karma total
+  alignmentStrength: decimal("alignment_strength", { precision: 5, scale: 2 }).default("0.00"), // How locked in
+  // Behavioral tracking (hidden from user until Reckoning)
+  honestyScore: decimal("honesty_score", { precision: 5, scale: 2 }).default("50.00"), // 0-100
+  cooperationScore: decimal("cooperation_score", { precision: 5, scale: 2 }).default("50.00"), // 0-100
+  exploitationScore: decimal("exploitation_score", { precision: 5, scale: 2 }).default("0.00"), // 0-100
+  generosityScore: decimal("generosity_score", { precision: 5, scale: 2 }).default("50.00"), // 0-100
+  // Action counters
+  honestActions: integer("honest_actions").default(0),
+  deceptiveActions: integer("deceptive_actions").default(0),
+  helpfulActions: integer("helpful_actions").default(0),
+  harmfulActions: integer("harmful_actions").default(0),
+  // Trading modifiers (applied secretly)
+  successModifier: decimal("success_modifier", { precision: 3, scale: 2 }).default("1.00"), // 0.5-1.5 multiplier
+  luckyBreakChance: decimal("lucky_break_chance", { precision: 3, scale: 2 }).default("0.05"), // 0-0.2 chance
+  badLuckChance: decimal("bad_luck_chance", { precision: 3, scale: 2 }).default("0.05"), // 0-0.2 chance
+  // Reckoning system
+  hasExperiencedReckoning: boolean("has_experienced_reckoning").default(false),
+  reckoningDate: timestamp("reckoning_date"),
+  chosenAlignment: text("chosen_alignment"), // Post-reckoning chosen alignment
+  alignmentLocked: boolean("alignment_locked").default(false),
+  // Progression tracking
+  learningModuleBonuses: jsonb("learning_module_bonuses"), // House-specific bonuses from education
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Karmic Actions Log - Track all moral choices
+export const karmicActionsLog = pgTable("karmic_actions_log", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  actionType: text("action_type").notNull(), // "trade", "tip", "information_sharing", "market_manipulation"
+  actionCategory: text("action_category").notNull(), // "honest", "deceptive", "helpful", "harmful", "neutral"
+  karmaImpact: decimal("karma_impact", { precision: 5, scale: 2 }).notNull(), // Can be negative
+  description: text("description").notNull(),
+  // Context data
+  relatedAssetId: varchar("related_asset_id").references(() => assets.id),
+  relatedOrderId: varchar("related_order_id").references(() => orders.id),
+  targetUserId: varchar("target_user_id").references(() => users.id), // If action affects another user
+  metadata: jsonb("metadata"), // Additional context
+  // Alignment influence
+  alignmentDirection: text("alignment_direction"), // "good", "evil", "neutral"
+  strengthImpact: decimal("strength_impact", { precision: 3, scale: 2 }).default("0.00"),
+  // Visibility
+  isVisibleToUser: boolean("is_visible_to_user").default(false), // Hidden until Reckoning
+  revealedAt: timestamp("revealed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Enhanced Character Data - Integrating battle scenarios and character datasets
+export const enhancedCharacters = pgTable("enhanced_characters", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Basic character info (from character datasets)
+  name: text("name").notNull(),
+  universe: text("universe").notNull(), // "Marvel", "DC Comics", etc.
+  pageId: text("page_id"), // Original wikia page ID
+  url: text("url"), // Full wikia URL
+  // Character attributes
+  identity: text("identity"), // "Public", "Secret"
+  gender: text("gender"),
+  maritalStatus: text("marital_status"),
+  teams: text("teams").array(),
+  weight: decimal("weight", { precision: 5, scale: 1 }), // kg
+  creators: text("creators").array(),
+  // Battle statistics (from battle scenarios CSV)
+  strength: integer("strength"), // 1-10 scale
+  speed: integer("speed"), // 1-10 scale
+  intelligence: integer("intelligence"), // 1-10 scale
+  specialAbilities: text("special_abilities").array(),
+  weaknesses: text("weaknesses").array(),
+  // Calculated power metrics
+  powerLevel: decimal("power_level", { precision: 5, scale: 2 }), // Calculated from stats
+  battleWinRate: decimal("battle_win_rate", { precision: 5, scale: 2 }), // From battle outcomes
+  totalBattles: integer("total_battles").default(0),
+  battlesWon: integer("battles_won").default(0),
+  // Market influence
+  marketValue: decimal("market_value", { precision: 10, scale: 2 }),
+  popularityScore: decimal("popularity_score", { precision: 5, scale: 2 }),
+  movieAppearances: integer("movie_appearances").default(0),
+  // Asset linking
+  assetId: varchar("asset_id").references(() => assets.id), // Link to tradeable asset
+  // Vector embeddings for character similarity and recommendations
+  characterEmbedding: vector("character_embedding", { dimensions: 1536 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Battle Scenarios - Combat simulations affecting character values
+export const battleScenarios = pgTable("battle_scenarios", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  character1Id: varchar("character1_id").notNull().references(() => enhancedCharacters.id),
+  character2Id: varchar("character2_id").references(() => enhancedCharacters.id), // Null for team battles
+  battleType: text("battle_type").default("one_vs_one"), // "one_vs_one", "team", "tournament"
+  outcome: integer("outcome").notNull(), // 0 = loss, 1 = win for character1
+  // Battle conditions
+  environment: text("environment"), // "city", "space", "underwater", etc.
+  weatherConditions: text("weather_conditions"),
+  additionalFactors: jsonb("additional_factors"),
+  // Market impact
+  marketImpactPercent: decimal("market_impact_percent", { precision: 5, scale: 2 }), // How much this affects character values
+  fanEngagement: integer("fan_engagement").default(0), // Simulated fan interest
+  mediaAttention: decimal("media_attention", { precision: 3, scale: 2 }).default("1.00"),
+  // Battle metadata
+  duration: integer("duration"), // Battle length in minutes
+  decisiveness: text("decisiveness"), // "close", "clear", "overwhelming"
+  isCanonical: boolean("is_canonical").default(false), // Official vs fan scenarios
+  // Event tracking
+  eventDate: timestamp("event_date").defaultNow(),
+  resolvedAt: timestamp("resolved_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Enhanced Comic Issues - Complete DC Comics dataset integration
+export const enhancedComicIssues = pgTable("enhanced_comic_issues", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Basic issue info (from DC Comics CSV)
+  categoryTitle: text("category_title").notNull(),
+  issueName: text("issue_name").notNull(),
+  issueLink: text("issue_link"),
+  comicSeries: text("comic_series").notNull(),
+  comicType: text("comic_type"), // "Category", etc.
+  // Creator information
+  pencilers: text("pencilers").array(),
+  coverArtists: text("cover_artists").array(),
+  inkers: text("inkers").array(),
+  writers: text("writers").array(),
+  editors: text("editors").array(),
+  executiveEditor: text("executive_editor"),
+  letterers: text("letterers").array(),
+  colourists: text("colourists").array(),
+  // Publication details
+  releaseDate: text("release_date"),
+  rating: text("rating"),
+  // Market data
+  currentMarketValue: decimal("current_market_value", { precision: 10, scale: 2 }),
+  historicalHigh: decimal("historical_high", { precision: 10, scale: 2 }),
+  historicalLow: decimal("historical_low", { precision: 10, scale: 2 }),
+  priceVolatility: decimal("price_volatility", { precision: 5, scale: 2 }),
+  // Collectibility factors
+  firstAppearances: text("first_appearances").array(), // Characters first appearing
+  significantEvents: text("significant_events").array(),
+  keyIssueRating: decimal("key_issue_rating", { precision: 3, scale: 1 }), // 1-10 importance scale
+  rarityScore: decimal("rarity_score", { precision: 5, scale: 2 }),
+  conditionSensitivity: decimal("condition_sensitivity", { precision: 3, scale: 2 }), // How much condition affects value
+  // Asset linking
+  assetId: varchar("asset_id").references(() => assets.id), // Link to tradeable asset
+  // Vector embeddings for content search and recommendations
+  contentEmbedding: vector("content_embedding", { dimensions: 1536 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Movie Performance Data - Box office and critical data
+export const moviePerformanceData = pgTable("movie_performance_data", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Movie details
+  filmTitle: text("film_title").notNull(),
+  releaseDate: text("release_date"),
+  franchise: text("franchise").notNull(), // "DC", "Marvel"
+  characterFamily: text("character_family").notNull(), // "Superman", "Batman", etc.
+  distributor: text("distributor"),
+  mpaaRating: text("mpaa_rating"),
+  // Financial performance
+  domesticGross: decimal("domestic_gross", { precision: 15, scale: 2 }),
+  internationalGross: decimal("international_gross", { precision: 15, scale: 2 }),
+  worldwideGross: decimal("worldwide_gross", { precision: 15, scale: 2 }),
+  budget: decimal("budget", { precision: 15, scale: 2 }),
+  grossToBudgetRatio: decimal("gross_to_budget_ratio", { precision: 5, scale: 2 }),
+  // Performance metrics
+  domesticPercentage: decimal("domestic_percentage", { precision: 5, scale: 2 }),
+  rottenTomatoesScore: integer("rotten_tomatoes_score"),
+  isMcuFilm: boolean("is_mcu_film").default(false),
+  mcuPhase: text("mcu_phase"),
+  // Inflation-adjusted data
+  inflationAdjustedGross: decimal("inflation_adjusted_gross", { precision: 15, scale: 2 }),
+  inflationAdjustedBudget: decimal("inflation_adjusted_budget", { precision: 15, scale: 2 }),
+  // Market impact
+  marketImpactScore: decimal("market_impact_score", { precision: 5, scale: 2 }), // How much it affects related assets
+  successCategory: text("success_category"), // "Success", "Flop", "Break Even"
+  // Character relationships
+  featuredCharacters: text("featured_characters").array(), // Characters featured in movie
+  relatedAssets: text("related_assets").array(), // Asset IDs affected by this movie
+  // Timeline and duration
+  runtimeMinutes: integer("runtime_minutes"),
+  releaseYear: integer("release_year"),
+  // Performance analysis
+  openingWeekendGross: decimal("opening_weekend_gross", { precision: 15, scale: 2 }),
+  totalWeeksInTheaters: integer("total_weeks_in_theaters"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Learn Module System - Educational progression
+export const learnModules = pgTable("learn_modules", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // "trading_basics", "comic_history", "market_analysis", "house_specialization"
+  progressionLevel: text("progression_level").notNull(), // "junior_broker", "senior_broker", "agency_owner", "fund_manager", "family_office"
+  houseSpecialization: varchar("house_specialization").references(() => mythologicalHouses.id), // House-specific modules
+  // Module content
+  moduleContent: jsonb("module_content").notNull(), // Structured lesson content
+  estimatedDuration: integer("estimated_duration"), // Minutes
+  difficultyLevel: integer("difficulty_level"), // 1-5
+  prerequisites: text("prerequisites").array(), // Module IDs required before this one
+  // Educational resources
+  movieStills: text("movie_stills").array(), // Movie still URLs for visual learning
+  interactiveElements: jsonb("interactive_elements"), // Quizzes, simulations, etc.
+  learningObjectives: text("learning_objectives").array(),
+  // Progression rewards
+  completionKarmaBonus: decimal("completion_karma_bonus", { precision: 5, scale: 2 }).default("0.00"),
+  tradingSkillBonus: decimal("trading_skill_bonus", { precision: 3, scale: 2 }).default("0.00"),
+  houseReputationBonus: decimal("house_reputation_bonus", { precision: 5, scale: 2 }).default("0.00"),
+  unlocksTradingPrivileges: text("unlocks_trading_privileges").array(),
+  // Module status
+  isPublished: boolean("is_published").default(false),
+  requiredForProgression: boolean("required_for_progression").default(false),
+  displayOrder: integer("display_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// User Learn Progress - Track educational advancement
+export const userLearnProgress = pgTable("user_learn_progress", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  moduleId: varchar("module_id").notNull().references(() => learnModules.id),
+  // Progress tracking
+  status: text("status").default("not_started"), // "not_started", "in_progress", "completed", "failed"
+  progressPercent: decimal("progress_percent", { precision: 5, scale: 2 }).default("0.00"),
+  currentSection: integer("current_section").default(1),
+  completedSections: integer("completed_sections").array(),
+  timeSpent: integer("time_spent").default(0), // Minutes
+  // Assessment results
+  quizScores: jsonb("quiz_scores"),
+  finalScore: decimal("final_score", { precision: 5, scale: 2 }),
+  passingGrade: decimal("passing_grade", { precision: 5, scale: 2 }).default("70.00"),
+  attempts: integer("attempts").default(0),
+  maxAttempts: integer("max_attempts").default(3),
+  // Completion rewards
+  karmaEarned: decimal("karma_earned", { precision: 5, scale: 2 }).default("0.00"),
+  skillBonusApplied: boolean("skill_bonus_applied").default(false),
+  certificateUrl: text("certificate_url"),
+  // Timestamps
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  lastAccessedAt: timestamp("last_accessed_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Insert schemas for Phase 2 mythological RPG tables
+export const insertMythologicalHouseSchema = createInsertSchema(mythologicalHouses).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserHouseMembershipSchema = createInsertSchema(userHouseMembership).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertUserKarmicAlignmentSchema = createInsertSchema(userKarmicAlignment).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertKarmicActionsLogSchema = createInsertSchema(karmicActionsLog).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertEnhancedCharacterSchema = createInsertSchema(enhancedCharacters).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertBattleScenarioSchema = createInsertSchema(battleScenarios).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertEnhancedComicIssueSchema = createInsertSchema(enhancedComicIssues).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertMoviePerformanceDataSchema = createInsertSchema(moviePerformanceData).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertLearnModuleSchema = createInsertSchema(learnModules).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserLearnProgressSchema = createInsertSchema(userLearnProgress).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Export types for Phase 2 mythological RPG tables
+export type MythologicalHouse = typeof mythologicalHouses.$inferSelect;
+export type InsertMythologicalHouse = z.infer<typeof insertMythologicalHouseSchema>;
+
+export type UserHouseMembership = typeof userHouseMembership.$inferSelect;
+export type InsertUserHouseMembership = z.infer<typeof insertUserHouseMembershipSchema>;
+
+export type UserKarmicAlignment = typeof userKarmicAlignment.$inferSelect;
+export type InsertUserKarmicAlignment = z.infer<typeof insertUserKarmicAlignmentSchema>;
+
+export type KarmicActionsLog = typeof karmicActionsLog.$inferSelect;
+export type InsertKarmicActionsLog = z.infer<typeof insertKarmicActionsLogSchema>;
+
+export type EnhancedCharacter = typeof enhancedCharacters.$inferSelect;
+export type InsertEnhancedCharacter = z.infer<typeof insertEnhancedCharacterSchema>;
+
+export type BattleScenario = typeof battleScenarios.$inferSelect;
+export type InsertBattleScenario = z.infer<typeof insertBattleScenarioSchema>;
+
+export type EnhancedComicIssue = typeof enhancedComicIssues.$inferSelect;
+export type InsertEnhancedComicIssue = z.infer<typeof insertEnhancedComicIssueSchema>;
+
+export type MoviePerformanceData = typeof moviePerformanceData.$inferSelect;
+export type InsertMoviePerformanceData = z.infer<typeof insertMoviePerformanceDataSchema>;
+
+export type LearnModule = typeof learnModules.$inferSelect;
+export type InsertLearnModule = z.infer<typeof insertLearnModuleSchema>;
+
+export type UserLearnProgress = typeof userLearnProgress.$inferSelect;
+export type InsertUserLearnProgress = z.infer<typeof insertUserLearnProgressSchema>;
+
 // LEADERBOARD SYSTEM TABLES
 
 // Trader statistics for tracking user performance metrics
