@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { Route, Switch } from 'wouter';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
+import { useAuth } from '@/hooks/useAuth';
+import { LandingPage } from '@/components/LandingPage';
+import { HomePage } from '@/components/HomePage';
 import { NavigationSidebar } from '@/components/NavigationSidebar';
 import { HeroBanner } from '@/components/HeroBanner';
 import { FeatureShowcase } from '@/components/FeatureShowcase';
@@ -63,9 +66,15 @@ function Dashboard() {
 }
 
 function Router() {
+  const { isAuthenticated, isLoading } = useAuth();
+
   return (
     <Switch>
-      <Route path="/" component={Dashboard} />
+      {isLoading || !isAuthenticated ? (
+        <Route path="/" component={LandingPage} />
+      ) : (
+        <>
+          <Route path="/" component={HomePage} />
       <Route path="/ai-studio" component={AIStudio} />
       <Route path="/beat-ai" component={BeatTheAI} />
       <Route path="/grading" component={ComicGrading} />
@@ -98,6 +107,9 @@ function Router() {
       {/* PPIx Market Indices Dashboard */}
       <Route path="/ppix" component={PPIxDashboard} />
       
+          <Route component={NotFound} />
+        </>
+      )}
       <Route component={NotFound} />
     </Switch>
   );
@@ -106,22 +118,49 @@ function Router() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-background text-foreground">
-        <div className="flex h-screen">
-          {/* Sidebar */}
-          <div className="flex-shrink-0">
-            <NavigationSidebar />
-          </div>
-          
-          {/* Main Content */}
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <main className="flex-1 overflow-y-auto p-6">
-              <Router />
-            </main>
-          </div>
-        </div>
-      </div>
+      <AuthenticatedLayout />
       <Toaster />
     </QueryClientProvider>
+  );
+}
+
+function AuthenticatedLayout() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <Router />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="flex h-screen">
+        {/* Sidebar */}
+        <div className="flex-shrink-0">
+          <NavigationSidebar />
+        </div>
+        
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <main className="flex-1 overflow-y-auto p-6">
+            <Router />
+          </main>
+        </div>
+      </div>
+    </div>
   );
 }

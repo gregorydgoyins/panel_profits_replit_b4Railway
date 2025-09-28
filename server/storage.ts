@@ -1,5 +1,5 @@
 import { 
-  type User, type InsertUser,
+  type User, type InsertUser, type UpsertUser,
   type Asset, type InsertAsset,
   type MarketData, type InsertMarketData,
   type Portfolio, type InsertPortfolio,
@@ -36,6 +36,8 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  // (IMPORTANT) this user operation is mandatory for Replit Auth.
+  upsertUser(user: UpsertUser): Promise<User>;
 
   // Asset management
   getAsset(id: string): Promise<Asset | undefined>;
@@ -350,8 +352,9 @@ export class MemStorage implements IStorage {
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
+    // For compatibility, search by email since username is deprecated
     return Array.from(this.users.values()).find(
-      (user) => user.username === username,
+      (user) => user.email === username,
     );
   }
 
@@ -359,24 +362,52 @@ export class MemStorage implements IStorage {
     const id = randomUUID();
     const user: User = { 
       id,
-      username: insertUser.username,
-      password: insertUser.password,
       email: insertUser.email ?? null,
-      subscriptionTier: "free",
-      subscriptionStatus: "active",
-      subscriptionStartDate: null,
-      subscriptionEndDate: null,
-      stripeCustomerId: null,
-      monthlyTradingCredits: 0,
-      usedTradingCredits: 0,
-      competitionWins: 0,
-      competitionRanking: null,
-      preferences: null,
+      firstName: insertUser.firstName ?? null,
+      lastName: insertUser.lastName ?? null,
+      profileImageUrl: insertUser.profileImageUrl ?? null,
+      subscriptionTier: insertUser.subscriptionTier ?? "free",
+      subscriptionStatus: insertUser.subscriptionStatus ?? "active",
+      subscriptionStartDate: insertUser.subscriptionStartDate ?? null,
+      subscriptionEndDate: insertUser.subscriptionEndDate ?? null,
+      stripeCustomerId: insertUser.stripeCustomerId ?? null,
+      monthlyTradingCredits: insertUser.monthlyTradingCredits ?? 0,
+      usedTradingCredits: insertUser.usedTradingCredits ?? 0,
+      competitionWins: insertUser.competitionWins ?? 0,
+      competitionRanking: insertUser.competitionRanking ?? null,
+      preferences: insertUser.preferences ?? null,
       createdAt: new Date(),
       updatedAt: new Date()
     };
     this.users.set(id, user);
     return user;
+  }
+
+  // (IMPORTANT) this user operation is mandatory for Replit Auth.
+  async upsertUser(user: UpsertUser): Promise<User> {
+    const existingUser = this.users.get(user.id!);
+    const updatedUser: User = {
+      id: user.id!,
+      email: user.email ?? null,
+      firstName: user.firstName ?? null,
+      lastName: user.lastName ?? null,
+      profileImageUrl: user.profileImageUrl ?? null,
+      // Preserve existing subscription data or use defaults
+      subscriptionTier: existingUser?.subscriptionTier ?? "free",
+      subscriptionStatus: existingUser?.subscriptionStatus ?? "active",
+      subscriptionStartDate: existingUser?.subscriptionStartDate ?? null,
+      subscriptionEndDate: existingUser?.subscriptionEndDate ?? null,
+      stripeCustomerId: existingUser?.stripeCustomerId ?? null,
+      monthlyTradingCredits: existingUser?.monthlyTradingCredits ?? 0,
+      usedTradingCredits: existingUser?.usedTradingCredits ?? 0,
+      competitionWins: existingUser?.competitionWins ?? 0,
+      competitionRanking: existingUser?.competitionRanking ?? null,
+      preferences: existingUser?.preferences ?? null,
+      createdAt: existingUser?.createdAt ?? new Date(),
+      updatedAt: new Date()
+    };
+    this.users.set(user.id!, updatedUser);
+    return updatedUser;
   }
 
   // Asset methods
@@ -1377,10 +1408,33 @@ export class MemStorage implements IStorage {
     // Mock implementation
     return true;
   }
+  
+  async getVectorIndexStatus(): Promise<{ table: string; hasIndex: boolean; indexType: string }[]> {
+    // Mock implementation - in real scenario would check pgvector indices
+    return [
+      { table: 'assets', hasIndex: true, indexType: 'hnsw' },
+      { table: 'market_insights', hasIndex: true, indexType: 'hnsw' },
+      { table: 'comic_grading_predictions', hasIndex: true, indexType: 'hnsw' },
+      { table: 'market_data', hasIndex: true, indexType: 'hnsw' }
+    ];
+  }
 
   // Enhanced search functionality
-  async searchAssetsWithSimilarity(query: string, limit: number = 20, threshold: number = 0.3): Promise<Array<Asset & { similarityScore: number }>> {
-    const allAssets = Array.from(this.assets.values());
+  async searchAssetsWithSimilarity(query: string, filters?: { type?: string; publisher?: string }, limit: number = 20): Promise<Array<Asset & { similarityScore?: number; searchScore: number }>> {
+    let allAssets = Array.from(this.assets.values());
+    
+    // Apply filters first
+    if (filters?.type) {
+      allAssets = allAssets.filter(asset => asset.type === filters.type);
+    }
+    
+    if (filters?.publisher) {
+      allAssets = allAssets.filter(asset => {
+        const metadata = asset.metadata as { publisher?: string } | null;
+        return metadata?.publisher?.toLowerCase() === filters.publisher!.toLowerCase();
+      });
+    }
+    
     const queryLower = query.toLowerCase();
     
     return allAssets.map(asset => {
@@ -1394,99 +1448,35 @@ export class MemStorage implements IStorage {
       if (metadata?.publisher?.toLowerCase().includes(queryLower)) score += 0.3;
       if (metadata?.tags?.some(tag => tag.toLowerCase().includes(queryLower))) score += 0.2;
       
-      return { ...asset, similarityScore: Math.min(score, 0.99) };
-    }).filter(a => a.similarityScore >= threshold)
-      .sort((a, b) => b.similarityScore - a.similarityScore)
+      return { ...asset, similarityScore: Math.min(score, 0.99), searchScore: Math.min(score, 0.99) };
+    }).filter(a => a.searchScore >= 0.1)
+      .sort((a, b) => b.searchScore - a.searchScore)
       .slice(0, limit);
   }
   
   // User and portfolio-based recommendations
-  async getRecommendationsForUser(userId: string, limit: number = 10): Promise<{
-    success: boolean;
-    userId: string;
-    recommendations: Array<{
-      id: string;
-      name: string;
-      type: string;
-      currentPrice: number;
-      metadata?: any;
-      recommendationScore: number;
-      reason: string;
-    }>;
-    count: number;
-  }> {
-    try {
-      const userPortfolios = await this.getUserPortfolios(userId);
-      const allAssets = Array.from(this.assets.values());
-      
-      // Generate mock recommendations based on user's portfolio patterns
-      const recommendations = allAssets.slice(0, limit).map(asset => ({
-        id: asset.id,
-        name: asset.name,
-        type: asset.type,
-        currentPrice: Math.floor(Math.random() * 10000) + 1000,
-        metadata: asset.metadata,
-        recommendationScore: Math.random() * 0.3 + 0.7, // 70-100%
-        reason: "Based on your portfolio composition and market trends, this asset aligns with your investment strategy."
-      }));
-      
-      return {
-        success: true,
-        userId,
-        recommendations,
-        count: recommendations.length
-      };
-    } catch (error) {
-      return {
-        success: false,
-        userId,
-        recommendations: [],
-        count: 0
-      };
-    }
+  async getRecommendationsForUser(userId: string, limit: number = 10): Promise<Array<Asset & { recommendationScore: number; reason: string }>> {
+    const userPortfolios = await this.getUserPortfolios(userId);
+    const allAssets = Array.from(this.assets.values());
+    
+    // Generate recommendations based on user's portfolio patterns
+    return allAssets.slice(0, limit).map(asset => ({
+      ...asset,
+      recommendationScore: Math.random() * 0.3 + 0.7, // 70-100%
+      reason: "Based on your portfolio composition and market trends, this asset aligns with your investment strategy."
+    }));
   }
   
-  async getPortfolioSimilarAssets(portfolioId: string, limit: number = 10): Promise<{
-    success: boolean;
-    portfolioId: string;
-    similarAssets: Array<{
-      id: string;
-      name: string;
-      type: string;
-      currentPrice: number;
-      similarityScore: number;
-      portfolioWeight: number;
-    }>;
-    count: number;
-  }> {
-    try {
-      const holdings = await this.getPortfolioHoldings(portfolioId);
-      const allAssets = Array.from(this.assets.values());
-      
-      // Generate mock similar assets
-      const similarAssets = allAssets.slice(0, limit).map(asset => ({
-        id: asset.id,
-        name: asset.name,
-        type: asset.type,
-        currentPrice: Math.floor(Math.random() * 8000) + 2000,
-        similarityScore: Math.random() * 0.3 + 0.7, // 70-100%
-        portfolioWeight: Math.random() * 0.3 + 0.1 // 10-40%
-      }));
-      
-      return {
-        success: true,
-        portfolioId,
-        similarAssets,
-        count: similarAssets.length
-      };
-    } catch (error) {
-      return {
-        success: false,
-        portfolioId,
-        similarAssets: [],
-        count: 0
-      };
-    }
+  async getPortfolioSimilarAssets(portfolioId: string, limit: number = 10): Promise<Array<Asset & { similarityScore: number; portfolioWeight: number }>> {
+    const holdings = await this.getPortfolioHoldings(portfolioId);
+    const allAssets = Array.from(this.assets.values());
+    
+    // Generate similar assets based on portfolio holdings
+    return allAssets.slice(0, limit).map(asset => ({
+      ...asset,
+      similarityScore: Math.random() * 0.3 + 0.7, // 70-100%
+      portfolioWeight: Math.random() * 0.3 + 0.1 // 10-40%
+    }));
   }
 
   // Comic Series management

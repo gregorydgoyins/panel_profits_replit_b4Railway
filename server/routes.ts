@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import comicDataRoutes from "./routes/comicData.js";
 import vectorRoutes from "./routes/vectorRoutes.js";
 import dataImportRoutes from "./routes/dataImportRoutes.js";
@@ -23,6 +24,21 @@ import {
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup Replit Auth middleware
+  await setupAuth(app);
+
+  // Auth routes
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
   // Asset Management Routes
   app.get("/api/assets", async (req, res) => {
     try {
@@ -767,9 +783,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get user from storage (mock for now - you'll implement this)
       const user = await storage.getUser?.(userId) || {
         id: userId,
-        username: 'demo_user',
-        password: 'mock',
         email: 'demo@example.com',
+        firstName: 'Demo',
+        lastName: 'User',
+        profileImageUrl: null,
         subscriptionTier: 'free' as const,
         subscriptionStatus: 'active' as const,
         subscriptionStartDate: null,

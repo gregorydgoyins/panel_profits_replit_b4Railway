@@ -8,7 +8,7 @@ import {
   comicGradingPredictions, users, comicSeries, comicIssues, comicCreators, featuredComics
 } from '@shared/schema.js';
 import type {
-  User, InsertUser, Asset, InsertAsset, MarketData, InsertMarketData,
+  User, InsertUser, UpsertUser, Asset, InsertAsset, MarketData, InsertMarketData,
   Portfolio, InsertPortfolio, Holding, InsertHolding, MarketInsight, InsertMarketInsight,
   MarketIndex, InsertMarketIndex, MarketIndexData, InsertMarketIndexData,
   Watchlist, InsertWatchlist, WatchlistAsset, InsertWatchlistAsset,
@@ -37,8 +37,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const result = await db.select().from(users).where(eq(users.username, username)).limit(1);
+    // Note: This method is kept for backward compatibility but email should be used instead
+    const result = await db.select().from(users).where(eq(users.email, username)).limit(1);
     return result[0];
+  }
+
+  // (IMPORTANT) this user operation is mandatory for Replit Auth.
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
   }
 
   async createUser(user: InsertUser): Promise<User> {
