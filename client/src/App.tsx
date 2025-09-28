@@ -31,6 +31,7 @@ import PublishersPage from '@/pages/publishers';
 // Portfolio pages
 import PortfolioPage from '@/pages/portfolio';
 import WatchlistPage from '@/pages/watchlist';
+import LeaderboardPage from '@/pages/LeaderboardPage';
 
 // Tools & Other pages
 import NewsPage from '@/pages/news';
@@ -101,6 +102,7 @@ function Router() {
       {/* Portfolio routes */}
       <Route path="/portfolio" component={PortfolioPage} />
       <Route path="/watchlist" component={WatchlistPage} />
+      <Route path="/leaderboards" component={LeaderboardPage} />
       
       {/* Tools & Other routes */}
       <Route path="/news" component={NewsPage} />

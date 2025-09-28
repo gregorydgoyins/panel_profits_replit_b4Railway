@@ -848,6 +848,135 @@ export const insertNotificationTemplateSchema = createInsertSchema(notificationT
   updatedAt: true,
 });
 
+// LEADERBOARD SYSTEM TABLES
+
+// Trader statistics for tracking user performance metrics
+export const traderStats = pgTable("trader_stats", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  // Portfolio metrics
+  totalPortfolioValue: decimal("total_portfolio_value", { precision: 15, scale: 2 }).default("0.00"),
+  totalPnL: decimal("total_pnl", { precision: 15, scale: 2 }).default("0.00"), // Realized + unrealized P&L
+  totalRealizedPnL: decimal("total_realized_pnl", { precision: 15, scale: 2 }).default("0.00"),
+  totalUnrealizedPnL: decimal("total_unrealized_pnl", { precision: 15, scale: 2 }).default("0.00"),
+  roiPercentage: decimal("roi_percentage", { precision: 5, scale: 2 }).default("0.00"), // Return on investment %
+  // Trading activity metrics
+  totalTrades: integer("total_trades").default(0),
+  profitableTrades: integer("profitable_trades").default(0),
+  winRate: decimal("win_rate", { precision: 5, scale: 2 }).default("0.00"), // % of profitable trades
+  averageTradeSize: decimal("average_trade_size", { precision: 15, scale: 2 }).default("0.00"),
+  totalTradingVolume: decimal("total_trading_volume", { precision: 15, scale: 2 }).default("0.00"), // Total $ traded
+  biggestWin: decimal("biggest_win", { precision: 15, scale: 2 }).default("0.00"),
+  biggestLoss: decimal("biggest_loss", { precision: 15, scale: 2 }).default("0.00"),
+  // Streak tracking
+  currentWinningStreak: integer("current_winning_streak").default(0),
+  currentLosingStreak: integer("current_losing_streak").default(0),
+  longestWinningStreak: integer("longest_winning_streak").default(0),
+  longestLosingStreak: integer("longest_losing_streak").default(0),
+  // Risk metrics
+  sharpeRatio: decimal("sharpe_ratio", { precision: 5, scale: 3 }), // Risk-adjusted returns
+  maxDrawdown: decimal("max_drawdown", { precision: 5, scale: 2 }), // Max portfolio decline %
+  volatility: decimal("volatility", { precision: 5, scale: 2 }), // Portfolio volatility
+  // Ranking and achievements
+  rankPoints: decimal("rank_points", { precision: 10, scale: 2 }).default("0.00"), // Points for ranking calculation
+  currentRank: integer("current_rank"),
+  bestRank: integer("best_rank"),
+  achievementPoints: integer("achievement_points").default(0),
+  // Time tracking
+  tradingDaysActive: integer("trading_days_active").default(0),
+  lastTradeDate: timestamp("last_trade_date"),
+  firstTradeDate: timestamp("first_trade_date"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_trader_stats_user_id").on(table.userId),
+  index("idx_trader_stats_rank_points").on(table.rankPoints),
+  index("idx_trader_stats_current_rank").on(table.currentRank),
+  index("idx_trader_stats_total_pnl").on(table.totalPnL),
+  index("idx_trader_stats_win_rate").on(table.winRate),
+  index("idx_trader_stats_total_volume").on(table.totalTradingVolume),
+]);
+
+// Leaderboard categories for different ranking types
+export const leaderboardCategories = pgTable("leaderboard_categories", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(), // "All-Time Leaders", "Daily Leaders", etc.
+  description: text("description"),
+  categoryType: text("category_type").notNull(), // "total_return", "win_rate", "volume", "consistency", "roi"
+  timeframe: text("timeframe").notNull(), // "all_time", "daily", "weekly", "monthly"
+  sortOrder: text("sort_order").default("desc"), // "asc" or "desc"
+  pointsFormula: text("points_formula"), // Formula for calculating points/ranking
+  isActive: boolean("is_active").default(true),
+  displayOrder: integer("display_order").default(0), // Order for UI display
+  minTradesRequired: integer("min_trades_required").default(1), // Minimum trades to appear on leaderboard
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_leaderboard_categories_type_timeframe").on(table.categoryType, table.timeframe),
+  index("idx_leaderboard_categories_active").on(table.isActive),
+  index("idx_leaderboard_categories_display_order").on(table.displayOrder),
+]);
+
+// User achievements for trading badges and milestones
+export const userAchievements = pgTable("user_achievements", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  achievementId: text("achievement_id").notNull(), // "first_trade", "profit_milestone_1000", etc.
+  title: text("title").notNull(), // "First Trade", "$1,000 Profit Milestone"
+  description: text("description").notNull(),
+  category: text("category").notNull(), // "trading", "profit", "volume", "streak", "special"
+  iconName: text("icon_name"), // Lucide icon name for badge
+  badgeColor: text("badge_color").default("blue"), // Color theme for badge
+  tier: text("tier").default("bronze"), // "bronze", "silver", "gold", "platinum", "diamond"
+  points: integer("points").default(0), // Achievement points awarded
+  rarity: text("rarity").default("common"), // "common", "rare", "epic", "legendary"
+  // Achievement criteria (stored as JSON for flexibility)
+  criteria: jsonb("criteria"), // Requirements that triggered this achievement
+  progress: jsonb("progress"), // Current progress towards achievement
+  // Metadata
+  unlockedAt: timestamp("unlocked_at").defaultNow(),
+  notificationSent: boolean("notification_sent").default(false),
+  isVisible: boolean("is_visible").default(true), // Can be hidden for surprise achievements
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_user_achievements_user_id").on(table.userId),
+  index("idx_user_achievements_achievement_id").on(table.achievementId),
+  index("idx_user_achievements_category").on(table.category),
+  index("idx_user_achievements_tier").on(table.tier),
+  index("idx_user_achievements_unlocked_at").on(table.unlockedAt),
+  // Unique constraint to prevent duplicate achievements
+  index("idx_user_achievements_unique").on(table.userId, table.achievementId),
+]);
+
+// Insert schemas for leaderboard tables
+export const insertTraderStatsSchema = createInsertSchema(traderStats).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertLeaderboardCategorySchema = createInsertSchema(leaderboardCategories).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserAchievementSchema = createInsertSchema(userAchievements).omit({
+  id: true,
+  unlockedAt: true,
+  createdAt: true,
+});
+
+// Export types for leaderboard system
+export type TraderStats = typeof traderStats.$inferSelect;
+export type InsertTraderStats = z.infer<typeof insertTraderStatsSchema>;
+
+export type LeaderboardCategory = typeof leaderboardCategories.$inferSelect;
+export type InsertLeaderboardCategory = z.infer<typeof insertLeaderboardCategorySchema>;
+
+export type UserAchievement = typeof userAchievements.$inferSelect;
+export type InsertUserAchievement = z.infer<typeof insertUserAchievementSchema>;
+
 // Export types for notification system
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;

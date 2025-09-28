@@ -27,7 +27,11 @@ import {
   type Notification, type InsertNotification,
   type PriceAlert, type InsertPriceAlert,
   type NotificationPreferences, type InsertNotificationPreferences,
-  type NotificationTemplate, type InsertNotificationTemplate
+  type NotificationTemplate, type InsertNotificationTemplate,
+  // Leaderboard System Types
+  type TraderStats, type InsertTraderStats,
+  type LeaderboardCategory, type InsertLeaderboardCategory,
+  type UserAchievement, type InsertUserAchievement
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -288,6 +292,64 @@ export interface IStorage {
   getNotificationTemplates(filters?: { isActive?: boolean }): Promise<NotificationTemplate[]>;
   createNotificationTemplate(template: InsertNotificationTemplate): Promise<NotificationTemplate>;
   updateNotificationTemplate(id: string, template: Partial<InsertNotificationTemplate>): Promise<NotificationTemplate | undefined>;
+
+  // LEADERBOARD SYSTEM METHODS
+
+  // Trader Statistics
+  getTraderStats(userId: string): Promise<TraderStats | undefined>;
+  getAllTraderStats(filters?: { minTrades?: number; limit?: number; offset?: number }): Promise<TraderStats[]>;
+  createTraderStats(stats: InsertTraderStats): Promise<TraderStats>;
+  updateTraderStats(userId: string, stats: Partial<InsertTraderStats>): Promise<TraderStats | undefined>;
+  updateTraderStatsFromTrade(userId: string, tradeData: { 
+    portfolioValue: string; 
+    pnl: string; 
+    tradeSize: string; 
+    isProfitable: boolean;
+    volume: string;
+  }): Promise<TraderStats | undefined>;
+  recalculateAllTraderStats(): Promise<void>;
+  getTopTradersByMetric(metric: 'totalPnL' | 'winRate' | 'totalTradingVolume' | 'roiPercentage', limit?: number): Promise<TraderStats[]>;
+
+  // Leaderboard Categories
+  getLeaderboardCategory(id: string): Promise<LeaderboardCategory | undefined>;
+  getLeaderboardCategories(filters?: { isActive?: boolean; timeframe?: string }): Promise<LeaderboardCategory[]>;
+  createLeaderboardCategory(category: InsertLeaderboardCategory): Promise<LeaderboardCategory>;
+  updateLeaderboardCategory(id: string, category: Partial<InsertLeaderboardCategory>): Promise<LeaderboardCategory | undefined>;
+  deleteLeaderboardCategory(id: string): Promise<boolean>;
+
+  // Leaderboard Generation and Rankings
+  generateLeaderboard(categoryType: string, timeframe: string, limit?: number): Promise<Array<TraderStats & { user: User; rank: number }>>;
+  getLeaderboardByCategoryId(categoryId: string, limit?: number): Promise<Array<TraderStats & { user: User; rank: number }>>;
+  getUserRankInCategory(userId: string, categoryType: string, timeframe: string): Promise<{ rank: number; totalUsers: number; stats: TraderStats } | undefined>;
+  updateLeaderboardRankings(categoryType?: string): Promise<void>;
+
+  // User Achievements
+  getUserAchievement(id: string): Promise<UserAchievement | undefined>;
+  getUserAchievements(userId: string, filters?: { category?: string; tier?: string; isVisible?: boolean }): Promise<UserAchievement[]>;
+  createUserAchievement(achievement: InsertUserAchievement): Promise<UserAchievement>;
+  updateUserAchievement(id: string, achievement: Partial<InsertUserAchievement>): Promise<UserAchievement | undefined>;
+  deleteUserAchievement(id: string): Promise<boolean>;
+  
+  // Achievement Processing
+  checkAndAwardAchievements(userId: string, context: 'trade_completed' | 'milestone_reached' | 'streak_achieved'): Promise<UserAchievement[]>;
+  getAvailableAchievements(): Promise<Array<{ id: string; title: string; description: string; category: string; tier: string; criteria: any }>>;
+  getUserAchievementProgress(userId: string, achievementId: string): Promise<{ current: number; required: number; percentage: number } | undefined>;
+
+  // Leaderboard Analytics and Statistics  
+  getLeaderboardOverview(): Promise<{
+    totalActiveTraders: number;
+    totalTrades: number;
+    totalVolume: string;
+    topPerformer: TraderStats & { user: User };
+    categories: LeaderboardCategory[];
+  }>;
+  getTradingActivitySummary(timeframe: 'daily' | 'weekly' | 'monthly'): Promise<{
+    newTraders: number;
+    totalTrades: number;
+    totalVolume: string;
+    avgTradeSize: string;
+    topMovers: Array<TraderStats & { user: User }>;
+  }>;
 }
 
 // Time-series buffer implementation with memory limits and proper chronological ordering

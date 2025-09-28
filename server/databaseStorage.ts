@@ -7,7 +7,9 @@ import {
   beatTheAIChallenge, beatTheAIPrediction, beatTheAILeaderboard,
   comicGradingPredictions, users, comicSeries, comicIssues, comicCreators, featuredComics,
   // Phase 1 Trading Extensions
-  tradingSessions, assetCurrentPrices, tradingLimits
+  tradingSessions, assetCurrentPrices, tradingLimits,
+  // Leaderboard System Tables
+  traderStats, leaderboardCategories, userAchievements
 } from '@shared/schema.js';
 import type {
   User, InsertUser, UpsertUser, Asset, InsertAsset, MarketData, InsertMarketData,
@@ -21,7 +23,10 @@ import type {
   FeaturedComic, InsertFeaturedComic,
   // Phase 1 Trading Extensions
   TradingSession, InsertTradingSession, AssetCurrentPrice, InsertAssetCurrentPrice,
-  TradingLimit, InsertTradingLimit
+  TradingLimit, InsertTradingLimit,
+  // Leaderboard System Types
+  TraderStats, InsertTraderStats, LeaderboardCategory, InsertLeaderboardCategory,
+  UserAchievement, InsertUserAchievement
 } from '@shared/schema.js';
 import type { IStorage } from './storage.js';
 
@@ -1175,6 +1180,587 @@ export class DatabaseStorage implements IStorage {
       cashBalance: cashBalance.toFixed(2),
       reservedCash: reservedCash.toFixed(2),
       availableCash: availableCash.toFixed(2)
+    };
+  }
+
+  // LEADERBOARD SYSTEM IMPLEMENTATION
+
+  // Trader Statistics
+  async getTraderStats(userId: string): Promise<TraderStats | undefined> {
+    const result = await db.select().from(traderStats).where(eq(traderStats.userId, userId)).limit(1);
+    return result[0];
+  }
+
+  async getAllTraderStats(filters?: { minTrades?: number; limit?: number; offset?: number }): Promise<TraderStats[]> {
+    let query = db.select().from(traderStats);
+    
+    const conditions = [];
+    if (filters?.minTrades) {
+      conditions.push(sql`${traderStats.totalTrades} >= ${filters.minTrades}`);
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    query = query.orderBy(desc(traderStats.rankPoints));
+    
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+    
+    if (filters?.offset) {
+      query = query.offset(filters.offset);
+    }
+    
+    return await query;
+  }
+
+  async createTraderStats(stats: InsertTraderStats): Promise<TraderStats> {
+    const result = await db.insert(traderStats).values(stats).returning();
+    return result[0];
+  }
+
+  async updateTraderStats(userId: string, stats: Partial<InsertTraderStats>): Promise<TraderStats | undefined> {
+    const result = await db.update(traderStats)
+      .set({ ...stats, updatedAt: new Date() })
+      .where(eq(traderStats.userId, userId))
+      .returning();
+    return result[0];
+  }
+
+  async updateTraderStatsFromTrade(userId: string, tradeData: { 
+    portfolioValue: string; 
+    pnl: string; 
+    tradeSize: string; 
+    isProfitable: boolean;
+    volume: string;
+  }): Promise<TraderStats | undefined> {
+    // Get existing stats or create new
+    let currentStats = await this.getTraderStats(userId);
+    if (!currentStats) {
+      currentStats = await this.createTraderStats({
+        userId,
+        totalPortfolioValue: tradeData.portfolioValue,
+        totalTrades: 1,
+        profitableTrades: tradeData.isProfitable ? 1 : 0,
+        totalTradingVolume: tradeData.volume,
+        firstTradeDate: new Date(),
+        lastTradeDate: new Date()
+      });
+    }
+
+    // Calculate updated metrics
+    const newTotalTrades = currentStats.totalTrades + 1;
+    const newProfitableTrades = currentStats.profitableTrades + (tradeData.isProfitable ? 1 : 0);
+    const newWinRate = (newProfitableTrades / newTotalTrades) * 100;
+    const currentVolume = parseFloat(currentStats.totalTradingVolume || "0");
+    const newVolume = currentVolume + parseFloat(tradeData.volume);
+    const newAvgTradeSize = newVolume / newTotalTrades;
+    
+    // Update P&L
+    const currentPnL = parseFloat(currentStats.totalPnL || "0");
+    const tradePnL = parseFloat(tradeData.pnl);
+    const newTotalPnL = currentPnL + tradePnL;
+    
+    // Update win/loss streaks
+    let newWinningStreak = currentStats.currentWinningStreak;
+    let newLosingStreak = currentStats.currentLosingStreak;
+    
+    if (tradeData.isProfitable) {
+      newWinningStreak += 1;
+      newLosingStreak = 0;
+    } else {
+      newLosingStreak += 1;
+      newWinningStreak = 0;
+    }
+    
+    // Calculate rank points (composite score)
+    const rankPoints = this.calculateRankPoints(newTotalPnL, newWinRate, newVolume, newTotalTrades);
+
+    return await this.updateTraderStats(userId, {
+      totalPortfolioValue: tradeData.portfolioValue,
+      totalPnL: newTotalPnL.toFixed(2),
+      totalTrades: newTotalTrades,
+      profitableTrades: newProfitableTrades,
+      winRate: newWinRate.toFixed(2),
+      averageTradeSize: newAvgTradeSize.toFixed(2),
+      totalTradingVolume: newVolume.toFixed(2),
+      currentWinningStreak: newWinningStreak,
+      currentLosingStreak: newLosingStreak,
+      longestWinningStreak: Math.max(currentStats.longestWinningStreak, newWinningStreak),
+      longestLosingStreak: Math.max(currentStats.longestLosingStreak, newLosingStreak),
+      biggestWin: tradePnL > 0 ? Math.max(parseFloat(currentStats.biggestWin || "0"), tradePnL).toFixed(2) : currentStats.biggestWin,
+      biggestLoss: tradePnL < 0 ? Math.min(parseFloat(currentStats.biggestLoss || "0"), tradePnL).toFixed(2) : currentStats.biggestLoss,
+      rankPoints: rankPoints.toFixed(2),
+      lastTradeDate: new Date()
+    });
+  }
+
+  private calculateRankPoints(totalPnL: number, winRate: number, volume: number, totalTrades: number): number {
+    // Composite scoring algorithm
+    const pnlScore = Math.max(0, totalPnL) * 0.4; // 40% weight on profits
+    const winRateScore = winRate * 2; // 20% weight (winRate is 0-100, so *2 gives 0-200 points)
+    const volumeScore = Math.log10(Math.max(1, volume)) * 100; // 30% weight on volume (log scale)
+    const activityScore = Math.min(totalTrades, 1000) * 0.1; // 10% weight on activity
+    
+    return pnlScore + winRateScore + volumeScore + activityScore;
+  }
+
+  async recalculateAllTraderStats(): Promise<void> {
+    // This would be a background job that recalculates all stats from orders table
+    // For now, we'll implement a basic version
+    const allUsers = await db.select({ id: users.id }).from(users);
+    
+    for (const user of allUsers) {
+      const userOrders = await this.getUserOrders(user.id, 'filled');
+      
+      if (userOrders.length > 0) {
+        // Calculate stats from orders
+        let totalVolume = 0;
+        let totalPnL = 0;
+        let profitableTrades = 0;
+        
+        for (const order of userOrders) {
+          totalVolume += parseFloat(order.totalValue || "0");
+          // For simplicity, assume profit if order type is sell with higher price
+          if (order.type === 'sell') {
+            totalPnL += parseFloat(order.totalValue || "0") - parseFloat(order.averageFillPrice || order.price || "0") * parseFloat(order.quantity || "0");
+            if (totalPnL > 0) profitableTrades++;
+          }
+        }
+        
+        await this.updateTraderStats(user.id, {
+          totalTrades: userOrders.length,
+          profitableTrades,
+          winRate: ((profitableTrades / userOrders.length) * 100).toFixed(2),
+          totalTradingVolume: totalVolume.toFixed(2),
+          totalPnL: totalPnL.toFixed(2),
+          rankPoints: this.calculateRankPoints(totalPnL, (profitableTrades / userOrders.length) * 100, totalVolume, userOrders.length).toFixed(2)
+        });
+      }
+    }
+  }
+
+  async getTopTradersByMetric(metric: 'totalPnL' | 'winRate' | 'totalTradingVolume' | 'roiPercentage', limit?: number): Promise<TraderStats[]> {
+    let orderByField;
+    switch (metric) {
+      case 'totalPnL':
+        orderByField = desc(traderStats.totalPnL);
+        break;
+      case 'winRate':
+        orderByField = desc(traderStats.winRate);
+        break;
+      case 'totalTradingVolume':
+        orderByField = desc(traderStats.totalTradingVolume);
+        break;
+      case 'roiPercentage':
+        orderByField = desc(traderStats.roiPercentage);
+        break;
+    }
+    
+    let query = db.select().from(traderStats).orderBy(orderByField);
+    
+    if (limit) {
+      query = query.limit(limit);
+    }
+    
+    return await query;
+  }
+
+  // Leaderboard Categories
+  async getLeaderboardCategory(id: string): Promise<LeaderboardCategory | undefined> {
+    const result = await db.select().from(leaderboardCategories).where(eq(leaderboardCategories.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getLeaderboardCategories(filters?: { isActive?: boolean; timeframe?: string }): Promise<LeaderboardCategory[]> {
+    let query = db.select().from(leaderboardCategories);
+    
+    const conditions = [];
+    if (filters?.isActive !== undefined) {
+      conditions.push(eq(leaderboardCategories.isActive, filters.isActive));
+    }
+    if (filters?.timeframe) {
+      conditions.push(eq(leaderboardCategories.timeframe, filters.timeframe));
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    return await query.orderBy(leaderboardCategories.displayOrder);
+  }
+
+  async createLeaderboardCategory(category: InsertLeaderboardCategory): Promise<LeaderboardCategory> {
+    const result = await db.insert(leaderboardCategories).values(category).returning();
+    return result[0];
+  }
+
+  async updateLeaderboardCategory(id: string, category: Partial<InsertLeaderboardCategory>): Promise<LeaderboardCategory | undefined> {
+    const result = await db.update(leaderboardCategories)
+      .set({ ...category, updatedAt: new Date() })
+      .where(eq(leaderboardCategories.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteLeaderboardCategory(id: string): Promise<boolean> {
+    const result = await db.delete(leaderboardCategories).where(eq(leaderboardCategories.id, id));
+    return result.rowCount > 0;
+  }
+
+  // Leaderboard Generation and Rankings
+  async generateLeaderboard(categoryType: string, timeframe: string, limit?: number): Promise<Array<TraderStats & { user: User; rank: number }>> {
+    // Join trader stats with users and rank them
+    const query = sql`
+      SELECT ts.*, u.email, u."firstName", u."lastName", u."profileImageUrl",
+             ROW_NUMBER() OVER (ORDER BY 
+               CASE 
+                 WHEN ${categoryType} = 'total_return' THEN ts.total_pnl::numeric
+                 WHEN ${categoryType} = 'win_rate' THEN ts.win_rate::numeric
+                 WHEN ${categoryType} = 'volume' THEN ts.total_trading_volume::numeric
+                 WHEN ${categoryType} = 'roi' THEN ts.roi_percentage::numeric
+                 ELSE ts.rank_points::numeric
+               END DESC
+             ) as rank
+      FROM trader_stats ts
+      JOIN users u ON ts.user_id = u.id
+      WHERE ts.total_trades >= 1
+      ${limit ? sql`LIMIT ${limit}` : sql``}
+    `;
+    
+    const result = await db.execute(query);
+    return result.rows as any[];
+  }
+
+  async getLeaderboardByCategoryId(categoryId: string, limit?: number): Promise<Array<TraderStats & { user: User; rank: number }>> {
+    const category = await this.getLeaderboardCategory(categoryId);
+    if (!category) return [];
+    
+    return await this.generateLeaderboard(category.categoryType, category.timeframe, limit);
+  }
+
+  async getUserRankInCategory(userId: string, categoryType: string, timeframe: string): Promise<{ rank: number; totalUsers: number; stats: TraderStats } | undefined> {
+    const userStats = await this.getTraderStats(userId);
+    if (!userStats) return undefined;
+    
+    // Get user's rank in this category
+    const rankQuery = sql`
+      SELECT COUNT(*) + 1 as rank
+      FROM trader_stats ts
+      WHERE (
+        CASE 
+          WHEN ${categoryType} = 'total_return' THEN ts.total_pnl::numeric
+          WHEN ${categoryType} = 'win_rate' THEN ts.win_rate::numeric
+          WHEN ${categoryType} = 'volume' THEN ts.total_trading_volume::numeric
+          WHEN ${categoryType} = 'roi' THEN ts.roi_percentage::numeric
+          ELSE ts.rank_points::numeric
+        END
+      ) > (
+        CASE 
+          WHEN ${categoryType} = 'total_return' THEN ${userStats.totalPnL}::numeric
+          WHEN ${categoryType} = 'win_rate' THEN ${userStats.winRate}::numeric
+          WHEN ${categoryType} = 'volume' THEN ${userStats.totalTradingVolume}::numeric
+          WHEN ${categoryType} = 'roi' THEN ${userStats.roiPercentage}::numeric
+          ELSE ${userStats.rankPoints}::numeric
+        END
+      )
+      AND ts.total_trades >= 1
+    `;
+    
+    const totalQuery = sql`SELECT COUNT(*) as total FROM trader_stats WHERE total_trades >= 1`;
+    
+    const [rankResult, totalResult] = await Promise.all([
+      db.execute(rankQuery),
+      db.execute(totalQuery)
+    ]);
+    
+    return {
+      rank: Number(rankResult.rows[0]?.rank || 0),
+      totalUsers: Number(totalResult.rows[0]?.total || 0),
+      stats: userStats
+    };
+  }
+
+  async updateLeaderboardRankings(categoryType?: string): Promise<void> {
+    // Update current rank for all users
+    const updateQuery = sql`
+      UPDATE trader_stats 
+      SET current_rank = ranked.rank
+      FROM (
+        SELECT user_id, 
+               ROW_NUMBER() OVER (ORDER BY rank_points DESC) as rank
+        FROM trader_stats 
+        WHERE total_trades >= 1
+      ) ranked
+      WHERE trader_stats.user_id = ranked.user_id
+    `;
+    
+    await db.execute(updateQuery);
+  }
+
+  // User Achievements
+  async getUserAchievement(id: string): Promise<UserAchievement | undefined> {
+    const result = await db.select().from(userAchievements).where(eq(userAchievements.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getUserAchievements(userId: string, filters?: { category?: string; tier?: string; isVisible?: boolean }): Promise<UserAchievement[]> {
+    let query = db.select().from(userAchievements).where(eq(userAchievements.userId, userId));
+    
+    const conditions = [eq(userAchievements.userId, userId)];
+    
+    if (filters?.category) {
+      conditions.push(eq(userAchievements.category, filters.category));
+    }
+    if (filters?.tier) {
+      conditions.push(eq(userAchievements.tier, filters.tier));
+    }
+    if (filters?.isVisible !== undefined) {
+      conditions.push(eq(userAchievements.isVisible, filters.isVisible));
+    }
+    
+    return await db.select().from(userAchievements)
+      .where(and(...conditions))
+      .orderBy(desc(userAchievements.unlockedAt));
+  }
+
+  async createUserAchievement(achievement: InsertUserAchievement): Promise<UserAchievement> {
+    const result = await db.insert(userAchievements).values(achievement).returning();
+    return result[0];
+  }
+
+  async updateUserAchievement(id: string, achievement: Partial<InsertUserAchievement>): Promise<UserAchievement | undefined> {
+    const result = await db.update(userAchievements)
+      .set(achievement)
+      .where(eq(userAchievements.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteUserAchievement(id: string): Promise<boolean> {
+    const result = await db.delete(userAchievements).where(eq(userAchievements.id, id));
+    return result.rowCount > 0;
+  }
+
+  // Achievement Processing
+  async checkAndAwardAchievements(userId: string, context: 'trade_completed' | 'milestone_reached' | 'streak_achieved'): Promise<UserAchievement[]> {
+    const userStats = await this.getTraderStats(userId);
+    if (!userStats) return [];
+    
+    const newAchievements: UserAchievement[] = [];
+    const achievementDefinitions = this.getAchievementDefinitions();
+    
+    for (const def of achievementDefinitions) {
+      // Check if user already has this achievement
+      const existing = await db.select()
+        .from(userAchievements)
+        .where(and(
+          eq(userAchievements.userId, userId),
+          eq(userAchievements.achievementId, def.id)
+        ))
+        .limit(1);
+        
+      if (existing.length > 0) continue; // Already has this achievement
+      
+      // Check if user meets criteria
+      if (this.meetsAchievementCriteria(userStats, def)) {
+        const achievement = await this.createUserAchievement({
+          userId,
+          achievementId: def.id,
+          title: def.title,
+          description: def.description,
+          category: def.category,
+          iconName: def.iconName,
+          badgeColor: def.badgeColor,
+          tier: def.tier,
+          points: def.points,
+          rarity: def.rarity,
+          criteria: def.criteria,
+          progress: def.progress
+        });
+        
+        newAchievements.push(achievement);
+      }
+    }
+    
+    return newAchievements;
+  }
+
+  private getAchievementDefinitions() {
+    return [
+      {
+        id: "first_trade",
+        title: "First Trade",
+        description: "Complete your first trade",
+        category: "trading",
+        iconName: "TrendingUp",
+        badgeColor: "blue",
+        tier: "bronze",
+        points: 10,
+        rarity: "common",
+        criteria: { minTrades: 1 },
+        progress: {}
+      },
+      {
+        id: "profit_milestone_1000",
+        title: "$1,000 Profit",
+        description: "Reach $1,000 in total profits",
+        category: "profit",
+        iconName: "DollarSign",
+        badgeColor: "green",
+        tier: "silver",
+        points: 50,
+        rarity: "rare",
+        criteria: { minProfit: 1000 },
+        progress: {}
+      },
+      {
+        id: "volume_trader_10k",
+        title: "Volume Trader",
+        description: "Trade $10,000 in total volume",
+        category: "volume",
+        iconName: "BarChart3",
+        badgeColor: "purple",
+        tier: "silver",
+        points: 30,
+        rarity: "rare",
+        criteria: { minVolume: 10000 },
+        progress: {}
+      },
+      {
+        id: "winning_streak_5",
+        title: "Win Streak",
+        description: "Achieve 5 profitable trades in a row",
+        category: "streak",
+        iconName: "Star",
+        badgeColor: "yellow",
+        tier: "gold",
+        points: 25,
+        rarity: "epic",
+        criteria: { minWinStreak: 5 },
+        progress: {}
+      }
+    ];
+  }
+  
+  private meetsAchievementCriteria(stats: TraderStats, def: any): boolean {
+    if (def.criteria.minTrades && stats.totalTrades < def.criteria.minTrades) return false;
+    if (def.criteria.minProfit && parseFloat(stats.totalPnL || "0") < def.criteria.minProfit) return false;
+    if (def.criteria.minVolume && parseFloat(stats.totalTradingVolume || "0") < def.criteria.minVolume) return false;
+    if (def.criteria.minWinStreak && stats.currentWinningStreak < def.criteria.minWinStreak) return false;
+    
+    return true;
+  }
+
+  async getAvailableAchievements(): Promise<Array<{ id: string; title: string; description: string; category: string; tier: string; criteria: any }>> {
+    return this.getAchievementDefinitions();
+  }
+
+  async getUserAchievementProgress(userId: string, achievementId: string): Promise<{ current: number; required: number; percentage: number } | undefined> {
+    const userStats = await this.getTraderStats(userId);
+    if (!userStats) return undefined;
+    
+    const def = this.getAchievementDefinitions().find(d => d.id === achievementId);
+    if (!def) return undefined;
+    
+    let current = 0;
+    let required = 0;
+    
+    if (def.criteria.minTrades) {
+      current = userStats.totalTrades;
+      required = def.criteria.minTrades;
+    } else if (def.criteria.minProfit) {
+      current = parseFloat(userStats.totalPnL || "0");
+      required = def.criteria.minProfit;
+    } else if (def.criteria.minVolume) {
+      current = parseFloat(userStats.totalTradingVolume || "0");
+      required = def.criteria.minVolume;
+    } else if (def.criteria.minWinStreak) {
+      current = userStats.longestWinningStreak;
+      required = def.criteria.minWinStreak;
+    }
+    
+    return {
+      current,
+      required,
+      percentage: Math.min(100, (current / required) * 100)
+    };
+  }
+
+  // Leaderboard Analytics and Statistics
+  async getLeaderboardOverview(): Promise<{
+    totalActiveTraders: number;
+    totalTrades: number;
+    totalVolume: string;
+    topPerformer: TraderStats & { user: User };
+    categories: LeaderboardCategory[];
+  }> {
+    const [activeTraders, totalStatsQuery, topPerformerQuery, categories] = await Promise.all([
+      db.execute(sql`SELECT COUNT(*) as count FROM trader_stats WHERE total_trades >= 1`),
+      db.execute(sql`SELECT SUM(total_trades) as trades, SUM(total_trading_volume::numeric) as volume FROM trader_stats`),
+      this.generateLeaderboard('total_return', 'all_time', 1),
+      this.getLeaderboardCategories({ isActive: true })
+    ]);
+    
+    const totalActiveTraders = Number(activeTraders.rows[0]?.count || 0);
+    const totalTrades = Number(totalStatsQuery.rows[0]?.trades || 0);
+    const totalVolume = String(totalStatsQuery.rows[0]?.volume || "0");
+    const topPerformer = topPerformerQuery[0];
+    
+    return {
+      totalActiveTraders,
+      totalTrades,
+      totalVolume,
+      topPerformer,
+      categories
+    };
+  }
+
+  async getTradingActivitySummary(timeframe: 'daily' | 'weekly' | 'monthly'): Promise<{
+    newTraders: number;
+    totalTrades: number;
+    totalVolume: string;
+    avgTradeSize: string;
+    topMovers: Array<TraderStats & { user: User }>;
+  }> {
+    let dateFilter: string;
+    switch (timeframe) {
+      case 'daily':
+        dateFilter = "last_trade_date >= CURRENT_DATE";
+        break;
+      case 'weekly':
+        dateFilter = "last_trade_date >= CURRENT_DATE - INTERVAL '7 days'";
+        break;
+      case 'monthly':
+        dateFilter = "last_trade_date >= CURRENT_DATE - INTERVAL '30 days'";
+        break;
+    }
+    
+    const [newTradersQuery, activityQuery, topMovers] = await Promise.all([
+      db.execute(sql`SELECT COUNT(*) as count FROM trader_stats WHERE first_trade_date >= CURRENT_DATE - INTERVAL '30 days'`),
+      db.execute(sql`
+        SELECT SUM(total_trades) as trades, 
+               SUM(total_trading_volume::numeric) as volume,
+               AVG(average_trade_size::numeric) as avg_size
+        FROM trader_stats 
+        WHERE ${sql.raw(dateFilter)}
+      `),
+      this.generateLeaderboard('total_return', timeframe, 5)
+    ]);
+    
+    const newTraders = Number(newTradersQuery.rows[0]?.count || 0);
+    const totalTrades = Number(activityQuery.rows[0]?.trades || 0);
+    const totalVolume = String(activityQuery.rows[0]?.volume || "0");
+    const avgTradeSize = String(activityQuery.rows[0]?.avg_size || "0");
+    
+    return {
+      newTraders,
+      totalTrades,
+      totalVolume,
+      avgTradeSize,
+      topMovers
     };
   }
 }

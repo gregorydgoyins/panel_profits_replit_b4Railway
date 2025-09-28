@@ -39,6 +39,7 @@ export function NavigationSidebar() {
     if (location === '/publishers') return 'publishers';
     if (location === '/portfolio') return 'portfolio';
     if (location === '/watchlist') return 'watchlist';
+    if (location === '/leaderboards') return 'leaderboards';
     if (location === '/news') return 'news';
     if (location === '/calendar') return 'calendar';
     if (location === '/settings') return 'settings';
@@ -68,6 +69,7 @@ export function NavigationSidebar() {
     // Portfolio
     { id: 'portfolio', label: 'Portfolio', icon: Briefcase, path: '/portfolio', category: 'portfolio' },
     { id: 'watchlist', label: 'Watchlist', icon: Zap, path: '/watchlist', category: 'portfolio' },
+    { id: 'leaderboards', label: 'Leaderboards', icon: Trophy, path: '/leaderboards', category: 'portfolio', badge: 'NEW' },
     
     // Tools & Info
     { id: 'news', label: 'News', icon: Newspaper, path: '/news', category: 'tools' },
@@ -94,7 +96,8 @@ export function NavigationSidebar() {
       creators: 'text-yellow-400 bg-yellow-900/30 hover:bg-yellow-600',
       publishers: 'text-blue-400 bg-blue-900/30 hover:bg-blue-600',
       portfolio: 'text-emerald-400 bg-emerald-900/30 hover:bg-emerald-600',
-      watchlist: 'text-amber-400 bg-amber-900/30 hover:bg-amber-600'
+      watchlist: 'text-amber-400 bg-amber-900/30 hover:bg-amber-600',
+      leaderboards: 'text-yellow-400 bg-yellow-900/30 hover:bg-yellow-600'
     };
     return colors[itemId as keyof typeof colors] || 'text-gray-400 bg-gray-900/30 hover:bg-gray-600';
   };

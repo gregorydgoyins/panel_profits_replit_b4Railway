@@ -10,6 +10,7 @@ import { registerComicRoutes } from "./routes/comicRoutes";
 import { registerComicCoverRoutes } from "./routes/comicCoverRoutes.js";
 import { registerNotificationRoutes } from "./routes/notificationRoutes.js";
 import { marketSimulation, orderMatching } from "./marketSimulation.js";
+import { leaderboardService } from "./leaderboardService.js";
 import { 
   insertAssetSchema, 
   insertMarketDataSchema,
@@ -1803,6 +1804,218 @@ Respond with valid JSON in this exact format:
       res.status(500).json({ error: "Failed to fetch market events" });
     }
   });
+
+  // LEADERBOARD API ROUTES
+  
+  // Get all leaderboard categories
+  app.get("/api/leaderboards/categories", async (req, res) => {
+    try {
+      const categories = await storage.getLeaderboardCategories({ isActive: true });
+      res.json(categories);
+    } catch (error) {
+      console.error("Error fetching leaderboard categories:", error);
+      res.status(500).json({ error: "Failed to fetch leaderboard categories" });
+    }
+  });
+
+  // Get leaderboard data by category ID
+  app.get("/api/leaderboards/:categoryId", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 50;
+      const leaderboard = await leaderboardService.generateLeaderboard(req.params.categoryId, limit);
+      res.json(leaderboard);
+    } catch (error) {
+      console.error("Error generating leaderboard:", error);
+      res.status(500).json({ error: "Failed to generate leaderboard" });
+    }
+  });
+
+  // Get multiple leaderboards at once
+  app.get("/api/leaderboards", async (req, res) => {
+    try {
+      const categoryIds = (req.query.categories as string)?.split(',') || [];
+      const limit = parseInt(req.query.limit as string) || 25;
+      
+      if (categoryIds.length === 0) {
+        // Get all active categories if none specified
+        const categories = await storage.getLeaderboardCategories({ isActive: true });
+        const leaderboards = await leaderboardService.getMultipleLeaderboards(
+          categories.map(c => c.id), 
+          limit
+        );
+        res.json(leaderboards);
+      } else {
+        const leaderboards = await leaderboardService.getMultipleLeaderboards(categoryIds, limit);
+        res.json(leaderboards);
+      }
+    } catch (error) {
+      console.error("Error fetching multiple leaderboards:", error);
+      res.status(500).json({ error: "Failed to fetch leaderboards" });
+    }
+  });
+
+  // Get user's rankings across all categories
+  app.get("/api/leaderboards/user/:userId/rankings", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const rankings = await leaderboardService.getUserRankings(userId);
+      res.json(rankings);
+    } catch (error) {
+      console.error("Error fetching user rankings:", error);
+      res.status(500).json({ error: "Failed to fetch user rankings" });
+    }
+  });
+
+  // Get current user's rankings (authenticated route)
+  app.get("/api/leaderboards/my-rankings", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const rankings = await leaderboardService.getUserRankings(userId);
+      res.json(rankings);
+    } catch (error) {
+      console.error("Error fetching user rankings:", error);
+      res.status(500).json({ error: "Failed to fetch user rankings" });
+    }
+  });
+
+  // Get user's trader statistics
+  app.get("/api/leaderboards/user/:userId/stats", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const stats = await storage.getTraderStats(userId);
+      if (!stats) {
+        return res.status(404).json({ error: "Trader stats not found" });
+      }
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching trader stats:", error);
+      res.status(500).json({ error: "Failed to fetch trader stats" });
+    }
+  });
+
+  // Get current user's trader statistics
+  app.get("/api/leaderboards/my-stats", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const stats = await storage.getTraderStats(userId);
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching trader stats:", error);
+      res.status(500).json({ error: "Failed to fetch trader stats" });
+    }
+  });
+
+  // Get user achievements
+  app.get("/api/achievements/user/:userId", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const category = req.query.category as string;
+      const tier = req.query.tier as string;
+      const achievements = await storage.getUserAchievements(userId, { 
+        category, 
+        tier, 
+        isVisible: true 
+      });
+      res.json(achievements);
+    } catch (error) {
+      console.error("Error fetching user achievements:", error);
+      res.status(500).json({ error: "Failed to fetch achievements" });
+    }
+  });
+
+  // Get current user's achievements
+  app.get("/api/achievements/my-achievements", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const category = req.query.category as string;
+      const tier = req.query.tier as string;
+      const achievements = await storage.getUserAchievements(userId, { 
+        category, 
+        tier, 
+        isVisible: true 
+      });
+      res.json(achievements);
+    } catch (error) {
+      console.error("Error fetching user achievements:", error);
+      res.status(500).json({ error: "Failed to fetch achievements" });
+    }
+  });
+
+  // Get available achievements and progress
+  app.get("/api/achievements/available", async (req, res) => {
+    try {
+      const achievements = await storage.getAvailableAchievements();
+      res.json(achievements);
+    } catch (error) {
+      console.error("Error fetching available achievements:", error);
+      res.status(500).json({ error: "Failed to fetch available achievements" });
+    }
+  });
+
+  // Get user achievement progress
+  app.get("/api/achievements/progress/:achievementId", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const achievementId = req.params.achievementId;
+      const progress = await storage.getUserAchievementProgress(userId, achievementId);
+      if (!progress) {
+        return res.status(404).json({ error: "Achievement progress not found" });
+      }
+      res.json(progress);
+    } catch (error) {
+      console.error("Error fetching achievement progress:", error);
+      res.status(500).json({ error: "Failed to fetch achievement progress" });
+    }
+  });
+
+  // Get leaderboard overview and analytics
+  app.get("/api/leaderboards/overview", async (req, res) => {
+    try {
+      const overview = await leaderboardService.getLeaderboardOverview();
+      res.json(overview);
+    } catch (error) {
+      console.error("Error fetching leaderboard overview:", error);
+      res.status(500).json({ error: "Failed to fetch leaderboard overview" });
+    }
+  });
+
+  // Get trading activity summary
+  app.get("/api/leaderboards/activity/:timeframe", async (req, res) => {
+    try {
+      const timeframe = req.params.timeframe as 'daily' | 'weekly' | 'monthly';
+      if (!['daily', 'weekly', 'monthly'].includes(timeframe)) {
+        return res.status(400).json({ error: "Invalid timeframe. Must be daily, weekly, or monthly" });
+      }
+      
+      const summary = await leaderboardService.getTradingActivitySummary(timeframe);
+      res.json(summary);
+    } catch (error) {
+      console.error("Error fetching trading activity summary:", error);
+      res.status(500).json({ error: "Failed to fetch trading activity summary" });
+    }
+  });
+
+  // Admin route to recalculate all rankings (for maintenance)
+  app.post("/api/leaderboards/recalculate", isAuthenticated, async (req: any, res) => {
+    try {
+      // Note: In production, this should have admin role check
+      await leaderboardService.recalculateAllRankings();
+      res.json({ message: "Rankings recalculated successfully" });
+    } catch (error) {
+      console.error("Error recalculating rankings:", error);
+      res.status(500).json({ error: "Failed to recalculate rankings" });
+    }
+  });
+
+  // Initialize leaderboard service
+  try {
+    console.log('🏆 Initializing leaderboard service...');
+    await leaderboardService.initializeDefaultCategories();
+    console.log('✅ Leaderboard service initialized successfully');
+  } catch (error) {
+    console.error('❌ Failed to initialize leaderboard service:', error);
+    // Continue anyway - the service can be manually restarted
+  }
 
   // Initialize and start the market simulation engine
   try {
