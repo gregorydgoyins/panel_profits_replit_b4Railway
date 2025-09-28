@@ -22,7 +22,12 @@ import {
   // Phase 1 Trading Extensions
   type TradingSession, type InsertTradingSession,
   type AssetCurrentPrice, type InsertAssetCurrentPrice,
-  type TradingLimit, type InsertTradingLimit
+  type TradingLimit, type InsertTradingLimit,
+  // Notification System Types
+  type Notification, type InsertNotification,
+  type PriceAlert, type InsertPriceAlert,
+  type NotificationPreferences, type InsertNotificationPreferences,
+  type NotificationTemplate, type InsertNotificationTemplate
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -251,6 +256,38 @@ export interface IStorage {
   // Portfolio Cash Management
   updatePortfolioCashBalance(portfolioId: string, amount: string, operation: 'add' | 'subtract' | 'set'): Promise<Portfolio | undefined>;
   getPortfolioAvailableCash(portfolioId: string): Promise<{ cashBalance: string; reservedCash: string; availableCash: string }>;
+
+  // NOTIFICATION SYSTEM METHODS
+
+  // Notifications
+  getNotification(id: string): Promise<Notification | undefined>;
+  getUserNotifications(userId: string, filters?: { type?: string; read?: boolean; priority?: string; limit?: number }): Promise<Notification[]>;
+  createNotification(notification: InsertNotification): Promise<Notification>;
+  updateNotification(id: string, notification: Partial<InsertNotification>): Promise<Notification | undefined>;
+  deleteNotification(id: string): Promise<boolean>;
+  markNotificationAsRead(notificationId: string): Promise<boolean>;
+  markAllNotificationsAsRead(userId: string): Promise<boolean>;
+  deleteExpiredNotifications(): Promise<number>;
+  getUserUnreadNotificationCount(userId: string): Promise<number>;
+
+  // Price Alerts
+  getPriceAlert(id: string): Promise<PriceAlert | undefined>;
+  getUserPriceAlerts(userId: string, filters?: { assetId?: string; isActive?: boolean }): Promise<PriceAlert[]>;
+  getPriceAlerts(filters?: { isActive?: boolean; assetId?: string; alertType?: string }): Promise<PriceAlert[]>;
+  createPriceAlert(alert: InsertPriceAlert): Promise<PriceAlert>;
+  updatePriceAlert(id: string, alert: Partial<InsertPriceAlert>): Promise<PriceAlert | undefined>;
+  deletePriceAlert(id: string): Promise<boolean>;
+
+  // Notification Preferences
+  getNotificationPreferences(userId: string): Promise<NotificationPreferences | undefined>;
+  createNotificationPreferences(preferences: InsertNotificationPreferences): Promise<NotificationPreferences>;
+  updateNotificationPreferences(userId: string, preferences: Partial<InsertNotificationPreferences>): Promise<NotificationPreferences | undefined>;
+
+  // Notification Templates
+  getNotificationTemplate(type: string): Promise<NotificationTemplate | undefined>;
+  getNotificationTemplates(filters?: { isActive?: boolean }): Promise<NotificationTemplate[]>;
+  createNotificationTemplate(template: InsertNotificationTemplate): Promise<NotificationTemplate>;
+  updateNotificationTemplate(id: string, template: Partial<InsertNotificationTemplate>): Promise<NotificationTemplate | undefined>;
 }
 
 // Time-series buffer implementation with memory limits and proper chronological ordering

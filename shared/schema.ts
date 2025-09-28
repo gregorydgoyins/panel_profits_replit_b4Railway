@@ -743,3 +743,120 @@ export type InsertAssetCurrentPrice = z.infer<typeof insertAssetCurrentPriceSche
 
 export type TradingLimit = typeof tradingLimits.$inferSelect;
 export type InsertTradingLimit = z.infer<typeof insertTradingLimitSchema>;
+
+// NOTIFICATION SYSTEM TABLES - Phase 1 Real-time Notifications
+
+// Notifications table for storing notification history
+export const notifications = pgTable("notifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  type: text("type").notNull(), // 'order' | 'price_alert' | 'market_update' | 'portfolio'
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  priority: text("priority").notNull().default("medium"), // 'low' | 'medium' | 'high' | 'critical'
+  read: boolean("read").default(false),
+  actionUrl: text("action_url"), // Optional URL for clickable actions
+  metadata: jsonb("metadata"), // Additional notification data (order details, etc.)
+  createdAt: timestamp("created_at").defaultNow(),
+  expiresAt: timestamp("expires_at"), // Optional expiration date
+});
+
+// Price alerts table with user-defined thresholds
+export const priceAlerts = pgTable("price_alerts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  assetId: varchar("asset_id").notNull().references(() => assets.id),
+  alertType: text("alert_type").notNull(), // 'price_above' | 'price_below' | 'percent_change' | 'volume_spike'
+  thresholdValue: decimal("threshold_value", { precision: 10, scale: 2 }).notNull(),
+  percentageThreshold: decimal("percentage_threshold", { precision: 5, scale: 2 }), // For percentage-based alerts
+  isActive: boolean("is_active").default(true),
+  lastTriggeredPrice: decimal("last_triggered_price", { precision: 10, scale: 2 }),
+  triggerCount: integer("trigger_count").default(0),
+  cooldownMinutes: integer("cooldown_minutes").default(60), // Prevent spam alerts
+  name: text("name"), // User-defined alert name
+  notes: text("notes"), // User notes about the alert
+  createdAt: timestamp("created_at").defaultNow(),
+  triggeredAt: timestamp("triggered_at"),
+  lastCheckedAt: timestamp("last_checked_at").defaultNow(),
+});
+
+// Notification preferences table for user settings
+export const notificationPreferences = pgTable("notification_preferences", {
+  userId: varchar("user_id").primaryKey().references(() => users.id),
+  // Notification type preferences
+  orderNotifications: boolean("order_notifications").default(true),
+  priceAlerts: boolean("price_alerts").default(true),
+  marketUpdates: boolean("market_updates").default(true),
+  portfolioAlerts: boolean("portfolio_alerts").default(true),
+  // Delivery method preferences
+  emailNotifications: boolean("email_notifications").default(false),
+  pushNotifications: boolean("push_notifications").default(true),
+  toastNotifications: boolean("toast_notifications").default(true),
+  // Priority filtering
+  lowPriorityEnabled: boolean("low_priority_enabled").default(true),
+  mediumPriorityEnabled: boolean("medium_priority_enabled").default(true),
+  highPriorityEnabled: boolean("high_priority_enabled").default(true),
+  criticalPriorityEnabled: boolean("critical_priority_enabled").default(true),
+  // Quiet hours settings
+  quietHoursEnabled: boolean("quiet_hours_enabled").default(false),
+  quietHoursStart: text("quiet_hours_start"), // "22:00" format
+  quietHoursEnd: text("quiet_hours_end"), // "08:00" format
+  quietHoursTimezone: text("quiet_hours_timezone").default("UTC"),
+  // Advanced preferences
+  groupSimilarNotifications: boolean("group_similar_notifications").default(true),
+  maxDailyNotifications: integer("max_daily_notifications").default(50),
+  soundEnabled: boolean("sound_enabled").default(true),
+  vibrationEnabled: boolean("vibration_enabled").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Notification templates for different event types
+export const notificationTemplates = pgTable("notification_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  type: text("type").notNull(), // 'order_filled', 'price_alert_triggered', etc.
+  priority: text("priority").notNull().default("medium"),
+  titleTemplate: text("title_template").notNull(), // "Order Filled: {assetName}"
+  messageTemplate: text("message_template").notNull(), // "Your order for {quantity} shares of {assetName} has been filled at {price}"
+  actionUrlTemplate: text("action_url_template"), // "/trading?order={orderId}"
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Insert schemas for notification tables
+export const insertNotificationSchema = createInsertSchema(notifications).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertPriceAlertSchema = createInsertSchema(priceAlerts).omit({
+  id: true,
+  createdAt: true,
+  triggeredAt: true,
+  lastCheckedAt: true,
+});
+
+export const insertNotificationPreferencesSchema = createInsertSchema(notificationPreferences).omit({
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertNotificationTemplateSchema = createInsertSchema(notificationTemplates).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Export types for notification system
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+
+export type PriceAlert = typeof priceAlerts.$inferSelect;
+export type InsertPriceAlert = z.infer<typeof insertPriceAlertSchema>;
+
+export type NotificationPreferences = typeof notificationPreferences.$inferSelect;
+export type InsertNotificationPreferences = z.infer<typeof insertNotificationPreferencesSchema>;
+
+export type NotificationTemplate = typeof notificationTemplates.$inferSelect;
+export type InsertNotificationTemplate = z.infer<typeof insertNotificationTemplateSchema>;

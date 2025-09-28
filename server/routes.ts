@@ -8,6 +8,7 @@ import vectorRoutes from "./routes/vectorRoutes.js";
 import dataImportRoutes from "./routes/dataImportRoutes.js";
 import { registerComicRoutes } from "./routes/comicRoutes";
 import { registerComicCoverRoutes } from "./routes/comicCoverRoutes.js";
+import { registerNotificationRoutes } from "./routes/notificationRoutes.js";
 import { marketSimulation, orderMatching } from "./marketSimulation.js";
 import { 
   insertAssetSchema, 
@@ -985,6 +986,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register comic cover routes for cover display
   registerComicCoverRoutes(app);
+  
+  // Register notification routes for real-time notification system
+  registerNotificationRoutes(app);
   
   // AI Market Intelligence Routes
   const aiRoutes = (await import('./routes/aiRoutes.js')).default;

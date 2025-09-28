@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { Route, Switch } from 'wouter';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
+import { ToastProvider } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { NotificationSystemProvider } from '@/components/notifications/NotificationSystemProvider';
 import { LandingPage } from '@/components/LandingPage';
 import { NavigationSidebar } from '@/components/NavigationSidebar';
 import { HeroBanner } from '@/components/HeroBanner';
@@ -126,8 +128,12 @@ function Router() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthenticatedLayout />
-      <Toaster />
+      <ToastProvider>
+        <NotificationSystemProvider>
+          <AuthenticatedLayout />
+        </NotificationSystemProvider>
+        <Toaster />
+      </ToastProvider>
     </QueryClientProvider>
   );
 }
