@@ -237,11 +237,14 @@ router.post('/storage/boxes', isAuthenticated, async (req: any, res) => {
 // Update storage box
 router.patch('/storage/boxes/:id', isAuthenticated, async (req: any, res) => {
   try {
+    const userId = req.user.claims.sub;
     const updates = insertCollectionStorageBoxSchema.partial().parse(req.body);
-    const storageBox = await storage.updateCollectionStorageBox(req.params.id, updates);
+    
+    // CRITICAL SECURITY: Pass userId to ensure users can only update their own storage boxes
+    const storageBox = await storage.updateCollectionStorageBox(req.params.id, updates, userId);
     
     if (!storageBox) {
-      return res.status(404).json({ error: 'Storage box not found' });
+      return res.status(404).json({ error: 'Storage box not found or not authorized' });
     }
     
     res.json({

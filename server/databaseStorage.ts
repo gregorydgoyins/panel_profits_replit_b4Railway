@@ -4231,10 +4231,27 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Collection Storage Box Methods
-  async getCollectionStorageBoxes(userId: string): Promise<CollectionStorageBox[]> {
-    return await db.select().from(collectionStorageBoxes)
-      .where(eq(collectionStorageBoxes.userId, userId))
-      .orderBy(collectionStorageBoxes.boxName);
+  // CRITICAL SECURITY: This method requires userId to ensure users can only see their own storage boxes
+  async getCollectionStorageBoxes(userId: string, filters?: { boxType?: string; sortBy?: string }): Promise<CollectionStorageBox[]> {
+    // CRITICAL SECURITY FIX: Build all conditions in array and combine with and()
+    // to ensure userId filter is NEVER lost when applying additional filters
+    const conditions = [eq(collectionStorageBoxes.userId, userId)];
+    
+    if (filters?.boxType) {
+      conditions.push(eq(collectionStorageBoxes.boxType, filters.boxType));
+    }
+    
+    let query = db.select().from(collectionStorageBoxes)
+      .where(and(...conditions));
+    
+    // Apply sorting
+    if (filters?.sortBy === 'name') {
+      query = query.orderBy(collectionStorageBoxes.boxName);
+    } else {
+      query = query.orderBy(desc(collectionStorageBoxes.createdAt));
+    }
+    
+    return await query;
   }
 
   async createCollectionStorageBox(boxData: InsertCollectionStorageBox): Promise<CollectionStorageBox> {
@@ -4242,10 +4259,18 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
-  async updateCollectionStorageBox(boxId: string, updates: Partial<InsertCollectionStorageBox>): Promise<CollectionStorageBox | undefined> {
+  async updateCollectionStorageBox(boxId: string, updates: Partial<InsertCollectionStorageBox>, userId?: string): Promise<CollectionStorageBox | undefined> {
+    // CRITICAL SECURITY FIX: Add user ownership validation to prevent unauthorized updates
+    const conditions = [eq(collectionStorageBoxes.id, boxId)];
+    
+    // If userId is provided, ensure the storage box belongs to that user
+    if (userId) {
+      conditions.push(eq(collectionStorageBoxes.userId, userId));
+    }
+    
     const result = await db.update(collectionStorageBoxes)
       .set({ ...updates, updatedAt: new Date() })
-      .where(eq(collectionStorageBoxes.id, boxId))
+      .where(and(...conditions))
       .returning();
     return result[0];
   }

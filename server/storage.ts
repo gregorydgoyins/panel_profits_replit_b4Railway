@@ -60,7 +60,11 @@ import {
   type TradingToolUnlock, type InsertTradingToolUnlock,
   type ComicCollectionAchievement, type InsertComicCollectionAchievement,
   type CollectionChallenge, type InsertCollectionChallenge,
-  type UserChallengeParticipation, type InsertUserChallengeParticipation
+  type UserChallengeParticipation, type InsertUserChallengeParticipation,
+  // Collector System Types - CRITICAL for tenant isolation
+  type GradedAssetProfile, type InsertGradedAssetProfile,
+  type CollectionStorageBox, type InsertCollectionStorageBox,
+  type VariantCoverRegistry, type InsertVariantCoverRegistry
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -684,6 +688,52 @@ export interface IStorage {
 
   // Progression Leaderboards
   getProgressionLeaderboard(category: string, timeframe: string): Promise<any[]>;
+  
+  // ============================================================================
+  // COLLECTOR SYSTEM - CRITICAL SECURITY: All methods require userId validation
+  // ============================================================================
+  
+  // Graded Asset Profile Methods (CRITICAL: userId required for tenant isolation)
+  createGradedAssetProfile(profileData: InsertGradedAssetProfile): Promise<GradedAssetProfile>;
+  getUserGradedAssetProfiles(userId: string, filters?: {
+    rarityFilter?: string;
+    storageTypeFilter?: string;
+    sortBy?: string;
+  }): Promise<GradedAssetProfile[]>;
+  getGradedAssetProfile(profileId: string, userId?: string): Promise<GradedAssetProfile | undefined>;
+  updateGradedAssetProfile(profileId: string, updates: Partial<InsertGradedAssetProfile>, userId?: string): Promise<GradedAssetProfile | undefined>;
+  deleteGradedAssetProfile(profileId: string, userId?: string): Promise<boolean>;
+  
+  // Collection Storage Box Methods (CRITICAL: userId required for tenant isolation)
+  getCollectionStorageBoxes(userId: string, filters?: { boxType?: string; sortBy?: string }): Promise<CollectionStorageBox[]>;
+  createCollectionStorageBox(boxData: InsertCollectionStorageBox): Promise<CollectionStorageBox>;
+  updateCollectionStorageBox(boxId: string, updates: Partial<InsertCollectionStorageBox>, userId?: string): Promise<CollectionStorageBox | undefined>;
+  
+  // Variant Cover Registry Methods
+  getVariantCoversByAsset(baseAssetId: string): Promise<VariantCoverRegistry[]>;
+  createVariantCover(variantData: InsertVariantCoverRegistry): Promise<VariantCoverRegistry>;
+  getVariantCover(variantId: string): Promise<VariantCoverRegistry | undefined>;
+  searchVariantCovers(criteria: {
+    variantType?: string;
+    coverArtist?: string;
+    publisher?: string;
+    minRarity?: string;
+    maxPrice?: number;
+  }): Promise<VariantCoverRegistry[]>;
+  
+  // Collection Analytics Methods (CRITICAL: userId required for tenant isolation)
+  getCollectionAnalytics(userId: string): Promise<{
+    totalItems: number;
+    totalValue: number;
+    averageGrade: number;
+    gradeDistribution: { [grade: string]: number };
+    rarityDistribution: { [rarity: string]: number };
+    houseDistribution: { [house: string]: number };
+    keyIssuesCount: number;
+    signedCount: number;
+    growthRate: number;
+    topPerformers: GradedAssetProfile[];
+  }>;
 }
 
 // Time-series buffer implementation with memory limits and proper chronological ordering
