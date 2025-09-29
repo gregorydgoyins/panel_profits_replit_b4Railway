@@ -4405,9 +4405,245 @@ export type InsertIngestionRun = z.infer<typeof insertIngestionRunSchema>;
 export type IngestionError = typeof ingestionErrors.$inferSelect;
 export type InsertIngestionError = z.infer<typeof insertIngestionErrorSchema>;
 
+// ========================================================================================
+// PHASE 2: NARRATIVE TRADING METRICS INTEGRATION TABLES
+// ========================================================================================
+
+// Narrative Trading Metrics - Core metrics connecting story data to financial behavior
+export const narrativeTradingMetrics = pgTable("narrative_trading_metrics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  assetId: varchar("asset_id").notNull().references(() => assets.id),
+  
+  // Mythic Volatility Metrics
+  mythicVolatilityScore: decimal("mythic_volatility_score", { precision: 8, scale: 4 }).notNull(), // 0.0001 to 10.0000
+  baseVolatility: decimal("base_volatility", { precision: 8, scale: 4 }).default("0.0250"), // Base daily volatility
+  storyArcVolatilityMultiplier: decimal("story_arc_volatility_multiplier", { precision: 8, scale: 4 }).default("1.0000"),
+  powerLevelVolatilityFactor: decimal("power_level_volatility_factor", { precision: 8, scale: 4 }).default("1.0000"),
+  cosmicEventVolatilityBoost: decimal("cosmic_event_volatility_boost", { precision: 8, scale: 4 }).default("0.0000"),
+  
+  // Narrative Momentum Tracking
+  narrativeMomentumScore: decimal("narrative_momentum_score", { precision: 8, scale: 4 }).notNull(), // -5.0000 to 5.0000
+  culturalImpactIndex: decimal("cultural_impact_index", { precision: 8, scale: 4 }).default("1.0000"),
+  storyProgressionRate: decimal("story_progression_rate", { precision: 8, scale: 4 }).default("0.0000"),
+  themeRelevanceScore: decimal("theme_relevance_score", { precision: 8, scale: 4 }).default("1.0000"),
+  mediaBoostFactor: decimal("media_boost_factor", { precision: 8, scale: 4 }).default("1.0000"),
+  momentumDecayRate: decimal("momentum_decay_rate", { precision: 8, scale: 4 }).default("0.0500"),
+  
+  // House-Based Financial Modifiers
+  houseAffiliation: text("house_affiliation"), // 'heroes', 'wisdom', 'power', 'mystery', 'elements', 'time', 'spirit'
+  houseVolatilityProfile: text("house_volatility_profile"), // 'stable', 'moderate', 'high', 'extreme', 'chaotic'
+  houseTradingMultiplier: decimal("house_trading_multiplier", { precision: 8, scale: 4 }).default("1.0000"),
+  houseSpecialtyBonus: decimal("house_specialty_bonus", { precision: 8, scale: 4 }).default("0.0000"),
+  
+  // Narrative Correlation Factors
+  narrativeCorrelationStrength: decimal("narrative_correlation_strength", { precision: 8, scale: 4 }).default("1.0000"),
+  storyBeatSensitivity: decimal("story_beat_sensitivity", { precision: 8, scale: 4 }).default("1.0000"),
+  characterDeathImpact: decimal("character_death_impact", { precision: 8, scale: 4 }).default("0.0000"),
+  powerUpgradeImpact: decimal("power_upgrade_impact", { precision: 8, scale: 4 }).default("0.0000"),
+  resurrectionImpact: decimal("resurrection_impact", { precision: 8, scale: 4 }).default("0.0000"),
+  
+  // Enhanced Margin and Risk Calculations
+  narrativeMarginRequirement: decimal("narrative_margin_requirement", { precision: 8, scale: 2 }).default("50.00"),
+  storyRiskAdjustment: decimal("story_risk_adjustment", { precision: 8, scale: 4 }).default("0.0000"),
+  volatilityRiskPremium: decimal("volatility_risk_premium", { precision: 8, scale: 4 }).default("0.0000"),
+  
+  // Temporal Factors
+  lastNarrativeEvent: timestamp("last_narrative_event"),
+  nextPredictedEvent: timestamp("next_predicted_event"),
+  storyArcPhase: text("story_arc_phase"), // 'origin', 'rising_action', 'climax', 'falling_action', 'resolution'
+  seasonalNarrativePattern: text("seasonal_narrative_pattern"), // JSON array of seasonal multipliers
+  
+  // Performance Tracking
+  metricsReliabilityScore: decimal("metrics_reliability_score", { precision: 8, scale: 4 }).default("0.5000"),
+  predictionAccuracy: decimal("prediction_accuracy", { precision: 8, scale: 4 }).default("0.0000"),
+  lastRecalculation: timestamp("last_recalculation").defaultNow(),
+  calculationVersion: integer("calculation_version").default(1),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// House Financial Profiles - Seven Houses trading characteristics and specializations
+export const houseFinancialProfiles = pgTable("house_financial_profiles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  houseId: text("house_id").notNull().unique(), // 'heroes', 'wisdom', 'power', 'mystery', 'elements', 'time', 'spirit'
+  houseName: text("house_name").notNull(),
+  
+  // Trading Characteristics
+  volatilityProfile: text("volatility_profile").notNull(), // 'stable', 'moderate', 'high', 'extreme', 'chaotic'
+  baseVolatilityMultiplier: decimal("base_volatility_multiplier", { precision: 8, scale: 4 }).notNull(),
+  trendStrengthModifier: decimal("trend_strength_modifier", { precision: 8, scale: 4 }).default("1.0000"),
+  meanReversionFactor: decimal("mean_reversion_factor", { precision: 8, scale: 4 }).default("0.1000"),
+  
+  // House-Specific Market Patterns
+  marketPatternType: text("market_pattern_type").notNull(), // 'heroic_growth', 'wisdom_stability', 'power_volatility', etc.
+  seasonalityPattern: jsonb("seasonality_pattern"), // Quarterly/seasonal trading patterns
+  eventResponseProfile: jsonb("event_response_profile"), // How house responds to different story events
+  
+  // Specialized Trading Behaviors
+  preferredInstruments: text("preferred_instruments").array(), // ['equity', 'options', 'bonds', etc.]
+  riskToleranceLevel: text("risk_tolerance_level").notNull(), // 'conservative', 'moderate', 'aggressive', 'extreme'
+  leveragePreference: decimal("leverage_preference", { precision: 8, scale: 4 }).default("1.0000"),
+  
+  // Narrative-Driven Factors
+  storyBeatMultipliers: jsonb("story_beat_multipliers"), // Response to different story beat types
+  characterPowerLevelWeights: jsonb("character_power_level_weights"), // How power levels affect trading
+  cosmicEventSensitivity: decimal("cosmic_event_sensitivity", { precision: 8, scale: 4 }).default("1.0000"),
+  
+  // House Trading Bonuses and Penalties
+  specialtyAssetTypes: text("specialty_asset_types").array(), // Asset types this house excels with
+  weaknessAssetTypes: text("weakness_asset_types").array(), // Asset types this house struggles with
+  tradingBonusPercentage: decimal("trading_bonus_percentage", { precision: 8, scale: 4 }).default("0.0000"),
+  penaltyPercentage: decimal("penalty_percentage", { precision: 8, scale: 4 }).default("0.0000"),
+  
+  // Advanced House Mechanics
+  alignmentRequirements: jsonb("alignment_requirements"), // Karmic alignment requirements
+  synergisticHouses: text("synergistic_houses").array(), // Houses that work well together
+  conflictingHouses: text("conflicting_houses").array(), // Houses that create market tension
+  
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Story Event Triggers - Connect narrative events to market movements
+export const storyEventTriggers = pgTable("story_event_triggers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Event Identification
+  triggerName: text("trigger_name").notNull(),
+  triggerType: text("trigger_type").notNull(), // 'story_beat', 'character_event', 'cosmic_event', 'media_release'
+  eventSeverity: text("event_severity").notNull(), // 'minor', 'moderate', 'major', 'cosmic', 'universe_altering'
+  
+  // Source References
+  storyBeatId: varchar("story_beat_id").references(() => storyBeats.id),
+  characterId: varchar("character_id").references(() => enhancedCharacters.id),
+  timelineId: varchar("timeline_id").references(() => narrativeTimelines.id),
+  
+  // Market Impact Configuration
+  priceImpactRange: jsonb("price_impact_range"), // Min/max price impact percentages
+  volatilityImpactMultiplier: decimal("volatility_impact_multiplier", { precision: 8, scale: 4 }).default("1.0000"),
+  volumeImpactMultiplier: decimal("volume_impact_multiplier", { precision: 8, scale: 4 }).default("1.0000"),
+  sentimentShift: decimal("sentiment_shift", { precision: 8, scale: 4 }).default("0.0000"), // -1.0000 to 1.0000
+  
+  // Affected Assets
+  affectedAssetTypes: text("affected_asset_types").array(), // Types of assets affected
+  directlyAffectedAssets: text("directly_affected_assets").array(), // Specific asset IDs
+  indirectlyAffectedAssets: text("indirectly_affected_assets").array(), // Assets affected through connections
+  
+  // House-Specific Responses
+  houseResponseMultipliers: jsonb("house_response_multipliers"), // How each house responds to this trigger
+  crossHouseEffects: jsonb("cross_house_effects"), // Secondary effects across houses
+  
+  // Temporal Configuration
+  immediateImpactDuration: integer("immediate_impact_duration").default(1440), // Minutes for immediate impact
+  mediumTermEffectDuration: integer("medium_term_effect_duration").default(10080), // Minutes for medium-term
+  longTermMemoryDecay: decimal("long_term_memory_decay", { precision: 8, scale: 4 }).default("0.0100"),
+  
+  // Trigger Conditions
+  triggerConditions: jsonb("trigger_conditions"), // Complex conditions for activation
+  cooldownPeriod: integer("cooldown_period").default(0), // Minutes before trigger can fire again
+  maxActivationsPerDay: integer("max_activations_per_day").default(10),
+  
+  // Execution Tracking
+  isActive: boolean("is_active").default(true),
+  lastTriggered: timestamp("last_triggered"),
+  totalActivations: integer("total_activations").default(0),
+  successfulActivations: integer("successful_activations").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Narrative Market Events - Generated events from story triggers that affect trading
+export const narrativeMarketEvents = pgTable("narrative_market_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Event Source
+  triggerEventId: varchar("trigger_event_id").references(() => storyEventTriggers.id),
+  eventTitle: text("event_title").notNull(),
+  eventDescription: text("event_description").notNull(),
+  narrativeContext: text("narrative_context"), // Rich context about the story event
+  
+  // Market Impact Data
+  affectedAssets: text("affected_assets").array(), // Asset IDs affected by this event
+  priceImpacts: jsonb("price_impacts"), // Actual price impacts by asset ID
+  volumeChanges: jsonb("volume_changes"), // Volume changes by asset ID
+  volatilityAdjustments: jsonb("volatility_adjustments"), // Volatility changes by asset ID
+  
+  // House Effects
+  houseImpacts: jsonb("house_impacts"), // Impact on each of the seven houses
+  crossHouseInteractions: jsonb("cross_house_interactions"), // Secondary cross-house effects
+  
+  // Event Lifecycle
+  eventStartTime: timestamp("event_start_time").notNull(),
+  eventEndTime: timestamp("event_end_time"),
+  peakImpactTime: timestamp("peak_impact_time"),
+  currentPhase: text("current_phase").default("immediate"), // 'immediate', 'medium_term', 'decay'
+  
+  // Market Response Tracking
+  marketResponse: jsonb("market_response"), // How market actually responded
+  predictionAccuracy: decimal("prediction_accuracy", { precision: 8, scale: 4 }),
+  unexpectedEffects: jsonb("unexpected_effects"), // Unanticipated market responses
+  
+  // Narrative Trading Analytics
+  narrativeRelevanceScore: decimal("narrative_relevance_score", { precision: 8, scale: 4 }).default("1.0000"),
+  culturalImpactMeasure: decimal("cultural_impact_measure", { precision: 8, scale: 4 }).default("0.0000"),
+  fanEngagementCorrelation: decimal("fan_engagement_correlation", { precision: 8, scale: 4 }).default("0.0000"),
+  
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Enhanced AssetFinancialMapping Integration - Extend existing table with narrative fields
+// Note: We'll add these fields to the existing assetFinancialMapping table using ALTER TABLE via migrations
+
+// ========================================================================================
+// SCHEMA EXPORTS AND TYPE DEFINITIONS
+// ========================================================================================
+
+// Insert schemas for narrative trading metrics
+export const insertNarrativeTradingMetricsSchema = createInsertSchema(narrativeTradingMetrics).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertHouseFinancialProfilesSchema = createInsertSchema(houseFinancialProfiles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertStoryEventTriggersSchema = createInsertSchema(storyEventTriggers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertNarrativeMarketEventsSchema = createInsertSchema(narrativeMarketEvents).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Export TypeScript types for Phase 2 Visual Storytelling Tables
 export type NarrativeTimeline = typeof narrativeTimelines.$inferSelect;
 export type InsertNarrativeTimeline = z.infer<typeof insertNarrativeTimelineSchema>;
 
 export type StoryBeat = typeof storyBeats.$inferSelect;
 export type InsertStoryBeat = z.infer<typeof insertStoryBeatSchema>;
+
+// Export TypeScript types for Phase 2 Narrative Trading Metrics
+export type NarrativeTradingMetrics = typeof narrativeTradingMetrics.$inferSelect;
+export type InsertNarrativeTradingMetrics = z.infer<typeof insertNarrativeTradingMetricsSchema>;
+
+export type HouseFinancialProfile = typeof houseFinancialProfiles.$inferSelect;
+export type InsertHouseFinancialProfile = z.infer<typeof insertHouseFinancialProfilesSchema>;
+
+export type StoryEventTrigger = typeof storyEventTriggers.$inferSelect;
+export type InsertStoryEventTrigger = z.infer<typeof insertStoryEventTriggersSchema>;
+
+export type NarrativeMarketEvent = typeof narrativeMarketEvents.$inferSelect;
+export type InsertNarrativeMarketEvent = z.infer<typeof insertNarrativeMarketEventsSchema>;
