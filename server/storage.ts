@@ -50,7 +50,17 @@ import {
   type WorkflowAutomation, type InsertWorkflowAutomation,
   type WorkflowExecution, type InsertWorkflowExecution,
   type IntegrationAnalytics, type InsertIntegrationAnalytics,
-  type ExternalUserMapping, type InsertExternalUserMapping
+  type ExternalUserMapping, type InsertExternalUserMapping,
+  // Phase 3: Art-Driven Progression System Types
+  type ComicIssueVariant, type InsertComicIssueVariant,
+  type UserComicCollection, type InsertUserComicCollection,
+  type UserProgressionStatus, type InsertUserProgressionStatus,
+  type HouseProgressionPath, type InsertHouseProgressionPath,
+  type UserHouseProgression, type InsertUserHouseProgression,
+  type TradingToolUnlock, type InsertTradingToolUnlock,
+  type ComicCollectionAchievement, type InsertComicCollectionAchievement,
+  type CollectionChallenge, type InsertCollectionChallenge,
+  type UserChallengeParticipation, type InsertUserChallengeParticipation
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -609,6 +619,71 @@ export interface IStorage {
   getScheduledWorkflows(beforeDate?: Date): Promise<WorkflowAutomation[]>;
   updateWorkflowLastRun(workflowId: string, success: boolean, errorMessage?: string): Promise<void>;
   incrementWorkflowStats(workflowId: string, success: boolean, executionTime: number): Promise<void>;
+
+  // ===== PHASE 3: ART-DRIVEN PROGRESSION SYSTEM =====
+  
+  // Comic Issue Variants
+  getComicIssueVariant(id: string): Promise<ComicIssueVariant | undefined>;
+  getComicIssueVariants(filters?: { coverType?: string; issueType?: string; primaryHouse?: string; minRarity?: number; maxPrice?: number; search?: string }, limit?: number, offset?: number): Promise<ComicIssueVariant[]>;
+  createComicIssueVariant(variant: InsertComicIssueVariant): Promise<ComicIssueVariant>;
+  updateComicIssueVariant(id: string, variant: Partial<InsertComicIssueVariant>): Promise<ComicIssueVariant | undefined>;
+
+  // User Comic Collection
+  getUserComicCollections(userId: string): Promise<UserComicCollection[]>;
+  getUserComicCollectionByVariant(userId: string, variantId: string): Promise<UserComicCollection | undefined>;
+  getUserComicCollectionItem(id: string): Promise<UserComicCollection | undefined>;
+  createUserComicCollection(collection: InsertUserComicCollection): Promise<UserComicCollection>;
+  updateUserComicCollection(id: string, collection: Partial<InsertUserComicCollection>): Promise<UserComicCollection | undefined>;
+  deleteUserComicCollection(id: string): Promise<boolean>;
+
+  // User Progression Status
+  getUserProgressionStatus(userId: string): Promise<UserProgressionStatus | undefined>;
+  createUserProgressionStatus(status: InsertUserProgressionStatus): Promise<UserProgressionStatus>;
+  updateUserProgressionStatus(id: string, status: Partial<InsertUserProgressionStatus>): Promise<UserProgressionStatus | undefined>;
+
+  // House Progression Paths
+  getHouseProgressionPath(houseId: string, level: number): Promise<HouseProgressionPath | undefined>;
+  getHouseProgressionPaths(houseId: string): Promise<HouseProgressionPath[]>;
+  getAllHouseProgressionPaths(): Promise<HouseProgressionPath[]>;
+  createHouseProgressionPath(path: InsertHouseProgressionPath): Promise<HouseProgressionPath>;
+  updateHouseProgressionPath(id: string, path: Partial<InsertHouseProgressionPath>): Promise<HouseProgressionPath | undefined>;
+
+  // User House Progression
+  getUserHouseProgression(userId: string, houseId: string): Promise<UserHouseProgression | undefined>;
+  getUserHouseProgressions(userId: string): Promise<UserHouseProgression[]>;
+  createUserHouseProgression(progression: InsertUserHouseProgression): Promise<UserHouseProgression>;
+  updateUserHouseProgression(id: string, progression: Partial<InsertUserHouseProgression>): Promise<UserHouseProgression | undefined>;
+
+  // Trading Tool Unlocks
+  getTradingToolUnlock(userId: string, toolName: string): Promise<TradingToolUnlock | undefined>;
+  getTradingToolUnlocks(userId: string): Promise<TradingToolUnlock[]>;
+  createTradingToolUnlock(unlock: InsertTradingToolUnlock): Promise<TradingToolUnlock>;
+  updateTradingToolUnlock(id: string, unlock: Partial<InsertTradingToolUnlock>): Promise<TradingToolUnlock | undefined>;
+
+  // Comic Collection Achievements
+  getComicCollectionAchievements(filters?: { category?: string; tier?: string; isHidden?: boolean }): Promise<ComicCollectionAchievement[]>;
+  getComicCollectionAchievement(achievementId: string): Promise<ComicCollectionAchievement | undefined>;
+  createComicCollectionAchievement(achievement: InsertComicCollectionAchievement): Promise<ComicCollectionAchievement>;
+  updateComicCollectionAchievement(id: string, achievement: Partial<InsertComicCollectionAchievement>): Promise<ComicCollectionAchievement | undefined>;
+
+  // User Achievement Management (extend existing)
+  getUserAchievementByAchievementId(userId: string, achievementId: string): Promise<UserAchievement | undefined>;
+
+  // Collection Challenges
+  getCollectionChallenges(filters?: { challengeType?: string; houseSpecific?: boolean; isActive?: boolean }): Promise<CollectionChallenge[]>;
+  getCollectionChallenge(id: string): Promise<CollectionChallenge | undefined>;
+  getActiveChallengesForUser(userId: string): Promise<CollectionChallenge[]>;
+  createCollectionChallenge(challenge: InsertCollectionChallenge): Promise<CollectionChallenge>;
+  updateCollectionChallenge(id: string, challenge: Partial<InsertCollectionChallenge>): Promise<CollectionChallenge | undefined>;
+
+  // User Challenge Participation
+  getUserChallengeParticipation(userId: string, challengeId: string): Promise<UserChallengeParticipation | undefined>;
+  getUserChallengeParticipations(userId: string): Promise<UserChallengeParticipation[]>;
+  createUserChallengeParticipation(participation: InsertUserChallengeParticipation): Promise<UserChallengeParticipation>;
+  updateUserChallengeParticipation(id: string, participation: Partial<InsertUserChallengeParticipation>): Promise<UserChallengeParticipation | undefined>;
+
+  // Progression Leaderboards
+  getProgressionLeaderboard(category: string, timeframe: string): Promise<any[]>;
 }
 
 // Time-series buffer implementation with memory limits and proper chronological ordering

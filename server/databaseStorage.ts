@@ -20,7 +20,11 @@ import {
   workflowExecutions, integrationAnalytics, externalUserMappings,
   // Phase 1: Core Trading Foundation Tables
   imfVaultSettings, tradingFirms, assetFinancialMapping, globalMarketHours,
-  optionsChain, marginAccounts, shortPositions, npcTraders, informationTiers, newsArticles
+  optionsChain, marginAccounts, shortPositions, npcTraders, informationTiers, newsArticles,
+  // Phase 3: Art-Driven Progression System Tables
+  comicIssueVariants, userComicCollection, userProgressionStatus, houseProgressionPaths,
+  userHouseProgression, tradingToolUnlocks, comicCollectionAchievements,
+  collectionChallenges, userChallengeParticipation
 } from '@shared/schema.js';
 import type {
   User, InsertUser, UpsertUser, Asset, InsertAsset, MarketData, InsertMarketData,
@@ -57,7 +61,13 @@ import type {
   AssetFinancialMapping, InsertAssetFinancialMapping, GlobalMarketHours, InsertGlobalMarketHours,
   OptionsChain, InsertOptionsChain, MarginAccount, InsertMarginAccount,
   ShortPosition, InsertShortPosition, NpcTrader, InsertNpcTrader,
-  InformationTier, InsertInformationTier, NewsArticle, InsertNewsArticle
+  InformationTier, InsertInformationTier, NewsArticle, InsertNewsArticle,
+  // Phase 3: Art-Driven Progression System Types
+  ComicIssueVariant, InsertComicIssueVariant, UserComicCollection, InsertUserComicCollection,
+  UserProgressionStatus, InsertUserProgressionStatus, HouseProgressionPath, InsertHouseProgressionPath,
+  UserHouseProgression, InsertUserHouseProgression, TradingToolUnlock, InsertTradingToolUnlock,
+  ComicCollectionAchievement, InsertComicCollectionAchievement, CollectionChallenge, InsertCollectionChallenge,
+  UserChallengeParticipation, InsertUserChallengeParticipation
 } from '@shared/schema.js';
 import type { IStorage } from './storage.js';
 
@@ -3806,6 +3816,334 @@ export class DatabaseStorage implements IStorage {
       .where(eq(optionsChain.id, id))
       .returning();
     return result[0];
+  }
+
+  // Missing methods for Phase1ScheduledServices
+  async getAllNpcTraders(): Promise<NpcTrader[]> {
+    return await db.select().from(npcTraders)
+      .where(eq(npcTraders.isActive, true))
+      .orderBy(desc(npcTraders.availableCapital));
+  }
+
+  async getNewsArticles(filters?: { category?: string; assetId?: string; limit?: number }): Promise<NewsArticle[]> {
+    let query = db.select().from(newsArticles)
+      .where(eq(newsArticles.isActive, true))
+      .orderBy(desc(newsArticles.publishTime));
+
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+
+    return await query;
+  }
+
+  // ============================================================================
+  // PHASE 3: ART-DRIVEN PROGRESSION SYSTEM STORAGE METHODS
+  // ============================================================================
+
+  // Comic Issue Variant Methods
+  async getComicIssueVariant(id: string): Promise<ComicIssueVariant | undefined> {
+    const result = await db.select().from(comicIssueVariants)
+      .where(eq(comicIssueVariants.id, id))
+      .limit(1);
+    return result[0];
+  }
+
+  async getComicIssueVariants(filters?: { 
+    coverType?: string; 
+    issueType?: string; 
+    primaryHouse?: string; 
+    minRarity?: number; 
+    maxPrice?: number; 
+    search?: string 
+  }, limit?: number, offset?: number): Promise<ComicIssueVariant[]> {
+    let query = db.select().from(comicIssueVariants);
+    
+    const conditions = [];
+    
+    if (filters?.coverType) {
+      conditions.push(eq(comicIssueVariants.coverType, filters.coverType));
+    }
+    
+    if (filters?.issueType) {
+      conditions.push(eq(comicIssueVariants.issueType, filters.issueType));
+    }
+    
+    if (filters?.primaryHouse) {
+      conditions.push(eq(comicIssueVariants.primaryHouse, filters.primaryHouse));
+    }
+    
+    if (filters?.minRarity) {
+      conditions.push(sql`${comicIssueVariants.rarity} >= ${filters.minRarity}`);
+    }
+    
+    if (filters?.maxPrice) {
+      conditions.push(sql`${comicIssueVariants.baseMarketValue} <= ${filters.maxPrice}`);
+    }
+    
+    if (filters?.search) {
+      conditions.push(
+        sql`${comicIssueVariants.variantTitle} ILIKE ${`%${filters.search}%`} OR ${comicIssueVariants.coverDescription} ILIKE ${`%${filters.search}%`}`
+      );
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    query = query.orderBy(desc(comicIssueVariants.rarity), desc(comicIssueVariants.baseMarketValue));
+    
+    if (limit) {
+      query = query.limit(limit);
+    }
+    
+    if (offset) {
+      query = query.offset(offset);
+    }
+    
+    return await query;
+  }
+
+  async createComicIssueVariant(variant: InsertComicIssueVariant): Promise<ComicIssueVariant> {
+    const result = await db.insert(comicIssueVariants).values(variant).returning();
+    return result[0];
+  }
+
+  async updateComicIssueVariant(id: string, variant: Partial<InsertComicIssueVariant>): Promise<ComicIssueVariant | undefined> {
+    const result = await db.update(comicIssueVariants)
+      .set({ ...variant, updatedAt: new Date() })
+      .where(eq(comicIssueVariants.id, id))
+      .returning();
+    return result[0];
+  }
+
+  // User Comic Collection Methods
+  async getUserComicCollections(userId: string): Promise<UserComicCollection[]> {
+    return await db.select().from(userComicCollection)
+      .where(eq(userComicCollection.userId, userId))
+      .orderBy(desc(userComicCollection.acquiredAt));
+  }
+
+  async getUserComicCollectionByVariant(userId: string, variantId: string): Promise<UserComicCollection | undefined> {
+    const result = await db.select().from(userComicCollection)
+      .where(and(
+        eq(userComicCollection.userId, userId),
+        eq(userComicCollection.variantId, variantId)
+      ))
+      .limit(1);
+    return result[0];
+  }
+
+  async getUserComicCollectionItem(id: string): Promise<UserComicCollection | undefined> {
+    const result = await db.select().from(userComicCollection)
+      .where(eq(userComicCollection.id, id))
+      .limit(1);
+    return result[0];
+  }
+
+  async createUserComicCollection(collection: InsertUserComicCollection): Promise<UserComicCollection> {
+    const result = await db.insert(userComicCollection).values(collection).returning();
+    return result[0];
+  }
+
+  async updateUserComicCollection(id: string, collection: Partial<InsertUserComicCollection>): Promise<UserComicCollection | undefined> {
+    const result = await db.update(userComicCollection)
+      .set(collection)
+      .where(eq(userComicCollection.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteUserComicCollection(id: string): Promise<boolean> {
+    const result = await db.delete(userComicCollection)
+      .where(eq(userComicCollection.id, id))
+      .returning();
+    return result.length > 0;
+  }
+
+  // User Progression Status Methods
+  async getUserProgressionStatus(userId: string): Promise<UserProgressionStatus | undefined> {
+    const result = await db.select().from(userProgressionStatus)
+      .where(eq(userProgressionStatus.userId, userId))
+      .limit(1);
+    return result[0];
+  }
+
+  async createUserProgressionStatus(status: InsertUserProgressionStatus): Promise<UserProgressionStatus> {
+    const result = await db.insert(userProgressionStatus).values(status).returning();
+    return result[0];
+  }
+
+  async updateUserProgressionStatus(id: string, status: Partial<InsertUserProgressionStatus>): Promise<UserProgressionStatus | undefined> {
+    const result = await db.update(userProgressionStatus)
+      .set({ ...status, lastProgressionUpdate: new Date() })
+      .where(eq(userProgressionStatus.id, id))
+      .returning();
+    return result[0];
+  }
+
+  // House Progression Methods
+  async getHouseProgressionPaths(houseId?: string): Promise<HouseProgressionPath[]> {
+    let query = db.select().from(houseProgressionPaths)
+      .where(eq(houseProgressionPaths.isActive, true));
+    
+    if (houseId) {
+      query = query.where(eq(houseProgressionPaths.houseId, houseId));
+    }
+    
+    return await query.orderBy(houseProgressionPaths.levelNumber);
+  }
+
+  async getUserHouseProgression(userId: string, houseId?: string): Promise<UserHouseProgression[]> {
+    let query = db.select().from(userHouseProgression)
+      .where(eq(userHouseProgression.userId, userId));
+    
+    if (houseId) {
+      query = query.where(eq(userHouseProgression.houseId, houseId));
+    }
+    
+    return await query.orderBy(desc(userHouseProgression.currentLevel));
+  }
+
+  async createUserHouseProgression(progression: InsertUserHouseProgression): Promise<UserHouseProgression> {
+    const result = await db.insert(userHouseProgression).values(progression).returning();
+    return result[0];
+  }
+
+  async updateUserHouseProgression(id: string, progression: Partial<InsertUserHouseProgression>): Promise<UserHouseProgression | undefined> {
+    const result = await db.update(userHouseProgression)
+      .set({ ...progression, lastProgressionActivity: new Date(), updatedAt: new Date() })
+      .where(eq(userHouseProgression.id, id))
+      .returning();
+    return result[0];
+  }
+
+  // Trading Tool Unlock Methods
+  async getUserTradingToolUnlocks(userId: string): Promise<TradingToolUnlock[]> {
+    return await db.select().from(tradingToolUnlocks)
+      .where(eq(tradingToolUnlocks.userId, userId))
+      .orderBy(desc(tradingToolUnlocks.unlockedAt));
+  }
+
+  async createTradingToolUnlock(unlock: InsertTradingToolUnlock): Promise<TradingToolUnlock> {
+    const result = await db.insert(tradingToolUnlocks).values(unlock).returning();
+    return result[0];
+  }
+
+  async updateTradingToolUnlock(id: string, unlock: Partial<InsertTradingToolUnlock>): Promise<TradingToolUnlock | undefined> {
+    const result = await db.update(tradingToolUnlocks)
+      .set({ ...unlock, updatedAt: new Date() })
+      .where(eq(tradingToolUnlocks.id, id))
+      .returning();
+    return result[0];
+  }
+
+  // Comic Collection Achievement Methods
+  async getComicCollectionAchievements(filters?: { 
+    category?: string; 
+    tier?: string; 
+    isActive?: boolean 
+  }): Promise<ComicCollectionAchievement[]> {
+    let query = db.select().from(comicCollectionAchievements);
+    
+    const conditions = [];
+    
+    if (filters?.category) {
+      conditions.push(eq(comicCollectionAchievements.category, filters.category));
+    }
+    
+    if (filters?.tier) {
+      conditions.push(eq(comicCollectionAchievements.tier, filters.tier));
+    }
+    
+    if (filters?.isActive !== undefined) {
+      conditions.push(eq(comicCollectionAchievements.isActive, filters.isActive));
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    return await query.orderBy(comicCollectionAchievements.displayOrder);
+  }
+
+  async createComicCollectionAchievement(achievement: InsertComicCollectionAchievement): Promise<ComicCollectionAchievement> {
+    const result = await db.insert(comicCollectionAchievements).values(achievement).returning();
+    return result[0];
+  }
+
+  async updateComicCollectionAchievement(id: string, achievement: Partial<InsertComicCollectionAchievement>): Promise<ComicCollectionAchievement | undefined> {
+    const result = await db.update(comicCollectionAchievements)
+      .set({ ...achievement, updatedAt: new Date() })
+      .where(eq(comicCollectionAchievements.id, id))
+      .returning();
+    return result[0];
+  }
+
+  // Collection Challenge Methods
+  async getCollectionChallenges(filters?: { 
+    isActive?: boolean; 
+    challengeType?: string; 
+    currentOnly?: boolean 
+  }): Promise<CollectionChallenge[]> {
+    let query = db.select().from(collectionChallenges);
+    
+    const conditions = [];
+    
+    if (filters?.isActive !== undefined) {
+      conditions.push(eq(collectionChallenges.isActive, filters.isActive));
+    }
+    
+    if (filters?.challengeType) {
+      conditions.push(eq(collectionChallenges.challengeType, filters.challengeType));
+    }
+    
+    if (filters?.currentOnly) {
+      const now = new Date();
+      conditions.push(
+        and(
+          sql`${collectionChallenges.startDate} <= ${now}`,
+          sql`${collectionChallenges.endDate} >= ${now}`
+        )
+      );
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    return await query.orderBy(desc(collectionChallenges.startDate));
+  }
+
+  async getUserChallengeParticipation(userId: string, challengeId?: string): Promise<UserChallengeParticipation[]> {
+    let query = db.select().from(userChallengeParticipation)
+      .where(eq(userChallengeParticipation.userId, userId));
+    
+    if (challengeId) {
+      query = query.where(eq(userChallengeParticipation.challengeId, challengeId));
+    }
+    
+    return await query.orderBy(desc(userChallengeParticipation.enrolledAt));
+  }
+
+  async createUserChallengeParticipation(participation: InsertUserChallengeParticipation): Promise<UserChallengeParticipation> {
+    const result = await db.insert(userChallengeParticipation).values(participation).returning();
+    return result[0];
+  }
+
+  async updateUserChallengeParticipation(id: string, participation: Partial<InsertUserChallengeParticipation>): Promise<UserChallengeParticipation | undefined> {
+    const result = await db.update(userChallengeParticipation)
+      .set({ ...participation, lastProgressUpdate: new Date(), updatedAt: new Date() })
+      .where(eq(userChallengeParticipation.id, id))
+      .returning();
+    return result[0];
+  }
+
+  // Additional Missing Methods for Phase 1 Core Trading Foundation
+  async getAllMarginAccounts(): Promise<MarginAccount[]> {
+    return await db.select().from(marginAccounts)
+      .where(eq(marginAccounts.isActive, true))
+      .orderBy(desc(marginAccounts.accountValue));
   }
 }
 

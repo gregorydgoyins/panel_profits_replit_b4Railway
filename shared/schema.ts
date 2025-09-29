@@ -4647,3 +4647,494 @@ export type InsertStoryEventTrigger = z.infer<typeof insertStoryEventTriggersSch
 
 export type NarrativeMarketEvent = typeof narrativeMarketEvents.$inferSelect;
 export type InsertNarrativeMarketEvent = z.infer<typeof insertNarrativeMarketEventsSchema>;
+
+// ============================================================================
+// PHASE 3: ART-DRIVEN PROGRESSION SYSTEM - COMIC COLLECTION MECHANICS
+// ============================================================================
+
+// Comic Issues with Variant Cover System - Track different cover types and rarities
+export const comicIssueVariants = pgTable("comic_issue_variants", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Basic issue information
+  assetId: varchar("asset_id").notNull().references(() => assets.id), // Link to tradeable asset
+  issueNumber: text("issue_number").notNull(), // "1", "Annual 1", "Special"
+  seriesTitle: text("series_title").notNull(),
+  publisher: text("publisher").notNull(), // "Marvel", "DC", "Image", etc.
+  // Cover variant details
+  coverType: text("cover_type").notNull(), // "standard", "variant", "rare_variant", "ultra_rare", "legendary"
+  variantRatio: text("variant_ratio"), // "1:10", "1:25", "1:100", "1:1000" or null for standard
+  variantDescription: text("variant_description"), // "Alex Ross Variant", "Foil Cover", etc.
+  artistName: text("artist_name"), // Cover artist
+  // Rarity and progression mechanics
+  rarityScore: decimal("rarity_score", { precision: 8, scale: 2 }).notNull(), // 1-100 rarity score
+  progressionTier: integer("progression_tier").notNull().default(1), // 1-5 progression tier
+  tradingToolsUnlocked: text("trading_tools_unlocked").array(), // Tools this variant unlocks
+  // Issue significance
+  issueType: text("issue_type").default("regular"), // "first_appearance", "death", "resurrection", "key_storyline", "crossover"
+  keyCharacters: text("key_characters").array(), // Characters featured
+  significantEvents: text("significant_events").array(), // Major events in this issue
+  storyArcs: text("story_arcs").array(), // Story arcs this issue belongs to
+  // House relevance
+  houseRelevance: jsonb("house_relevance"), // Relevance score for each house (0-1)
+  primaryHouse: text("primary_house"), // Most relevant house
+  // Market mechanics
+  baseMarketValue: decimal("base_market_value", { precision: 10, scale: 2 }).notNull(),
+  progressionMultiplier: decimal("progression_multiplier", { precision: 3, scale: 2 }).default("1.00"), // Bonus multiplier for progression
+  collectorDemand: decimal("collector_demand", { precision: 3, scale: 2 }).default("1.00"), // 0-1 collector interest
+  // Metadata
+  releaseDate: text("release_date"),
+  comicGradingEligible: boolean("comic_grading_eligible").default(true),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_comic_issue_variants_asset_id").on(table.assetId),
+  index("idx_comic_issue_variants_cover_type").on(table.coverType),
+  index("idx_comic_issue_variants_progression_tier").on(table.progressionTier),
+  index("idx_comic_issue_variants_rarity_score").on(table.rarityScore),
+  index("idx_comic_issue_variants_issue_type").on(table.issueType),
+  index("idx_comic_issue_variants_primary_house").on(table.primaryHouse),
+  index("idx_comic_issue_variants_series_title").on(table.seriesTitle),
+]);
+
+// User Comic Collection - Track what users own
+export const userComicCollection = pgTable("user_comic_collection", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  variantId: varchar("variant_id").notNull().references(() => comicIssueVariants.id),
+  // Ownership details
+  quantity: integer("quantity").default(1), // How many copies owned
+  acquisitionMethod: text("acquisition_method").default("purchase"), // "purchase", "reward", "achievement", "gift"
+  acquisitionPrice: decimal("acquisition_price", { precision: 10, scale: 2 }),
+  currentGrade: text("current_grade"), // CGC grade if applicable
+  gradeValue: decimal("grade_value", { precision: 3, scale: 1 }), // Numeric grade value
+  // Collection status
+  isFirstOwned: boolean("is_first_owned").default(false), // First time owning this variant
+  contributesToProgression: boolean("contributes_to_progression").default(true),
+  displayInCollection: boolean("display_in_collection").default(true),
+  // Trading information
+  availableForTrade: boolean("available_for_trade").default(false),
+  minimumTradeValue: decimal("minimum_trade_value", { precision: 10, scale: 2 }),
+  // Metadata
+  notes: text("notes"), // Personal collection notes
+  tags: text("tags").array(), // User-defined tags
+  acquiredAt: timestamp("acquired_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_user_comic_collection_user_id").on(table.userId),
+  index("idx_user_comic_collection_variant_id").on(table.variantId),
+  index("idx_user_comic_collection_acquisition_method").on(table.acquisitionMethod),
+  index("idx_user_comic_collection_is_first_owned").on(table.isFirstOwned),
+  index("idx_user_comic_collection_acquired_at").on(table.acquiredAt),
+  // Unique constraint to prevent duplicate ownership records
+  index("idx_user_comic_collection_unique").on(table.userId, table.variantId),
+]);
+
+// User Progression Status - Track overall progression through the system
+export const userProgressionStatus = pgTable("user_progression_status", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  // Overall progression
+  overallProgressionTier: integer("overall_progression_tier").default(1), // 1-5 overall tier
+  progressionTitle: text("progression_title").default("Rookie Collector"), // Current title
+  totalCollectionValue: decimal("total_collection_value", { precision: 15, scale: 2 }).default("0.00"),
+  totalIssuesOwned: integer("total_issues_owned").default(0),
+  totalVariantsOwned: integer("total_variants_owned").default(0),
+  // Progression metrics
+  standardCoversOwned: integer("standard_covers_owned").default(0),
+  variantCoversOwned: integer("variant_covers_owned").default(0), // 1:10 variants
+  rareVariantsOwned: integer("rare_variants_owned").default(0), // 1:25 variants
+  ultraRareVariantsOwned: integer("ultra_rare_variants_owned").default(0), // 1:100 variants
+  legendaryVariantsOwned: integer("legendary_variants_owned").default(0), // 1:1000 variants
+  // Issue type collections
+  firstAppearancesOwned: integer("first_appearances_owned").default(0),
+  deathIssuesOwned: integer("death_issues_owned").default(0),
+  resurrectionIssuesOwned: integer("resurrection_issues_owned").default(0),
+  keyStorylineIssuesOwned: integer("key_storyline_issues_owned").default(0),
+  crossoverIssuesOwned: integer("crossover_issues_owned").default(0),
+  // Creator collections
+  creatorMilestonesCompleted: integer("creator_milestones_completed").default(0),
+  iconicSplashPagesOwned: integer("iconic_splash_pages_owned").default(0),
+  // Trading capabilities unlocked
+  tradingToolsUnlocked: text("trading_tools_unlocked").array(), // List of unlocked tools
+  maxTradingTier: integer("max_trading_tier").default(1), // Highest tier unlocked
+  specialTradingAbilities: text("special_trading_abilities").array(), // Special abilities unlocked
+  // House-specific progression
+  houseProgressionLevels: jsonb("house_progression_levels"), // Progress in each house
+  houseBonusesUnlocked: jsonb("house_bonuses_unlocked"), // Bonuses unlocked per house
+  interHouseBonuses: text("inter_house_bonuses").array(), // Cross-house bonuses
+  // Achievement milestones
+  achievementMilestonesCompleted: integer("achievement_milestones_completed").default(0),
+  legendaryAchievementsUnlocked: integer("legendary_achievements_unlocked").default(0),
+  // Collection completion stats
+  seriesCompletionCount: integer("series_completion_count").default(0), // Number of complete series
+  publisherCompletionPercentage: jsonb("publisher_completion_percentage"), // % complete for each publisher
+  // Metadata
+  lastProgressionUpdate: timestamp("last_progression_update").defaultNow(),
+  nextMilestoneTarget: text("next_milestone_target"), // Description of next major milestone
+  progressionNotes: text("progression_notes"), // Internal notes about progression
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_user_progression_status_user_id").on(table.userId),
+  index("idx_user_progression_status_tier").on(table.overallProgressionTier),
+  index("idx_user_progression_status_total_value").on(table.totalCollectionValue),
+  index("idx_user_progression_status_max_trading_tier").on(table.maxTradingTier),
+  index("idx_user_progression_status_last_update").on(table.lastProgressionUpdate),
+]);
+
+// House Progression Paths - Define progression within each house
+export const houseProgressionPaths = pgTable("house_progression_paths", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  houseId: text("house_id").notNull(), // "heroes", "wisdom", "power", "mystery", "elements", "time", "spirit"
+  progressionLevel: integer("progression_level").notNull(), // 1-4 levels per house
+  levelTitle: text("level_title").notNull(), // "Origin Story", "Sidekick", etc.
+  levelDescription: text("level_description").notNull(),
+  // Requirements for this level
+  requiredIssuesCount: integer("required_issues_count").default(0),
+  requiredVariantRarity: text("required_variant_rarity"), // Minimum variant rarity needed
+  requiredCollectionValue: decimal("required_collection_value", { precision: 15, scale: 2 }).default("0.00"),
+  requiredStorylineCompletion: text("required_storyline_completion").array(), // Specific storylines
+  requiredCharacterCollection: text("required_character_collection").array(), // Character collections
+  // Unlocks and bonuses
+  tradingBonuses: jsonb("trading_bonuses"), // Trading bonuses at this level
+  specialAbilities: text("special_abilities").array(), // Special abilities unlocked
+  marketAccessLevel: text("market_access_level"), // "basic", "advanced", "expert", "legendary"
+  houseSpecificTools: text("house_specific_tools").array(), // House-specific trading tools
+  // Visual and thematic elements
+  badgeIcon: text("badge_icon"), // Icon for this progression level
+  badgeColor: text("badge_color"), // Color theme
+  levelQuote: text("level_quote"), // Inspirational quote for this level
+  backgroundImage: text("background_image"), // Background image URL
+  // Progression narrative
+  progressionStory: text("progression_story"), // Story text for reaching this level
+  nextLevelPreview: text("next_level_preview"), // Hint about next level
+  // Metadata
+  displayOrder: integer("display_order").notNull(),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_house_progression_paths_house_id").on(table.houseId),
+  index("idx_house_progression_paths_level").on(table.progressionLevel),
+  index("idx_house_progression_paths_display_order").on(table.displayOrder),
+  // Unique constraint for house + level combination
+  index("idx_house_progression_paths_unique").on(table.houseId, table.progressionLevel),
+]);
+
+// User House Progression - Track user progress within each house
+export const userHouseProgression = pgTable("user_house_progression", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  houseId: text("house_id").notNull(),
+  // Current progression status
+  currentLevel: integer("current_level").default(1),
+  experiencePoints: integer("experience_points").default(0), // XP towards next level
+  nextLevelRequiredXP: integer("next_level_required_xp").default(100),
+  progressionPercentage: decimal("progression_percentage", { precision: 5, scale: 2 }).default("0.00"), // % to next level
+  // Collection requirements progress
+  currentIssuesCount: integer("current_issues_count").default(0),
+  currentCollectionValue: decimal("current_collection_value", { precision: 15, scale: 2 }).default("0.00"),
+  storylinesCompleted: text("storylines_completed").array(),
+  characterCollectionsCompleted: text("character_collections_completed").array(),
+  // Unlocked benefits
+  currentTradingBonuses: jsonb("current_trading_bonuses"),
+  unlockedAbilities: text("unlocked_abilities").array(),
+  currentMarketAccessLevel: text("current_market_access_level").default("basic"),
+  availableHouseTools: text("available_house_tools").array(),
+  // Achievement tracking
+  levelsUnlocked: integer("levels_unlocked").default(1),
+  totalXPEarned: integer("total_xp_earned").default(0),
+  firstLevelAchievedAt: timestamp("first_level_achieved_at"),
+  lastLevelAchievedAt: timestamp("last_level_achieved_at"),
+  // House-specific metrics
+  houseSpecificAchievements: text("house_specific_achievements").array(),
+  houseContributionScore: decimal("house_contribution_score", { precision: 8, scale: 2 }).default("0.00"),
+  houseRankingPosition: integer("house_ranking_position"),
+  // Metadata
+  lastProgressionActivity: timestamp("last_progression_activity").defaultNow(),
+  progressionNotes: text("progression_notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_user_house_progression_user_id").on(table.userId),
+  index("idx_user_house_progression_house_id").on(table.houseId),
+  index("idx_user_house_progression_current_level").on(table.currentLevel),
+  index("idx_user_house_progression_xp").on(table.experiencePoints),
+  index("idx_user_house_progression_contribution").on(table.houseContributionScore),
+  // Unique constraint to prevent duplicate progression records
+  index("idx_user_house_progression_unique").on(table.userId, table.houseId),
+]);
+
+// Trading Tool Unlocks - Track which trading features are available to users
+export const tradingToolUnlocks = pgTable("trading_tool_unlocks", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  toolName: text("tool_name").notNull(), // "basic_trading", "technical_analysis", "options_trading", etc.
+  toolCategory: text("tool_category").notNull(), // "basic", "advanced", "expert", "legendary"
+  // Unlock requirements
+  requiredProgressionTier: integer("required_progression_tier").notNull(),
+  requiredVariantRarity: text("required_variant_rarity"), // Minimum variant rarity
+  requiredAchievements: text("required_achievements").array(), // Achievement prerequisites
+  requiredHouseLevel: jsonb("required_house_level"), // House level requirements
+  // Unlock status
+  isUnlocked: boolean("is_unlocked").default(false),
+  unlockedAt: timestamp("unlocked_at"),
+  unlockedBy: text("unlocked_by"), // What triggered the unlock
+  // Tool configuration
+  toolDescription: text("tool_description").notNull(),
+  toolBenefits: text("tool_benefits").array(), // Benefits this tool provides
+  tradingBonuses: jsonb("trading_bonuses"), // Specific trading bonuses
+  marketAccessLevel: text("market_access_level"), // Required market access
+  // Usage tracking
+  timesUsed: integer("times_used").default(0),
+  lastUsedAt: timestamp("last_used_at"),
+  effectivenessRating: decimal("effectiveness_rating", { precision: 3, scale: 2 }), // User effectiveness with tool
+  // Metadata
+  iconName: text("icon_name"), // UI icon
+  displayOrder: integer("display_order").default(0),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_trading_tool_unlocks_user_id").on(table.userId),
+  index("idx_trading_tool_unlocks_tool_name").on(table.toolName),
+  index("idx_trading_tool_unlocks_category").on(table.toolCategory),
+  index("idx_trading_tool_unlocks_progression_tier").on(table.requiredProgressionTier),
+  index("idx_trading_tool_unlocks_is_unlocked").on(table.isUnlocked),
+  index("idx_trading_tool_unlocks_unlocked_at").on(table.unlockedAt),
+  // Unique constraint for user + tool combination
+  index("idx_trading_tool_unlocks_unique").on(table.userId, table.toolName),
+]);
+
+// Comic Collection Achievements - Define specific collection-based achievements
+export const comicCollectionAchievements = pgTable("comic_collection_achievements", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  achievementId: text("achievement_id").notNull().unique(), // "first_variant_cover", "death_issue_collector", etc.
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  category: text("category").notNull(), // "variant_collection", "issue_type", "storyline", "creator", "crossover"
+  // Achievement requirements
+  requirementType: text("requirement_type").notNull(), // "count", "specific_issues", "value", "rarity", "storyline"
+  requiredCount: integer("required_count"), // Number required for count-based achievements
+  requiredValue: decimal("required_value", { precision: 15, scale: 2 }), // Value required
+  requiredRarity: text("required_rarity"), // Minimum rarity level
+  specificRequirements: jsonb("specific_requirements"), // Detailed requirements
+  // Rewards and unlocks
+  achievementPoints: integer("achievement_points").default(0),
+  tradingToolsUnlocked: text("trading_tools_unlocked").array(),
+  houseProgressionBonus: jsonb("house_progression_bonus"), // XP bonus per house
+  specialAbilities: text("special_abilities").array(),
+  tradingBonuses: jsonb("trading_bonuses"),
+  // Visual elements
+  badgeIcon: text("badge_icon"),
+  badgeColor: text("badge_color"),
+  tier: text("tier").default("bronze"), // "bronze", "silver", "gold", "platinum", "legendary"
+  rarity: text("rarity").default("common"), // "common", "rare", "epic", "legendary"
+  // Narrative elements
+  achievementStory: text("achievement_story"), // Story text for unlocking
+  comicPanelStyle: text("comic_panel_style"), // Visual style for notification
+  speechBubbleText: text("speech_bubble_text"), // Character dialogue for achievement
+  // Prerequisites and dependencies
+  prerequisiteAchievements: text("prerequisite_achievements").array(),
+  blockedBy: text("blocked_by").array(), // Achievements that block this one
+  // Metadata
+  isHidden: boolean("is_hidden").default(false), // Hidden until unlocked
+  isActive: boolean("is_active").default(true),
+  displayOrder: integer("display_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_comic_collection_achievements_achievement_id").on(table.achievementId),
+  index("idx_comic_collection_achievements_category").on(table.category),
+  index("idx_comic_collection_achievements_tier").on(table.tier),
+  index("idx_comic_collection_achievements_rarity").on(table.rarity),
+  index("idx_comic_collection_achievements_requirement_type").on(table.requirementType),
+  index("idx_comic_collection_achievements_is_hidden").on(table.isHidden),
+  index("idx_comic_collection_achievements_display_order").on(table.displayOrder),
+]);
+
+// Collection Challenges - Weekly/monthly collecting goals
+export const collectionChallenges = pgTable("collection_challenges", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  challengeTitle: text("challenge_title").notNull(),
+  challengeDescription: text("challenge_description").notNull(),
+  challengeType: text("challenge_type").notNull(), // "weekly", "monthly", "seasonal", "special_event"
+  // Challenge timing
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
+  challengeDuration: text("challenge_duration"), // "7_days", "30_days", etc.
+  // Challenge requirements
+  challengeGoal: jsonb("challenge_goal").notNull(), // Specific goal requirements
+  targetMetric: text("target_metric").notNull(), // "issues_collected", "value_achieved", "variants_found"
+  targetValue: decimal("target_value", { precision: 15, scale: 2 }).notNull(),
+  eligibilityRequirements: jsonb("eligibility_requirements"), // Who can participate
+  // House integration
+  houseSpecific: boolean("house_specific").default(false),
+  targetHouse: text("target_house"), // If house-specific
+  crossHouseBonus: boolean("cross_house_bonus").default(false), // If cross-house participation gets bonus
+  // Rewards
+  completionRewards: jsonb("completion_rewards").notNull(),
+  leaderboardRewards: jsonb("leaderboard_rewards"), // Top performer rewards
+  participationRewards: jsonb("participation_rewards"), // Just for participating
+  exclusiveUnlocks: text("exclusive_unlocks").array(), // Exclusive content unlocked
+  // Challenge mechanics
+  difficultyLevel: integer("difficulty_level").default(3), // 1-5 difficulty
+  maxParticipants: integer("max_participants"), // Participation limit
+  currentParticipants: integer("current_participants").default(0),
+  // Progress tracking
+  leaderboardEnabled: boolean("leaderboard_enabled").default(true),
+  realTimeTracking: boolean("real_time_tracking").default(true),
+  progressVisibility: text("progress_visibility").default("public"), // "public", "house_only", "private"
+  // Visual and narrative elements
+  challengeBanner: text("challenge_banner"), // Banner image URL
+  challengeIcon: text("challenge_icon"),
+  themeColor: text("theme_color"),
+  narrativeContext: text("narrative_context"), // Story context for challenge
+  // Metadata
+  createdBy: varchar("created_by").references(() => users.id),
+  isActive: boolean("is_active").default(true),
+  isRecurring: boolean("is_recurring").default(false), // If this challenge repeats
+  recurringPattern: text("recurring_pattern"), // How often it repeats
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_collection_challenges_challenge_type").on(table.challengeType),
+  index("idx_collection_challenges_start_date").on(table.startDate),
+  index("idx_collection_challenges_end_date").on(table.endDate),
+  index("idx_collection_challenges_is_active").on(table.isActive),
+  index("idx_collection_challenges_target_house").on(table.targetHouse),
+  index("idx_collection_challenges_difficulty").on(table.difficultyLevel),
+]);
+
+// User Challenge Participation - Track user participation in challenges
+export const userChallengeParticipation = pgTable("user_challenge_participation", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  challengeId: varchar("challenge_id").notNull().references(() => collectionChallenges.id),
+  // Participation status
+  enrolledAt: timestamp("enrolled_at").defaultNow(),
+  participationStatus: text("participation_status").default("active"), // "active", "completed", "abandoned", "disqualified"
+  // Progress tracking
+  currentProgress: decimal("current_progress", { precision: 15, scale: 2 }).default("0.00"),
+  progressPercentage: decimal("progress_percentage", { precision: 5, scale: 2 }).default("0.00"),
+  milestonesMet: text("milestones_met").array(),
+  lastProgressUpdate: timestamp("last_progress_update").defaultNow(),
+  // Performance metrics
+  leaderboardPosition: integer("leaderboard_position"),
+  bestPosition: integer("best_position"),
+  finalPosition: integer("final_position"),
+  // Rewards earned
+  rewardsEarned: jsonb("rewards_earned"),
+  rewardsClaimed: boolean("rewards_claimed").default(false),
+  rewardsClaimedAt: timestamp("rewards_claimed_at"),
+  // Challenge-specific tracking
+  challengeSpecificData: jsonb("challenge_specific_data"), // Additional tracking data
+  effortRating: decimal("effort_rating", { precision: 3, scale: 2 }), // 1-5 effort put in
+  satisfactionRating: decimal("satisfaction_rating", { precision: 3, scale: 2 }), // 1-5 satisfaction
+  // Metadata
+  completedAt: timestamp("completed_at"),
+  notes: text("notes"), // User notes about participation
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_user_challenge_participation_user_id").on(table.userId),
+  index("idx_user_challenge_participation_challenge_id").on(table.challengeId),
+  index("idx_user_challenge_participation_status").on(table.participationStatus),
+  index("idx_user_challenge_participation_leaderboard").on(table.leaderboardPosition),
+  index("idx_user_challenge_participation_enrolled_at").on(table.enrolledAt),
+  // Unique constraint to prevent duplicate participation
+  index("idx_user_challenge_participation_unique").on(table.userId, table.challengeId),
+]);
+
+// ============================================================================
+// INSERT SCHEMAS AND TYPESCRIPT TYPES FOR PHASE 3 PROGRESSION SYSTEM
+// ============================================================================
+
+// Insert schemas for Phase 3 progression tables
+export const insertComicIssueVariantSchema = createInsertSchema(comicIssueVariants).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserComicCollectionSchema = createInsertSchema(userComicCollection).omit({
+  id: true,
+  acquiredAt: true,
+  createdAt: true,
+});
+
+export const insertUserProgressionStatusSchema = createInsertSchema(userProgressionStatus).omit({
+  id: true,
+  lastProgressionUpdate: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertHouseProgressionPathSchema = createInsertSchema(houseProgressionPaths).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserHouseProgressionSchema = createInsertSchema(userHouseProgression).omit({
+  id: true,
+  lastProgressionActivity: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertTradingToolUnlockSchema = createInsertSchema(tradingToolUnlocks).omit({
+  id: true,
+  unlockedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertComicCollectionAchievementSchema = createInsertSchema(comicCollectionAchievements).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertCollectionChallengeSchema = createInsertSchema(collectionChallenges).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserChallengeParticipationSchema = createInsertSchema(userChallengeParticipation).omit({
+  id: true,
+  enrolledAt: true,
+  lastProgressUpdate: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Export TypeScript types for Phase 3 progression system
+export type ComicIssueVariant = typeof comicIssueVariants.$inferSelect;
+export type InsertComicIssueVariant = z.infer<typeof insertComicIssueVariantSchema>;
+
+export type UserComicCollection = typeof userComicCollection.$inferSelect;
+export type InsertUserComicCollection = z.infer<typeof insertUserComicCollectionSchema>;
+
+export type UserProgressionStatus = typeof userProgressionStatus.$inferSelect;
+export type InsertUserProgressionStatus = z.infer<typeof insertUserProgressionStatusSchema>;
+
+export type HouseProgressionPath = typeof houseProgressionPaths.$inferSelect;
+export type InsertHouseProgressionPath = z.infer<typeof insertHouseProgressionPathSchema>;
+
+export type UserHouseProgression = typeof userHouseProgression.$inferSelect;
+export type InsertUserHouseProgression = z.infer<typeof insertUserHouseProgressionSchema>;
+
+export type TradingToolUnlock = typeof tradingToolUnlocks.$inferSelect;
+export type InsertTradingToolUnlock = z.infer<typeof insertTradingToolUnlockSchema>;
+
+export type ComicCollectionAchievement = typeof comicCollectionAchievements.$inferSelect;
+export type InsertComicCollectionAchievement = z.infer<typeof insertComicCollectionAchievementSchema>;
+
+export type CollectionChallenge = typeof collectionChallenges.$inferSelect;
+export type InsertCollectionChallenge = z.infer<typeof insertCollectionChallengeSchema>;
+
+export type UserChallengeParticipation = typeof userChallengeParticipation.$inferSelect;
+export type InsertUserChallengeParticipation = z.infer<typeof insertUserChallengeParticipationSchema>;

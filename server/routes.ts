@@ -16,6 +16,7 @@ import { registerNotificationRoutes } from "./routes/notificationRoutes.js";
 import enhancedDataRoutes from "./routes/enhancedDataRoutes.js";
 import enhancedAiRoutes from "./routes/enhancedAiRoutes.js";
 import visualStorytellingRoutes from "./routes/visualStorytellingRoutes.js";
+import progressionRoutes from "./routes/progressionRoutes.js";
 import phase1Routes from "./phase1Routes.js";
 import { marketSimulation, orderMatching } from "./marketSimulation.js";
 import { leaderboardService } from "./leaderboardService.js";
@@ -1066,6 +1067,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Visual Storytelling Routes (Phase 2 Narrative Systems)
   app.use("/api/storytelling", visualStorytellingRoutes);
+
+  // Art-Driven Progression System Routes (Phase 3 Comic Collection Mechanics)
+  app.use("/api/progression", isAuthenticated, progressionRoutes);
 
   // PPIx Index Routes (Comic Book Market Indices) - SCHOLARLY INVESTMENT FRAMEWORK
   app.get("/api/ppix/indices", async (req, res) => {
