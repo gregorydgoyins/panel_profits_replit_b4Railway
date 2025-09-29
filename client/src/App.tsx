@@ -56,6 +56,8 @@ import DivineConnections from '@/pages/DivineConnections';
 
 // Sequential Art Trading Experience
 import SequentialTradingExperience from '@/pages/SequentialTradingExperience';
+// Story-Driven Market Visualization
+import StoryDrivenMarketViz from '@/pages/StoryDrivenMarketViz';
 
 // WebSocket service for real-time data
 import { webSocketService } from '@/services/websocketService';
@@ -110,6 +112,7 @@ function Router() {
       <Route path="/trading" component={TradingPage} />
       <Route path="/terminal" component={TradingTerminalPage} />
       <Route path="/sequential-art" component={SequentialTradingExperience} />
+      <Route path="/market-stories" component={StoryDrivenMarketViz} />
       <Route path="/characters" component={CharactersPage} />
       <Route path="/comics" component={ComicsPage} />
       <Route path="/creators" component={CreatorsPage} />

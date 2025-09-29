@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { 
-  Shield, Certificate, TrendingUp, History, Eye, Star, 
+  Shield, Award as Certificate, TrendingUp, History, Eye, Star, 
   Calendar, DollarSign, Award, CheckCircle, AlertTriangle,
   Users, BarChart3, Zap, Crown
 } from 'lucide-react';
@@ -286,7 +286,7 @@ export function GradedSlabModal({
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-sm">
-                      <Certificate className="h-4 w-4" />
+                      <Award className="h-4 w-4" />
                       Grading Breakdown
                     </CardTitle>
                   </CardHeader>
