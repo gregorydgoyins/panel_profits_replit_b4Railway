@@ -2227,3 +2227,199 @@ export type InsertUserCertification = z.infer<typeof insertUserCertificationSche
 
 export type LearningAnalytics = typeof learningAnalytics.$inferSelect;
 export type InsertLearningAnalytics = z.infer<typeof insertLearningAnalyticsSchema>;
+
+// ===========================
+// ADVANCED MARKET INTELLIGENCE SYSTEM TABLES
+// ===========================
+
+// AI Market Predictions - Store AI-generated market forecasts and price predictions
+export const aiMarketPredictions = pgTable("ai_market_predictions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  assetId: varchar("asset_id").notNull().references(() => assets.id),
+  predictionType: text("prediction_type").notNull(), // 'price', 'trend', 'sentiment', 'battle_outcome'
+  timeframe: text("timeframe").notNull(), // '1d', '1w', '1m', '3m', '6m', '1y'
+  currentPrice: decimal("current_price", { precision: 15, scale: 2 }),
+  predictedPrice: decimal("predicted_price", { precision: 15, scale: 2 }),
+  predictedChange: decimal("predicted_change", { precision: 8, scale: 4 }), // Percentage change
+  confidence: decimal("confidence", { precision: 5, scale: 4 }), // 0-1 confidence score
+  reasoning: text("reasoning"), // AI-generated reasoning
+  marketFactors: jsonb("market_factors"), // Array of factors influencing prediction
+  riskLevel: text("risk_level"), // 'LOW', 'MEDIUM', 'HIGH'
+  aiModel: text("ai_model").default("gpt-4o-mini"), // Model used for prediction
+  houseBonus: jsonb("house_bonus"), // House-specific bonuses and influences
+  karmaInfluence: decimal("karma_influence", { precision: 5, scale: 4 }), // Karma alignment impact
+  actualOutcome: decimal("actual_outcome", { precision: 8, scale: 4 }), // Actual result for accuracy tracking
+  accuracy: decimal("accuracy", { precision: 5, scale: 4 }), // Prediction accuracy score
+  isActive: boolean("is_active").default(true), // Whether prediction is still valid
+  expiresAt: timestamp("expires_at"), // When prediction expires
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Character Battle Scenarios - Store battle matchups and outcome predictions
+export const characterBattleScenarios = pgTable("character_battle_scenarios", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  character1Id: varchar("character1_id").notNull().references(() => assets.id),
+  character2Id: varchar("character2_id").notNull().references(() => assets.id),
+  battleType: text("battle_type").notNull(), // 'power_clash', 'strategy_battle', 'moral_conflict', 'crossover_event'
+  battleContext: text("battle_context"), // Description of battle circumstances
+  powerLevelData: jsonb("power_level_data"), // Power stats and abilities
+  winProbability: decimal("win_probability", { precision: 5, scale: 4 }), // Character 1 win probability
+  battleFactors: jsonb("battle_factors"), // Factors influencing outcome
+  historicalData: jsonb("historical_data"), // Past battle results and comic references
+  houseAdvantages: jsonb("house_advantages"), // House-specific battle bonuses
+  predictedOutcome: text("predicted_outcome"), // Detailed battle outcome prediction
+  marketImpact: decimal("market_impact", { precision: 8, scale: 4 }), // Expected price impact
+  confidence: decimal("confidence", { precision: 5, scale: 4 }), // AI confidence in prediction
+  actualResult: text("actual_result"), // Actual battle outcome (if resolved)
+  accuracy: decimal("accuracy", { precision: 5, scale: 4 }), // Prediction accuracy
+  isActive: boolean("is_active").default(true),
+  resolvedAt: timestamp("resolved_at"), // When battle was resolved
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Market Intelligence Cache - Store processed AI insights and analysis
+export const marketIntelligenceCache = pgTable("market_intelligence_cache", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  cacheKey: text("cache_key").notNull().unique(), // Unique identifier for cached data
+  dataType: text("data_type").notNull(), // 'trend_analysis', 'correlation_matrix', 'sentiment_report', 'anomaly_detection'
+  scope: text("scope").notNull(), // 'global', 'house_specific', 'user_specific', 'asset_specific'
+  targetId: varchar("target_id"), // Asset ID, House ID, or User ID depending on scope
+  analysisData: jsonb("analysis_data"), // Cached analysis results
+  insights: jsonb("insights"), // Key insights and recommendations
+  confidence: decimal("confidence", { precision: 5, scale: 4 }), // Overall confidence in analysis
+  processingTime: integer("processing_time"), // Time taken to generate (milliseconds)
+  dataFreshness: timestamp("data_freshness"), // When source data was last updated
+  accessCount: integer("access_count").default(0), // Number of times accessed
+  lastAccessed: timestamp("last_accessed"), // Last access time for cache management
+  expiresAt: timestamp("expires_at").notNull(), // Cache expiration time
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// User AI Interaction History - Track user interactions with AI Oracle
+export const userAiInteractions = pgTable("user_ai_interactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  interactionType: text("interaction_type").notNull(), // 'prediction_request', 'market_insight', 'battle_forecast', 'portfolio_analysis'
+  inputData: jsonb("input_data"), // User input or request parameters
+  aiResponse: jsonb("ai_response"), // AI-generated response
+  mysticalPresentation: text("mystical_presentation"), // Mystical/oracle-themed presentation
+  userHouse: text("user_house"), // User's house at time of interaction
+  karmaAlignment: jsonb("karma_alignment"), // User's karma alignment at time of interaction
+  confidence: decimal("confidence", { precision: 5, scale: 4 }), // AI confidence in response
+  userRating: integer("user_rating"), // User rating of AI response (1-5)
+  followedAdvice: boolean("followed_advice"), // Whether user acted on AI advice
+  outcomeTracking: jsonb("outcome_tracking"), // Track results of AI recommendations
+  sessionId: varchar("session_id"), // Group related interactions
+  processingTime: integer("processing_time"), // Response generation time
+  tokens: integer("tokens"), // AI tokens used
+  cost: decimal("cost", { precision: 8, scale: 6 }), // API cost (if applicable)
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// AI Oracle Persona Configurations - Manage Oracle personality and responses
+export const aiOraclePersonas = pgTable("ai_oracle_personas", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  personaName: text("persona_name").notNull(), // 'Ancient Sage', 'Battle Prophet', 'Market Mystic'
+  description: text("description"), // Persona description and specialization
+  houseAffinity: text("house_affinity"), // Primary house affinity
+  personalityTraits: jsonb("personality_traits"), // Personality characteristics
+  responseStyle: jsonb("response_style"), // Communication style and tone
+  expertise: jsonb("expertise"), // Areas of specialization
+  mysticalLanguage: jsonb("mystical_language"), // Language patterns and phrases
+  divineSymbols: jsonb("divine_symbols"), // Associated symbols and imagery
+  powerLevel: integer("power_level").default(1), // Oracle power level
+  isActive: boolean("is_active").default(true),
+  usageCount: integer("usage_count").default(0), // Times this persona was used
+  avgUserRating: decimal("avg_user_rating", { precision: 3, scale: 2 }), // Average user rating
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Market Anomaly Detection - Store detected unusual market patterns
+export const marketAnomalies = pgTable("market_anomalies", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  assetId: varchar("asset_id").references(() => assets.id),
+  anomalyType: text("anomaly_type").notNull(), // 'price_spike', 'volume_surge', 'sentiment_shift', 'pattern_break'
+  severity: text("severity").notNull(), // 'low', 'medium', 'high', 'critical'
+  description: text("description"), // Human-readable description
+  detectionData: jsonb("detection_data"), // Technical data about the anomaly
+  historicalComparison: jsonb("historical_comparison"), // Comparison with historical patterns
+  potentialCauses: jsonb("potential_causes"), // Possible reasons for anomaly
+  marketImpact: decimal("market_impact", { precision: 8, scale: 4 }), // Estimated market impact
+  aiConfidence: decimal("ai_confidence", { precision: 5, scale: 4 }), // AI confidence in detection
+  userNotifications: integer("user_notifications").default(0), // Number of users notified
+  followUpActions: jsonb("follow_up_actions"), // Recommended actions
+  resolved: boolean("resolved").default(false), // Whether anomaly has been resolved
+  resolvedAt: timestamp("resolved_at"), // When anomaly was resolved
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// ===========================
+// AI MARKET INTELLIGENCE SCHEMAS AND TYPES
+// ===========================
+
+// Create insert schemas for AI Market Intelligence tables
+export const insertAiMarketPredictionSchema = createInsertSchema(aiMarketPredictions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertCharacterBattleScenarioSchema = createInsertSchema(characterBattleScenarios).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertMarketIntelligenceCacheSchema = createInsertSchema(marketIntelligenceCache).omit({
+  id: true,
+  accessCount: true,
+  lastAccessed: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserAiInteractionSchema = createInsertSchema(userAiInteractions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertAiOraclePersonaSchema = createInsertSchema(aiOraclePersonas).omit({
+  id: true,
+  usageCount: true,
+  avgUserRating: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertMarketAnomalySchema = createInsertSchema(marketAnomalies).omit({
+  id: true,
+  userNotifications: true,
+  resolved: true,
+  resolvedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Export types for AI Market Intelligence system
+export type AiMarketPrediction = typeof aiMarketPredictions.$inferSelect;
+export type InsertAiMarketPrediction = z.infer<typeof insertAiMarketPredictionSchema>;
+
+export type CharacterBattleScenario = typeof characterBattleScenarios.$inferSelect;
+export type InsertCharacterBattleScenario = z.infer<typeof insertCharacterBattleScenarioSchema>;
+
+export type MarketIntelligenceCache = typeof marketIntelligenceCache.$inferSelect;
+export type InsertMarketIntelligenceCache = z.infer<typeof insertMarketIntelligenceCacheSchema>;
+
+export type UserAiInteraction = typeof userAiInteractions.$inferSelect;
+export type InsertUserAiInteraction = z.infer<typeof insertUserAiInteractionSchema>;
+
+export type AiOraclePersona = typeof aiOraclePersonas.$inferSelect;
+export type InsertAiOraclePersona = z.infer<typeof insertAiOraclePersonaSchema>;
+
+export type MarketAnomaly = typeof marketAnomalies.$inferSelect;
+export type InsertMarketAnomaly = z.infer<typeof insertMarketAnomalySchema>;

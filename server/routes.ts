@@ -13,6 +13,7 @@ import { registerComicRoutes } from "./routes/comicRoutes";
 import { registerComicCoverRoutes } from "./routes/comicCoverRoutes.js";
 import { registerNotificationRoutes } from "./routes/notificationRoutes.js";
 import enhancedDataRoutes from "./routes/enhancedDataRoutes.js";
+import enhancedAiRoutes from "./routes/enhancedAiRoutes.js";
 import { marketSimulation, orderMatching } from "./marketSimulation.js";
 import { leaderboardService } from "./leaderboardService.js";
 import { 
@@ -1009,6 +1010,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // AI Market Intelligence Routes
   const aiRoutes = (await import('./routes/aiRoutes.js')).default;
   app.use("/api/ai", aiRoutes);
+  
+  // Enhanced AI Market Intelligence Routes (Advanced Oracle System)
+  app.use("/api/ai", enhancedAiRoutes);
 
   // Vector-Powered AI Routes (pgvector enhanced features)
   app.use("/api/vectors", vectorRoutes);
