@@ -49,8 +49,8 @@ export const users = pgTable("users", {
   houseJoinedAt: timestamp("house_joined_at"),
   karma: integer("karma").default(0), // Karma score affecting trading bonuses
   // Karmic Alignment System - Dual axis alignment tracking
-  lawfulChaoticAlignment: decimal("lawful_chaotic_alignment", { precision: 5, scale: 2 }).default("0.00"), // -100 (Chaotic) to +100 (Lawful)
-  goodEvilAlignment: decimal("good_evil_alignment", { precision: 5, scale: 2 }).default("0.00"), // -100 (Evil) to +100 (Good)
+  lawfulChaoticAlignment: decimal("lawful_chaotic_alignment", { precision: 8, scale: 2 }).default("0.00"), // -100 (Chaotic) to +100 (Lawful)
+  goodEvilAlignment: decimal("good_evil_alignment", { precision: 8, scale: 2 }).default("0.00"), // -100 (Evil) to +100 (Good)
   alignmentRevealed: boolean("alignment_revealed").default(false), // Whether user has accessed Scrying Chamber
   alignmentLastUpdated: timestamp("alignment_last_updated").defaultNow(),
   preferences: jsonb("preferences"), // UI settings, notifications, etc.
@@ -780,7 +780,7 @@ export const priceAlerts = pgTable("price_alerts", {
   assetId: varchar("asset_id").notNull().references(() => assets.id),
   alertType: text("alert_type").notNull(), // 'price_above' | 'price_below' | 'percent_change' | 'volume_spike'
   thresholdValue: decimal("threshold_value", { precision: 10, scale: 2 }).notNull(),
-  percentageThreshold: decimal("percentage_threshold", { precision: 5, scale: 2 }), // For percentage-based alerts
+  percentageThreshold: decimal("percentage_threshold", { precision: 8, scale: 2 }), // For percentage-based alerts
   isActive: boolean("is_active").default(true),
   lastTriggeredPrice: decimal("last_triggered_price", { precision: 10, scale: 2 }),
   triggerCount: integer("trigger_count").default(0),
@@ -874,7 +874,7 @@ export const mythologicalHouses = pgTable("mythological_houses", {
   primarySpecialization: text("primary_specialization").notNull(), // Asset type they excel in
   weaknessSpecialization: text("weakness_specialization").notNull(), // Asset type they struggle with
   // House modifiers and bonuses
-  tradingBonusPercent: decimal("trading_bonus_percent", { precision: 5, scale: 2 }).default("0.00"),
+  tradingBonusPercent: decimal("trading_bonus_percent", { precision: 8, scale: 2 }).default("0.00"),
   karmaMultiplier: decimal("karma_multiplier", { precision: 3, scale: 2 }).default("1.00"),
   // Visual and thematic elements
   primaryColor: text("primary_color"), // UI color theme
@@ -886,7 +886,7 @@ export const mythologicalHouses = pgTable("mythological_houses", {
   traditions: text("traditions").array(),
   // House statistics
   totalMembers: integer("total_members").default(0),
-  averagePerformance: decimal("average_performance", { precision: 5, scale: 2 }).default("0.00"),
+  averagePerformance: decimal("average_performance", { precision: 8, scale: 2 }).default("0.00"),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -900,11 +900,11 @@ export const userHouseMembership = pgTable("user_house_membership", {
   joinedAt: timestamp("joined_at").defaultNow(),
   membershipLevel: text("membership_level").default("initiate"), // "initiate", "member", "senior", "elder"
   // House-specific progression
-  houseLoyalty: decimal("house_loyalty", { precision: 5, scale: 2 }).default("0.00"), // 0-100
+  houseLoyalty: decimal("house_loyalty", { precision: 8, scale: 2 }).default("0.00"), // 0-100
   houseContributions: integer("house_contributions").default(0),
   houseRank: integer("house_rank"),
   // House bonuses and penalties
-  currentBonusPercent: decimal("current_bonus_percent", { precision: 5, scale: 2 }).default("0.00"),
+  currentBonusPercent: decimal("current_bonus_percent", { precision: 8, scale: 2 }).default("0.00"),
   totalBonusEarned: decimal("total_bonus_earned", { precision: 15, scale: 2 }).default("0.00"),
   // Status tracking
   isActive: boolean("is_active").default(true),
@@ -919,12 +919,12 @@ export const userKarmicAlignment = pgTable("user_karmic_alignment", {
   // Current karmic state
   currentAlignment: text("current_alignment"), // "good", "neutral", "evil" (null until Reckoning)
   karmaScore: decimal("karma_score", { precision: 8, scale: 2 }).default("0.00"), // Running karma total
-  alignmentStrength: decimal("alignment_strength", { precision: 5, scale: 2 }).default("0.00"), // How locked in
+  alignmentStrength: decimal("alignment_strength", { precision: 8, scale: 2 }).default("0.00"), // How locked in
   // Behavioral tracking (hidden from user until Reckoning)
-  honestyScore: decimal("honesty_score", { precision: 5, scale: 2 }).default("50.00"), // 0-100
-  cooperationScore: decimal("cooperation_score", { precision: 5, scale: 2 }).default("50.00"), // 0-100
-  exploitationScore: decimal("exploitation_score", { precision: 5, scale: 2 }).default("0.00"), // 0-100
-  generosityScore: decimal("generosity_score", { precision: 5, scale: 2 }).default("50.00"), // 0-100
+  honestyScore: decimal("honesty_score", { precision: 8, scale: 2 }).default("50.00"), // 0-100
+  cooperationScore: decimal("cooperation_score", { precision: 8, scale: 2 }).default("50.00"), // 0-100
+  exploitationScore: decimal("exploitation_score", { precision: 8, scale: 2 }).default("0.00"), // 0-100
+  generosityScore: decimal("generosity_score", { precision: 8, scale: 2 }).default("50.00"), // 0-100
   // Action counters
   honestActions: integer("honest_actions").default(0),
   deceptiveActions: integer("deceptive_actions").default(0),
@@ -951,7 +951,7 @@ export const karmicActionsLog = pgTable("karmic_actions_log", {
   userId: varchar("user_id").notNull().references(() => users.id),
   actionType: text("action_type").notNull(), // "trade", "tip", "information_sharing", "market_manipulation"
   actionCategory: text("action_category").notNull(), // "honest", "deceptive", "helpful", "harmful", "neutral"
-  karmaImpact: decimal("karma_impact", { precision: 5, scale: 2 }).notNull(), // Can be negative
+  karmaImpact: decimal("karma_impact", { precision: 8, scale: 2 }).notNull(), // Can be negative
   description: text("description").notNull(),
   // Context data
   relatedAssetId: varchar("related_asset_id").references(() => assets.id),
@@ -989,13 +989,13 @@ export const enhancedCharacters = pgTable("enhanced_characters", {
   specialAbilities: text("special_abilities").array(),
   weaknesses: text("weaknesses").array(),
   // Calculated power metrics
-  powerLevel: decimal("power_level", { precision: 5, scale: 2 }), // Calculated from stats
-  battleWinRate: decimal("battle_win_rate", { precision: 5, scale: 2 }), // From battle outcomes
+  powerLevel: decimal("power_level", { precision: 8, scale: 2 }), // Calculated from stats
+  battleWinRate: decimal("battle_win_rate", { precision: 8, scale: 2 }), // From battle outcomes
   totalBattles: integer("total_battles").default(0),
   battlesWon: integer("battles_won").default(0),
   // Market influence
   marketValue: decimal("market_value", { precision: 10, scale: 2 }),
-  popularityScore: decimal("popularity_score", { precision: 5, scale: 2 }),
+  popularityScore: decimal("popularity_score", { precision: 8, scale: 2 }),
   movieAppearances: integer("movie_appearances").default(0),
   // Asset linking
   assetId: varchar("asset_id").references(() => assets.id), // Link to tradeable asset
@@ -1017,7 +1017,7 @@ export const battleScenarios = pgTable("battle_scenarios", {
   weatherConditions: text("weather_conditions"),
   additionalFactors: jsonb("additional_factors"),
   // Market impact
-  marketImpactPercent: decimal("market_impact_percent", { precision: 5, scale: 2 }), // How much this affects character values
+  marketImpactPercent: decimal("market_impact_percent", { precision: 8, scale: 2 }), // How much this affects character values
   fanEngagement: integer("fan_engagement").default(0), // Simulated fan interest
   mediaAttention: decimal("media_attention", { precision: 3, scale: 2 }).default("1.00"),
   // Battle metadata
@@ -1055,12 +1055,12 @@ export const enhancedComicIssues = pgTable("enhanced_comic_issues", {
   currentMarketValue: decimal("current_market_value", { precision: 10, scale: 2 }),
   historicalHigh: decimal("historical_high", { precision: 10, scale: 2 }),
   historicalLow: decimal("historical_low", { precision: 10, scale: 2 }),
-  priceVolatility: decimal("price_volatility", { precision: 5, scale: 2 }),
+  priceVolatility: decimal("price_volatility", { precision: 8, scale: 2 }),
   // Collectibility factors
   firstAppearances: text("first_appearances").array(), // Characters first appearing
   significantEvents: text("significant_events").array(),
   keyIssueRating: decimal("key_issue_rating", { precision: 3, scale: 1 }), // 1-10 importance scale
-  rarityScore: decimal("rarity_score", { precision: 5, scale: 2 }),
+  rarityScore: decimal("rarity_score", { precision: 8, scale: 2 }),
   conditionSensitivity: decimal("condition_sensitivity", { precision: 3, scale: 2 }), // How much condition affects value
   // Asset linking
   assetId: varchar("asset_id").references(() => assets.id), // Link to tradeable asset
@@ -1085,9 +1085,9 @@ export const moviePerformanceData = pgTable("movie_performance_data", {
   internationalGross: decimal("international_gross", { precision: 15, scale: 2 }),
   worldwideGross: decimal("worldwide_gross", { precision: 15, scale: 2 }),
   budget: decimal("budget", { precision: 15, scale: 2 }),
-  grossToBudgetRatio: decimal("gross_to_budget_ratio", { precision: 5, scale: 2 }),
+  grossToBudgetRatio: decimal("gross_to_budget_ratio", { precision: 8, scale: 2 }),
   // Performance metrics
-  domesticPercentage: decimal("domestic_percentage", { precision: 5, scale: 2 }),
+  domesticPercentage: decimal("domestic_percentage", { precision: 8, scale: 2 }),
   rottenTomatoesScore: integer("rotten_tomatoes_score"),
   isMcuFilm: boolean("is_mcu_film").default(false),
   mcuPhase: text("mcu_phase"),
@@ -1095,7 +1095,7 @@ export const moviePerformanceData = pgTable("movie_performance_data", {
   inflationAdjustedGross: decimal("inflation_adjusted_gross", { precision: 15, scale: 2 }),
   inflationAdjustedBudget: decimal("inflation_adjusted_budget", { precision: 15, scale: 2 }),
   // Market impact
-  marketImpactScore: decimal("market_impact_score", { precision: 5, scale: 2 }), // How much it affects related assets
+  marketImpactScore: decimal("market_impact_score", { precision: 8, scale: 2 }), // How much it affects related assets
   successCategory: text("success_category"), // "Success", "Flop", "Break Even"
   // Character relationships
   featuredCharacters: text("featured_characters").array(), // Characters featured in movie
@@ -1128,9 +1128,9 @@ export const learnModules = pgTable("learn_modules", {
   interactiveElements: jsonb("interactive_elements"), // Quizzes, simulations, etc.
   learningObjectives: text("learning_objectives").array(),
   // Progression rewards
-  completionKarmaBonus: decimal("completion_karma_bonus", { precision: 5, scale: 2 }).default("0.00"),
+  completionKarmaBonus: decimal("completion_karma_bonus", { precision: 8, scale: 2 }).default("0.00"),
   tradingSkillBonus: decimal("trading_skill_bonus", { precision: 3, scale: 2 }).default("0.00"),
-  houseReputationBonus: decimal("house_reputation_bonus", { precision: 5, scale: 2 }).default("0.00"),
+  houseReputationBonus: decimal("house_reputation_bonus", { precision: 8, scale: 2 }).default("0.00"),
   unlocksTradingPrivileges: text("unlocks_trading_privileges").array(),
   // Module status
   isPublished: boolean("is_published").default(false),
@@ -1147,18 +1147,18 @@ export const userLearnProgress = pgTable("user_learn_progress", {
   moduleId: varchar("module_id").notNull().references(() => learnModules.id),
   // Progress tracking
   status: text("status").default("not_started"), // "not_started", "in_progress", "completed", "failed"
-  progressPercent: decimal("progress_percent", { precision: 5, scale: 2 }).default("0.00"),
+  progressPercent: decimal("progress_percent", { precision: 8, scale: 2 }).default("0.00"),
   currentSection: integer("current_section").default(1),
   completedSections: integer("completed_sections").array(),
   timeSpent: integer("time_spent").default(0), // Minutes
   // Assessment results
   quizScores: jsonb("quiz_scores"),
-  finalScore: decimal("final_score", { precision: 5, scale: 2 }),
-  passingGrade: decimal("passing_grade", { precision: 5, scale: 2 }).default("70.00"),
+  finalScore: decimal("final_score", { precision: 8, scale: 2 }),
+  passingGrade: decimal("passing_grade", { precision: 8, scale: 2 }).default("70.00"),
   attempts: integer("attempts").default(0),
   maxAttempts: integer("max_attempts").default(3),
   // Completion rewards
-  karmaEarned: decimal("karma_earned", { precision: 5, scale: 2 }).default("0.00"),
+  karmaEarned: decimal("karma_earned", { precision: 8, scale: 2 }).default("0.00"),
   skillBonusApplied: boolean("skill_bonus_applied").default(false),
   certificateUrl: text("certificate_url"),
   // Timestamps
@@ -1267,11 +1267,11 @@ export const traderStats = pgTable("trader_stats", {
   totalPnL: decimal("total_pnl", { precision: 15, scale: 2 }).default("0.00"), // Realized + unrealized P&L
   totalRealizedPnL: decimal("total_realized_pnl", { precision: 15, scale: 2 }).default("0.00"),
   totalUnrealizedPnL: decimal("total_unrealized_pnl", { precision: 15, scale: 2 }).default("0.00"),
-  roiPercentage: decimal("roi_percentage", { precision: 5, scale: 2 }).default("0.00"), // Return on investment %
+  roiPercentage: decimal("roi_percentage", { precision: 8, scale: 2 }).default("0.00"), // Return on investment %
   // Trading activity metrics
   totalTrades: integer("total_trades").default(0),
   profitableTrades: integer("profitable_trades").default(0),
-  winRate: decimal("win_rate", { precision: 5, scale: 2 }).default("0.00"), // % of profitable trades
+  winRate: decimal("win_rate", { precision: 8, scale: 2 }).default("0.00"), // % of profitable trades
   averageTradeSize: decimal("average_trade_size", { precision: 15, scale: 2 }).default("0.00"),
   totalTradingVolume: decimal("total_trading_volume", { precision: 15, scale: 2 }).default("0.00"), // Total $ traded
   biggestWin: decimal("biggest_win", { precision: 15, scale: 2 }).default("0.00"),
@@ -1283,7 +1283,7 @@ export const traderStats = pgTable("trader_stats", {
   longestLosingStreak: integer("longest_losing_streak").default(0),
   // Risk metrics
   sharpeRatio: decimal("sharpe_ratio", { precision: 5, scale: 3 }), // Risk-adjusted returns
-  maxDrawdown: decimal("max_drawdown", { precision: 5, scale: 2 }), // Max portfolio decline %
+  maxDrawdown: decimal("max_drawdown", { precision: 8, scale: 2 }), // Max portfolio decline %
   volatility: decimal("volatility", { precision: 8, scale: 2 }), // Portfolio volatility
   // Ranking and achievements
   rankPoints: decimal("rank_points", { precision: 10, scale: 2 }).default("0.00"), // Points for ranking calculation
@@ -1432,13 +1432,13 @@ export const alignmentHistory = pgTable("alignment_history", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull().references(() => users.id),
   // Previous alignment state
-  previousLawfulChaotic: decimal("previous_lawful_chaotic", { precision: 5, scale: 2 }).notNull(),
-  previousGoodEvil: decimal("previous_good_evil", { precision: 5, scale: 2 }).notNull(),
+  previousLawfulChaotic: decimal("previous_lawful_chaotic", { precision: 8, scale: 2 }).notNull(),
+  previousGoodEvil: decimal("previous_good_evil", { precision: 8, scale: 2 }).notNull(),
   // New alignment state
-  newLawfulChaotic: decimal("new_lawful_chaotic", { precision: 5, scale: 2 }).notNull(),
-  newGoodEvil: decimal("new_good_evil", { precision: 5, scale: 2 }).notNull(),
+  newLawfulChaotic: decimal("new_lawful_chaotic", { precision: 8, scale: 2 }).notNull(),
+  newGoodEvil: decimal("new_good_evil", { precision: 8, scale: 2 }).notNull(),
   // Alignment shift details
-  alignmentShiftMagnitude: decimal("alignment_shift_magnitude", { precision: 5, scale: 2 }).notNull(), // Total distance moved
+  alignmentShiftMagnitude: decimal("alignment_shift_magnitude", { precision: 8, scale: 2 }).notNull(), // Total distance moved
   triggeringActionType: text("triggering_action_type").notNull(), // Type of action that caused shift
   triggeringActionId: varchar("triggering_action_id"), // Reference to specific karma action
   karmaAtTimeOfShift: integer("karma_at_time_of_shift").notNull(),
@@ -1467,8 +1467,8 @@ export const detailedKarmaActions = pgTable("detailed_karma_actions", {
   actionSubtype: text("action_subtype"), // More specific classification
   // Karma and alignment impact
   karmaChange: integer("karma_change").notNull(),
-  lawfulChaoticImpact: decimal("lawful_chaotic_impact", { precision: 5, scale: 2 }).default("0.00"), // Impact on L/C axis
-  goodEvilImpact: decimal("good_evil_impact", { precision: 5, scale: 2 }).default("0.00"), // Impact on G/E axis
+  lawfulChaoticImpact: decimal("lawful_chaotic_impact", { precision: 8, scale: 2 }).default("0.00"), // Impact on L/C axis
+  goodEvilImpact: decimal("good_evil_impact", { precision: 8, scale: 2 }).default("0.00"), // Impact on G/E axis
   // Behavioral pattern analysis
   tradingBehaviorPattern: text("trading_behavior_pattern"), // 'patient', 'aggressive', 'collaborative', 'solitary'
   communityInteraction: text("community_interaction"), // 'helpful', 'neutral', 'competitive', 'harmful'
@@ -1477,7 +1477,7 @@ export const detailedKarmaActions = pgTable("detailed_karma_actions", {
   assetId: varchar("asset_id").references(() => assets.id), // Asset involved in action
   orderId: varchar("order_id").references(() => orders.id), // Order that triggered action
   houseId: text("house_id"), // User's house at time of action
-  houseAlignmentBonus: decimal("house_alignment_bonus", { precision: 5, scale: 2 }).default("1.00"), // House modifier applied
+  houseAlignmentBonus: decimal("house_alignment_bonus", { precision: 8, scale: 2 }).default("1.00"), // House modifier applied
   // Impact and consequences
   tradingConsequenceTriggered: boolean("trading_consequence_triggered").default(false),
   consequenceSeverity: text("consequence_severity"), // 'blessing', 'minor', 'moderate', 'severe', 'divine'
@@ -1503,8 +1503,8 @@ export const tradingConsequences = pgTable("trading_consequences", {
   userId: varchar("user_id").notNull().references(() => users.id),
   orderId: varchar("order_id").references(() => orders.id), // Order affected by consequence
   // Alignment state at time of consequence
-  userLawfulChaotic: decimal("user_lawful_chaotic", { precision: 5, scale: 2 }).notNull(),
-  userGoodEvil: decimal("user_good_evil", { precision: 5, scale: 2 }).notNull(),
+  userLawfulChaotic: decimal("user_lawful_chaotic", { precision: 8, scale: 2 }).notNull(),
+  userGoodEvil: decimal("user_good_evil", { precision: 8, scale: 2 }).notNull(),
   userKarma: integer("user_karma").notNull(),
   userHouseId: text("user_house_id"),
   // Consequence details
@@ -1542,10 +1542,10 @@ export const alignmentThresholds = pgTable("alignment_thresholds", {
   thresholdName: text("threshold_name").notNull(), // 'lawful_guardian', 'chaotic_rebel', 'neutral_balance'
   alignmentType: text("alignment_type").notNull(), // 'lawful_chaotic', 'good_evil', 'combined'
   // Threshold boundaries
-  minLawfulChaotic: decimal("min_lawful_chaotic", { precision: 5, scale: 2 }),
-  maxLawfulChaotic: decimal("max_lawful_chaotic", { precision: 5, scale: 2 }),
-  minGoodEvil: decimal("min_good_evil", { precision: 5, scale: 2 }),
-  maxGoodEvil: decimal("max_good_evil", { precision: 5, scale: 2 }),
+  minLawfulChaotic: decimal("min_lawful_chaotic", { precision: 8, scale: 2 }),
+  maxLawfulChaotic: decimal("max_lawful_chaotic", { precision: 8, scale: 2 }),
+  minGoodEvil: decimal("min_good_evil", { precision: 8, scale: 2 }),
+  maxGoodEvil: decimal("max_good_evil", { precision: 8, scale: 2 }),
   minKarma: integer("min_karma"),
   maxKarma: integer("max_karma"),
   // House compatibility
@@ -1578,34 +1578,34 @@ export const karmicProfiles = pgTable("karmic_profiles", {
   userId: varchar("user_id").notNull().references(() => users.id),
   // Current alignment classification
   currentAlignmentThreshold: varchar("current_alignment_threshold").references(() => alignmentThresholds.id),
-  alignmentStability: decimal("alignment_stability", { precision: 5, scale: 2 }).default("100.00"), // How stable alignment is
+  alignmentStability: decimal("alignment_stability", { precision: 8, scale: 2 }).default("100.00"), // How stable alignment is
   alignmentTrend: text("alignment_trend").default("stable"), // 'ascending', 'descending', 'stable', 'chaotic'
   // Behavioral patterns over time
   dominantBehaviorPattern: text("dominant_behavior_pattern"), // Most common behavior type
   secondaryBehaviorPattern: text("secondary_behavior_pattern"),
-  behaviorConsistency: decimal("behavior_consistency", { precision: 5, scale: 2 }).default("50.00"), // How consistent behavior is
+  behaviorConsistency: decimal("behavior_consistency", { precision: 8, scale: 2 }).default("50.00"), // How consistent behavior is
   // Trading personality analysis
   tradingPersonality: text("trading_personality"), // 'patient_strategist', 'aggressive_opportunist', 'community_leader'
   riskProfile: text("risk_profile"), // 'conservative', 'moderate', 'aggressive', 'chaotic'
   socialTrading: text("social_trading"), // 'collaborative', 'independent', 'competitive', 'teaching'
   // Karma accumulation patterns
-  karmaAccelerationRate: decimal("karma_acceleration_rate", { precision: 5, scale: 2 }).default("1.00"), // How fast karma changes
+  karmaAccelerationRate: decimal("karma_acceleration_rate", { precision: 8, scale: 2 }).default("1.00"), // How fast karma changes
   totalKarmaEarned: integer("total_karma_earned").default(0),
   totalKarmaLost: integer("total_karma_lost").default(0),
   largestKarmaGain: integer("largest_karma_gain").default(0),
   largestKarmaLoss: integer("largest_karma_loss").default(0),
   // House compatibility analysis
-  houseAlignmentCompatibility: decimal("house_alignment_compatibility", { precision: 5, scale: 2 }).default("50.00"), // How well aligned with house
+  houseAlignmentCompatibility: decimal("house_alignment_compatibility", { precision: 8, scale: 2 }).default("50.00"), // How well aligned with house
   optimalHouseId: text("optimal_house_id"), // Most compatible house based on alignment
   alignmentConflictLevel: text("alignment_conflict_level").default("none"), // 'none', 'minor', 'moderate', 'severe'
   // Predictive analysis
   predictedAlignmentDirection: text("predicted_alignment_direction"), // Where alignment is heading
-  nextThresholdDistance: decimal("next_threshold_distance", { precision: 5, scale: 2 }), // How close to next threshold
+  nextThresholdDistance: decimal("next_threshold_distance", { precision: 8, scale: 2 }), // How close to next threshold
   estimatedTimeToNextThreshold: integer("estimated_time_to_next_threshold"), // Days until next threshold
   // Mystical attributes
-  cosmicResonance: decimal("cosmic_resonance", { precision: 5, scale: 2 }).default("0.00"), // Spiritual power level
-  divineFavor: decimal("divine_favor", { precision: 5, scale: 2 }).default("0.00"), // Positive cosmic influence
-  shadowInfluence: decimal("shadow_influence", { precision: 5, scale: 2 }).default("0.00"), // Negative cosmic influence
+  cosmicResonance: decimal("cosmic_resonance", { precision: 8, scale: 2 }).default("0.00"), // Spiritual power level
+  divineFavor: decimal("divine_favor", { precision: 8, scale: 2 }).default("0.00"), // Positive cosmic influence
+  shadowInfluence: decimal("shadow_influence", { precision: 8, scale: 2 }).default("0.00"), // Negative cosmic influence
   // Statistics and tracking
   alignmentShiftsCount: integer("alignment_shifts_count").default(0),
   lastMajorShift: timestamp("last_major_shift"),
@@ -1729,7 +1729,7 @@ export const sacredLessons = pgTable("sacred_lessons", {
   unlockConditions: jsonb("unlock_conditions"), // Detailed unlock requirements
   nextLessons: text("next_lessons").array(), // Suggested next lessons
   // Assessment and mastery
-  masteryThreshold: decimal("mastery_threshold", { precision: 5, scale: 2 }).default("80.00"), // % required to pass
+  masteryThreshold: decimal("mastery_threshold", { precision: 8, scale: 2 }).default("80.00"), // % required to pass
   allowRetakes: boolean("allow_retakes").default(true),
   maxAttempts: integer("max_attempts").default(3),
   // Mystical properties
@@ -1741,8 +1741,8 @@ export const sacredLessons = pgTable("sacred_lessons", {
   atmosphericEffects: jsonb("atmospheric_effects"), // UI effects, sounds, animations
   // Learning analytics
   avgCompletionTime: integer("avg_completion_time_minutes"),
-  avgScoreAchieved: decimal("avg_score_achieved", { precision: 5, scale: 2 }),
-  completionRate: decimal("completion_rate", { precision: 5, scale: 2 }),
+  avgScoreAchieved: decimal("avg_score_achieved", { precision: 8, scale: 2 }),
+  completionRate: decimal("completion_rate", { precision: 8, scale: 2 }),
   userRating: decimal("user_rating", { precision: 3, scale: 2 }),
   isActive: boolean("is_active").default(true),
   publishedAt: timestamp("published_at"),
@@ -1782,7 +1782,7 @@ export const mysticalSkills = pgTable("mystical_skills", {
   // Experience and progression
   experienceCost: integer("experience_cost").default(500), // Experience points to unlock
   masteryLevels: integer("mastery_levels").default(1), // How many levels skill can be upgraded
-  maxMasteryBonus: decimal("max_mastery_bonus", { precision: 5, scale: 2 }).default("1.50"), // Max bonus at full mastery
+  maxMasteryBonus: decimal("max_mastery_bonus", { precision: 8, scale: 2 }).default("1.50"), // Max bonus at full mastery
   // Mystical properties
   sacredName: text("sacred_name").notNull(), // "Sight of the Divine Oracle", "Shadow Step Trading"
   mysticalDescription: text("mystical_description").notNull(),
@@ -1798,7 +1798,7 @@ export const mysticalSkills = pgTable("mystical_skills", {
   timesUnlocked: integer("times_unlocked").default(0),
   avgTimeToUnlock: integer("avg_time_to_unlock_days"),
   userSatisfactionRating: decimal("user_satisfaction_rating", { precision: 3, scale: 2 }),
-  impactOnTrading: decimal("impact_on_trading", { precision: 5, scale: 2 }), // Measured improvement
+  impactOnTrading: decimal("impact_on_trading", { precision: 8, scale: 2 }), // Measured improvement
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -1818,14 +1818,14 @@ export const userLessonProgress = pgTable("user_lesson_progress", {
   pathId: varchar("path_id").references(() => learningPaths.id),
   // Progress tracking
   status: text("status").notNull().default("not_started"), // 'not_started', 'in_progress', 'completed', 'mastered'
-  progressPercent: decimal("progress_percent", { precision: 5, scale: 2 }).default("0.00"),
+  progressPercent: decimal("progress_percent", { precision: 8, scale: 2 }).default("0.00"),
   currentSection: integer("current_section").default(1),
   sectionsCompleted: integer("sections_completed").array(),
   timeSpentMinutes: integer("time_spent_minutes").default(0),
   // Assessment results
   attempts: integer("attempts").default(0),
-  bestScore: decimal("best_score", { precision: 5, scale: 2 }),
-  latestScore: decimal("latest_score", { precision: 5, scale: 2 }),
+  bestScore: decimal("best_score", { precision: 8, scale: 2 }),
+  latestScore: decimal("latest_score", { precision: 8, scale: 2 }),
   masteryAchieved: boolean("mastery_achieved").default(false),
   // Learning data
   interactionData: jsonb("interaction_data"), // Detailed interaction logs
@@ -1864,20 +1864,20 @@ export const userSkillUnlocks = pgTable("user_skill_unlocks", {
   unlockMethod: text("unlock_method").notNull(), // 'lesson_completion', 'trial_victory', 'karma_threshold', 'house_advancement'
   masteryLevel: integer("mastery_level").default(1), // Current upgrade level
   maxMasteryLevel: integer("max_mastery_level").default(1),
-  effectivenessBonus: decimal("effectiveness_bonus", { precision: 5, scale: 2 }).default("1.00"), // Current bonus multiplier
+  effectivenessBonus: decimal("effectiveness_bonus", { precision: 8, scale: 2 }).default("1.00"), // Current bonus multiplier
   // Usage tracking
   timesUsed: integer("times_used").default(0),
   lastUsedAt: timestamp("last_used_at"),
   totalBenefitGained: decimal("total_benefit_gained", { precision: 15, scale: 2 }).default("0.00"),
   // Skill mastery progression
   experienceInvested: integer("experience_invested").default(0),
-  masteryProgressPercent: decimal("mastery_progress_percent", { precision: 5, scale: 2 }).default("0.00"),
+  masteryProgressPercent: decimal("mastery_progress_percent", { precision: 8, scale: 2 }).default("0.00"),
   nextUpgradeCost: integer("next_upgrade_cost").default(500),
   // Mystical awakening ceremony
   awakeningCeremonyCompleted: boolean("awakening_ceremony_completed").default(false),
   awakeningDate: timestamp("awakening_date"),
   ceremonialWitnesses: text("ceremonial_witnesses").array(), // Other users who witnessed ceremony
-  mysticalBond: decimal("mystical_bond", { precision: 5, scale: 2 }).default("1.00"), // Spiritual connection to skill
+  mysticalBond: decimal("mystical_bond", { precision: 8, scale: 2 }).default("1.00"), // Spiritual connection to skill
   // Skill performance tracking
   skillRating: decimal("skill_rating", { precision: 3, scale: 2 }), // User's rating of skill usefulness
   recommendsToOthers: boolean("recommends_to_others").default(true),
@@ -1905,8 +1905,8 @@ export const trialsOfMastery = pgTable("trials_of_mastery", {
   phases: jsonb("phases").notNull(), // Multi-phase trial structure
   timeLimit: integer("time_limit_minutes").default(60),
   maxAttempts: integer("max_attempts").default(3),
-  passingScore: decimal("passing_score", { precision: 5, scale: 2 }).default("75.00"),
-  perfectScore: decimal("perfect_score", { precision: 5, scale: 2 }).default("100.00"),
+  passingScore: decimal("passing_score", { precision: 8, scale: 2 }).default("75.00"),
+  perfectScore: decimal("perfect_score", { precision: 8, scale: 2 }).default("100.00"),
   // Prerequisites and rewards
   prerequisites: jsonb("prerequisites"), // Required skills, lessons, karma
   experienceReward: integer("experience_reward").default(1000),
@@ -1924,8 +1924,8 @@ export const trialsOfMastery = pgTable("trials_of_mastery", {
   atmosphericTheme: text("atmospheric_theme").default("mystical"), // UI theme
   // Analytics and balancing
   attemptCount: integer("attempt_count").default(0),
-  successRate: decimal("success_rate", { precision: 5, scale: 2 }).default("0.00"),
-  avgScore: decimal("avg_score", { precision: 5, scale: 2 }).default("0.00"),
+  successRate: decimal("success_rate", { precision: 8, scale: 2 }).default("0.00"),
+  avgScore: decimal("avg_score", { precision: 8, scale: 2 }).default("0.00"),
   avgCompletionTime: integer("avg_completion_time_minutes"),
   difficulty_rating: decimal("difficulty_rating", { precision: 3, scale: 2 }), // User feedback
   isActive: boolean("is_active").default(true),
@@ -1947,7 +1947,7 @@ export const userTrialAttempts = pgTable("user_trial_attempts", {
   attemptNumber: integer("attempt_number").notNull().default(1),
   // Attempt results
   status: text("status").notNull().default("in_progress"), // 'in_progress', 'completed', 'abandoned', 'failed'
-  overallScore: decimal("overall_score", { precision: 5, scale: 2 }),
+  overallScore: decimal("overall_score", { precision: 8, scale: 2 }),
   phaseScores: jsonb("phase_scores"), // Scores for each trial phase
   timeSpentMinutes: integer("time_spent_minutes").default(0),
   passed: boolean("passed").default(false),
@@ -2059,7 +2059,7 @@ export const userCertifications = pgTable("user_certifications", {
   displayInProfile: boolean("display_in_profile").default(true),
   sharableUrl: text("sharable_url"), // Public sharing URL
   timestampProof: text("timestamp_proof"), // Blockchain/verification timestamp
-  achievementScore: decimal("achievement_score", { precision: 5, scale: 2 }), // Quality of achievement
+  achievementScore: decimal("achievement_score", { precision: 8, scale: 2 }), // Quality of achievement
   awardedAt: timestamp("awarded_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -2084,14 +2084,14 @@ export const learningAnalytics = pgTable("learning_analytics", {
   totalTrialsPassed: integer("total_trials_passed").default(0),
   totalCertificationsEarned: integer("total_certifications_earned").default(0),
   // Learning velocity and patterns
-  lessonsPerWeek: decimal("lessons_per_week", { precision: 5, scale: 2 }).default("0.00"),
-  avgScoreAchieved: decimal("avg_score_achieved", { precision: 5, scale: 2 }).default("0.00"),
+  lessonsPerWeek: decimal("lessons_per_week", { precision: 8, scale: 2 }).default("0.00"),
+  avgScoreAchieved: decimal("avg_score_achieved", { precision: 8, scale: 2 }).default("0.00"),
   learningStreak: integer("learning_streak_days").default(0),
   longestLearningStreak: integer("longest_learning_streak_days").default(0),
   preferredLearningTime: text("preferred_learning_time"), // 'morning', 'afternoon', 'evening', 'night'
   avgSessionDuration: integer("avg_session_duration_minutes").default(0),
   // House-specific progress
-  primaryHouseMastery: decimal("primary_house_mastery", { precision: 5, scale: 2 }).default("0.00"),
+  primaryHouseMastery: decimal("primary_house_mastery", { precision: 8, scale: 2 }).default("0.00"),
   secondaryHousesExplored: text("secondary_houses_explored").array(),
   crossHouseProgress: jsonb("cross_house_progress"), // Progress in other houses
   houseRank: integer("house_rank").default(0), // Rank within house for learning
