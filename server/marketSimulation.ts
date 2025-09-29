@@ -1,4 +1,5 @@
 import { storage } from './storage.js';
+import { tradingConsequencesService } from './services/tradingConsequencesService.js';
 import type { 
   Asset, AssetCurrentPrice, InsertAssetCurrentPrice, InsertMarketData,
   Order, InsertOrder, Portfolio, Holding, InsertHolding,
@@ -521,7 +522,7 @@ export class MarketSimulationEngine {
       case 'publisher_announcement':
         // Publisher news impacts publisher and their properties
         const assetPublisher = metadata?.publisher;
-        const eventTitle = event.title || '';
+        const eventTitle = event?.title || '';
         return asset.type === 'publisher' || assetPublisher === eventTitle ? 2.2 : 1.0;
       
       case 'industry_news':
@@ -1168,6 +1169,34 @@ export class OrderMatchingEngine {
       executionPrice *= (1 - slippage);
     }
 
+    // Apply karmic alignment consequences to execution price
+    let karmaConsequences = null;
+    let mysticalEvents: string[] = [];
+    try {
+      // Get the asset data for consequence calculations
+      const asset = await storage.getAsset(order.assetId);
+      if (asset && order.userId) {
+        const consequenceResult = await tradingConsequencesService.applyTradingConsequences(
+          order.userId,
+          order,
+          asset,
+          executionPrice
+        );
+        
+        executionPrice = consequenceResult.modifiedPrice;
+        karmaConsequences = consequenceResult.consequences;
+        mysticalEvents = consequenceResult.mysticalEvents;
+        
+        // Log mystical events for this trade
+        if (mysticalEvents.length > 0) {
+          console.log(`🔮 Karmic Trading Events for Order ${order.id}:`, mysticalEvents);
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to apply karma consequences:', error);
+      // Continue with normal execution if karma system fails
+    }
+
     // Calculate fees
     const totalValue = quantity * executionPrice;
     const fees = this.calculateOrderFees(totalValue);
@@ -1235,6 +1264,34 @@ export class OrderMatchingEngine {
     if (!canExecute) {
       // Order remains pending
       return null;
+    }
+
+    // Apply karmic alignment consequences to execution price
+    let karmaConsequences = null;
+    let mysticalEvents: string[] = [];
+    try {
+      // Get the asset data for consequence calculations
+      const asset = await storage.getAsset(order.assetId);
+      if (asset && order.userId) {
+        const consequenceResult = await tradingConsequencesService.applyTradingConsequences(
+          order.userId,
+          order,
+          asset,
+          executionPrice
+        );
+        
+        executionPrice = consequenceResult.modifiedPrice;
+        karmaConsequences = consequenceResult.consequences;
+        mysticalEvents = consequenceResult.mysticalEvents;
+        
+        // Log mystical events for this trade
+        if (mysticalEvents.length > 0) {
+          console.log(`🔮 Karmic Trading Events for Order ${order.id}:`, mysticalEvents);
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to apply karma consequences:', error);
+      // Continue with normal execution if karma system fails
     }
 
     // Calculate fees
@@ -1397,7 +1454,7 @@ export class OrderMatchingEngine {
 
     if (order.type === 'buy') {
       // Deduct cash and add/update holding
-      const newCashBalance = parseFloat(portfolio.cashBalance) - totalValue - fees;
+      const newCashBalance = parseFloat(portfolio.cashBalance || '0') - totalValue - fees;
       await storage.updatePortfolio(order.portfolioId, {
         cashBalance: newCashBalance.toString(),
       });
@@ -1430,7 +1487,7 @@ export class OrderMatchingEngine {
       }
     } else {
       // Sell order: add cash and reduce/remove holding
-      const newCashBalance = parseFloat(portfolio.cashBalance) + totalValue - fees;
+      const newCashBalance = parseFloat(portfolio.cashBalance || '0') + totalValue - fees;
       await storage.updatePortfolio(order.portfolioId, {
         cashBalance: newCashBalance.toString(),
       });
@@ -1457,7 +1514,7 @@ export class OrderMatchingEngine {
     // Update user's daily trading usage
     const user = await storage.getUser(order.userId);
     if (user) {
-      const newDailyUsed = parseFloat(user.dailyTradingUsed) + totalValue;
+      const newDailyUsed = parseFloat(user.dailyTradingUsed || '0') + totalValue;
       await storage.upsertUser({
         id: order.userId,
         email: user.email,
@@ -1477,7 +1534,7 @@ export class OrderMatchingEngine {
   private async updateMarketAfterTrade(assetId: string, quantity: number, price: number): Promise<void> {
     const currentPrice = await storage.getAssetCurrentPrice(assetId);
     if (currentPrice) {
-      const newVolume = currentPrice.volume + Math.floor(quantity);
+      const newVolume = (currentPrice.volume || 0) + Math.floor(quantity);
       
       await storage.updateAssetCurrentPrice(assetId, {
         volume: newVolume,
@@ -1576,7 +1633,7 @@ export class OrderMatchingEngine {
       }
       
       // If prices are equal or different order types, sort by time (FIFO)
-      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      return new Date(a.createdAt || new Date()).getTime() - new Date(b.createdAt || new Date()).getTime();
     });
   }
 }

@@ -48,6 +48,11 @@ export const users = pgTable("users", {
   houseId: text("house_id"), // 'heroes', 'wisdom', 'power', 'mystery', 'elements', 'time', 'spirit'
   houseJoinedAt: timestamp("house_joined_at"),
   karma: integer("karma").default(0), // Karma score affecting trading bonuses
+  // Karmic Alignment System - Dual axis alignment tracking
+  lawfulChaoticAlignment: decimal("lawful_chaotic_alignment", { precision: 5, scale: 2 }).default("0.00"), // -100 (Chaotic) to +100 (Lawful)
+  goodEvilAlignment: decimal("good_evil_alignment", { precision: 5, scale: 2 }).default("0.00"), // -100 (Evil) to +100 (Good)
+  alignmentRevealed: boolean("alignment_revealed").default(false), // Whether user has accessed Scrying Chamber
+  alignmentLastUpdated: timestamp("alignment_last_updated").defaultNow(),
   preferences: jsonb("preferences"), // UI settings, notifications, etc.
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -1417,3 +1422,248 @@ export type InsertNotificationTemplate = z.infer<typeof insertNotificationTempla
 
 export type KarmaAction = typeof karmaActions.$inferSelect;
 export type InsertKarmaAction = z.infer<typeof insertKarmaActionSchema>;
+
+// ============================================================================
+// KARMIC ALIGNMENT & RECKONING SYSTEM - COMPREHENSIVE KARMA TRACKING
+// ============================================================================
+
+// Detailed alignment history - Track cosmic balance changes over time
+export const alignmentHistory = pgTable("alignment_history", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  // Previous alignment state
+  previousLawfulChaotic: decimal("previous_lawful_chaotic", { precision: 5, scale: 2 }).notNull(),
+  previousGoodEvil: decimal("previous_good_evil", { precision: 5, scale: 2 }).notNull(),
+  // New alignment state
+  newLawfulChaotic: decimal("new_lawful_chaotic", { precision: 5, scale: 2 }).notNull(),
+  newGoodEvil: decimal("new_good_evil", { precision: 5, scale: 2 }).notNull(),
+  // Alignment shift details
+  alignmentShiftMagnitude: decimal("alignment_shift_magnitude", { precision: 5, scale: 2 }).notNull(), // Total distance moved
+  triggeringActionType: text("triggering_action_type").notNull(), // Type of action that caused shift
+  triggeringActionId: varchar("triggering_action_id"), // Reference to specific karma action
+  karmaAtTimeOfShift: integer("karma_at_time_of_shift").notNull(),
+  houseId: text("house_id"), // User's house at time of shift
+  // Mystical classifications
+  alignmentPhase: text("alignment_phase").notNull(), // 'awakening', 'journey', 'transformation', 'mastery'
+  cosmicEvent: text("cosmic_event"), // 'solar_eclipse', 'lunar_blessing', 'divine_intervention', etc.
+  prophecyUnlocked: text("prophecy_unlocked"), // Mystical prophecy text revealed
+  // Metadata
+  significanceLevel: text("significance_level").default("minor"), // 'minor', 'major', 'critical', 'legendary'
+  recordedAt: timestamp("recorded_at").defaultNow(),
+}, (table) => [
+  index("idx_alignment_history_user_id").on(table.userId),
+  index("idx_alignment_history_recorded_at").on(table.recordedAt),
+  index("idx_alignment_history_significance").on(table.significanceLevel),
+  index("idx_alignment_history_action_type").on(table.triggeringActionType),
+]);
+
+// Expanded karma actions with detailed behavioral analysis
+export const detailedKarmaActions = pgTable("detailed_karma_actions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  // Core action details
+  actionType: text("action_type").notNull(), // 'aggressive_trade', 'community_help', 'resource_sharing', 'market_manipulation', etc.
+  actionCategory: text("action_category").notNull(), // 'trading', 'social', 'competitive', 'educational', 'mystical'
+  actionSubtype: text("action_subtype"), // More specific classification
+  // Karma and alignment impact
+  karmaChange: integer("karma_change").notNull(),
+  lawfulChaoticImpact: decimal("lawful_chaotic_impact", { precision: 5, scale: 2 }).default("0.00"), // Impact on L/C axis
+  goodEvilImpact: decimal("good_evil_impact", { precision: 5, scale: 2 }).default("0.00"), // Impact on G/E axis
+  // Behavioral pattern analysis
+  tradingBehaviorPattern: text("trading_behavior_pattern"), // 'patient', 'aggressive', 'collaborative', 'solitary'
+  communityInteraction: text("community_interaction"), // 'helpful', 'neutral', 'competitive', 'harmful'
+  riskTakingBehavior: text("risk_taking_behavior"), // 'conservative', 'calculated', 'reckless', 'chaotic'
+  // Context and metadata
+  assetId: varchar("asset_id").references(() => assets.id), // Asset involved in action
+  orderId: varchar("order_id").references(() => orders.id), // Order that triggered action
+  houseId: text("house_id"), // User's house at time of action
+  houseAlignmentBonus: decimal("house_alignment_bonus", { precision: 5, scale: 2 }).default("1.00"), // House modifier applied
+  // Impact and consequences
+  tradingConsequenceTriggered: boolean("trading_consequence_triggered").default(false),
+  consequenceSeverity: text("consequence_severity"), // 'blessing', 'minor', 'moderate', 'severe', 'divine'
+  mysticalDescription: text("mystical_description").notNull(), // RPG-flavored description of action
+  // Temporal and pattern data
+  timeOfDay: text("time_of_day"), // 'dawn', 'morning', 'midday', 'afternoon', 'evening', 'night', 'midnight'
+  tradingVolume: decimal("trading_volume", { precision: 15, scale: 2 }), // Volume involved in action
+  portfolioValue: decimal("portfolio_value", { precision: 15, scale: 2 }), // User's portfolio value at time
+  actionDuration: integer("action_duration_minutes"), // How long action took
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_detailed_karma_user_id").on(table.userId),
+  index("idx_detailed_karma_action_type").on(table.actionType),
+  index("idx_detailed_karma_category").on(table.actionCategory),
+  index("idx_detailed_karma_house_id").on(table.houseId),
+  index("idx_detailed_karma_created_at").on(table.createdAt),
+  index("idx_detailed_karma_behavior_pattern").on(table.tradingBehaviorPattern),
+]);
+
+// Trading consequences - How alignment affects trading outcomes
+export const tradingConsequences = pgTable("trading_consequences", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  orderId: varchar("order_id").references(() => orders.id), // Order affected by consequence
+  // Alignment state at time of consequence
+  userLawfulChaotic: decimal("user_lawful_chaotic", { precision: 5, scale: 2 }).notNull(),
+  userGoodEvil: decimal("user_good_evil", { precision: 5, scale: 2 }).notNull(),
+  userKarma: integer("user_karma").notNull(),
+  userHouseId: text("user_house_id"),
+  // Consequence details
+  consequenceType: text("consequence_type").notNull(), // 'bonus_stability', 'increased_volatility', 'community_boost', 'solitary_power'
+  consequenceCategory: text("consequence_category").notNull(), // 'trading_modifier', 'fee_adjustment', 'opportunity_access', 'restriction'
+  modifierValue: decimal("modifier_value", { precision: 5, scale: 4 }).notNull(), // Numerical modifier applied
+  modifierType: text("modifier_type").notNull(), // 'multiplier', 'additive', 'percentage', 'boolean'
+  // Trading impact
+  originalValue: decimal("original_value", { precision: 15, scale: 2 }), // Original trade value
+  modifiedValue: decimal("modified_value", { precision: 15, scale: 2 }), // Value after consequence
+  impactDescription: text("impact_description").notNull(), // Human-readable impact
+  mysticalFlavor: text("mystical_flavor").notNull(), // RPG description of consequence
+  // Consequence duration and persistence
+  isTemporary: boolean("is_temporary").default(true),
+  durationMinutes: integer("duration_minutes"), // How long consequence lasts
+  expiresAt: timestamp("expires_at"),
+  stacksWithOthers: boolean("stacks_with_others").default(false), // Can combine with other consequences
+  // Success and outcome tracking
+  consequenceApplied: boolean("consequence_applied").default(true),
+  resultingOutcome: text("resulting_outcome"), // 'success', 'failure', 'neutral', 'unexpected'
+  userSatisfaction: text("user_satisfaction"), // 'pleased', 'neutral', 'frustrated', 'surprised'
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_trading_consequences_user_id").on(table.userId),
+  index("idx_trading_consequences_order_id").on(table.orderId),
+  index("idx_trading_consequences_type").on(table.consequenceType),
+  index("idx_trading_consequences_category").on(table.consequenceCategory),
+  index("idx_trading_consequences_created_at").on(table.createdAt),
+  index("idx_trading_consequences_expires_at").on(table.expiresAt),
+]);
+
+// Alignment thresholds - Define when cosmic shifts occur
+export const alignmentThresholds = pgTable("alignment_thresholds", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  thresholdName: text("threshold_name").notNull(), // 'lawful_guardian', 'chaotic_rebel', 'neutral_balance'
+  alignmentType: text("alignment_type").notNull(), // 'lawful_chaotic', 'good_evil', 'combined'
+  // Threshold boundaries
+  minLawfulChaotic: decimal("min_lawful_chaotic", { precision: 5, scale: 2 }),
+  maxLawfulChaotic: decimal("max_lawful_chaotic", { precision: 5, scale: 2 }),
+  minGoodEvil: decimal("min_good_evil", { precision: 5, scale: 2 }),
+  maxGoodEvil: decimal("max_good_evil", { precision: 5, scale: 2 }),
+  minKarma: integer("min_karma"),
+  maxKarma: integer("max_karma"),
+  // House compatibility
+  compatibleHouses: text("compatible_houses").array(), // Houses that benefit from this alignment
+  conflictingHouses: text("conflicting_houses").array(), // Houses that conflict with this alignment
+  // Threshold effects
+  tradingBonuses: jsonb("trading_bonuses"), // Bonuses granted for this alignment
+  tradingRestrictions: jsonb("trading_restrictions"), // Restrictions imposed
+  specialAbilities: jsonb("special_abilities"), // Special trading features unlocked
+  // Mystical properties
+  cosmicTitle: text("cosmic_title").notNull(), // "Guardian of Sacred Commerce", "Harbinger of Market Chaos"
+  mysticalDescription: text("mystical_description").notNull(),
+  alignmentAura: text("alignment_aura"), // Visual effect for UI ('golden', 'shadow', 'prismatic')
+  prophecyText: text("prophecy_text"), // Mystical prediction about alignment
+  // Metadata
+  isActive: boolean("is_active").default(true),
+  displayOrder: integer("display_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_alignment_thresholds_name").on(table.thresholdName),
+  index("idx_alignment_thresholds_type").on(table.alignmentType),
+  index("idx_alignment_thresholds_active").on(table.isActive),
+  index("idx_alignment_thresholds_display_order").on(table.displayOrder),
+]);
+
+// Karmic profiles - Comprehensive alignment analysis for each user
+export const karmicProfiles = pgTable("karmic_profiles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  // Current alignment classification
+  currentAlignmentThreshold: varchar("current_alignment_threshold").references(() => alignmentThresholds.id),
+  alignmentStability: decimal("alignment_stability", { precision: 5, scale: 2 }).default("100.00"), // How stable alignment is
+  alignmentTrend: text("alignment_trend").default("stable"), // 'ascending', 'descending', 'stable', 'chaotic'
+  // Behavioral patterns over time
+  dominantBehaviorPattern: text("dominant_behavior_pattern"), // Most common behavior type
+  secondaryBehaviorPattern: text("secondary_behavior_pattern"),
+  behaviorConsistency: decimal("behavior_consistency", { precision: 5, scale: 2 }).default("50.00"), // How consistent behavior is
+  // Trading personality analysis
+  tradingPersonality: text("trading_personality"), // 'patient_strategist', 'aggressive_opportunist', 'community_leader'
+  riskProfile: text("risk_profile"), // 'conservative', 'moderate', 'aggressive', 'chaotic'
+  socialTrading: text("social_trading"), // 'collaborative', 'independent', 'competitive', 'teaching'
+  // Karma accumulation patterns
+  karmaAccelerationRate: decimal("karma_acceleration_rate", { precision: 5, scale: 2 }).default("1.00"), // How fast karma changes
+  totalKarmaEarned: integer("total_karma_earned").default(0),
+  totalKarmaLost: integer("total_karma_lost").default(0),
+  largestKarmaGain: integer("largest_karma_gain").default(0),
+  largestKarmaLoss: integer("largest_karma_loss").default(0),
+  // House compatibility analysis
+  houseAlignmentCompatibility: decimal("house_alignment_compatibility", { precision: 5, scale: 2 }).default("50.00"), // How well aligned with house
+  optimalHouseId: text("optimal_house_id"), // Most compatible house based on alignment
+  alignmentConflictLevel: text("alignment_conflict_level").default("none"), // 'none', 'minor', 'moderate', 'severe'
+  // Predictive analysis
+  predictedAlignmentDirection: text("predicted_alignment_direction"), // Where alignment is heading
+  nextThresholdDistance: decimal("next_threshold_distance", { precision: 5, scale: 2 }), // How close to next threshold
+  estimatedTimeToNextThreshold: integer("estimated_time_to_next_threshold"), // Days until next threshold
+  // Mystical attributes
+  cosmicResonance: decimal("cosmic_resonance", { precision: 5, scale: 2 }).default("0.00"), // Spiritual power level
+  divineFavor: decimal("divine_favor", { precision: 5, scale: 2 }).default("0.00"), // Positive cosmic influence
+  shadowInfluence: decimal("shadow_influence", { precision: 5, scale: 2 }).default("0.00"), // Negative cosmic influence
+  // Statistics and tracking
+  alignmentShiftsCount: integer("alignment_shifts_count").default(0),
+  lastMajorShift: timestamp("last_major_shift"),
+  profileLastCalculated: timestamp("profile_last_calculated").defaultNow(),
+  nextRecalculationDue: timestamp("next_recalculation_due"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_karmic_profiles_user_id").on(table.userId),
+  index("idx_karmic_profiles_threshold").on(table.currentAlignmentThreshold),
+  index("idx_karmic_profiles_personality").on(table.tradingPersonality),
+  index("idx_karmic_profiles_house_compatibility").on(table.houseAlignmentCompatibility),
+  index("idx_karmic_profiles_last_calculated").on(table.profileLastCalculated),
+  // Unique constraint - one profile per user
+  index("idx_karmic_profiles_unique_user").on(table.userId),
+]);
+
+// Insert schemas for karma system tables
+export const insertAlignmentHistorySchema = createInsertSchema(alignmentHistory).omit({
+  id: true,
+  recordedAt: true,
+});
+
+export const insertDetailedKarmaActionSchema = createInsertSchema(detailedKarmaActions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertTradingConsequenceSchema = createInsertSchema(tradingConsequences).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertAlignmentThresholdSchema = createInsertSchema(alignmentThresholds).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertKarmicProfileSchema = createInsertSchema(karmicProfiles).omit({
+  id: true,
+  profileLastCalculated: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Export types for karma system
+export type AlignmentHistory = typeof alignmentHistory.$inferSelect;
+export type InsertAlignmentHistory = z.infer<typeof insertAlignmentHistorySchema>;
+
+export type DetailedKarmaAction = typeof detailedKarmaActions.$inferSelect;
+export type InsertDetailedKarmaAction = z.infer<typeof insertDetailedKarmaActionSchema>;
+
+export type TradingConsequence = typeof tradingConsequences.$inferSelect;
+export type InsertTradingConsequence = z.infer<typeof insertTradingConsequenceSchema>;
+
+export type AlignmentThreshold = typeof alignmentThresholds.$inferSelect;
+export type InsertAlignmentThreshold = z.infer<typeof insertAlignmentThresholdSchema>;
+
+export type KarmicProfile = typeof karmicProfiles.$inferSelect;
+export type InsertKarmicProfile = z.infer<typeof insertKarmicProfileSchema>;

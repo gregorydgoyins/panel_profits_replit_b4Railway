@@ -7,6 +7,7 @@ import comicDataRoutes from "./routes/comicData.js";
 import vectorRoutes from "./routes/vectorRoutes.js";
 import dataImportRoutes from "./routes/dataImportRoutes.js";
 import housesRoutes from "./routes/housesRoutes.js";
+import karmaRoutes from "./routes/karmaRoutes.js";
 import { registerComicRoutes } from "./routes/comicRoutes";
 import { registerComicCoverRoutes } from "./routes/comicCoverRoutes.js";
 import { registerNotificationRoutes } from "./routes/notificationRoutes.js";
@@ -1016,6 +1017,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Houses System Routes (Seven Mythological Houses)
   app.use("/api/houses", housesRoutes);
+  app.use("/api/karma", karmaRoutes);
 
   // Enhanced Trading Data Routes (Phase 3 Mythological Interface)
   app.use("/api", enhancedDataRoutes);
