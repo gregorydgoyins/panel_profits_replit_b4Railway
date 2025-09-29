@@ -18,6 +18,70 @@
         --font-mono: 'JetBrains Mono', 'SF Mono', Monaco, 'Inconsolata', 'Roboto Mono', monospace;
       }
     </style>
+    <script>
+      // Critical WebSocket fix for Vite HMR - must run before any other scripts
+      console.log('🔧 Applying EARLY WebSocket fix for Vite HMR...');
+      
+      // Store the original WebSocket constructor immediately
+      const NativeWebSocket = window.WebSocket;
+      
+      // Create a comprehensive WebSocket wrapper
+      function FixedWebSocket(url, protocols) {
+        let fixedUrl = url;
+        
+        // Convert URL to string for processing
+        const urlString = typeof url === 'string' ? url : url.toString();
+        
+        // Fix localhost:undefined URLs for Vite HMR
+        if (urlString.includes('localhost:undefined')) {
+          const currentPort = window.location.port || '5000';
+          fixedUrl = urlString.replace('localhost:undefined', `localhost:${currentPort}`);
+          console.log('🔧 WebSocket URL FIXED (localhost:undefined):', urlString, '→', fixedUrl);
+        }
+        
+        // Fix undefined port patterns in WebSocket URLs
+        if (urlString.includes(':undefined')) {
+          const currentPort = window.location.port || '5000';
+          fixedUrl = urlString.replace(':undefined', `:${currentPort}`);
+          console.log('🔧 WebSocket URL FIXED (:undefined):', urlString, '→', fixedUrl);
+        }
+        
+        // Fix Vite HMR specific patterns
+        if (urlString.includes('/?') && urlString.includes('token=')) {
+          try {
+            const urlObj = new URL(urlString);
+            if (urlObj.port === '' || urlObj.port === 'undefined') {
+              const currentPort = window.location.port || '5000';
+              urlObj.port = currentPort;
+              fixedUrl = urlObj.toString();
+              console.log('🔧 WebSocket URL FIXED (Vite HMR):', urlString, '→', fixedUrl);
+            }
+          } catch (e) {
+            // Fallback for malformed URLs
+            const currentPort = window.location.port || '5000';
+            fixedUrl = urlString.replace(/localhost:undefined/, `localhost:${currentPort}`);
+            console.log('🔧 WebSocket URL FIXED (fallback):', urlString, '→', fixedUrl);
+          }
+        }
+        
+        // Create WebSocket with fixed URL using original constructor
+        return new NativeWebSocket(fixedUrl, protocols);
+      }
+      
+      // Copy all static properties from native WebSocket
+      FixedWebSocket.CONNECTING = NativeWebSocket.CONNECTING;
+      FixedWebSocket.OPEN = NativeWebSocket.OPEN;
+      FixedWebSocket.CLOSING = NativeWebSocket.CLOSING;
+      FixedWebSocket.CLOSED = NativeWebSocket.CLOSED;
+      
+      // Ensure proper prototype chain
+      FixedWebSocket.prototype = NativeWebSocket.prototype;
+      
+      // Replace the global WebSocket constructor IMMEDIATELY
+      window.WebSocket = FixedWebSocket;
+      
+      console.log('✅ EARLY WebSocket fix applied - Vite HMR should work now');
+    </script>
   </head>
   <body>
     <div id="root"></div>

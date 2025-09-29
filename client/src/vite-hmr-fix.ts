@@ -13,11 +13,34 @@ function FixedWebSocket(url: string | URL, protocols?: string | string[]) {
   // Convert URL to string for processing
   const urlString = typeof url === 'string' ? url : url.toString();
   
-  // Fix localhost:undefined URLs
+  // Fix localhost:undefined URLs for Vite HMR
   if (urlString.includes('localhost:undefined')) {
     const currentPort = window.location.port || '5000';
     fixedUrl = urlString.replace('localhost:undefined', `localhost:${currentPort}`);
-    console.log('🔧 WebSocket URL FIXED:', urlString, '→', fixedUrl);
+    console.log('🔧 WebSocket URL FIXED (localhost:undefined):', urlString, '→', fixedUrl);
+  }
+  
+  // Fix undefined port patterns in WebSocket URLs
+  if (urlString.includes(':undefined')) {
+    const currentPort = window.location.port || '5000';
+    fixedUrl = urlString.replace(':undefined', `:${currentPort}`);
+    console.log('🔧 WebSocket URL FIXED (:undefined):', urlString, '→', fixedUrl);
+  }
+  
+  // Fix Vite HMR specific patterns
+  if (urlString.includes('/?') && urlString.includes('token=') && !urlString.includes(':5000')) {
+    const currentPort = window.location.port || '5000';
+    // Extract protocol and handle Vite HMR URLs specifically
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    if (urlString.startsWith('wss://') || urlString.startsWith('ws://')) {
+      // Parse the URL parts
+      const urlObj = new URL(urlString);
+      if (urlObj.port === '' || urlObj.port === 'undefined') {
+        urlObj.port = currentPort;
+        fixedUrl = urlObj.toString();
+        console.log('🔧 WebSocket URL FIXED (Vite HMR):', urlString, '→', fixedUrl);
+      }
+    }
   }
   
   // Create WebSocket with fixed URL using original constructor
