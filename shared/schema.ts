@@ -781,6 +781,8 @@ export const trades = pgTable("trades", {
   executedAt: timestamp("executed_at").defaultNow().notNull(),
   tradeType: text("trade_type").default("manual"), // 'manual', 'stop_loss', 'take_profit', 'liquidation'
   notes: text("notes"),
+  // Moral consequence tracking
+  moralImpact: decimal("moral_impact", { precision: 10, scale: 2 }), // Moral impact score of the trade
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -848,6 +850,52 @@ export const balances = pgTable("balances", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// MORAL CONSEQUENCE SYSTEM TABLES - Dark mechanics where every profit creates victims
+
+// Moral standings table - Tracks each user's corruption level and blood money
+export const moralStandings = pgTable("moral_standings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  corruptionLevel: decimal("corruption_level", { precision: 5, scale: 2 }).default("0.00"), // 0-100 scale
+  totalVictims: integer("total_victims").default(0),
+  bloodMoney: decimal("blood_money", { precision: 15, scale: 2 }).default("0.00"), // Total money taken from others
+  totalHarm: decimal("total_harm", { precision: 15, scale: 2 }).default("0.00"), // Total financial harm caused
+  lastConfession: timestamp("last_confession"), // Last time they "confessed" to reduce corruption
+  confessionCount: integer("confession_count").default(0),
+  soulWeight: text("soul_weight").default("unburdened"), // 'unburdened', 'tainted', 'heavy', 'crushing', 'damned'
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Trading victims table - Every profitable trade creates a victim with a story
+export const tradingVictims = pgTable("trading_victims", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  tradeId: varchar("trade_id").notNull().references(() => trades.id),
+  userId: varchar("user_id").notNull().references(() => users.id), // The trader who caused this victim
+  victimName: text("victim_name").notNull(), // Generated realistic name
+  victimStory: text("victim_story").notNull(), // The human cost of this trade
+  lossAmount: decimal("loss_amount", { precision: 15, scale: 2 }).notNull(),
+  impactLevel: text("impact_level").notNull(), // 'minor', 'moderate', 'severe', 'catastrophic'
+  // Victim details for more emotional impact
+  age: integer("age"),
+  occupation: text("occupation"),
+  familySize: integer("family_size"),
+  consequence: text("consequence"), // What happened as a result
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Insert schemas for moral consequence tables
+export const insertMoralStandingSchema = createInsertSchema(moralStandings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertTradingVictimSchema = createInsertSchema(tradingVictims).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Insert schemas for new trading tables
 export const insertTradeSchema = createInsertSchema(trades).omit({
   id: true,
@@ -877,6 +925,13 @@ export type InsertPosition = z.infer<typeof insertPositionSchema>;
 
 export type Balance = typeof balances.$inferSelect;
 export type InsertBalance = z.infer<typeof insertBalanceSchema>;
+
+// Export types for moral consequence tables
+export type MoralStanding = typeof moralStandings.$inferSelect;
+export type InsertMoralStanding = z.infer<typeof insertMoralStandingSchema>;
+
+export type TradingVictim = typeof tradingVictims.$inferSelect;
+export type InsertTradingVictim = z.infer<typeof insertTradingVictimSchema>;
 
 // NOTIFICATION SYSTEM TABLES - Phase 1 Real-time Notifications
 

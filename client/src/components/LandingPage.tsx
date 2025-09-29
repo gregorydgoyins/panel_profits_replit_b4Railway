@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skull, DollarSign, TrendingDown, AlertTriangle, Brain, Eye, Clock, Trophy, Zap, Flame, Shield } from "lucide-react";
+import { Skull, DollarSign, TrendingDown, AlertTriangle, Brain, Eye, Clock, Trophy, Zap, Flame, Shield, Archive, Database, Activity } from "lucide-react";
 import { motion, useScroll, useTransform, AnimatePresence, useInView } from "framer-motion";
 import { VideoBackground } from "@/components/VideoBackground";
 import { useEffect, useRef, useState } from "react";
@@ -93,48 +93,42 @@ export function LandingPage() {
     }
   };
 
-  const sins = [
+  const exchangeSections = [
     {
-      title: "GREED",
-      icon: DollarSign,
-      heading: "The Comedian's Portfolio",
-      description: "Profit from tragedy. Every disaster is an opportunity. War is good for business. Death pays dividends."
+      title: "THE FLOOR",
+      icon: Flame,
+      heading: "Where Fortunes Dissolve",
+      description: "Watch digital empires crumble into binary dust. Every tick downward is a dream extinguished, a future erased. The floor doesn't care about your ambitions."
     },
     {
-      title: "HUBRIS", 
-      icon: Brain,
-      heading: "Ozymandias's Gambit",
-      description: "You think you control the markets. You see patterns where there's only chaos. Your models will fail."
+      title: "THE LEDGER", 
+      icon: Database,
+      heading: "Permanent Scars",
+      description: "Every transaction etches itself into the eternal record. Your losses are immortalized, your gains fleeting. The ledger remembers what you'd rather forget."
     },
     {
-      title: "WRATH",
-      icon: TrendingDown,
-      heading: "Rorschach's Vengeance", 
-      description: "Destroy the shorts. Burn the bears. Leave nothing but ash. The market is your battlefield."
-    },
-    {
-      title: "ENVY",
+      title: "THE MIRROR",
       icon: Eye,
-      heading: "Silk Spectre's Shadow",
-      description: "Copy the winners. Follow the whales. You'll always be one step behind, drowning in their wake."
+      heading: "Market's Reflection", 
+      description: "Look into the abyss of your portfolio and see what stares back. You entered human. The market made you something else. Something that feeds on volatility."
     },
     {
-      title: "GLUTTONY",
-      icon: AlertTriangle,
-      heading: "Dr. Manhattan's Void",
-      description: "Consume everything. Leverage to the hilt. The appetite that devours portfolios whole."
+      title: "THE VAULT",
+      icon: Shield,
+      heading: "Compound Nightmares",
+      description: "Where broken dreams accumulate interest. Each failed position adds to the pile. The vault grows heavy with the weight of what could have been."
     },
     {
-      title: "SLOTH",
+      title: "THE TERMINAL",
+      icon: Activity,
+      heading: "Final Interface",
+      description: "Your last connection to financial mortality. Here, at the edge of ruin, you make your final trades. The terminal knows your fate before you do."
+    },
+    {
+      title: "THE ECHO",
       icon: Clock,
-      heading: "Nite Owl's Regret",
-      description: "The trades you didn't make. The opportunities missed. Time decays everything, especially hope."
-    },
-    {
-      title: "PRIDE",
-      icon: Trophy,
-      heading: "The Minutemen's Fall",
-      description: "Yesterday's wins mean nothing. Past performance is a lie. Your ego will be your undoing."
+      heading: "Portfolio Ghosts",
+      description: "Listen to the whispers of crashed positions. They speak of margin calls at 3 AM, of leveraged bets that consumed everything. Their warnings fall on deaf ears."
     }
   ];
 
@@ -186,7 +180,7 @@ export function LandingPage() {
               variants={titleVariants}
               initial="hidden"
               animate={isHeroInView ? "visible" : "hidden"}
-              data-text="PANEL PROFITS"
+              data-text="THE EXCHANGE"
               style={{ perspective: 1000 }}
             >
               <motion.span 
@@ -200,7 +194,7 @@ export function LandingPage() {
                 }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
-                PANEL PROFITS
+                THE EXCHANGE
               </motion.span>
             </motion.h1>
 
@@ -211,7 +205,7 @@ export function LandingPage() {
               initial="hidden"
               animate={isHeroInView ? "visible" : "hidden"}
             >
-              <span className="glowing-text">Every Trade Has A Victim</span>
+              <span className="glowing-text">Every Number Has A Shadow</span>
             </motion.p>
 
             {/* Epic Description with Fade-in Words */}
@@ -222,7 +216,7 @@ export function LandingPage() {
               animate={isHeroInView ? { opacity: 1 } : { opacity: 0 }}
               transition={{ duration: 1, delay: 0.8 }}
             >
-              {["The", "market", "doesn't", "care", "about", "your", "dreams.", "Every", "profit", "you", "make", "is", "someone", "else's", "loss.", "Every", "portfolio", "built", "on", "corpses.", "Welcome", "to", "the", "real", "game", "where", "morality", "is", "a", "luxury", "and", "survival", "is", "the", "only", "currency."].map((word, i) => (
+              {["Enter", "a", "world", "where", "algorithms", "dream", "in", "red", "and", "portfolios", "bleed", "pixels.", "The", "market", "never", "sleeps.", "Neither", "do", "its", "ghosts.", "Trading", "floors", "are", "built", "on", "buried", "ambitions.", "Your", "portfolio.", "Their", "obituary."].map((word, i) => (
                 <motion.span
                   key={i}
                   className="inline-block mr-2"
@@ -297,7 +291,7 @@ export function LandingPage() {
                   className="inline-flex items-center"
                 >
                   <Skull className="mr-2 h-6 w-6" />
-                  <span className="electric-text">EMBRACE THE VOID</span>
+                  <span className="electric-text">ENTER THE EXCHANGE</span>
                 </motion.div>
               </Button>
             </motion.div>
@@ -330,7 +324,7 @@ export function LandingPage() {
         </div>
       </motion.div>
 
-      {/* Seven Sins of Trading Section with Epic Reveals */}
+      {/* The Exchange Sections with Epic Reveals */}
       <motion.div 
         ref={cardsRef}
         className="max-w-7xl mx-auto px-6 py-16 relative z-20"
@@ -344,7 +338,7 @@ export function LandingPage() {
           animate={isCardsInView ? { y: 0, opacity: 1 } : { y: 50, opacity: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <h2 className="text-4xl md:text-6xl font-bold text-white mb-4 uppercase ink-bleed glitch-text" data-testid="heading-houses" data-text="The Seven Sins of Trading">
+          <h2 className="text-4xl md:text-6xl font-bold text-white mb-4 uppercase ink-bleed glitch-text" data-testid="heading-houses" data-text="Enter The Exchange">
             <motion.span
               animate={{
                 textShadow: [
@@ -355,20 +349,20 @@ export function LandingPage() {
               }}
               transition={{ duration: 3, repeat: Infinity }}
             >
-              The Seven Sins of Trading
+              Enter The Exchange
             </motion.span>
           </h2>
           <p className="text-destructive text-lg md:text-xl uppercase font-mono glowing-text" data-testid="text-houses-description">
-            Choose your damnation. Every path leads to the same end.
+            Six chambers of financial purgatory. The market doesn't forgive.
           </p>
         </motion.div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 perspective-1000">
-          {sins.map((sin, index) => {
-            const Icon = sin.icon;
+          {exchangeSections.map((section, index) => {
+            const Icon = section.icon;
             return (
               <motion.div
-                key={sin.title}
+                key={section.title}
                 variants={cardVariants}
                 initial="hidden"
                 animate={isCardsInView ? "visible" : "hidden"}
@@ -376,17 +370,17 @@ export function LandingPage() {
                 custom={index}
                 className="transform-gpu"
               >
-                <Card className="bg-black border-4 border-white noir-panel crosshatch shadow-noir-md card-3d hover:shadow-noir-xl transition-all duration-300" data-testid={`card-sin-${sin.title.toLowerCase()}`}>
+                <Card className="bg-black border-4 border-white noir-panel crosshatch shadow-noir-md card-3d hover:shadow-noir-xl transition-all duration-300" data-testid={`card-exchange-${section.title.toLowerCase().replace(/\s+/g, '-')}`}>
                   <CardHeader>
                     <CardTitle className="flex items-center text-destructive uppercase">
                       <Icon className="mr-2 h-5 w-5 text-destructive" />
-                      {sin.title}
+                      {section.title}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-white font-mono text-sm">
-                      <span className="text-destructive font-bold">{sin.heading}</span><br/>
-                      {sin.description}
+                      <span className="text-destructive font-bold">{section.heading}</span><br/>
+                      {section.description}
                     </p>
                   </CardContent>
                 </Card>

@@ -26,7 +26,9 @@ import {
   // Phase 3: Art-Driven Progression System Tables
   comicIssueVariants, userComicCollection, userProgressionStatus, houseProgressionPaths,
   userHouseProgression, tradingToolUnlocks, comicCollectionAchievements,
-  collectionChallenges, userChallengeParticipation
+  collectionChallenges, userChallengeParticipation,
+  // Moral Consequence System Tables
+  moralStandings, tradingVictims
 } from '@shared/schema.js';
 import type {
   User, InsertUser, UpsertUser, Asset, InsertAsset, MarketData, InsertMarketData,
@@ -71,7 +73,9 @@ import type {
   UserProgressionStatus, InsertUserProgressionStatus, HouseProgressionPath, InsertHouseProgressionPath,
   UserHouseProgression, InsertUserHouseProgression, TradingToolUnlock, InsertTradingToolUnlock,
   ComicCollectionAchievement, InsertComicCollectionAchievement, CollectionChallenge, InsertCollectionChallenge,
-  UserChallengeParticipation, InsertUserChallengeParticipation
+  UserChallengeParticipation, InsertUserChallengeParticipation,
+  // Moral Consequence System Types
+  MoralStanding, InsertMoralStanding, TradingVictim, InsertTradingVictim
 } from '@shared/schema.js';
 import type { IStorage } from './storage.js';
 
@@ -4571,6 +4575,35 @@ export class DatabaseStorage implements IStorage {
     }
     
     return undefined;
+  }
+  
+  // Moral Consequence System Methods
+  async createVictim(victim: InsertTradingVictim): Promise<TradingVictim> {
+    const [newVictim] = await this.db.insert(tradingVictims).values(victim).returning();
+    return newVictim;
+  }
+  
+  async getMoralStanding(userId: string): Promise<MoralStanding | undefined> {
+    const [standing] = await this.db
+      .select()
+      .from(moralStandings)
+      .where(eq(moralStandings.userId, userId))
+      .limit(1);
+    return standing;
+  }
+  
+  async createMoralStanding(moralStanding: InsertMoralStanding): Promise<MoralStanding> {
+    const [newStanding] = await this.db.insert(moralStandings).values(moralStanding).returning();
+    return newStanding;
+  }
+  
+  async updateMoralStanding(userId: string, updates: Partial<InsertMoralStanding>): Promise<MoralStanding | undefined> {
+    const [updated] = await this.db
+      .update(moralStandings)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(moralStandings.userId, userId))
+      .returning();
+    return updated;
   }
 }
 

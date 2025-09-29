@@ -68,7 +68,10 @@ import {
   // Collector System Types - CRITICAL for tenant isolation
   type GradedAssetProfile, type InsertGradedAssetProfile,
   type CollectionStorageBox, type InsertCollectionStorageBox,
-  type VariantCoverRegistry, type InsertVariantCoverRegistry
+  type VariantCoverRegistry, type InsertVariantCoverRegistry,
+  // Moral Consequence System Types
+  type MoralStanding, type InsertMoralStanding,
+  type TradingVictim, type InsertTradingVictim
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -762,6 +765,12 @@ export interface IStorage {
     growthRate: number;
     topPerformers: GradedAssetProfile[];
   }>;
+  
+  // Moral Consequence System Methods
+  createVictim(victim: InsertTradingVictim): Promise<TradingVictim>;
+  getMoralStanding(userId: string): Promise<MoralStanding | undefined>;
+  createMoralStanding(moralStanding: InsertMoralStanding): Promise<MoralStanding>;
+  updateMoralStanding(userId: string, updates: Partial<InsertMoralStanding>): Promise<MoralStanding | undefined>;
 }
 
 // Time-series buffer implementation with memory limits and proper chronological ordering
