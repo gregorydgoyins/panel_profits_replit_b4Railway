@@ -664,6 +664,35 @@ export type InsertComicGradingPrediction = z.infer<typeof insertComicGradingPred
 
 // Phase 1 Trading Extensions
 
+// Market Events - Terminal Clock market chaos events
+export const marketEvents = pgTable("market_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  eventType: text("event_type").notNull(), // 'flash_crash', 'liquidity_crisis', 'margin_call_cascade', 'volatility_spike'
+  severity: text("severity").notNull(), // 'low', 'medium', 'high', 'critical'
+  title: text("title").notNull(),
+  description: text("description"),
+  impact: jsonb("impact"), // { priceMultiplier: 0.95, volatilityBoost: 1.5, affectedAssets: ['all'] }
+  visualEffect: text("visual_effect"), // 'screen_flash', 'red_wash', 'glitch', 'static'
+  triggerVolatilityLevel: decimal("trigger_volatility_level", { precision: 8, scale: 2 }), // Volatility level that triggered this
+  duration: integer("duration").default(60), // Event duration in seconds
+  timestamp: timestamp("timestamp").defaultNow(),
+  endTimestamp: timestamp("end_timestamp"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Volatility History - Track market volatility levels over time
+export const volatilityHistory = pgTable("volatility_history", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  level: decimal("level", { precision: 8, scale: 2 }).notNull(), // Current volatility multiplier (1.0 - 3.0+)
+  marketPhase: text("market_phase").notNull(), // 'early_hours', 'mid_day', 'power_hour', 'terminal_hour'
+  timeUntilTerminal: integer("time_until_terminal"), // Seconds until market close
+  activeEvents: jsonb("active_events"), // Array of active event IDs
+  affectedAssets: integer("affected_assets").default(0), // Number of assets affected
+  tradingVolume: decimal("trading_volume", { precision: 15, scale: 2 }), // Total volume during this period
+  priceSwings: jsonb("price_swings"), // { maxSwing: 0.15, avgSwing: 0.08 }
+  timestamp: timestamp("timestamp").defaultNow(),
+});
+
 // Trading Sessions - Track user trading activity and performance
 export const tradingSessions = pgTable("trading_sessions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
