@@ -21,6 +21,7 @@ export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   // Replit Auth fields  
   username: varchar("username").notNull().unique(), // Required for authentication
+  password: text("password"), // Optional - OIDC auth doesn't use passwords
   email: varchar("email").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),

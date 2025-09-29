@@ -105,8 +105,8 @@ export function registerStoryMarketRoutes(app: Express, storage: IStorage) {
         const change = parseFloat(data.percentChange || '0');
         keyMoments.push({
           time: data.periodStart,
-          title: change > 0 ? 'SURGE OF POWER!' : 'CRITICAL HIT!',
-          description: `${asset.name} ${change > 0 ? 'soars' : 'plummets'} ${Math.abs(change).toFixed(1)}%`,
+          title: change > 0 ? 'FALSE PROSPERITY' : 'BLOOD IN THE STREETS',
+          description: `${asset.name} ${change > 0 ? 'feeds on someone else\'s ruin' : 'reveals the true cost'} - ${Math.abs(change).toFixed(1)}% change`,
           impact: Math.abs(change) > 10 ? 'high' : Math.abs(change) > 5 ? 'medium' : 'low',
           icon: change > 0 ? 'rocket' : 'explosion'
         });
@@ -117,25 +117,25 @@ export function registerStoryMarketRoutes(app: Express, storage: IStorage) {
       const avgChange = marketData.reduce((acc, d) => acc + parseFloat(d.percentChange || '0'), 0) / marketData.length;
       
       let phase = 'origin';
-      let title = 'The Beginning';
-      let description = 'Every hero has an origin story...';
+      let title = 'THE JOKE\'S ON US';
+      let description = 'We thought we were building wealth. We were building our own cages.';
       
       if (latestChange > 10) {
         phase = 'climax';
-        title = 'THE ULTIMATE SHOWDOWN!';
-        description = 'Witness the epic battle for market supremacy!';
+        title = 'OZYMANDIAS\'S GAMBIT';
+        description = 'Sacrificing millions to save billions. The math always works out.';
       } else if (latestChange > 5) {
         phase = 'rising';
-        title = 'Rising Action';
-        description = 'The hero gains strength and momentum...';
+        title = 'FALSE DAWN';
+        description = 'Every bull run is built on someone else\'s foreclosure notice.';
       } else if (latestChange < -10) {
         phase = 'falling';
-        title = 'The Dark Hour';
-        description = 'Even heroes must face their darkest moments...';
+        title = 'RORSCHACH\'S JOURNAL';
+        description = 'The accumulated filth of all their greed will foam up about their waists.';
       } else if (Math.abs(avgChange) < 2) {
         phase = 'resolution';
-        title = 'Finding Balance';
-        description = 'The market seeks equilibrium in the eternal cycle...';
+        title = 'THE COMEDIAN\'S TRUTH';
+        description = 'It\'s all a joke. The market, morality, meaning. All of it.';
       }
       
       res.json({
@@ -182,7 +182,7 @@ export function registerStoryMarketRoutes(app: Express, storage: IStorage) {
               return {
                 id: asset.id,
                 name: asset.name,
-                role: change > 0 ? 'hero' : change < 0 ? 'villain' : 'bystander' as const,
+                role: change > 0 ? 'profiteer' : change < 0 ? 'victim' : 'witness' as const,
                 changePercent: change
               };
             })
@@ -206,7 +206,7 @@ export function registerStoryMarketRoutes(app: Express, storage: IStorage) {
             id: event.id,
             timestamp: event.eventDate || event.createdAt || new Date(),
             title: event.title.toUpperCase(),
-            description: event.description || 'The market trembles with anticipation...',
+            description: event.description || 'Another domino falls in the elaborate joke we call capitalism.',
             impact: impactLevel,
             type: eventType,
             affectedAssets: affectedAssets.filter(a => a !== null),
@@ -217,7 +217,7 @@ export function registerStoryMarketRoutes(app: Express, storage: IStorage) {
       );
       
       res.json({
-        title: 'MARKET CHRONICLES',
+        title: 'TALES FROM THE GUTTER',
         issue: new Date().getDate(),
         panels: panels.filter(p => p !== null),
         currentPage: 1,
