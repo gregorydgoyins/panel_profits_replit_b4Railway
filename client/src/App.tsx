@@ -54,6 +54,9 @@ import SacredLibrary from '@/pages/SacredLibrary';
 // Integration Management pages
 import DivineConnections from '@/pages/DivineConnections';
 
+// Sequential Art Trading Experience
+import SequentialTradingExperience from '@/pages/SequentialTradingExperience';
+
 // WebSocket service for real-time data
 import { webSocketService } from '@/services/websocketService';
 
@@ -106,6 +109,7 @@ function Router() {
       {/* Trading routes */}
       <Route path="/trading" component={TradingPage} />
       <Route path="/terminal" component={TradingTerminalPage} />
+      <Route path="/sequential-art" component={SequentialTradingExperience} />
       <Route path="/characters" component={CharactersPage} />
       <Route path="/comics" component={ComicsPage} />
       <Route path="/creators" component={CreatorsPage} />

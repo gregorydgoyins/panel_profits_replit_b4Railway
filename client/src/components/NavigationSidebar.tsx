@@ -34,6 +34,7 @@ export function NavigationSidebar() {
     if (location === '/charting') return 'charting';
     if (location === '/trading') return 'order-desk';
     if (location === '/terminal') return 'terminal';
+    if (location === '/sequential-art') return 'sequential-art';
     if (location === '/characters') return 'characters';
     if (location === '/comics') return 'comics';
     if (location === '/creators') return 'creators';
@@ -68,9 +69,10 @@ export function NavigationSidebar() {
     // Trading
     { id: 'order-desk', label: 'Order Desk', icon: DollarSign, path: '/trading', category: 'trading' },
     { id: 'terminal', label: 'Trading Terminal', icon: LineChart, path: '/terminal', category: 'trading', badge: 'PRO' },
+    { id: 'sequential-art', label: 'Sequential Art', icon: BookOpen, path: '/sequential-art', category: 'trading', badge: 'NEW' },
     { id: 'characters', label: 'Characters', icon: Users, path: '/characters', category: 'trading' },
-    { id: 'comics', label: 'Key Comics', icon: BookOpen, path: '/comics', category: 'trading' },
-    { id: 'creators', label: 'Creators', icon: Layers, path: '/creators', category: 'trading' },
+    { id: 'comics', label: 'Key Comics', icon: Layers, path: '/comics', category: 'trading' },
+    { id: 'creators', label: 'Creators', icon: Sparkles, path: '/creators', category: 'trading' },
     { id: 'publishers', label: 'Publishers', icon: Building, path: '/publishers', category: 'trading' },
     
     // Portfolio
@@ -109,6 +111,7 @@ export function NavigationSidebar() {
       'ai-grading': 'text-violet-400 bg-violet-900/30 hover:bg-violet-600',
       charting: 'text-pink-400 bg-pink-900/30 hover:bg-pink-600',
       'order-desk': 'text-green-400 bg-green-900/30 hover:bg-green-600',
+      'sequential-art': 'text-amber-400 bg-amber-900/30 hover:bg-amber-600',
       characters: 'text-purple-400 bg-purple-900/30 hover:bg-purple-600',
       comics: 'text-orange-400 bg-orange-900/30 hover:bg-orange-600',
       creators: 'text-yellow-400 bg-yellow-900/30 hover:bg-yellow-600',
