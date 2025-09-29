@@ -52,6 +52,12 @@ export const DEFAULT_MARKET_CONFIG: MarketConfig = {
   marketCloseHour: 16,
 };
 
+// PRICE SAFETY CONSTANTS - Prevent DECIMAL(10,2) overflow
+const MAX_PRICE = 99999999.99; // Database DECIMAL(10,2) limit  
+const MIN_PRICE = 0.01; // Minimum tradeable price
+const SAFE_MAX_PRICE = 99999.99; // Safe upper bound for regular trading
+const MAX_SINGLE_PRICE_CHANGE = 0.50; // Maximum 50% price change per update
+
 interface AssetMarketData {
   asset: Asset;
   currentPrice: AssetCurrentPrice;
@@ -331,52 +337,167 @@ export class MarketSimulationEngine {
   }
 
   /**
-   * Update price for a specific asset
+   * Validate and cap price to prevent database overflow
+   */
+  private validatePrice(price: number, context: string, assetSymbol?: string): number {
+    if (!isFinite(price) || price < MIN_PRICE) {
+      console.warn(`🔧 Market Simulation Price Validation: ${context} (${assetSymbol}) - Invalid price ${price}, setting to minimum ${MIN_PRICE}`);
+      return MIN_PRICE;
+    }
+    
+    if (price > MAX_PRICE) {
+      console.warn(`🔧 Market Simulation Price Validation: ${context} (${assetSymbol}) - Price ${price} exceeds database limit, capping at ${SAFE_MAX_PRICE}`);
+      return SAFE_MAX_PRICE;
+    }
+    
+    if (price > SAFE_MAX_PRICE) {
+      console.warn(`📉 Market Simulation Price Cap: ${context} (${assetSymbol}) - Price ${price.toFixed(2)} exceeds safe limit, capping at ${SAFE_MAX_PRICE}`);
+      return SAFE_MAX_PRICE;
+    }
+    
+    return Math.round(price * 100) / 100; // Round to 2 decimal places
+  }
+  
+  /**
+   * Update price for a specific asset - SAFE VERSION WITH OVERFLOW PROTECTION
    */
   private async updateAssetPrice(assetId: string, marketData: AssetMarketData, timeDelta: number): Promise<void> {
-    const currentPrice = parseFloat(marketData.currentPrice.currentPrice);
-    
-    // Generate price movement
-    const priceChange = this.generatePriceMovement(marketData, timeDelta);
-    const newPrice = Math.max(0.01, currentPrice * (1 + priceChange));
-    
-    // Update trend and momentum
-    marketData.trend = this.updateTrend(marketData.trend, priceChange);
-    marketData.momentum = priceChange;
-    
-    // Calculate bid/ask spread
-    const spread = this.calculateSpread(marketData);
-    const bidPrice = newPrice * (1 - spread / 2);
-    const askPrice = newPrice * (1 + spread / 2);
-    
-    // Simulate volume
-    const newVolume = this.simulateVolume(marketData);
-    
-    // Update market data
-    marketData.priceHistory.push(newPrice);
-    if (marketData.priceHistory.length > 1440) { // Keep 24 hours of minute data
-      marketData.priceHistory.shift();
+    try {
+      const currentPrice = parseFloat(marketData.currentPrice.currentPrice);
+      const assetSymbol = marketData.asset.symbol;
+      
+      // Validate current price first
+      if (currentPrice > SAFE_MAX_PRICE) {
+        console.warn(`⚠️ Asset ${assetSymbol} current price ${currentPrice} exceeds safe limit, resetting to safe value`);
+        // Reset price to a safe value and exit early
+        const safePrice = Math.min(currentPrice * 0.1, SAFE_MAX_PRICE);
+        await this.resetAssetToSafePrice(assetId, marketData, safePrice);
+        return;
+      }
+      
+      // Generate price movement with safety caps
+      let priceChange = this.generatePriceMovement(marketData, timeDelta);
+      
+      // Cap extreme price changes to prevent overflow
+      priceChange = Math.max(-MAX_SINGLE_PRICE_CHANGE, Math.min(priceChange, MAX_SINGLE_PRICE_CHANGE));
+      
+      // Calculate new price with safety validation
+      let newPrice = currentPrice * (1 + priceChange);
+      newPrice = this.validatePrice(Math.max(MIN_PRICE, newPrice), 'Price Update', assetSymbol);
+      
+      // If the new price would be capped, reduce the price change proportionally
+      if (newPrice >= SAFE_MAX_PRICE && currentPrice < SAFE_MAX_PRICE) {
+        const maxAllowedChange = (SAFE_MAX_PRICE / currentPrice) - 1;
+        priceChange = Math.min(priceChange, maxAllowedChange * 0.9); // 90% of max to leave buffer
+        newPrice = this.validatePrice(currentPrice * (1 + priceChange), 'Adjusted Price Update', assetSymbol);
+        console.log(`📊 Price change adjusted for ${assetSymbol}: ${(priceChange * 100).toFixed(2)}% to prevent overflow`);
+      }
+      
+      // Update trend and momentum (safely bounded)
+      marketData.trend = this.updateTrend(marketData.trend, priceChange);
+      marketData.momentum = priceChange;
+      
+      // Calculate bid/ask spread with safety validation
+      const spread = this.calculateSpread(marketData);
+      let bidPrice = this.validatePrice(newPrice * (1 - spread / 2), 'Bid Price', assetSymbol);
+      let askPrice = this.validatePrice(newPrice * (1 + spread / 2), 'Ask Price', assetSymbol);
+      
+      // Ensure bid < ask, adjust if necessary due to capping
+      if (bidPrice >= askPrice) {
+        bidPrice = newPrice * 0.999;
+        askPrice = newPrice * 1.001;
+      }
+      
+      // Simulate volume
+      const newVolume = this.simulateVolume(marketData);
+      
+      // Calculate day change safely
+      const dayChange = this.validatePrice(Math.abs(newPrice - currentPrice), 'Day Change', assetSymbol);
+      const dayChangePercent = currentPrice > 0 ? Math.max(-99.99, Math.min(999.99, (newPrice / currentPrice - 1) * 100)) : 0;
+      
+      // Update market data
+      marketData.priceHistory.push(newPrice);
+      if (marketData.priceHistory.length > 1440) { // Keep 24 hours of minute data
+        marketData.priceHistory.shift();
+      }
+      
+      // Prepare safe update data
+      const updateData = {
+        currentPrice: newPrice.toFixed(2),
+        bidPrice: bidPrice.toFixed(2),
+        askPrice: askPrice.toFixed(2),
+        dayChange: (newPrice >= currentPrice ? dayChange : -dayChange).toFixed(2),
+        dayChangePercent: dayChangePercent.toFixed(2),
+        volume: newVolume,
+        lastTradePrice: newPrice.toFixed(2),
+        lastTradeTime: new Date(),
+      };
+      
+      // Validate all numeric fields before database update
+      for (const [key, value] of Object.entries(updateData)) {
+        if (typeof value === 'string' && key !== 'lastTradeTime') {
+          const numValue = parseFloat(value);
+          if (!isFinite(numValue)) {
+            console.error(`❌ Invalid numeric value for ${key}: ${value} in asset ${assetSymbol}`);
+            return; // Skip this update to prevent database error
+          }
+        }
+      }
+      
+      // Update in database with error handling
+      const updatedPrice = await storage.updateAssetCurrentPrice(assetId, updateData);
+      
+      if (updatedPrice) {
+        marketData.currentPrice = updatedPrice;
+      }
+      
+      // Store historical data (every 5 minutes to avoid too much data)
+      if (Math.random() < 0.2) { // 20% chance = roughly every 5 updates
+        await this.storeHistoricalData(assetId, newPrice, newVolume);
+      }
+      
+    } catch (error) {
+      console.error(`🚨 Critical error updating price for asset ${assetId}:`, error);
+      
+      // If database error contains overflow, reset to safe price
+      if (error.message && error.message.includes('overflow')) {
+        console.log(`🛡️ Detected price overflow for ${assetId}, resetting to safe price...`);
+        await this.resetAssetToSafePrice(assetId, marketData, SAFE_MAX_PRICE * 0.1);
+      }
     }
-    
-    // Update in database
-    const updatedPrice = await storage.updateAssetCurrentPrice(assetId, {
-      currentPrice: newPrice.toFixed(2),
-      bidPrice: bidPrice.toFixed(2),
-      askPrice: askPrice.toFixed(2),
-      dayChange: ((newPrice - currentPrice)).toFixed(2),
-      dayChangePercent: ((newPrice / currentPrice - 1) * 100).toFixed(2),
-      volume: newVolume,
-      lastTradePrice: newPrice.toFixed(2),
-      lastTradeTime: new Date(),
-    });
-    
-    if (updatedPrice) {
-      marketData.currentPrice = updatedPrice;
-    }
-    
-    // Store historical data (every 5 minutes to avoid too much data)
-    if (Math.random() < 0.2) { // 20% chance = roughly every 5 updates
-      await this.storeHistoricalData(assetId, newPrice, newVolume);
+  }
+  
+  /**
+   * Reset an asset to a safe price when overflow is detected
+   */
+  private async resetAssetToSafePrice(assetId: string, marketData: AssetMarketData, safePrice: number): Promise<void> {
+    try {
+      const validSafePrice = this.validatePrice(safePrice, 'Safe Price Reset', marketData.asset.symbol);
+      
+      const resetData = {
+        currentPrice: validSafePrice.toFixed(2),
+        bidPrice: (validSafePrice * 0.999).toFixed(2),
+        askPrice: (validSafePrice * 1.001).toFixed(2),
+        dayChange: '0.00',
+        dayChangePercent: '0.00',
+        volume: 1000,
+        lastTradePrice: validSafePrice.toFixed(2),
+        lastTradeTime: new Date(),
+      };
+      
+      const updatedPrice = await storage.updateAssetCurrentPrice(assetId, resetData);
+      
+      if (updatedPrice) {
+        marketData.currentPrice = updatedPrice;
+        marketData.priceHistory = [validSafePrice]; // Reset price history
+        marketData.trend = 0; // Reset trend
+        marketData.momentum = 0; // Reset momentum
+      }
+      
+      console.log(`✅ Successfully reset ${marketData.asset.symbol} price to safe value: $${validSafePrice.toFixed(2)}`);
+      
+    } catch (resetError) {
+      console.error(`❌ Failed to reset asset ${assetId} to safe price:`, resetError);
     }
   }
 

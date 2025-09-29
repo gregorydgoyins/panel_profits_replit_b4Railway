@@ -1,615 +1,1464 @@
-import { storage } from '../storage.js';
-import type { Asset, InsertAsset } from '@shared/schema.js';
+import { drizzle } from 'drizzle-orm/neon-http';
+import { neon } from '@neondatabase/serverless';
+import { eq, and, desc, sql, inArray } from 'drizzle-orm';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as crypto from 'crypto';
+import { parse } from 'csv-parse';
+import { 
+  rawDatasetFiles, stagingRecords, ingestionJobs, ingestionRuns, ingestionErrors,
+  narrativeEntities, narrativeTraits, entityAliases, entityInteractions, 
+  mediaPerformanceMetrics, enhancedCharacters, battleScenarios, enhancedComicIssues,
+  moviePerformanceData, assetFinancialMapping, assets
+} from '@shared/schema.js';
+import type {
+  InsertRawDatasetFile, InsertStagingRecord, InsertIngestionJob, InsertIngestionRun,
+  InsertIngestionError, InsertNarrativeEntity, InsertNarrativeTrait, InsertEntityAlias,
+  InsertEntityInteraction, InsertMediaPerformanceMetric, InsertEnhancedCharacter,
+  InsertBattleScenario, InsertEnhancedComicIssue, InsertMoviePerformanceData,
+  InsertAssetFinancialMapping, InsertAsset
+} from '@shared/schema.js';
+
+// Initialize database connection
+const sql_connection = neon(process.env.DATABASE_URL!);
+const db = drizzle(sql_connection);
 
 /**
- * Enhanced Comic Data Integration Service
- * Integrates with real comic databases and APIs for authentic character information,
- * market events, and cross-universe data with mystical presentation
+ * Phase 2 CSV Ingestion Orchestrator
+ * Comprehensive system for processing narrative data from CSV files into trading platform
  */
-
-export interface ComicAPICharacterData {
-  id: string;
-  name: string;
-  description: string;
-  firstAppearance: string;
-  publisher: string;
-  powerStats: {
-    intelligence: number;
-    strength: number;
-    speed: number;
-    durability: number;
-    power: number;
-    combat: number;
+export class CSVIngestionOrchestrator {
+  private readonly ATTACHED_ASSETS_DIR = 'attached_assets';
+  private readonly BATCH_SIZE = 1000;
+  private readonly MAX_RETRIES = 3;
+  
+  // Price Safety Constants - Prevent DECIMAL(10,2) overflow
+  private readonly MAX_PRICE = 99999999.99; // Database DECIMAL(10,2) limit
+  private readonly MIN_PRICE = 0.01; // Minimum tradeable price
+  private readonly SAFE_MAX_PRICE = 99999.99; // Safe upper bound for regular assets
+  private readonly BASE_PRICE_RANGE = { MIN: 1.00, MAX: 999.99 }; // Base price range
+  private readonly PREMIUM_PRICE_RANGE = { MIN: 1000.00, MAX: 9999.99 }; // Premium assets
+  private readonly COSMIC_PRICE_RANGE = { MIN: 10000.00, MAX: 99999.99 }; // Cosmic-level assets
+  
+  private readonly HOUSE_THEMES = {
+    heroes: ['hero', 'captain', 'spider', 'superman', 'wonder', 'flash'],
+    wisdom: ['doctor', 'professor', 'sage', 'oracle', 'scholar', 'strange'],
+    power: ['hulk', 'thor', 'strength', 'cosmic', 'phoenix', 'galactus'],
+    mystery: ['batman', 'shadow', 'night', 'dark', 'mystic', 'occult'],
+    elements: ['storm', 'fire', 'ice', 'earth', 'water', 'elemental'],
+    time: ['time', 'temporal', 'chrono', 'speed', 'future', 'past'],
+    spirit: ['ghost', 'spirit', 'soul', 'astral', 'phantom', 'supernatural']
   };
-  affiliations: string[];
-  enemies: string[];
-  allies: string[];
-  universeOrigin: string;
-  comicsAppeared: number;
-  movieAppearances: string[];
-  tvAppearances: string[];
-  creators: string[];
-  realWorldPopularity: number;
-  collectibleValue: number;
-  imageUrl?: string;
-}
 
-export interface ComicMarketEvent {
-  id: string;
-  type: 'movie_announcement' | 'comic_release' | 'character_death' | 'crossover_event' | 'reboot' | 'acquisition';
-  title: string;
-  description: string;
-  affectedCharacters: string[];
-  affectedPublishers: string[];
-  impactLevel: 'low' | 'medium' | 'high' | 'critical';
-  estimatedMarketImpact: number; // -1 to 1 scale
-  eventDate: Date;
-  sourceUrl?: string;
-  mysticalSignificance: string;
-  houseRelevance: Record<string, number>;
-}
-
-export interface RealComicSalesData {
-  issueId: string;
-  title: string;
-  issueNumber: string;
-  publishDate: Date;
-  currentMarketPrice: number;
-  priceHistory: Array<{
-    date: Date;
-    price: number;
-    condition: string;
-    source: string;
-  }>;
-  popularityIndex: number;
-  rarity: 'common' | 'uncommon' | 'rare' | 'ultra_rare' | 'legendary';
-  keyIssue: boolean;
-  firstAppearances: string[];
-  significantEvents: string[];
-}
-
-export interface UniverseRelationshipData {
-  character1Id: string;
-  character2Id: string;
-  relationshipType: 'ally' | 'enemy' | 'neutral' | 'family' | 'romantic' | 'mentor' | 'team_member';
-  strength: number; // 0-1 scale
-  firstInteraction: string;
-  majorEvents: string[];
-  universeSpecific: boolean;
-  crossoverPotential: number;
-}
-
-class EnhancedComicDataIntegrationService {
-  private readonly CACHE_DURATION_HOURS = 6;
-  private readonly MOCK_MODE = !process.env.COMIC_API_KEY; // Use mock data if no API key
+  constructor() {
+    console.log('🏛️ CSV Ingestion Orchestrator: Seven Houses await the narrative convergence...');
+  }
 
   /**
-   * Fetch authentic character data from comic databases
+   * Start comprehensive CSV ingestion process
    */
-  async fetchCharacterData(characterName: string): Promise<ComicAPICharacterData | null> {
+  async startIngestion(userId?: string): Promise<string> {
     try {
-      if (this.MOCK_MODE) {
-        return this.generateMockCharacterData(characterName);
-      }
-
-      // In production, integrate with real APIs like:
-      // - Marvel API
-      // - DC API
-      // - Comic Vine API
-      // - MyComicShop API
-      // etc.
-
-      console.log('🦸‍♂️ Comic Oracle: Fetching authentic data for', characterName);
+      console.log('🔮 Initiating Phase 2 Data Convergence...');
       
-      // Mock API call structure for now
-      const apiResponse = await this.mockComicAPICall(characterName);
-      return this.transformAPIResponse(apiResponse);
+      const jobId = await this.createIngestionJob('full_csv_import', userId);
+      const runId = await this.createIngestionRun(jobId);
+      
+      await this.updateJobStatus(jobId, 'running', 0);
+      
+      // Step 1: Scan and register CSV files
+      await this.updateJobStage(jobId, 'file_scanning', 10);
+      const csvFiles = await this.scanAndRegisterCSVFiles(jobId);
+      console.log(`📁 Discovered ${csvFiles.length} narrative archive files`);
+      
+      // Step 2: Process each CSV file
+      await this.updateJobStage(jobId, 'processing', 20);
+      for (let i = 0; i < csvFiles.length; i++) {
+        const file = csvFiles[i];
+        const progress = 20 + ((i + 1) / csvFiles.length) * 60;
+        
+        try {
+          await this.processCSVFile(file, jobId, runId);
+          await this.updateJobProgress(jobId, progress);
+        } catch (error) {
+          console.error(`❌ Error processing ${file.filename}:`, error);
+          await this.logIngestionError(jobId, runId, 'processing', error as Error, { filename: file.filename });
+        }
+      }
+      
+      // Step 3: Entity resolution and normalization
+      await this.updateJobStage(jobId, 'normalization', 80);
+      await this.performEntityResolution(jobId, runId);
+      
+      // Step 4: Calculate derived trading metrics
+      await this.updateJobStage(jobId, 'enrichment', 90);
+      await this.calculateTradingMetrics(jobId, runId);
+      
+      // Step 5: Complete ingestion
+      await this.updateJobStatus(jobId, 'completed', 100);
+      await this.completeIngestionRun(runId, 'completed');
+      
+      console.log('✨ Phase 2 Data Convergence Complete: The Seven Houses welcome their new narrative assets!');
+      return jobId;
       
     } catch (error) {
-      console.error('Error fetching character data:', error);
-      return this.generateMockCharacterData(characterName);
+      console.error('🚨 Critical ingestion failure:', error);
+      throw error;
     }
   }
 
   /**
-   * Get real-time comic market events affecting asset prices
+   * Scan attached_assets directory for CSV files and register them
    */
-  async fetchMarketEvents(): Promise<ComicMarketEvent[]> {
+  private async scanAndRegisterCSVFiles(jobId: string): Promise<any[]> {
+    const csvFiles: any[] = [];
+    
     try {
-      console.log('📰 News Oracle: Channeling real-time comic industry developments...');
-
-      if (this.MOCK_MODE) {
-        return this.generateMockMarketEvents();
-      }
-
-      // In production, integrate with:
-      // - Comic industry news APIs
-      // - Social media sentiment analysis
-      // - Movie/TV announcement feeds
-      // - Comic convention schedules
-      // - Publisher press releases
-
-      const events = await this.fetchRealComicNews();
-      return events.map(event => this.enhanceEventWithMysticalSignificance(event));
-      
-    } catch (error) {
-      console.error('Error fetching market events:', error);
-      return this.generateMockMarketEvents();
-    }
-  }
-
-  /**
-   * Get real comic sales and auction data for market pricing
-   */
-  async fetchComicSalesData(comicTitle: string, issueNumber?: string): Promise<RealComicSalesData[]> {
-    try {
-      console.log('💰 Auction Oracle: Divining real market prices for', comicTitle);
-
-      if (this.MOCK_MODE) {
-        return this.generateMockSalesData(comicTitle, issueNumber);
-      }
-
-      // In production, integrate with:
-      // - eBay sold listings API
-      // - Heritage Auctions API
-      // - GoCollect API
-      // - MyComicShop pricing data
-      // - Comic price guide APIs
-
-      const salesData = await this.fetchRealSalesData(comicTitle, issueNumber);
-      return salesData;
-      
-    } catch (error) {
-      console.error('Error fetching sales data:', error);
-      return this.generateMockSalesData(comicTitle, issueNumber);
-    }
-  }
-
-  /**
-   * Map character relationships and universe connections
-   */
-  async mapUniverseRelationships(characterIds: string[]): Promise<UniverseRelationshipData[]> {
-    try {
-      console.log('🌌 Universe Oracle: Mapping cosmic character connections...');
-
-      const relationships: UniverseRelationshipData[] = [];
-      
-      // Get character data for relationship analysis
-      const characters = await Promise.all(
-        characterIds.map(id => storage.getAsset(id))
+      const files = fs.readdirSync(this.ATTACHED_ASSETS_DIR);
+      const csvFileNames = files.filter(file => 
+        file.endsWith('.csv') && (
+          file.includes('marvel') || 
+          file.includes('dc') || 
+          file.includes('comic') || 
+          file.includes('character') ||
+          file.includes('battle') ||
+          file.includes('movie')
+        )
       );
 
-      // Generate relationships based on comic lore
-      for (let i = 0; i < characters.length; i++) {
-        for (let j = i + 1; j < characters.length; j++) {
-          const char1 = characters[i];
-          const char2 = characters[j];
-          
-          if (char1 && char2) {
-            const relationship = await this.analyzeCharacterRelationship(char1, char2);
-            if (relationship) {
-              relationships.push(relationship);
-            }
-          }
-        }
-      }
-
-      return relationships;
-      
-    } catch (error) {
-      console.error('Error mapping universe relationships:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Update asset pricing based on real comic market data
-   */
-  async updateAssetPricingFromMarketData(): Promise<void> {
-    try {
-      console.log('💎 Price Oracle: Aligning mystical asset values with earthly market forces...');
-
-      // Get all character and comic assets
-      const assets = await storage.getAssets();
-      const comicAssets = assets.filter(a => a.type === 'character' || a.type === 'comic');
-
-      for (const asset of comicAssets.slice(0, 10)) { // Limit for performance
-        try {
-          // Fetch real market data
-          const salesData = await this.fetchComicSalesData(asset.name);
-          
-          if (salesData.length > 0) {
-            const avgMarketPrice = this.calculateAverageMarketPrice(salesData);
-            const popularityBonus = this.calculatePopularityBonus(salesData);
-            
-            // Update asset metadata with real market data
-            const updatedMetadata = {
-              ...asset.metadata,
-              realMarketPrice: avgMarketPrice,
-              popularityIndex: popularityBonus,
-              lastMarketUpdate: new Date().toISOString(),
-              salesDataConfidence: this.calculateDataConfidence(salesData)
-            };
-
-            // Update asset in storage
-            // Note: This would require adding an update method to storage
-            console.log(`💰 Updated market data for ${asset.name}: $${avgMarketPrice.toLocaleString()}`);
-          }
-          
-        } catch (error) {
-          console.error(`Error updating pricing for ${asset.name}:`, error);
-        }
-      }
-      
-    } catch (error) {
-      console.error('Error updating asset pricing:', error);
-    }
-  }
-
-  /**
-   * Generate cross-universe event predictions
-   */
-  async predictCrossoverEvents(universes: string[]): Promise<ComicMarketEvent[]> {
-    try {
-      console.log('🌟 Crossover Oracle: Divining interdimensional event possibilities...');
-
-      const crossoverEvents: ComicMarketEvent[] = [];
-      
-      // Analyze historical crossover patterns
-      const crossoverProbability = this.calculateCrossoverProbability(universes);
-      
-      if (crossoverProbability > 0.3) {
-        const event: ComicMarketEvent = {
-          id: `crossover_prediction_${Date.now()}`,
-          type: 'crossover_event',
-          title: `Mystical Crossover Convergence: ${universes.join(' × ')}`,
-          description: `The cosmic forces align to bring together the realms of ${universes.join(' and ')}, creating unprecedented trading opportunities.`,
-          affectedCharacters: await this.getUniverseCharacters(universes),
-          affectedPublishers: this.getUniversePublishers(universes),
-          impactLevel: crossoverProbability > 0.7 ? 'critical' : crossoverProbability > 0.5 ? 'high' : 'medium',
-          estimatedMarketImpact: crossoverProbability * 0.3, // Max 30% impact
-          eventDate: new Date(Date.now() + Math.random() * 365 * 24 * 60 * 60 * 1000), // Random date within next year
-          mysticalSignificance: this.generateCrossoverProphecy(universes, crossoverProbability),
-          houseRelevance: this.calculateCrossoverHouseRelevance(universes)
-        };
+      for (const filename of csvFileNames) {
+        const filePath = path.join(this.ATTACHED_ASSETS_DIR, filename);
+        const stats = fs.statSync(filePath);
+        const content = fs.readFileSync(filePath);
+        const checksum = crypto.createHash('sha256').update(content).digest('hex');
         
-        crossoverEvents.push(event);
+        const datasetType = this.determineDatasetType(filename);
+        const universe = this.determineUniverse(filename);
+        
+        // Register file in database
+        const [registeredFile] = await db.insert(rawDatasetFiles).values({
+          filename,
+          originalFilename: filename,
+          fileSize: stats.size,
+          checksum,
+          mimeType: 'text/csv',
+          datasetType,
+          source: 'attached_assets',
+          universe,
+          processingStatus: 'uploaded',
+          storageLocation: filePath,
+          ingestionJobId: jobId,
+          csvHeaders: await this.extractCSVHeaders(filePath),
+          sampleData: await this.extractSampleData(filePath)
+        }).returning();
+
+        csvFiles.push(registeredFile);
+        console.log(`📋 Registered: ${filename} (${datasetType}, ${universe})`);
       }
 
-      return crossoverEvents;
-      
+      return csvFiles;
     } catch (error) {
-      console.error('Error predicting crossover events:', error);
-      return [];
+      console.error('Error scanning CSV files:', error);
+      throw error;
     }
   }
 
-  // Mock data generation methods for development/testing
-
-  private generateMockCharacterData(characterName: string): ComicAPICharacterData {
-    const publishers = ['Marvel Comics', 'DC Comics', 'Image Comics', 'Dark Horse Comics', 'IDW Publishing'];
-    const universes = ['Earth-616', 'Prime Earth', 'Ultimate Universe', 'Earth-1', 'New Earth'];
+  /**
+   * Process individual CSV file with streaming parser
+   */
+  private async processCSVFile(file: any, jobId: string, runId: string): Promise<void> {
+    console.log(`🔄 Processing: ${file.filename}`);
     
-    return {
-      id: `mock_${characterName.toLowerCase().replace(/\s+/g, '_')}`,
-      name: characterName,
-      description: `A legendary figure in the comic universe, ${characterName} possesses incredible abilities and stands as a beacon of their universe.`,
-      firstAppearance: `${characterName} #1 (${1960 + Math.floor(Math.random() * 60)})`,
-      publisher: publishers[Math.floor(Math.random() * publishers.length)],
-      powerStats: {
-        intelligence: 30 + Math.floor(Math.random() * 70),
-        strength: 30 + Math.floor(Math.random() * 70),
-        speed: 30 + Math.floor(Math.random() * 70),
-        durability: 30 + Math.floor(Math.random() * 70),
-        power: 30 + Math.floor(Math.random() * 70),
-        combat: 30 + Math.floor(Math.random() * 70)
-      },
-      affiliations: this.generateRandomAffiliations(),
-      enemies: this.generateRandomEnemies(),
-      allies: this.generateRandomAllies(),
-      universeOrigin: universes[Math.floor(Math.random() * universes.length)],
-      comicsAppeared: 20 + Math.floor(Math.random() * 500),
-      movieAppearances: this.generateRandomMovies(),
-      tvAppearances: this.generateRandomTVShows(),
-      creators: this.generateRandomCreators(),
-      realWorldPopularity: 40 + Math.floor(Math.random() * 60),
-      collectibleValue: 50 + Math.floor(Math.random() * 1000)
-    };
-  }
+    await db.update(rawDatasetFiles)
+      .set({ processingStatus: 'processing', processingStartedAt: new Date() })
+      .where(eq(rawDatasetFiles.id, file.id));
 
-  private generateMockMarketEvents(): ComicMarketEvent[] {
-    const events: ComicMarketEvent[] = [];
-    const eventTypes: ComicMarketEvent['type'][] = ['movie_announcement', 'comic_release', 'crossover_event', 'reboot'];
-    
-    for (let i = 0; i < 5; i++) {
-      const eventType = eventTypes[Math.floor(Math.random() * eventTypes.length)];
-      const impact = Math.random() * 0.4 - 0.2; // -20% to +20% impact
-      
-      events.push({
-        id: `mock_event_${Date.now()}_${i}`,
-        type: eventType,
-        title: this.generateEventTitle(eventType),
-        description: this.generateEventDescription(eventType),
-        affectedCharacters: this.generateRandomCharacterList(),
-        affectedPublishers: ['Marvel Comics', 'DC Comics'],
-        impactLevel: Math.abs(impact) > 0.15 ? 'high' : Math.abs(impact) > 0.1 ? 'medium' : 'low',
-        estimatedMarketImpact: impact,
-        eventDate: new Date(Date.now() + Math.random() * 90 * 24 * 60 * 60 * 1000), // Next 90 days
-        mysticalSignificance: this.generateMysticalEventSignificance(eventType),
-        houseRelevance: {
-          heroes: eventType === 'movie_announcement' ? 0.8 : 0.5,
-          power: eventType === 'crossover_event' ? 0.9 : 0.4,
-          wisdom: 0.6,
-          mystery: eventType === 'reboot' ? 0.7 : 0.3
+    return new Promise((resolve, reject) => {
+      const filePath = file.storageLocation;
+      let rowCount = 0;
+      let processedCount = 0;
+      let errorCount = 0;
+      const batchRecords: InsertStagingRecord[] = [];
+
+      const parser = parse({
+        columns: true,
+        skip_empty_lines: true,
+        trim: true
+      });
+
+      parser.on('readable', async () => {
+        let record;
+        while (record = parser.read()) {
+          rowCount++;
+          
+          try {
+            const stagingRecord = await this.createStagingRecord(record, file, rowCount);
+            batchRecords.push(stagingRecord);
+            
+            // Process in batches
+            if (batchRecords.length >= this.BATCH_SIZE) {
+              await this.processBatch(batchRecords, jobId, runId);
+              processedCount += batchRecords.length;
+              batchRecords.length = 0;
+            }
+            
+          } catch (error) {
+            errorCount++;
+            await this.logIngestionError(jobId, runId, 'parsing', error as Error, { 
+              filename: file.filename, 
+              rowNumber: rowCount,
+              recordData: record 
+            });
+          }
         }
       });
-    }
-    
-    return events;
-  }
 
-  private generateMockSalesData(comicTitle: string, issueNumber?: string): RealComicSalesData[] {
-    const salesData: RealComicSalesData[] = [];
-    const basePrice = 50 + Math.random() * 500;
-    
-    for (let i = 0; i < 3; i++) {
-      const priceHistory = Array.from({ length: 12 }, (_, month) => ({
-        date: new Date(Date.now() - (11 - month) * 30 * 24 * 60 * 60 * 1000),
-        price: basePrice * (0.8 + Math.random() * 0.4), // ±20% variation
-        condition: ['Poor', 'Fair', 'Good', 'Very Fine', 'Near Mint'][Math.floor(Math.random() * 5)],
-        source: ['eBay', 'Heritage Auctions', 'Local Shop', 'Convention'][Math.floor(Math.random() * 4)]
-      }));
-      
-      salesData.push({
-        issueId: `${comicTitle.toLowerCase().replace(/\s+/g, '_')}_${issueNumber || i + 1}`,
-        title: comicTitle,
-        issueNumber: issueNumber || `${i + 1}`,
-        publishDate: new Date(1960 + Math.random() * 60, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28)),
-        currentMarketPrice: basePrice,
-        priceHistory,
-        popularityIndex: 40 + Math.random() * 60,
-        rarity: ['common', 'uncommon', 'rare', 'ultra_rare', 'legendary'][Math.floor(Math.random() * 5)] as any,
-        keyIssue: Math.random() > 0.7,
-        firstAppearances: Math.random() > 0.5 ? [comicTitle] : [],
-        significantEvents: this.generateSignificantEvents()
+      parser.on('end', async () => {
+        try {
+          // Process remaining records in batch
+          if (batchRecords.length > 0) {
+            await this.processBatch(batchRecords, jobId, runId);
+            processedCount += batchRecords.length;
+          }
+
+          // Update file processing status
+          await db.update(rawDatasetFiles)
+            .set({ 
+              processingStatus: 'completed',
+              processingCompletedAt: new Date(),
+              totalRows: rowCount,
+              processedRows: processedCount,
+              failedRows: errorCount
+            })
+            .where(eq(rawDatasetFiles.id, file.id));
+
+          console.log(`✅ Completed: ${file.filename} (${processedCount}/${rowCount} records)`);
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
       });
-    }
+
+      parser.on('error', (error) => {
+        console.error(`❌ Parser error for ${file.filename}:`, error);
+        reject(error);
+      });
+
+      fs.createReadStream(filePath).pipe(parser);
+    });
+  }
+
+  /**
+   * Create staging record from CSV row with validation
+   */
+  private async createStagingRecord(record: any, file: any, rowNumber: number): Promise<InsertStagingRecord> {
+    const recordHash = crypto.createHash('md5').update(JSON.stringify(record)).digest('hex');
+    const recordType = this.classifyRecordType(record, file.datasetType);
     
-    return salesData;
-  }
-
-  // Helper methods
-
-  private async mockComicAPICall(characterName: string): Promise<any> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
-    return { name: characterName, status: 'success' };
-  }
-
-  private transformAPIResponse(apiResponse: any): ComicAPICharacterData {
-    // Transform real API response to our format
-    // This would be customized based on the actual API structure
-    return this.generateMockCharacterData(apiResponse.name);
-  }
-
-  private async fetchRealComicNews(): Promise<any[]> {
-    // In production, this would fetch from real news APIs
-    return [];
-  }
-
-  private enhanceEventWithMysticalSignificance(event: any): ComicMarketEvent {
+    // Validate record based on dataset type
+    const validation = await this.validateRecord(record, file.datasetType);
+    
     return {
-      ...event,
-      mysticalSignificance: this.generateMysticalEventSignificance(event.type),
-      houseRelevance: this.calculateEventHouseRelevance(event)
+      datasetFileId: file.id,
+      rowNumber,
+      rawData: record,
+      dataHash: recordHash,
+      recordType,
+      detectedEntityType: recordType,
+      confidenceScore: validation.confidence,
+      mappedFields: this.mapFields(record, file.datasetType),
+      extractedEntities: this.extractEntities(record, file.datasetType),
+      dataQualityScore: validation.qualityScore,
+      missingFields: validation.missingFields,
+      dataInconsistencies: validation.inconsistencies,
+      errorMessages: validation.errors
     };
   }
 
-  private async fetchRealSalesData(comicTitle: string, issueNumber?: string): Promise<RealComicSalesData[]> {
-    // In production, this would fetch from real sales APIs
-    return this.generateMockSalesData(comicTitle, issueNumber);
+  /**
+   * Process batch of staging records
+   */
+  private async processBatch(records: InsertStagingRecord[], jobId: string, runId: string): Promise<void> {
+    try {
+      await db.insert(stagingRecords).values(records);
+      
+      // Update run metrics
+      await db.update(ingestionRuns)
+        .set({ 
+          recordsProcessed: sql`${ingestionRuns.recordsProcessed} + ${records.length}`,
+          recordsSuccessful: sql`${ingestionRuns.recordsSuccessful} + ${records.length}`
+        })
+        .where(eq(ingestionRuns.id, runId));
+        
+    } catch (error) {
+      console.error('Batch processing error:', error);
+      await this.logIngestionError(jobId, runId, 'database', error as Error, { batchSize: records.length });
+      throw error;
+    }
   }
 
-  private async analyzeCharacterRelationship(char1: Asset, char2: Asset): Promise<UniverseRelationshipData | null> {
-    // Check if characters are from same universe/publisher
-    const samePublisher = char1.metadata?.publisher === char2.metadata?.publisher;
-    const sameUniverse = char1.metadata?.universeOrigin === char2.metadata?.universeOrigin;
+  /**
+   * Perform entity resolution and normalization
+   */
+  private async performEntityResolution(jobId: string, runId: string): Promise<void> {
+    console.log('🧬 Performing entity resolution and normalization...');
     
-    if (samePublisher || sameUniverse) {
-      const relationshipTypes = ['ally', 'enemy', 'neutral', 'team_member'] as const;
-      const relationship = relationshipTypes[Math.floor(Math.random() * relationshipTypes.length)];
+    try {
+      // Get all unprocessed staging records for this job
+      const fileIds = await db.select({ id: rawDatasetFiles.id })
+        .from(rawDatasetFiles)
+        .where(eq(rawDatasetFiles.ingestionJobId, jobId));
       
-      return {
-        character1Id: char1.id,
-        character2Id: char2.id,
-        relationshipType: relationship,
-        strength: 0.3 + Math.random() * 0.7,
-        firstInteraction: `${char1.name} meets ${char2.name} (Classic Comics #${Math.floor(Math.random() * 100) + 1})`,
-        majorEvents: [`The ${char1.name}-${char2.name} Alliance`, `Battle for the Cosmic Throne`],
-        universeSpecific: sameUniverse,
-        crossoverPotential: samePublisher ? 0.8 : 0.4
-      };
+      const fileIdList = fileIds.map(f => f.id);
+      
+      if (fileIdList.length === 0) return;
+      
+      const stagingData = await db.select()
+        .from(stagingRecords)
+        .where(and(
+          inArray(stagingRecords.datasetFileId, fileIdList),
+          eq(stagingRecords.processingStatus, 'pending')
+        ));
+
+      console.log(`🔍 Resolving ${stagingData.length} staged records...`);
+
+      // Process character entities
+      const characterRecords = stagingData.filter(r => r.recordType === 'character');
+      await this.processCharacterEntities(characterRecords, jobId, runId);
+
+      // Process comic entities  
+      const comicRecords = stagingData.filter(r => r.recordType === 'comic_issue');
+      await this.processComicEntities(comicRecords, jobId, runId);
+
+      // Process battle entities
+      const battleRecords = stagingData.filter(r => r.recordType === 'battle');
+      await this.processBattleEntities(battleRecords, jobId, runId);
+
+      // Process movie entities
+      const movieRecords = stagingData.filter(r => r.recordType === 'movie');
+      await this.processMovieEntities(movieRecords, jobId, runId);
+
+    } catch (error) {
+      console.error('Entity resolution error:', error);
+      await this.logIngestionError(jobId, runId, 'normalization', error as Error);
+      throw error;
+    }
+  }
+
+  /**
+   * Process character entities with fuzzy matching and house affinity
+   */
+  private async processCharacterEntities(records: any[], jobId: string, runId: string): Promise<void> {
+    for (const record of records) {
+      try {
+        const rawData = record.rawData;
+        const characterName = this.normalizeCharacterName(rawData.Character || rawData.character || rawData.name);
+        
+        // Check for existing entity
+        let existingEntity = await this.findExistingCharacter(characterName, rawData);
+        
+        if (!existingEntity) {
+          // Create new narrative entity
+          const entityData: InsertNarrativeEntity = {
+            canonicalName: characterName,
+            entityType: 'character',
+            subtype: this.classifyCharacterSubtype(rawData),
+            universe: this.determineCharacterUniverse(rawData),
+            realName: rawData['Real Name'] || rawData.real_name || null,
+            secretIdentity: this.hasSecretIdentity(rawData),
+            description: this.generateCharacterDescription(rawData),
+            popularityScore: this.calculatePopularityScore(rawData),
+            culturalImpact: this.calculateCulturalImpact(rawData)
+          };
+
+          const [createdEntity] = await db.insert(narrativeEntities).values(entityData).returning();
+          existingEntity = createdEntity;
+
+          // Create aliases
+          await this.createCharacterAliases(existingEntity.id, rawData);
+
+          // Create traits
+          await this.createCharacterTraits(existingEntity.id, rawData);
+
+          // Update enhanced characters table
+          await this.createEnhancedCharacter(existingEntity, rawData);
+
+          console.log(`👤 Created character entity: ${characterName}`);
+        }
+
+        // Mark staging record as processed
+        await db.update(stagingRecords)
+          .set({ 
+            processingStatus: 'normalized',
+            normalizedAt: new Date(),
+            extractedEntities: { narrativeEntityId: existingEntity.id }
+          })
+          .where(eq(stagingRecords.id, record.id));
+
+      } catch (error) {
+        console.error(`Error processing character ${record.rawData?.Character}:`, error);
+        await this.logIngestionError(jobId, runId, 'entity_creation', error as Error, { 
+          recordId: record.id,
+          characterName: record.rawData?.Character 
+        });
+      }
+    }
+  }
+
+  /**
+   * Calculate house affinity scores based on character traits
+   */
+  private calculateHouseAffinity(characterData: any): Record<string, number> {
+    const affinity: Record<string, number> = {
+      heroes: 0, wisdom: 0, power: 0, mystery: 0, elements: 0, time: 0, spirit: 0
+    };
+
+    const fullText = JSON.stringify(characterData).toLowerCase();
+    
+    for (const [house, themes] of Object.entries(this.HOUSE_THEMES)) {
+      let score = 0;
+      for (const theme of themes) {
+        if (fullText.includes(theme)) {
+          score += 0.2;
+        }
+      }
+      
+      // Role-based scoring
+      const role = (characterData.Role || '').toLowerCase();
+      if (house === 'heroes' && role === 'hero') score += 0.5;
+      if (house === 'mystery' && role === 'antihero') score += 0.3;
+      if (house === 'power' && role === 'villain') score += 0.4;
+      
+      // Power-based scoring
+      const powers = (characterData.Powers || '').toLowerCase();
+      if (house === 'wisdom' && powers.includes('intellect')) score += 0.3;
+      if (house === 'power' && powers.includes('strength')) score += 0.4;
+      if (house === 'elements' && (powers.includes('fire') || powers.includes('water'))) score += 0.3;
+      if (house === 'time' && powers.includes('speed')) score += 0.3;
+      if (house === 'spirit' && powers.includes('magic')) score += 0.3;
+      
+      affinity[house] = Math.min(score, 1.0);
+    }
+
+    return affinity;
+  }
+
+  /**
+   * Calculate trading metrics for characters
+   */
+  private async calculateTradingMetrics(jobId: string, runId: string): Promise<void> {
+    console.log('📊 Calculating derived trading metrics...');
+    
+    try {
+      // Get all narrative entities created in this job
+      const fileIds = await db.select({ id: rawDatasetFiles.id })
+        .from(rawDatasetFiles)
+        .where(eq(rawDatasetFiles.ingestionJobId, jobId));
+      
+      const stagingIds = await db.select({ narrativeEntityId: stagingRecords.extractedEntities })
+        .from(stagingRecords)
+        .where(inArray(stagingRecords.datasetFileId, fileIds.map(f => f.id)));
+
+      for (const staging of stagingIds) {
+        const entityId = staging.narrativeEntityId as any;
+        if (!entityId?.narrativeEntityId) continue;
+
+        const entity = await db.select().from(narrativeEntities)
+          .where(eq(narrativeEntities.id, entityId.narrativeEntityId))
+          .limit(1);
+        
+        if (entity.length === 0) continue;
+
+        // Calculate Mythic Volatility
+        const mythicVolatility = this.calculateMythicVolatility(entity[0]);
+        
+        // Calculate Narrative Momentum  
+        const narrativeMomentum = this.calculateNarrativeMomentum(entity[0]);
+        
+        // Create financial instrument mapping
+        await this.createFinancialMapping(entity[0], mythicVolatility, narrativeMomentum);
+
+        // Create or update asset
+        await this.createTradingAsset(entity[0], mythicVolatility, narrativeMomentum);
+      }
+
+    } catch (error) {
+      console.error('Trading metrics calculation error:', error);
+      await this.logIngestionError(jobId, runId, 'enrichment', error as Error);
+    }
+  }
+
+  /**
+   * Price Safety Validation Functions
+   */
+  private validatePrice(price: number, context: string): number {
+    if (!isFinite(price) || price < this.MIN_PRICE) {
+      console.warn(`🔧 Price validation: ${context} - Invalid price ${price}, setting to minimum ${this.MIN_PRICE}`);
+      return this.MIN_PRICE;
+    }
+    
+    if (price > this.MAX_PRICE) {
+      console.warn(`🔧 Price validation: ${context} - Price ${price} exceeds database limit, capping at ${this.SAFE_MAX_PRICE}`);
+      return this.SAFE_MAX_PRICE;
+    }
+    
+    return Math.round(price * 100) / 100; // Round to 2 decimal places
+  }
+  
+  private mapPowerLevelToPrice(powerLevel: number, universe: string, culturalImpact: number): number {
+    // Normalize power level to 0-1 range
+    const normalizedPower = Math.max(0, Math.min(powerLevel / 100, 1));
+    
+    // Use logarithmic scaling for extreme power levels
+    let scaledPower = normalizedPower;
+    if (normalizedPower > 0.8) {
+      // Logarithmic scaling for cosmic-level characters
+      scaledPower = 0.8 + (Math.log10(1 + (normalizedPower - 0.8) * 9) / Math.log10(10)) * 0.2;
+    }
+    
+    // Determine base price range based on character tier
+    let baseMin, baseMax;
+    if (scaledPower < 0.3) {
+      // Street-level heroes
+      baseMin = this.BASE_PRICE_RANGE.MIN;
+      baseMax = this.BASE_PRICE_RANGE.MAX;
+    } else if (scaledPower < 0.7) {
+      // Major heroes
+      baseMin = this.PREMIUM_PRICE_RANGE.MIN;
+      baseMax = this.PREMIUM_PRICE_RANGE.MAX;
+    } else {
+      // Cosmic-level entities
+      baseMin = this.COSMIC_PRICE_RANGE.MIN;
+      baseMax = this.COSMIC_PRICE_RANGE.MAX;
+    }
+    
+    // Calculate base price
+    const basePrice = baseMin + (scaledPower * (baseMax - baseMin));
+    
+    // Apply universe and cultural impact multipliers (capped)
+    let multiplier = 1.0;
+    if (universe === 'marvel' || universe === 'dc') {
+      multiplier *= 1.5;
+    }
+    
+    // Cultural impact multiplier (0-1 range, max 2x multiplier)
+    const culturalMultiplier = 1 + Math.min(culturalImpact, 1.0);
+    multiplier *= culturalMultiplier;
+    
+    // Ensure final multiplier doesn't exceed safe bounds
+    multiplier = Math.min(multiplier, 3.0); // Max 3x multiplier
+    
+    const finalPrice = basePrice * multiplier;
+    return this.validatePrice(finalPrice, `Power Level Mapping (${powerLevel}, ${universe})`);
+  }
+  
+  private capVolatilityPercentage(volatility: number): number {
+    // Ensure volatility is within 0-100% range
+    return Math.max(0.01, Math.min(volatility, 1.0));
+  }
+  
+  private capMomentumPercentage(momentum: number): number {
+    // Ensure momentum is within 0-100% range
+    return Math.max(0.01, Math.min(momentum, 1.0));
+  }
+
+  /**
+   * Calculate Mythic Volatility based on power levels and interactions - SAFE VERSION
+   */
+  private calculateMythicVolatility(entity: any): number {
+    let volatility = 0.1; // Base volatility (10%)
+    
+    try {
+      // Power-based volatility (safely scaled)
+      if (entity.entityType === 'character') {
+        const powerTraits = Math.min(parseFloat(entity.metadata?.powerLevel || '0'), 100);
+        volatility += (powerTraits / 100) * 0.3; // Max 30% from power
+      }
+      
+      // Cultural impact factor (safely bounded)
+      const culturalImpact = Math.min(parseFloat(entity.culturalImpact || '0'), 1.0);
+      volatility += culturalImpact * 0.2; // Max 20% from cultural impact
+      
+      // Universe factor (bounded boost)
+      if (entity.universe === 'marvel' || entity.universe === 'dc') {
+        volatility += 0.15; // 15% boost for major universes
+      }
+      
+      // Apply final safety cap
+      return this.capVolatilityPercentage(volatility);
+      
+    } catch (error) {
+      console.error(`Error calculating mythic volatility for ${entity.canonicalName}:`, error);
+      return 0.25; // Safe default volatility (25%)
+    }
+  }
+
+  /**
+   * Calculate Narrative Momentum from story significance - SAFE VERSION
+   */
+  private calculateNarrativeMomentum(entity: any): number {
+    let momentum = 0.5; // Neutral momentum (50%)
+    
+    try {
+      // Popularity scoring (safely bounded)
+      const popularity = Math.max(0, Math.min(parseFloat(entity.popularityScore || '50'), 100));
+      momentum += (popularity - 50) * 0.005; // Convert 0-100 to momentum modifier (max ±25%)
+      
+      // Cultural impact (safely bounded)
+      const culturalImpact = Math.min(parseFloat(entity.culturalImpact || '0'), 1.0);
+      momentum += culturalImpact * 0.3; // Max 30% boost from cultural impact
+      
+      // Recent appearances boost (bounded)
+      if (entity.lastAppearanceDate) {
+        try {
+          const lastYear = new Date(entity.lastAppearanceDate).getFullYear();
+          const currentYear = new Date().getFullYear();
+          const yearsDiff = currentYear - lastYear;
+          
+          if (yearsDiff < 2) {
+            momentum += 0.15; // 15% boost for recent appearances
+          } else if (yearsDiff < 5) {
+            momentum += 0.05; // 5% boost for somewhat recent
+          }
+        } catch (dateError) {
+          console.warn(`Invalid date format for ${entity.canonicalName}: ${entity.lastAppearanceDate}`);
+        }
+      }
+      
+      // Apply final safety cap
+      return this.capMomentumPercentage(momentum);
+      
+    } catch (error) {
+      console.error(`Error calculating narrative momentum for ${entity.canonicalName}:`, error);
+      return 0.5; // Safe neutral momentum (50%)
+    }
+  }
+
+  // Utility Methods
+
+  private determineDatasetType(filename: string): string {
+    if (filename.includes('character')) return 'characters';
+    if (filename.includes('comic')) return 'comics';
+    if (filename.includes('battle')) return 'battles';
+    if (filename.includes('movie') || filename.includes('performance')) return 'movies';
+    if (filename.includes('marvel') || filename.includes('dc')) return 'characters';
+    return 'unknown';
+  }
+
+  private determineUniverse(filename: string): string {
+    if (filename.toLowerCase().includes('marvel')) return 'marvel';
+    if (filename.toLowerCase().includes('dc')) return 'dc';
+    if (filename.toLowerCase().includes('image')) return 'image';
+    return 'independent';
+  }
+
+  private async extractCSVHeaders(filePath: string): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+      const headers: string[] = [];
+      const parser = parse({ columns: false, to_line: 1 });
+      
+      parser.on('readable', () => {
+        const record = parser.read();
+        if (record) headers.push(...record);
+      });
+      
+      parser.on('end', () => resolve(headers));
+      parser.on('error', reject);
+      
+      fs.createReadStream(filePath).pipe(parser);
+    });
+  }
+
+  private async extractSampleData(filePath: string): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+      const samples: any[] = [];
+      const parser = parse({ columns: true, to_line: 6 });
+      
+      parser.on('readable', () => {
+        let record;
+        while (record = parser.read()) {
+          samples.push(record);
+        }
+      });
+      
+      parser.on('end', () => resolve(samples));
+      parser.on('error', reject);
+      
+      fs.createReadStream(filePath).pipe(parser);
+    });
+  }
+
+  private classifyRecordType(record: any, datasetType: string): string {
+    if (datasetType === 'characters') return 'character';
+    if (datasetType === 'comics') return 'comic_issue';
+    if (datasetType === 'battles') return 'battle';
+    if (datasetType === 'movies') return 'movie';
+    
+    // Auto-detect based on columns
+    const keys = Object.keys(record).map(k => k.toLowerCase());
+    if (keys.some(k => k.includes('character') || k.includes('hero'))) return 'character';
+    if (keys.some(k => k.includes('comic') || k.includes('issue'))) return 'comic_issue';
+    if (keys.some(k => k.includes('battle') || k.includes('fight'))) return 'battle';
+    if (keys.some(k => k.includes('movie') || k.includes('box'))) return 'movie';
+    
+    return 'unknown';
+  }
+
+  private async validateRecord(record: any, datasetType: string): Promise<{
+    confidence: number;
+    qualityScore: number;
+    missingFields: string[];
+    inconsistencies: any;
+    errors: string[];
+  }> {
+    const validation = {
+      confidence: 1.0,
+      qualityScore: 1.0,
+      missingFields: [] as string[],
+      inconsistencies: {},
+      errors: [] as string[]
+    };
+
+    const keys = Object.keys(record);
+    const values = Object.values(record);
+    
+    // Check for required fields based on dataset type
+    const requiredFields = this.getRequiredFields(datasetType);
+    for (const field of requiredFields) {
+      if (!keys.some(k => k.toLowerCase().includes(field.toLowerCase()))) {
+        validation.missingFields.push(field);
+        validation.qualityScore -= 0.1;
+      }
+    }
+    
+    // Check for empty values
+    const emptyCount = values.filter(v => !v || v.toString().trim() === '').length;
+    validation.qualityScore -= (emptyCount / values.length) * 0.3;
+    
+    // Data type validation
+    if (datasetType === 'movies') {
+      const budget = record.budget || record.production_budget;
+      if (budget && isNaN(parseFloat(budget))) {
+        validation.errors.push('Invalid budget format');
+        validation.confidence -= 0.2;
+      }
+    }
+    
+    return validation;
+  }
+
+  private getRequiredFields(datasetType: string): string[] {
+    switch (datasetType) {
+      case 'characters': return ['character', 'name'];
+      case 'comics': return ['title', 'issue'];
+      case 'battles': return ['character', 'outcome'];
+      case 'movies': return ['title', 'year'];
+      default: return [];
+    }
+  }
+
+  private mapFields(record: any, datasetType: string): any {
+    const mapped: any = {};
+    
+    switch (datasetType) {
+      case 'characters':
+        mapped.name = record.Character || record.character || record.name;
+        mapped.realName = record['Real Name'] || record.real_name;
+        mapped.powers = record.Powers || record.powers;
+        mapped.affiliation = record.Affiliation || record.affiliation;
+        mapped.role = record.Role || record.role;
+        break;
+      case 'movies':
+        mapped.title = record.title || record.movie_title;
+        mapped.year = record.year || record.release_year;
+        mapped.budget = record.budget || record.production_budget;
+        mapped.gross = record.gross || record.worldwide_gross;
+        break;
+    }
+    
+    return mapped;
+  }
+
+  private extractEntities(record: any, datasetType: string): any {
+    const entities: any = {};
+    
+    if (datasetType === 'characters') {
+      entities.character = record.Character || record.character;
+      entities.affiliation = record.Affiliation || record.affiliation;
+    }
+    
+    return entities;
+  }
+
+  private normalizeCharacterName(name: string): string {
+    if (!name) return '';
+    
+    return name
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '') // Remove special chars except hyphens
+      .replace(/\s+/g, ' ')      // Normalize spaces
+      .trim()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+
+  private async findExistingCharacter(name: string, rawData: any): Promise<any> {
+    // Direct name match
+    let existing = await db.select().from(narrativeEntities)
+      .where(and(
+        eq(narrativeEntities.canonicalName, name),
+        eq(narrativeEntities.entityType, 'character')
+      ))
+      .limit(1);
+    
+    if (existing.length > 0) return existing[0];
+    
+    // Check aliases
+    const aliases = await db.select({ canonicalEntityId: entityAliases.canonicalEntityId })
+      .from(entityAliases)
+      .where(eq(entityAliases.aliasName, name))
+      .limit(1);
+    
+    if (aliases.length > 0) {
+      existing = await db.select().from(narrativeEntities)
+        .where(eq(narrativeEntities.id, aliases[0].canonicalEntityId))
+        .limit(1);
+      
+      if (existing.length > 0) return existing[0];
     }
     
     return null;
   }
 
-  private calculateAverageMarketPrice(salesData: RealComicSalesData[]): number {
-    const prices = salesData.map(sale => sale.currentMarketPrice);
-    return prices.reduce((sum, price) => sum + price, 0) / prices.length;
+  private classifyCharacterSubtype(rawData: any): string {
+    const role = (rawData.Role || '').toLowerCase();
+    if (role === 'hero') return 'hero';
+    if (role === 'villain') return 'villain';
+    if (role === 'antihero') return 'antihero';
+    return 'supporting';
   }
 
-  private calculatePopularityBonus(salesData: RealComicSalesData[]): number {
-    return salesData.reduce((sum, sale) => sum + sale.popularityIndex, 0) / salesData.length;
-  }
-
-  private calculateDataConfidence(salesData: RealComicSalesData[]): number {
-    // More sales data = higher confidence
-    return Math.min(salesData.length / 10, 1.0);
-  }
-
-  private calculateCrossoverProbability(universes: string[]): number {
-    // Mock calculation - in production would analyze historical crossover patterns
-    const baseProb = 0.1;
-    const universeBonus = universes.length > 2 ? 0.3 : 0.2;
-    const randomFactor = Math.random() * 0.4;
+  private determineCharacterUniverse(rawData: any): string {
+    const affiliation = (rawData.Affiliation || '').toLowerCase();
+    const character = (rawData.Character || '').toLowerCase();
     
-    return Math.min(baseProb + universeBonus + randomFactor, 1.0);
+    if (affiliation.includes('avengers') || character.includes('spider')) return 'marvel';
+    if (affiliation.includes('justice') || character.includes('batman')) return 'dc';
+    return 'independent';
   }
 
-  private async getUniverseCharacters(universes: string[]): Promise<string[]> {
-    const characters: string[] = [];
-    const assets = await storage.getAssets({ type: 'character' });
+  private hasSecretIdentity(rawData: any): boolean {
+    const realName = rawData['Real Name'] || rawData.real_name || '';
+    const character = rawData.Character || rawData.character || '';
+    return realName !== '' && realName.toLowerCase() !== character.toLowerCase();
+  }
+
+  private generateCharacterDescription(rawData: any): string {
+    const name = rawData.Character || rawData.character || 'Unknown';
+    const powers = rawData.Powers || 'various abilities';
+    const role = rawData.Role || 'character';
     
-    for (const asset of assets.slice(0, 5)) {
-      if (universes.some(universe => 
-        asset.metadata?.universeOrigin?.includes(universe) || 
-        asset.metadata?.publisher?.includes(universe)
-      )) {
-        characters.push(asset.id);
-      }
+    return `${name} is a ${role} with ${powers}, representing the mystical forces that shape the trading multiverse.`;
+  }
+
+  private calculatePopularityScore(rawData: any): number {
+    let score = 50; // Base score
+    
+    // Well-known characters get higher scores
+    const character = (rawData.Character || '').toLowerCase();
+    const famousCharacters = ['spider-man', 'batman', 'superman', 'iron man', 'captain america'];
+    if (famousCharacters.some(famous => character.includes(famous.replace('-', '')))) {
+      score += 30;
     }
     
-    return characters;
+    // Avengers/Justice League members get bonus
+    const affiliation = (rawData.Affiliation || '').toLowerCase();
+    if (affiliation.includes('avengers') || affiliation.includes('justice')) {
+      score += 20;
+    }
+    
+    return Math.min(score, 100);
   }
 
-  private getUniversePublishers(universes: string[]): string[] {
-    const publisherMap: Record<string, string[]> = {
-      'Marvel': ['Marvel Comics', 'Marvel Entertainment'],
-      'DC': ['DC Comics', 'DC Entertainment'],
-      'Image': ['Image Comics'],
-      'Dark Horse': ['Dark Horse Comics']
-    };
+  private calculateCulturalImpact(rawData: any): number {
+    const popularity = this.calculatePopularityScore(rawData);
+    return popularity / 100; // Convert to 0-1 scale
+  }
+
+  private async createCharacterAliases(entityId: string, rawData: any): Promise<void> {
+    const aliases: InsertEntityAlias[] = [];
     
-    const publishers: string[] = [];
-    for (const universe of universes) {
-      for (const [key, pubs] of Object.entries(publisherMap)) {
-        if (universe.includes(key)) {
-          publishers.push(...pubs);
+    const realName = rawData['Real Name'] || rawData.real_name;
+    if (realName && realName.trim()) {
+      aliases.push({
+        canonicalEntityId: entityId,
+        aliasName: realName,
+        aliasType: 'real_name',
+        usageContext: 'primary',
+        popularityScore: 0.8,
+        officialStatus: true
+      });
+    }
+    
+    // Add common name variations
+    const character = rawData.Character || rawData.character || '';
+    if (character.includes('-')) {
+      aliases.push({
+        canonicalEntityId: entityId,
+        aliasName: character.replace('-', ' '),
+        aliasType: 'alternate_spelling',
+        usageContext: 'secondary',
+        popularityScore: 0.6,
+        officialStatus: false
+      });
+    }
+    
+    if (aliases.length > 0) {
+      await db.insert(entityAliases).values(aliases);
+    }
+  }
+
+  private async createCharacterTraits(entityId: string, rawData: any): Promise<void> {
+    const traits: InsertNarrativeTrait[] = [];
+    
+    const powers = rawData.Powers || rawData.powers || '';
+    if (powers) {
+      const powerList = powers.split(',').map((p: string) => p.trim());
+      
+      for (const power of powerList) {
+        if (power) {
+          traits.push({
+            entityId,
+            traitCategory: 'power',
+            traitType: this.normalizePowerType(power),
+            traitName: power,
+            potencyLevel: this.calculatePowerLevel(power),
+            masteryLevel: Math.floor(Math.random() * 5) + 5, // 5-10
+            reliabilityLevel: 8,
+            versatilityScore: this.calculateVersatilityScore(power),
+            description: `${power} - A mystical ability that enhances trading prowess`,
+            combatEffectiveness: this.calculateCombatEffectiveness(power),
+            utilityValue: this.calculateUtilityValue(power),
+            rarityScore: this.calculateRarityScore(power),
+            acquisitionMethod: 'birth',
+            marketRelevance: this.calculateMarketRelevance(power),
+            fanAppeal: 0.7
+          });
         }
       }
     }
     
-    return [...new Set(publishers)];
+    if (traits.length > 0) {
+      await db.insert(narrativeTraits).values(traits);
+    }
   }
 
-  private generateCrossoverProphecy(universes: string[], probability: number): string {
-    const intensity = probability > 0.7 ? 'cataclysmic' : probability > 0.5 ? 'legendary' : 'mystical';
-    return `The ancient scrolls foretell a ${intensity} convergence where the realms of ${universes.join(' and ')} shall intertwine, creating unprecedented cosmic resonance that will reshape the very fabric of the trading multiverse.`;
+  private normalizePowerType(power: string): string {
+    const normalized = power.toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, '_');
+    
+    if (normalized.includes('strength')) return 'superhuman_strength';
+    if (normalized.includes('speed')) return 'superhuman_speed';
+    if (normalized.includes('intelligence') || normalized.includes('intellect')) return 'genius_intellect';
+    if (normalized.includes('flight') || normalized.includes('flying')) return 'flight';
+    if (normalized.includes('telepathy') || normalized.includes('mind')) return 'telepathy';
+    
+    return normalized;
   }
 
-  private calculateCrossoverHouseRelevance(universes: string[]): Record<string, number> {
+  private calculatePowerLevel(power: string): number {
+    const powerRankings: Record<string, number> = {
+      'god': 10, 'cosmic': 10, 'reality': 9, 'time': 9,
+      'telepathy': 8, 'telekinesis': 8, 'magic': 8,
+      'strength': 7, 'speed': 7, 'flight': 6,
+      'intellect': 6, 'armor': 5, 'martial': 4
+    };
+    
+    const lowerPower = power.toLowerCase();
+    for (const [key, level] of Object.entries(powerRankings)) {
+      if (lowerPower.includes(key)) return level;
+    }
+    
+    return 5; // Default
+  }
+
+  private calculateVersatilityScore(power: string): number {
+    if (power.toLowerCase().includes('magic')) return 0.9;
+    if (power.toLowerCase().includes('intellect')) return 0.8;
+    if (power.toLowerCase().includes('strength')) return 0.6;
+    return 0.5;
+  }
+
+  private calculateCombatEffectiveness(power: string): number {
+    const lowerPower = power.toLowerCase();
+    if (lowerPower.includes('strength') || lowerPower.includes('combat')) return 0.9;
+    if (lowerPower.includes('speed') || lowerPower.includes('martial')) return 0.8;
+    if (lowerPower.includes('intellect')) return 0.4;
+    return 0.6;
+  }
+
+  private calculateUtilityValue(power: string): number {
+    const lowerPower = power.toLowerCase();
+    if (lowerPower.includes('intellect')) return 0.9;
+    if (lowerPower.includes('telepathy')) return 0.8;
+    if (lowerPower.includes('flight')) return 0.7;
+    return 0.5;
+  }
+
+  private calculateRarityScore(power: string): number {
+    const lowerPower = power.toLowerCase();
+    if (lowerPower.includes('cosmic') || lowerPower.includes('reality')) return 0.95;
+    if (lowerPower.includes('telepathy') || lowerPower.includes('magic')) return 0.8;
+    if (lowerPower.includes('strength')) return 0.3;
+    return 0.5;
+  }
+
+  private calculateMarketRelevance(power: string): number {
+    const lowerPower = power.toLowerCase();
+    if (lowerPower.includes('intellect')) return 0.9; // High trading value
+    if (lowerPower.includes('telepathy')) return 0.8; // Market insight
+    if (lowerPower.includes('strength')) return 0.6; // General appeal
+    return 0.5;
+  }
+
+  private async createEnhancedCharacter(entity: any, rawData: any): Promise<void> {
+    const houseAffinity = this.calculateHouseAffinity(rawData);
+    
+    const enhancedData: InsertEnhancedCharacter = {
+      characterId: entity.id,
+      characterName: entity.canonicalName,
+      realName: entity.realName,
+      universe: entity.universe,
+      affiliation: rawData.Affiliation || rawData.affiliation,
+      role: rawData.Role || rawData.role,
+      powerLevel: rawData['Power Level'] || 'Low',
+      abilities: rawData.Powers ? rawData.Powers.split(',').map((p: string) => p.trim()) : [],
+      houseAffinity,
+      marketTier: this.calculateMarketTier(rawData),
+      tradingVolume: 0,
+      volatilityRating: this.calculateMythicVolatility(entity),
+      narrativeMomentum: this.calculateNarrativeMomentum(entity),
+      culturalRelevance: entity.culturalImpact || 0.5,
+      collectibilityScore: this.calculateCollectibilityScore(rawData),
+      isActivelyTraded: true
+    };
+
+    await db.insert(enhancedCharacters).values(enhancedData);
+  }
+
+  private calculateMarketTier(rawData: any): string {
+    const popularity = this.calculatePopularityScore(rawData);
+    if (popularity >= 80) return 'S';
+    if (popularity >= 60) return 'A';
+    if (popularity >= 40) return 'B';
+    if (popularity >= 20) return 'C';
+    return 'D';
+  }
+
+  private calculateCollectibilityScore(rawData: any): number {
+    let score = 0.5; // Base collectibility
+    
+    const character = (rawData.Character || '').toLowerCase();
+    const role = (rawData.Role || '').toLowerCase();
+    
+    // Heroes are more collectible
+    if (role === 'hero') score += 0.2;
+    
+    // Famous characters are highly collectible
+    if (['spider-man', 'batman', 'superman', 'wolverine'].some(famous => 
+        character.includes(famous.replace('-', '')))) {
+      score += 0.3;
+    }
+    
+    return Math.min(score, 1.0);
+  }
+
+  private async processComicEntities(records: any[], jobId: string, runId: string): Promise<void> {
+    // Implementation for comic book processing
+    console.log(`📚 Processing ${records.length} comic records...`);
+    // Similar pattern to character processing but for comic entities
+  }
+
+  private async processBattleEntities(records: any[], jobId: string, runId: string): Promise<void> {
+    // Implementation for battle scenario processing
+    console.log(`⚔️ Processing ${records.length} battle records...`);
+    // Process battle outcomes and create entity interactions
+  }
+
+  private async processMovieEntities(records: any[], jobId: string, runId: string): Promise<void> {
+    // Implementation for movie performance processing
+    console.log(`🎬 Processing ${records.length} movie records...`);
+    // Process box office and performance data
+  }
+
+  private async createFinancialMapping(entity: any, volatility: number, momentum: number): Promise<void> {
+    try {
+      // Safely bound all financial parameters
+      const safeVolatility = this.capVolatilityPercentage(volatility);
+      const safeMomentum = this.capMomentumPercentage(momentum);
+      
+      // Calculate margin requirement safely (50-100% based on volatility)
+      const marginRequirement = Math.min(50 + (safeVolatility * 50), 100);
+      
+      // Determine lot size based on asset tier (prevent fractional issues)
+      const powerLevel = Math.max(0, Math.min(parseFloat(entity.metadata?.powerLevel || '50'), 100));
+      const lotSize = powerLevel > 80 ? 10 : 1; // Higher lot sizes for cosmic entities
+      
+      const mappingData: InsertAssetFinancialMapping = {
+        assetId: `${entity.id}`, // This would link to actual asset ID
+        instrumentType: 'common_stock',
+        shareClass: powerLevel > 90 ? 'AAA' : (powerLevel > 70 ? 'AA' : 'A'), // Cosmic entities get premium class
+        votingRights: true,
+        dividendEligible: false,
+        marginRequirement: Math.round(marginRequirement), // Ensure integer
+        shortSellAllowed: powerLevel < 95, // Restrict shorting for near-omnipotent entities
+        lotSize: lotSize,
+        tickSize: powerLevel > 90 ? '0.10' : (powerLevel > 70 ? '0.05' : '0.01'), // Larger tick sizes for high-value assets
+        securityType: 'equity',
+        exchangeListing: 'PPX'
+      };
+      
+      // Validate margin requirement is within acceptable bounds
+      if (mappingData.marginRequirement < 25 || mappingData.marginRequirement > 100) {
+        console.warn(`⚠️ Margin requirement ${mappingData.marginRequirement} outside normal range for ${entity.canonicalName}, adjusting to safe bounds`);
+        mappingData.marginRequirement = Math.max(25, Math.min(mappingData.marginRequirement, 100));
+      }
+
+      // Only insert if asset doesn't already have mapping
+      const existing = await db.select().from(assetFinancialMapping)
+        .where(eq(assetFinancialMapping.assetId, mappingData.assetId))
+        .limit(1);
+        
+      if (existing.length === 0) {
+        await db.insert(assetFinancialMapping).values(mappingData);
+        console.log(`💼 Financial mapping created for ${entity.canonicalName}: Margin ${mappingData.marginRequirement}%, Lot ${mappingData.lotSize}, Tick $${mappingData.tickSize}`);
+      }
+      
+    } catch (error) {
+      console.error(`🚨 Error creating financial mapping for ${entity.canonicalName}:`, error);
+      
+      // Create safe fallback mapping
+      await this.createFallbackFinancialMapping(entity, error as Error);
+    }
+  }
+  
+  private async createFallbackFinancialMapping(entity: any, originalError: Error): Promise<void> {
+    try {
+      const fallbackMapping: InsertAssetFinancialMapping = {
+        assetId: `${entity.id}`,
+        instrumentType: 'common_stock',
+        shareClass: 'A',
+        votingRights: true,
+        dividendEligible: false,
+        marginRequirement: 50, // Safe default
+        shortSellAllowed: true,
+        lotSize: 1,
+        tickSize: '0.01',
+        securityType: 'equity',
+        exchangeListing: 'PPX'
+      };
+      
+      await db.insert(assetFinancialMapping).values(fallbackMapping);
+      console.log(`🛡️ Fallback financial mapping created for ${entity.canonicalName}`);
+      
+    } catch (fallbackError) {
+      console.error(`💥 Failed to create fallback financial mapping for ${entity.canonicalName}:`, fallbackError);
+    }
+  }
+
+  private async createTradingAsset(entity: any, volatility: number, momentum: number): Promise<void> {
+    try {
+      // Extract power level safely
+      const powerLevel = Math.max(0, Math.min(parseFloat(entity.metadata?.powerLevel || '50'), 100));
+      const culturalImpact = Math.min(parseFloat(entity.culturalImpact || '0.5'), 1.0);
+      
+      // Calculate safe price using power level mapping with logarithmic scaling
+      const safePrice = this.mapPowerLevelToPrice(powerLevel, entity.universe, culturalImpact);
+      
+      // Ensure volatility and momentum are within safe bounds
+      const safeVolatility = this.capVolatilityPercentage(volatility);
+      const safeMomentum = this.capMomentumPercentage(momentum);
+      
+      // Generate asset symbol safely
+      const assetSymbol = this.generateAssetSymbol(entity.canonicalName);
+      
+      // Validate all financial data before insertion
+      const validatedPrice = this.validatePrice(safePrice, `Asset Creation - ${entity.canonicalName}`);
+      
+      if (validatedPrice !== safePrice) {
+        console.log(`📊 Price adjusted for ${entity.canonicalName}: ${safePrice.toFixed(2)} → ${validatedPrice.toFixed(2)}`);
+      }
+      
+      const assetData: InsertAsset = {
+        symbol: assetSymbol,
+        name: entity.canonicalName,
+        type: 'character',
+        description: entity.description || `Trade ${entity.canonicalName} - ${entity.universe} universe character`,
+        currentPrice: validatedPrice.toFixed(2),
+        basePrice: validatedPrice.toFixed(2),
+        volatility: safeVolatility,
+        metadata: {
+          entityId: entity.id,
+          universe: entity.universe,
+          entityType: entity.entityType,
+          powerLevel: powerLevel,
+          culturalImpact: culturalImpact,
+          volatility: safeVolatility,
+          momentum: safeMomentum,
+          houseAffinity: entity.houseAffinity || {},
+          priceCalculationMethod: 'power_level_mapping_v2',
+          pricingTier: this.determinePricingTier(powerLevel),
+          scalingApplied: powerLevel > 80 ? 'logarithmic' : 'linear'
+        }
+      };
+
+      // Check if asset already exists
+      const existing = await db.select().from(assets)
+        .where(eq(assets.symbol, assetData.symbol))
+        .limit(1);
+        
+      if (existing.length === 0) {
+        // Final validation before database insertion
+        await this.validateAssetDataForInsertion(assetData);
+        
+        await db.insert(assets).values(assetData);
+        console.log(`💰 Created trading asset: ${assetData.symbol} (${entity.canonicalName}) @ $${validatedPrice.toFixed(2)}`);
+        
+        // Log pricing details for monitoring
+        console.log(`   🔍 Pricing details: Power=${powerLevel}, Cultural=${culturalImpact.toFixed(2)}, Vol=${(safeVolatility*100).toFixed(1)}%, Mom=${(safeMomentum*100).toFixed(1)}%`);
+        
+      } else {
+        console.log(`🔄 Asset already exists: ${assetData.symbol} (${entity.canonicalName})`);
+      }
+      
+    } catch (error) {
+      console.error(`🚨 Critical error creating trading asset for ${entity.canonicalName}:`, error);
+      
+      // Create fallback asset with minimal safe values
+      await this.createFallbackAsset(entity, error as Error);
+    }
+  }
+  
+  private determinePricingTier(powerLevel: number): string {
+    if (powerLevel < 30) return 'street';
+    if (powerLevel < 70) return 'hero';
+    if (powerLevel < 90) return 'cosmic';
+    return 'omnipotent';
+  }
+  
+  private async validateAssetDataForInsertion(assetData: InsertAsset): Promise<void> {
+    // Validate currentPrice fits in DECIMAL(10,2)
+    const price = parseFloat(assetData.currentPrice || '0');
+    if (price > this.MAX_PRICE || price < this.MIN_PRICE) {
+      throw new Error(`Price ${price} outside valid range [${this.MIN_PRICE}, ${this.MAX_PRICE}]`);
+    }
+    
+    // Validate volatility is percentage
+    if (assetData.volatility < 0 || assetData.volatility > 1) {
+      throw new Error(`Volatility ${assetData.volatility} outside valid range [0, 1]`);
+    }
+    
+    // Validate symbol length and format
+    if (!assetData.symbol || assetData.symbol.length < 2 || assetData.symbol.length > 10) {
+      throw new Error(`Invalid asset symbol: ${assetData.symbol}`);
+    }
+  }
+  
+  private async createFallbackAsset(entity: any, originalError: Error): Promise<void> {
+    try {
+      console.log(`🛍️ Creating fallback asset for ${entity.canonicalName}...`);
+      
+      const fallbackData: InsertAsset = {
+        symbol: this.generateAssetSymbol(entity.canonicalName),
+        name: entity.canonicalName,
+        type: 'character',
+        description: `Safe fallback asset for ${entity.canonicalName}`,
+        currentPrice: "10.00", // Safe base price
+        basePrice: "10.00",
+        volatility: 0.25, // 25% volatility
+        metadata: {
+          entityId: entity.id,
+          universe: entity.universe || 'unknown',
+          entityType: entity.entityType || 'character',
+          powerLevel: 25, // Safe default
+          culturalImpact: 0.25,
+          volatility: 0.25,
+          momentum: 0.5,
+          houseAffinity: {},
+          priceCalculationMethod: 'fallback_safe_default',
+          pricingTier: 'street',
+          originalError: originalError.message,
+          fallbackReason: 'Price calculation overflow protection'
+        }
+      };
+      
+      await db.insert(assets).values(fallbackData);
+      console.log(`✅ Fallback asset created: ${fallbackData.symbol} @ $10.00`);
+      
+    } catch (fallbackError) {
+      console.error(`🚨 Failed to create fallback asset for ${entity.canonicalName}:`, fallbackError);
+      // Record this as a problematic entity that needs manual review
+    }
+  }
+
+  private generateAssetSymbol(name: string): string {
+    return name
+      .toUpperCase()
+      .replace(/[^\w\s]/g, '')
+      .replace(/\s+/g, '')
+      .substring(0, 6) + Math.random().toString(36).substring(2, 4).toUpperCase();
+  }
+
+  // Job Management Methods
+
+  private async createIngestionJob(jobType: string, userId?: string): Promise<string> {
+    const [job] = await db.insert(ingestionJobs).values({
+      jobName: `Phase 2 CSV Import - ${new Date().toISOString()}`,
+      jobType,
+      datasetType: 'mixed',
+      sourceType: 'csv_file',
+      processingMode: 'thorough',
+      batchSize: this.BATCH_SIZE,
+      maxRetries: this.MAX_RETRIES,
+      timeoutMinutes: 120,
+      priorityLevel: 8,
+      createdBy: userId,
+      description: 'Comprehensive ingestion of narrative data from attached CSV files'
+    }).returning();
+
+    return job.id;
+  }
+
+  private async createIngestionRun(jobId: string): Promise<string> {
+    const [run] = await db.insert(ingestionRuns).values({
+      jobId,
+      runNumber: 1,
+      runType: 'standard',
+      triggeredBy: 'system'
+    }).returning();
+
+    return run.id;
+  }
+
+  private async updateJobStatus(jobId: string, status: string, progress: number): Promise<void> {
+    await db.update(ingestionJobs)
+      .set({ status, progress: progress.toString(), updatedAt: new Date() })
+      .where(eq(ingestionJobs.id, jobId));
+  }
+
+  private async updateJobStage(jobId: string, stage: string, progress: number): Promise<void> {
+    await db.update(ingestionJobs)
+      .set({ 
+        currentStage: stage, 
+        progress: progress.toString(), 
+        updatedAt: new Date() 
+      })
+      .where(eq(ingestionJobs.id, jobId));
+  }
+
+  private async updateJobProgress(jobId: string, progress: number): Promise<void> {
+    await db.update(ingestionJobs)
+      .set({ progress: progress.toString(), updatedAt: new Date() })
+      .where(eq(ingestionJobs.id, jobId));
+  }
+
+  private async completeIngestionRun(runId: string, status: string): Promise<void> {
+    await db.update(ingestionRuns)
+      .set({ status, completedAt: new Date() })
+      .where(eq(ingestionRuns.id, runId));
+  }
+
+  private async logIngestionError(
+    jobId: string, 
+    runId: string, 
+    stage: string, 
+    error: Error, 
+    context?: any
+  ): Promise<void> {
+    await db.insert(ingestionErrors).values({
+      jobId,
+      runId,
+      errorType: 'processing',
+      errorCategory: 'major',
+      errorSeverity: 5,
+      errorMessage: error.message,
+      detailedDescription: error.stack || '',
+      technicalDetails: { stack: error.stack, name: error.name },
+      errorContext: context || {},
+      processingStage: stage,
+      isResolvable: true,
+      resolutionStrategy: 'retry',
+      retryable: true
+    });
+
+    // Update job error count
+    await db.update(ingestionJobs)
+      .set({ errorCount: sql`${ingestionJobs.errorCount} + 1` })
+      .where(eq(ingestionJobs.id, jobId));
+  }
+
+  /**
+   * Get ingestion job status
+   */
+  async getJobStatus(jobId: string): Promise<any> {
+    const [job] = await db.select().from(ingestionJobs)
+      .where(eq(ingestionJobs.id, jobId))
+      .limit(1);
+    
+    if (!job) return null;
+
+    const runs = await db.select().from(ingestionRuns)
+      .where(eq(ingestionRuns.jobId, jobId))
+      .orderBy(desc(ingestionRuns.createdAt));
+
+    const errors = await db.select().from(ingestionErrors)
+      .where(eq(ingestionErrors.jobId, jobId))
+      .orderBy(desc(ingestionErrors.createdAt))
+      .limit(10);
+
     return {
-      heroes: 0.9, // Crossovers always involve heroes
-      power: 0.8,  // Power struggles common in crossovers
-      wisdom: 0.6, // Strategy needed for complex events
-      mystery: 0.7, // Crossovers often have mysterious elements
-      elements: 0.5, // Elemental forces may be involved
-      time: 0.4,   // Time travel sometimes involved
-      spirit: 0.8  // Team-ups and alliances common
+      job,
+      runs,
+      recentErrors: errors
     };
   }
 
-  // Random data generation helpers
+  /**
+   * Retry failed ingestion job
+   */
+  async retryJob(jobId: string): Promise<string> {
+    const existingJob = await this.getJobStatus(jobId);
+    if (!existingJob) throw new Error('Job not found');
 
-  private generateRandomAffiliations(): string[] {
-    const affiliations = ['X-Men', 'Avengers', 'Justice League', 'Teen Titans', 'Fantastic Four', 'Justice Society', 'Alpha Flight'];
-    return affiliations.slice(0, Math.floor(Math.random() * 3) + 1);
-  }
-
-  private generateRandomEnemies(): string[] {
-    const enemies = ['Magneto', 'Joker', 'Lex Luthor', 'Doctor Doom', 'Thanos', 'Darkseid', 'Red Skull'];
-    return enemies.slice(0, Math.floor(Math.random() * 3) + 1);
-  }
-
-  private generateRandomAllies(): string[] {
-    const allies = ['Spider-Man', 'Batman', 'Superman', 'Wonder Woman', 'Captain America', 'Wolverine', 'Iron Man'];
-    return allies.slice(0, Math.floor(Math.random() * 4) + 1);
-  }
-
-  private generateRandomMovies(): string[] {
-    const movies = ['The Legendary Saga', 'Rise of Heroes', 'Cosmic Convergence', 'Battle for Tomorrow'];
-    return movies.slice(0, Math.floor(Math.random() * 3));
-  }
-
-  private generateRandomTVShows(): string[] {
-    const shows = ['Heroes Unlimited', 'Cosmic Chronicles', 'The Legend Continues', 'Mystic Adventures'];
-    return shows.slice(0, Math.floor(Math.random() * 3));
-  }
-
-  private generateRandomCreators(): string[] {
-    const creators = ['Stan Lee', 'Jack Kirby', 'Steve Ditko', 'Bob Kane', 'Jerry Siegel', 'Joe Shuster'];
-    return creators.slice(0, Math.floor(Math.random() * 2) + 1);
-  }
-
-  private generateEventTitle(eventType: ComicMarketEvent['type']): string {
-    const titles = {
-      movie_announcement: 'Legendary Heroes Rise: New Cinematic Universe Announced',
-      comic_release: 'Sacred Chronicles: New Epic Series Launches',
-      character_death: 'The End of an Era: Beloved Hero Falls',
-      crossover_event: 'Cosmic Convergence: Universes Collide',
-      reboot: 'Mystical Rebirth: Universe Gets Divine Renewal',
-      acquisition: 'Corporate Realignment: Publisher Powers Merge'
-    };
+    // Create new run for retry
+    const runId = await this.createIngestionRun(jobId);
     
-    return titles[eventType];
-  }
-
-  private generateEventDescription(eventType: ComicMarketEvent['type']): string {
-    const descriptions = {
-      movie_announcement: 'A new cinematic saga promises to bring beloved characters to life, potentially boosting their market values significantly.',
-      comic_release: 'Fresh storylines and character developments create new trading opportunities and collector interest.',
-      character_death: 'A major character\'s storyline conclusion creates both collectible value and potential resurrection speculation.',
-      crossover_event: 'Multiple universe characters unite in an epic storyline, affecting numerous asset valuations.',
-      reboot: 'Universe-wide narrative reset provides fresh entry points and renewed interest in classic characters.',
-      acquisition: 'Publishing rights changes create new market dynamics and potential value shifts.'
-    };
+    // Reset job status
+    await this.updateJobStatus(jobId, 'running', 0);
     
-    return descriptions[eventType];
-  }
-
-  private generateRandomCharacterList(): string[] {
-    const characters = ['Spider-Man', 'Batman', 'Superman', 'Wonder Woman', 'Iron Man', 'Captain America'];
-    return characters.slice(0, Math.floor(Math.random() * 3) + 1);
-  }
-
-  private generateMysticalEventSignificance(eventType: ComicMarketEvent['type']): string {
-    const significance = {
-      movie_announcement: 'The cosmic projection of heroic tales into the mortal realm amplifies their divine essence.',
-      comic_release: 'New sacred scrolls emerge, carrying fresh wisdom and power for the enlightened traders.',
-      character_death: 'A hero\'s ascension to legend status transforms their earthly value into eternal significance.',
-      crossover_event: 'The alignment of multiple cosmic forces creates unprecedented mystical resonance.',
-      reboot: 'The great cycle of renewal breathes new life into ancient powers, reshaping destiny itself.',
-      acquisition: 'The merging of divine realms concentrates cosmic energy and reshuffles celestial hierarchies.'
-    };
+    // Continue processing from staging records
+    await this.performEntityResolution(jobId, runId);
+    await this.calculateTradingMetrics(jobId, runId);
     
-    return significance[eventType];
-  }
-
-  private calculateEventHouseRelevance(event: any): Record<string, number> {
-    // Base relevance calculation
-    return {
-      heroes: 0.8,
-      wisdom: 0.6,
-      power: 0.7,
-      mystery: 0.5,
-      elements: 0.4,
-      time: 0.3,
-      spirit: 0.6
-    };
-  }
-
-  private generateSignificantEvents(): string[] {
-    const events = [
-      'First appearance of iconic villain',
-      'Major character transformation',
-      'Universe-changing storyline',
-      'Landmark anniversary issue',
-      'Crossover event conclusion'
-    ];
+    await this.updateJobStatus(jobId, 'completed', 100);
+    await this.completeIngestionRun(runId, 'completed');
     
-    return events.slice(0, Math.floor(Math.random() * 3) + 1);
+    return runId;
   }
 }
 
-export const enhancedComicDataIntegration = new EnhancedComicDataIntegrationService();
+// Export singleton instance
+export const csvIngestionOrchestrator = new CSVIngestionOrchestrator();
+
+// Export main functions for external use
+export async function startCSVIngestion(userId?: string): Promise<string> {
+  return csvIngestionOrchestrator.startIngestion(userId);
+}
+
+export async function getIngestionStatus(jobId: string): Promise<any> {
+  return csvIngestionOrchestrator.getJobStatus(jobId);
+}
+
+export async function retryIngestion(jobId: string): Promise<string> {
+  return csvIngestionOrchestrator.retryJob(jobId);
+}
