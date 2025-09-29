@@ -1,2129 +1,572 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Hind:wght@300;400;500&display=swap');
-/* WATCHMEN NOIR TYPOGRAPHY - Brutalist Industrial Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+/* NOIR BRUTALIST TYPOGRAPHY - FRANK MILLER/ALAN MOORE VISUAL LANGUAGE */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* LIGHT MODE */
+/* ═══════════════════════════════════════════════════════════════════════════════════════ */
+/* FRANK MILLER/ALAN MOORE NOIR SYSTEM - BRUTAL BLACK & WHITE WITH BLOOD */
+/* ═══════════════════════════════════════════════════════════════════════════════════════ */
+
 :root {
-  --button-outline: rgba(0,0,0, .10);
-  --badge-outline: rgba(0,0,0, .05);
-
-  /* Automatic computation of border around primary / danger buttons */
-  --opaque-button-border-intensity: -8; /* In terms of percentages */
-
-  /* Backgrounds applied on top of other backgrounds when hovered/active */
-  --elevate-1: rgba(0,0,0, .03);
-  --elevate-2: rgba(0,0,0, .08);
-
-  /* WATCHMEN NOIR PALETTE - Dark, Gritty, Morally Complex */
-  --background: 0 0% 4%; /* Void Black - The abyss of capitalism */
-
-  --foreground: 0 0% 95%; /* Harsh Light - Truth cuts through darkness */
-
-  --border: 0 0% 15%; /* Shadow Concrete - Industrial boundaries */
-
-  --card: 0 0% 8%; /* Shadow Concrete - Brutalist surfaces */
-
-  --card-foreground: 0 0% 95%; /* Harsh Light */
-
-  --card-border: 0 0% 20%; /* Weathered Steel */
-
-  --sidebar: 0 0% 6%; /* Deeper Void - Surveillance state */
-
-  --sidebar-foreground: 0 0% 90%; /* Slightly dimmed harsh light */
-
-  --sidebar-border: 0 0% 12%; /* Dark boundary */
-
-  --sidebar-primary: 0 84% 45%; /* Blood Red - Moral consequence */
-
-  --sidebar-primary-foreground: 0 0% 98%;
-
-  --sidebar-accent: 240 15% 15%; /* Ink Blot - Rorschach patterns */
-
-  --sidebar-accent-foreground: 0 0% 95%;
-
-  --sidebar-ring: 45 100% 60%; /* Watchmen Yellow - Smiley badge */
-
-  --popover: 0 0% 10%; /* Slightly elevated shadow */
-
-  --popover-foreground: 0 0% 95%;
-
-  --popover-border: 0 0% 18%;
-
-  --primary: 0 84% 45%; /* Blood Red - Every trade has a cost */
-
-  --primary-foreground: 0 0% 98%;
-
-  --secondary: 0 0% 15%; /* Ash Gray - Moral ambiguity */
-
-  --secondary-foreground: 0 0% 85%;
-
-  --muted: 0 0% 12%; /* Muted concrete */
-
-  --muted-foreground: 0 0% 65%; /* Weathered Gray - exhausted text */
-
-  --accent: 45 100% 60%; /* Watchmen Yellow - Ironic optimism */
-
-  --accent-foreground: 0 0% 4%;
-
-  --destructive: 0 84% 45%; /* Blood Red - Loss is visceral */
-
-  --destructive-foreground: 0 0% 98%;
-
-  --input: 210 40% 78%;
-  --ring: 239 68% 68%;
-  --chart-1: 0 0% 30%; /* Gunmetal - Cold data */
-  --chart-2: 0 84% 45%; /* Blood Red - Losses */
-  --chart-3: 142 30% 35%; /* Corruption Green - Tainted profit */
-  --chart-4: 45 100% 60%; /* Watchmen Yellow - False hope */
-  --chart-5: 240 15% 25%; /* Ink Blot Blue - Psychology */
-
-  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
-  /* SEVEN HOUSES VISUAL LANGUAGE SYSTEM - COMIC BOOK ART TRADITIONS */
-  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
-
-  /* HOUSE OF HEROES - FALSE IDOLS (Character Assets) */
-  /* Visual Style: Corrupted heroes, tarnished symbols, moral compromise */
-  --house-heroes-primary: 0 70% 35%; /* Dried blood - Heroes fall */
-  --house-heroes-primary-foreground: 0 0% 90%;
-  --house-heroes-secondary: 220 20% 25%; /* Tarnished steel */
-  --house-heroes-accent: 45 80% 40%; /* Faded gold - Lost glory */
-  --house-heroes-background: 0 30% 15%;
-  --house-heroes-card: 0 25% 20%;
-  --house-heroes-border: 0 60% 30%;
-  --house-heroes-panel-border: 2px; /* Cracked boundaries */
-  --house-heroes-panel-radius: 0px; /* Brutal edges */
-  --house-heroes-shadow: 0px 8px 16px rgba(0, 0, 0, 0.9); /* Deep shadows */
-  --house-heroes-gradient-start: 0 70% 35%;
-  --house-heroes-gradient-end: 0 0% 10%;
-  /* Typography */
-  --house-heroes-font-display: 'Space Grotesk', sans-serif; /* Cold, clinical */
-  --house-heroes-font-body: 'Hind', sans-serif;
-  --house-heroes-font-accent: 'Space Grotesk', sans-serif;
-  --house-heroes-letter-spacing: 0.02em;
-  --house-heroes-text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.9);
-  /* Effects */
-  --house-heroes-speed-lines: linear-gradient(45deg, transparent 40%, rgba(139, 0, 0, 0.2) 50%, transparent 60%);
-  --house-heroes-impact-burst: radial-gradient(circle, rgba(139, 0, 0, 0.4) 0%, transparent 70%);
-  --house-heroes-cape-flow: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-
-  /* HOUSE OF WISDOM - RORSCHACH'S JOURNAL (Creator Assets) */
-  /* Visual Style: Ink blot tests, psychological profiles, uncompromising truth */
-  --house-wisdom-primary: 240 15% 25%; /* Ink Blot Blue */
-  --house-wisdom-primary-foreground: 0 0% 95%;
-  --house-wisdom-secondary: 0 0% 15%; /* Void gray */
-  --house-wisdom-accent: 240 10% 40%; /* Deep ink */
-  --house-wisdom-background: 240 10% 8%;
-  --house-wisdom-card: 240 10% 12%;
-  --house-wisdom-border: 240 15% 20%;
-  --house-wisdom-panel-border: 1px; /* Thin, precise */
-  --house-wisdom-panel-radius: 0px; /* No compromise */
-  --house-wisdom-shadow: 0px 0px 20px rgba(0, 0, 0, 0.8); /* Void gaze */
-  --house-wisdom-gradient-start: 240 15% 25%;
-  --house-wisdom-gradient-end: 0 0% 4%;
-  /* Typography */
-  --house-wisdom-font-display: 'Space Grotesk', monospace; /* Clinical observation */
-  --house-wisdom-font-body: 'Hind', sans-serif;
-  --house-wisdom-font-accent: 'Space Grotesk', monospace;
-  --house-wisdom-letter-spacing: 0.01em;
-  --house-wisdom-text-shadow: none; /* Truth needs no embellishment */
-  /* Effects */
-  --house-wisdom-venetian-blinds: linear-gradient(0deg, transparent 45%, rgba(0, 0, 0, 0.3) 46%, rgba(0, 0, 0, 0.3) 54%, transparent 55%);
-  --house-wisdom-spotlight: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4) 0%, transparent 70%);
-  --house-wisdom-magnify: cubic-bezier(0.4, 0, 0.2, 1);
-
-  /* HOUSE OF POWER - OZYMANDIAS COMPLEX (Publisher Assets) */
-  /* Visual Style: Corporate dystopia, calculated control, the ends justify the means */
-  --house-power-primary: 271 30% 25%; /* Corporate purple - Muted power */
-  --house-power-primary-foreground: 0 0% 90%;
-  --house-power-secondary: 260 25% 20%; /* Deep control */
-  --house-power-accent: 45 70% 45%; /* Calculated gold */
-  --house-power-background: 271 20% 10%;
-  --house-power-card: 271 20% 15%;
-  --house-power-border: 271 30% 20%;
-  --house-power-panel-border: 1px; /* Precise control */
-  --house-power-panel-radius: 0px; /* Brutalist architecture */
-  --house-power-shadow: 0px 10px 30px rgba(0, 0, 0, 0.7); /* Oppressive presence */
-  --house-power-gradient-start: 271 30% 25%;
-  --house-power-gradient-end: 0 0% 5%;
-  /* Typography */
-  --house-power-font-display: 'Space Grotesk', sans-serif; /* Corporate brutalism */
-  --house-power-font-body: 'Hind', sans-serif;
-  --house-power-font-accent: 'Space Grotesk', sans-serif;
-  --house-power-letter-spacing: 0.08em;
-  --house-power-text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
-  /* Effects */
-  --house-power-energy-surge: linear-gradient(45deg, rgba(69, 39, 86, 0.3) 0%, rgba(184, 134, 11, 0.2) 100%);
-  --house-power-cosmic-explosion: radial-gradient(circle, rgba(0, 0, 0, 0.6) 0%, rgba(69, 39, 86, 0.3) 50%, transparent 100%);
-  --house-power-dimensional-rift: cubic-bezier(0.4, 0, 0.2, 1);
-
-  /* HOUSE OF MYSTERY - DR. MANHATTAN'S VOID (Rare Assets) */
-  /* Visual Style: Quantum uncertainty, existential dread, detachment from humanity */
-  --house-mystery-primary: 142 30% 20%; /* Radioactive decay */
-  --house-mystery-primary-foreground: 0 0% 85%;
-  --house-mystery-secondary: 160 25% 15%; /* Toxic sludge */
-  --house-mystery-accent: 158 35% 30%; /* Quantum glow */
-  --house-mystery-background: 142 20% 8%;
-  --house-mystery-card: 142 20% 12%;
-  --house-mystery-border: 142 30% 18%;
-  --house-mystery-panel-border: 0px; /* Reality has no boundaries */
-  --house-mystery-panel-radius: 0px; /* No curves in quantum space */
-  --house-mystery-shadow: 0px 0px 25px rgba(0, 255, 0, 0.2); /* Radiation leak */
-  --house-mystery-gradient-start: 142 30% 20%;
-  --house-mystery-gradient-end: 0 0% 4%;
-  /* Typography */
-  --house-mystery-font-display: 'Space Grotesk', monospace; /* Clinical detachment */
-  --house-mystery-font-body: 'Hind', sans-serif;
-  --house-mystery-font-accent: 'Space Grotesk', monospace;
-  --house-mystery-letter-spacing: 0.04em;
-  --house-mystery-text-shadow: 0px 0px 6px rgba(0, 255, 0, 0.3);
-  /* Effects */
-  --house-mystery-mist-reveal: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%);
-  --house-mystery-supernatural-glow: radial-gradient(circle, rgba(0, 255, 0, 0.15) 0%, transparent 60%);
-  --house-mystery-reality-distortion: cubic-bezier(0.4, 0, 0.2, 1);
-
-  /* HOUSE OF ELEMENTS - THE COMEDIAN'S CHAOS (Team Assets) */
-  /* Visual Style: Nihilistic destruction, dark humor, violence as comedy */
-  --house-elements-primary: 25 85% 35%; /* Napalm orange - War is a joke */
-  --house-elements-primary-foreground: 0 0% 90%;
-  --house-elements-secondary: 15 75% 25%; /* Burnt sienna */
-  --house-elements-accent: 45 60% 40%; /* Faded brass */
-  --house-elements-background: 25 30% 10%;
-  --house-elements-card: 25 25% 15%;
-  --house-elements-border: 25 70% 25%;
-  --house-elements-panel-border: 2px; /* Broken boundaries */
-  --house-elements-panel-radius: 0px; /* No soft edges */
-  --house-elements-shadow: 0px 6px 20px rgba(0, 0, 0, 0.8); /* Explosive shadows */
-  --house-elements-gradient-start: 25 85% 35%;
-  --house-elements-gradient-end: 0 0% 5%;
-  /* Typography */
-  --house-elements-font-display: 'Space Grotesk', sans-serif; /* Brutal reality */
-  --house-elements-font-body: 'Hind', sans-serif;
-  --house-elements-font-accent: 'Space Grotesk', sans-serif;
-  --house-elements-letter-spacing: 0.03em;
-  --house-elements-text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
-  /* Effects */
-  --house-elements-fire-flow: linear-gradient(45deg, rgba(139, 0, 0, 0.4) 0%, rgba(255, 69, 0, 0.3) 100%);
-  --house-elements-water-flow: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(30, 30, 30, 0.4) 100%);
-  --house-elements-earth-flow: linear-gradient(90deg, rgba(46, 25, 5, 0.4) 0%, rgba(92, 51, 23, 0.3) 100%);
-  --house-elements-air-flow: linear-gradient(270deg, rgba(128, 128, 128, 0.3) 0%, rgba(64, 64, 64, 0.3) 100%);
-  --house-elements-seasonal-cycle: cubic-bezier(0.4, 0, 0.2, 1);
-
-  /* HOUSE OF TIME - DOOMSDAY CLOCK (Event Assets) */
-  /* Visual Style: Counting down to midnight, inevitability of destruction */
-  --house-time-primary: 210 20% 12%; /* Midnight blue */
-  --house-time-primary-foreground: 0 0% 85%;
-  --house-time-secondary: 215 25% 10%; /* Deeper void */
-  --house-time-accent: 45 70% 35%; /* Tarnished brass */
-  --house-time-background: 210 15% 6%;
-  --house-time-card: 210 15% 10%;
-  --house-time-border: 210 20% 8%;
-  --house-time-panel-border: 1px; /* Precise countdown */
-  --house-time-panel-radius: 0px; /* No curves before the end */
-  --house-time-shadow: 0px 0px 15px rgba(0, 0, 0, 0.9); /* Approaching darkness */
-  --house-time-gradient-start: 210 20% 12%;
-  --house-time-gradient-end: 0 0% 2%;
-  /* Typography */
-  --house-time-font-display: 'Space Grotesk', monospace; /* Mechanical precision */
-  --house-time-font-body: 'Hind', sans-serif;
-  --house-time-font-accent: 'Space Grotesk', monospace;
-  --house-time-letter-spacing: 0.06em;
-  --house-time-text-shadow: 0px 0px 4px rgba(255, 0, 0, 0.3);
-  /* Effects */
-  --house-time-ripple: radial-gradient(circle, rgba(255, 0, 0, 0.2) 0%, transparent 50%);
-  --house-time-paradox: linear-gradient(45deg, rgba(0, 0, 0, 0.5) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.5) 75%);
-  --house-time-temporal-rewind: cubic-bezier(0.4, 0, 0.2, 1);
-
-  /* HOUSE OF SPIRIT - SILK SPECTRE'S LEGACY (Mythic Assets) */
-  /* Visual Style: Generational trauma, complex inheritance, moral compromise */
-  --house-spirit-primary: 173 25% 20%; /* Faded teal - Lost idealism */
-  --house-spirit-primary-foreground: 0 0% 85%;
-  --house-spirit-secondary: 180 20% 18%; /* Weathered cyan */
-  --house-spirit-accent: 43 50% 35%; /* Tarnished gold */
-  --house-spirit-background: 173 15% 8%;
-  --house-spirit-card: 173 15% 12%;
-  --house-spirit-border: 173 25% 15%;
-  --house-spirit-panel-border: 1px; /* Fragile boundaries */
-  --house-spirit-panel-radius: 0px; /* Sharp edges of memory */
-  --house-spirit-shadow: 0px 0px 20px rgba(0, 0, 0, 0.7); /* Shadow of the past */
-  --house-spirit-gradient-start: 173 25% 20%;
-  --house-spirit-gradient-end: 0 0% 6%;
-  /* Typography */
-  --house-spirit-font-display: 'Space Grotesk', sans-serif; /* Clinical examination */
-  --house-spirit-font-body: 'Hind', sans-serif;
-  --house-spirit-font-accent: 'Space Grotesk', sans-serif;
-  --house-spirit-letter-spacing: 0.04em;
-  --house-spirit-text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
-  /* Effects */
-  --house-spirit-divine-aura: radial-gradient(circle, rgba(0, 0, 0, 0.5) 0%, rgba(64, 64, 64, 0.3) 50%, transparent 100%);
-  --house-spirit-energy-flow: linear-gradient(90deg, rgba(32, 32, 32, 0.4) 0%, rgba(0, 0, 0, 0.5) 100%);
-  --house-spirit-transcendent-glow: cubic-bezier(0.4, 0, 0.2, 1);
-
-  --font-sans: 'Hind', system-ui, sans-serif;
-  --font-display: 'Space Grotesk', system-ui, sans-serif;
-  --font-mono: 'Space Grotesk', ui-monospace, Menlo, monospace;
+  /* NOIR CORE PALETTE - NO MERCY, NO COMPROMISE */
+  --background: 0 0% 0%; /* #000000 - Pure void black */
+  --foreground: 0 0% 100%; /* #FFFFFF - Harsh stark white */
   
-  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
-  /* COMIC BOOK TYPOGRAPHY FOUNDATION - AUTHENTIC SEQUENTIAL ART FONTS */
-  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
+  --border: 0 0% 100%; /* Pure white borders - stark contrast */
   
-  /* Brutalist Typography - No Heroes, Only Truth */
-  --font-comic-display: 'Space Grotesk', monospace; /* Cold, clinical headlines */
-  --font-comic-speech: 'Space Grotesk', monospace; /* Existential dialogue */
-  --font-comic-thought: 'JetBrains Mono', monospace; /* Internal despair */
-  --font-comic-action: 'Oswald', sans-serif; /* Violent impact */
-  --font-comic-narrative: 'Space Grotesk', monospace; /* Uncompromising truth */
-  --font-comic-horror: 'Space Grotesk', monospace; /* Moral horror */
+  --card: 0 0% 2%; /* #050505 - Slightly elevated black */
+  --card-foreground: 0 0% 95%; /* Off-white for readability */
+  --card-border: 0 0% 100%; /* Stark white borders */
   
-  /* Comic Book Color Theory */
-  --comic-speech-bg: 255 255 255; /* Classic white speech bubble */
-  --comic-speech-border: 0 0 0; /* Black border for speech bubbles */
-  --comic-thought-bg: 240 248 255; /* Light blue thought bubble */
-  --comic-thought-border: 70 130 180; /* Steel blue border */
-  --comic-caption-bg: 255 255 224; /* Light yellow caption box */
-  --comic-caption-border: 184 134 11; /* Dark goldenrod border */
-  --comic-sound-primary: 255 69 0; /* Orange-red for impact sounds */
-  --comic-sound-secondary: 255 140 0; /* Dark orange for secondary sounds */
-  --comic-panel-gutter: 8px; /* Standard comic panel gutter width */
-  --comic-panel-border: 2px; /* Standard comic panel border width */
-  --radius: .5rem; /* 8px */
-  --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-sm: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-md: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 2px 4px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-lg: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 4px 6px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 8px 10px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-2xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --tracking-normal: 0em;
-  --spacing: 0.25rem;
-
-  /* Automatically computed borders - intensity can be controlled by the user by the --opaque-button-border-intensity setting */
-
-  /* Fallback for older browsers */
-  --sidebar-primary-border: hsl(var(--sidebar-primary));
-  --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-
-  /* Fallback for older browsers */
-  --sidebar-accent-border: hsl(var(--sidebar-accent));
-  --sidebar-accent-border: hsl(from hsl(var(--sidebar-accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-
-  /* Fallback for older browsers */
+  --sidebar: 0 0% 0%; /* Absolute black */
+  --sidebar-foreground: 0 0% 90%; /* Slightly dimmed white */
+  --sidebar-border: 0 0% 100%; /* White boundary */
+  --sidebar-primary: 0 100% 27%; /* #8B0000 - Dried blood */
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 0 0% 10%; /* Dark gray accent */
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-ring: 45 100% 50%; /* #FFD700 - Sickly yellow */
+  
+  --popover: 0 0% 0%; /* Pure black popover */
+  --popover-foreground: 0 0% 100%;
+  --popover-border: 0 0% 100%;
+  
+  --primary: 0 100% 27%; /* #8B0000 - Dark blood red */
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 0 0% 10%; /* Near black gray */
+  --secondary-foreground: 0 0% 100%;
+  
+  --muted: 0 0% 5%; /* Very dark gray */
+  --muted-foreground: 0 0% 70%; /* Gray text */
+  
+  --accent: 45 100% 50%; /* #FFD700 - Watchmen yellow */
+  --accent-foreground: 0 0% 0%;
+  
+  --destructive: 0 72% 51%; /* #DC143C - Crimson blood */
+  --destructive-foreground: 0 0% 100%;
+  
+  --input: 0 0% 0%;
+  --ring: 0 100% 27%;
+  
+  /* Chart colors - only black, white, red */
+  --chart-1: 0 0% 100%; /* White */
+  --chart-2: 0 100% 27%; /* Blood red */
+  --chart-3: 0 0% 20%; /* Dark gray */
+  --chart-4: 45 100% 50%; /* Sickly yellow */
+  --chart-5: 0 0% 40%; /* Medium gray */
+  
+  /* BRUTAL SHADOW SYSTEM - ANGULAR NOIR SHADOWS */
+  --shadow-noir-sm: 5px 5px 0px rgba(0, 0, 0, 1);
+  --shadow-noir-md: 10px 10px 0px rgba(0, 0, 0, 1);
+  --shadow-noir-lg: 15px 15px 0px rgba(0, 0, 0, 1), 20px 20px 20px rgba(0, 0, 0, 0.8);
+  --shadow-noir-xl: 20px 20px 0px rgba(0, 0, 0, 1), 30px 30px 30px rgba(0, 0, 0, 0.7);
+  --shadow-noir-2xl: 30px 30px 0px rgba(0, 0, 0, 1), 40px 40px 40px rgba(0, 0, 0, 0.6);
+  
+  /* DRAMATIC LAYERED SHADOWS */
+  --shadow-brutal: 10px 10px 20px rgba(0, 0, 0, 0.9), 20px 20px 40px rgba(0, 0, 0, 0.7);
+  --shadow-blood: 10px 10px 20px rgba(139, 0, 0, 0.9), 20px 20px 40px rgba(139, 0, 0, 0.5);
+  --shadow-void: 0px 0px 30px rgba(0, 0, 0, 1) inset;
+  
+  /* Typography scales */
+  --font-weight-heavy: 900;
+  --font-weight-brutal: 800;
+  --font-weight-stark: 700;
+  --font-weight-bold: 600;
+  
+  --letter-spacing-brutal: 0.15em;
+  --letter-spacing-stark: 0.1em;
+  --letter-spacing-tight: 0.05em;
+  
+  /* Border widths for brutal panels */
+  --border-brutal: 4px;
+  --border-stark: 3px;
+  --border-heavy: 2px;
+  
+  /* Texture and grit variables */
+  --ink-splatter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.1'/%3E%3C/svg%3E");
+  --grain-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='grain'%3E%3CfeTurbulence baseFrequency='0.9' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)' opacity='0.05'/%3E%3C/svg%3E");
+  
+  /* Remove ALL border radius - BRUTAL RECTANGLES ONLY */
+  --radius: 0;
+  
+  /* House colors - all converted to noir palette */
+  --house-heroes-primary: 0 100% 27%; /* Blood red */
+  --house-heroes-primary-foreground: 0 0% 100%;
+  --house-heroes-secondary: 0 0% 10%;
+  --house-heroes-accent: 45 100% 50%;
+  --house-heroes-background: 0 0% 0%;
+  --house-heroes-card: 0 0% 5%;
+  --house-heroes-border: 0 0% 100%;
+  
+  --house-wisdom-primary: 0 0% 20%; /* Dark gray */
+  --house-wisdom-primary-foreground: 0 0% 100%;
+  --house-wisdom-secondary: 0 0% 0%;
+  --house-wisdom-accent: 0 0% 30%;
+  --house-wisdom-background: 0 0% 0%;
+  --house-wisdom-card: 0 0% 5%;
+  --house-wisdom-border: 0 0% 100%;
+  
+  --house-power-primary: 0 0% 15%; /* Near black */
+  --house-power-primary-foreground: 0 0% 100%;
+  --house-power-secondary: 0 0% 5%;
+  --house-power-accent: 45 100% 50%;
+  --house-power-background: 0 0% 0%;
+  --house-power-card: 0 0% 3%;
+  --house-power-border: 0 0% 100%;
+  
+  --house-mystery-primary: 0 0% 10%;
+  --house-mystery-primary-foreground: 0 0% 90%;
+  --house-mystery-secondary: 0 0% 0%;
+  --house-mystery-accent: 0 100% 27%;
+  --house-mystery-background: 0 0% 0%;
+  --house-mystery-card: 0 0% 2%;
+  --house-mystery-border: 0 0% 80%;
+  
+  --house-elements-primary: 0 100% 27%; /* Blood */
+  --house-elements-primary-foreground: 0 0% 100%;
+  --house-elements-secondary: 0 0% 5%;
+  --house-elements-accent: 45 100% 50%;
+  --house-elements-background: 0 0% 0%;
+  --house-elements-card: 0 0% 3%;
+  --house-elements-border: 0 0% 100%;
+  
+  --house-time-primary: 0 0% 0%; /* Void black */
+  --house-time-primary-foreground: 0 0% 100%;
+  --house-time-secondary: 0 0% 5%;
+  --house-time-accent: 0 100% 27%;
+  --house-time-background: 0 0% 0%;
+  --house-time-card: 0 0% 2%;
+  --house-time-border: 0 0% 100%;
+  
+  --house-spirit-primary: 0 0% 20%;
+  --house-spirit-primary-foreground: 0 0% 100%;
+  --house-spirit-secondary: 0 0% 10%;
+  --house-spirit-accent: 45 100% 50%;
+  --house-spirit-background: 0 0% 0%;
+  --house-spirit-card: 0 0% 3%;
+  --house-spirit-border: 0 0% 90%;
+  
+  /* All border radius removed */
+  --house-heroes-panel-radius: 0px;
+  --house-wisdom-panel-radius: 0px;
+  --house-power-panel-radius: 0px;
+  --house-mystery-panel-radius: 0px;
+  --house-elements-panel-radius: 0px;
+  --house-time-panel-radius: 0px;
+  --house-spirit-panel-radius: 0px;
+  
+  /* Brutal borders */
+  --house-heroes-panel-border: 4px;
+  --house-wisdom-panel-border: 3px;
+  --house-power-panel-border: 4px;
+  --house-mystery-panel-border: 2px;
+  --house-elements-panel-border: 4px;
+  --house-time-panel-border: 3px;
+  --house-spirit-panel-border: 3px;
+  
+  /* Dramatic shadows */
+  --house-heroes-shadow: var(--shadow-blood);
+  --house-wisdom-shadow: var(--shadow-brutal);
+  --house-power-shadow: var(--shadow-noir-xl);
+  --house-mystery-shadow: var(--shadow-void);
+  --house-elements-shadow: var(--shadow-blood);
+  --house-time-shadow: var(--shadow-brutal);
+  --house-spirit-shadow: var(--shadow-noir-lg);
+  
+  /* Typography - heavy weights only */
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
+  --font-display: 'Oswald', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  
+  /* Remove all elevation effects */
+  --elevate-1: rgba(255, 255, 255, 0);
+  --elevate-2: rgba(255, 255, 255, 0);
+  
+  --button-outline: rgba(255, 255, 255, 1);
+  --badge-outline: rgba(255, 255, 255, 1);
+  --opaque-button-border-intensity: 0;
+  
+  /* Computed borders */
   --primary-border: hsl(var(--primary));
-  --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-
-  /* Fallback for older browsers */
   --secondary-border: hsl(var(--secondary));
-  --secondary-border: hsl(from hsl(var(--secondary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-
-  /* Fallback for older browsers */
   --muted-border: hsl(var(--muted));
-  --muted-border: hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-
-  /* Fallback for older browsers */
   --accent-border: hsl(var(--accent));
-  --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-
-  /* Fallback for older browsers */
   --destructive-border: hsl(var(--destructive));
-  --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-
-  /* House Border Colors - Automatically computed */
-  --house-heroes-primary-border: hsl(var(--house-heroes-primary));
-  --house-heroes-primary-border: hsl(from hsl(var(--house-heroes-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --sidebar-primary-border: hsl(var(--sidebar-primary));
+  --sidebar-accent-border: hsl(var(--sidebar-accent));
   
-  --house-wisdom-primary-border: hsl(var(--house-wisdom-primary));
-  --house-wisdom-primary-border: hsl(from hsl(var(--house-wisdom-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --font-comic-display: 'Oswald', sans-serif;
+  --font-comic-speech: 'JetBrains Mono', monospace;
+  --font-comic-thought: 'JetBrains Mono', monospace;
+  --font-comic-action: 'Oswald', sans-serif;
+  --font-comic-narrative: 'Space Grotesk', monospace;
+  --font-comic-horror: 'Oswald', sans-serif;
   
-  --house-power-primary-border: hsl(var(--house-power-primary));
-  --house-power-primary-border: hsl(from hsl(var(--house-power-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --comic-panel-gutter: 12px;
+  --comic-panel-border: 4px;
   
-  --house-mystery-primary-border: hsl(var(--house-mystery-primary));
-  --house-mystery-primary-border: hsl(from hsl(var(--house-mystery-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  
-  --house-elements-primary-border: hsl(var(--house-elements-primary));
-  --house-elements-primary-border: hsl(from hsl(var(--house-elements-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  
-  --house-time-primary-border: hsl(var(--house-time-primary));
-  --house-time-primary-border: hsl(from hsl(var(--house-time-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  
-  --house-spirit-primary-border: hsl(var(--house-spirit-primary));
-  --house-spirit-primary-border: hsl(from hsl(var(--house-spirit-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-
-  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
-  /* RPG MYTHOLOGICAL SYSTEM - RARITY & MYSTICAL EFFECTS */
-  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
-
-  /* Asset Rarity Classification System */
-  --rarity-common: 210 15% 30%; /* Gray Stone */
-  --rarity-common-foreground: 0 0% 85%;
-  --rarity-common-border: 210 15% 25%;
-  --rarity-common-glow: 210 15% 40%;
-
-  --rarity-rare: 213 93% 68%; /* Mystical Blue */
-  --rarity-rare-foreground: 0 0% 98%;
-  --rarity-rare-border: 213 80% 55%;
-  --rarity-rare-glow: 213 93% 75%;
-
-  --rarity-epic: 285 100% 68%; /* Arcane Purple */
-  --rarity-epic-foreground: 0 0% 98%;
-  --rarity-epic-border: 285 85% 55%;
-  --rarity-epic-glow: 285 100% 75%;
-
-  --rarity-legendary: 43 96% 56%; /* Divine Gold */
-  --rarity-legendary-foreground: 43 20% 9%;
-  --rarity-legendary-border: 43 80% 45%;
-  --rarity-legendary-glow: 43 96% 65%;
-
-  /* Mystical Effect Intensities */
-  --mystical-glow-subtle: 0.15;
-  --mystical-glow-moderate: 0.25;
-  --mystical-glow-intense: 0.4;
-  --mystical-glow-divine: 0.6;
-
-  /* Sacred Geometry Spacing (based on mystical proportions) */
-  --sacred-xs: 0.125rem; /* 2px - Rune details */
-  --sacred-sm: 0.25rem;  /* 4px - Sacred symbols */
-  --sacred-md: 0.5rem;   /* 8px - Mystical elements */
-  --sacred-lg: 1rem;     /* 16px - Arcane structures */
-  --sacred-xl: 1.5rem;   /* 24px - Divine proportions */
-  --sacred-2xl: 2rem;    /* 32px - Legendary spacing */
-  --sacred-3xl: 3rem;    /* 48px - Epic realm divisions */
-
-  /* Divine Transition Timings */
-  --transition-swift: 200ms; /* Quick magical responses */
-  --transition-mystical: 300ms; /* Standard magical transitions */
-  --transition-arcane: 500ms; /* Deep magical effects */
-  --transition-divine: 750ms; /* Epic transformation timing */
-  --transition-legendary: 1000ms; /* Legendary animation duration */
-
-  /* Karma/Experience Point Colors */
-  --karma-bronze: 25 80% 55%; /* Bronze achievement */
-  --karma-silver: 210 15% 75%; /* Silver achievement */
-  --karma-gold: 43 96% 56%; /* Gold achievement */
-  --karma-platinum: 213 93% 68%; /* Platinum achievement */
-  --karma-diamond: 285 100% 68%; /* Diamond achievement */
-
-  /* House Blessing/Buff Effect Colors */
-  --blessing-active: 142 76% 36%; /* Active house bonus */
-  --blessing-cooldown: 210 40% 60%; /* Bonus on cooldown */
-  --blessing-expired: 0 84% 60%; /* Bonus expired */
-
-  /* Mystical Animation Variables */
-  --pulse-duration: 2s;
-  --shimmer-duration: 3s;
-  --float-duration: 4s;
-  --particle-duration: 6s;
-
-  /* Sacred Shadow Depths */
-  --shadow-mystical: 0px 4px 12px rgba(0, 0, 0, 0.3), 0px 2px 4px rgba(0, 0, 0, 0.1);
-  --shadow-arcane: 0px 8px 24px rgba(0, 0, 0, 0.4), 0px 4px 8px rgba(0, 0, 0, 0.2);
-  --shadow-divine: 0px 12px 36px rgba(0, 0, 0, 0.5), 0px 6px 12px rgba(0, 0, 0, 0.3);
-  --shadow-legendary: 0px 16px 48px rgba(0, 0, 0, 0.6), 0px 8px 16px rgba(0, 0, 0, 0.4);
-
-  /* Achievement Badge System */
-  --achievement-new: 43 96% 56%; /* New achievement gold */
-  --achievement-completed: 142 76% 36%; /* Completed green */
-  --achievement-locked: 210 15% 30%; /* Locked gray */
-  --achievement-progress: 213 93% 68%; /* In progress blue */
+  --tracking-normal: 0.05em;
+  --spacing: 0.5rem;
 }
 
+/* Dark mode - even darker */
 .dark {
-  --button-outline: rgba(255,255,255, .10);
-  --badge-outline: rgba(255,255,255, .05);
-
-  --opaque-button-border-intensity: 9;  /* In terms of percentages */
-
-  /* Backgrounds applied on top of other backgrounds when hovered/active */
-  --elevate-1: rgba(255,255,255, .04);
-  --elevate-2: rgba(255,255,255, .09);
-
-  --background: 210 40% 6%;
-
-  --foreground: 0 0% 100%;
-
-  --border: 210 40% 15%;
-
-  --card: 210 40% 12%;
-
-  --card-foreground: 0 0% 100%;
-
-  --card-border: 210 40% 18%;
-
-  --sidebar: 210 40% 9%;
-
-  --sidebar-foreground: 0 0% 100%;
-
-  --sidebar-border: 210 40% 15%;
-
-  --sidebar-primary: 239 68% 68%;
-
-  --sidebar-primary-foreground: 210 100% 98%;
-
-  --sidebar-accent: 210 40% 15%;
-
-  --sidebar-accent-foreground: 210 40% 85%;
-
-  --sidebar-ring: 239 68% 68%;
-
-  --popover: 210 40% 15%;
-
-  --popover-foreground: 0 0% 100%;
-
-  --popover-border: 210 40% 21%;
-
-  --primary: 239 68% 68%;
-
-  --primary-foreground: 210 100% 98%;
-
-  --secondary: 210 40% 18%;
-
-  --secondary-foreground: 210 40% 85%;
-
-  --muted: 210 40% 12%;
-
-  --muted-foreground: 210 40% 60%;
-
-  --accent: 210 40% 15%;
-
-  --accent-foreground: 210 40% 85%;
-
-  --destructive: 0 84% 60%;
-
-  --destructive-foreground: 0 0% 98%;
-
-  --input: 210 40% 25%;
-  --ring: 239 68% 68%;
-  --chart-1: 142 76% 36%;
-  --chart-2: 239 68% 68%;
-  --chart-3: 48 96% 89%;
-  --chart-4: 0 84% 60%;
-  --chart-5: 210 40% 75%;
-
-  /* Seven Mythological Houses Color Palettes - Dark Mode */
-  /* House of Eternity (Egyptian) - Enhanced gold for dark backgrounds */
-  --house-eternity-primary: 43 96% 56%;
-  --house-eternity-primary-foreground: 43 20% 9%;
-  --house-eternity-secondary: 45 100% 55%;
-  --house-eternity-accent: 48 100% 62%;
-  --house-eternity-background: 42 35% 15%;
-  --house-eternity-card: 44 40% 18%;
-  --house-eternity-border: 43 80% 35%;
-
-  /* House of Conquest (Roman) - Vivid red for dark mode */
-  --house-conquest-primary: 0 90% 65%;
-  --house-conquest-primary-foreground: 0 0% 98%;
-  --house-conquest-secondary: 0 100% 55%;
-  --house-conquest-accent: 14 100% 60%;
-  --house-conquest-background: 0 40% 12%;
-  --house-conquest-card: 0 45% 15%;
-  --house-conquest-border: 0 85% 45%;
-
-  /* House of Heroes (Greek) - Bright blue for dark theme */
-  --house-heroes-primary: 225 100% 70%;
-  --house-heroes-primary-foreground: 0 0% 98%;
-  --house-heroes-secondary: 213 100% 75%;
-  --house-heroes-accent: 207 100% 68%;
-  --house-heroes-background: 225 35% 12%;
-  --house-heroes-card: 220 40% 15%;
-  --house-heroes-border: 225 85% 50%;
-
-  /* House of Ragnarok (Norse) - Lighter storm blue for readability */
-  --house-ragnarok-primary: 200 80% 55%;
-  --house-ragnarok-primary-foreground: 0 0% 98%;
-  --house-ragnarok-secondary: 190 75% 60%;
-  --house-ragnarok-accent: 185 85% 65%;
-  --house-ragnarok-background: 210 40% 8%;
-  --house-ragnarok-card: 205 45% 12%;
-  --house-ragnarok-border: 200 70% 40%;
-
-  /* House of Balance (Asian) - Warm orange for dark backgrounds */
-  --house-balance-primary: 11 100% 68%;
-  --house-balance-primary-foreground: 0 0% 98%;
-  --house-balance-secondary: 24 100% 65%;
-  --house-balance-accent: 33 100% 62%;
-  --house-balance-background: 18 45% 12%;
-  --house-balance-card: 16 50% 15%;
-  --house-balance-border: 11 90% 50%;
-
-  /* House of Ancestors (African) - Rich earth tones for dark mode */
-  --house-ancestors-primary: 25 80% 55%;
-  --house-ancestors-primary-foreground: 0 0% 98%;
-  --house-ancestors-secondary: 30 75% 60%;
-  --house-ancestors-accent: 35 85% 65%;
-  --house-ancestors-background: 28 35% 10%;
-  --house-ancestors-card: 32 40% 13%;
-  --house-ancestors-border: 25 70% 40%;
-
-  /* House of Karma (Indian) - Luminous purple for dark theme */
-  --house-karma-primary: 285 100% 68%;
-  --house-karma-primary-foreground: 0 0% 98%;
-  --house-karma-secondary: 270 90% 65%;
-  --house-karma-accent: 300 95% 70%;
-  --house-karma-background: 290 35% 10%;
-  --house-karma-card: 295 40% 13%;
-  --house-karma-border: 285 85% 45%;
-
-  --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-sm: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-md: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 2px 4px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-lg: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 4px 6px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 8px 10px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-  --shadow-2xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
-
+  --background: 0 0% 0%; /* Absolute black */
+  --foreground: 0 0% 95%; /* Slightly off-white */
+  
+  --card: 0 0% 1%; /* Near black */
+  --card-foreground: 0 0% 90%;
+  
+  --primary: 0 72% 51%; /* Brighter blood in dark */
+  --destructive: 0 100% 40%; /* Darker blood */
+  
+  /* Everything else stays brutal */
 }
 
 @layer base {
   * {
     @apply border-border;
+    /* Remove ALL border radius */
+    border-radius: 0 !important;
   }
-
+  
   body {
     @apply font-sans antialiased bg-background text-foreground;
     font-family: var(--font-sans);
-    font-weight: 300;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    position: relative;
+    /* Add grain texture to body */
+    &::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: var(--grain-texture);
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: 1;
+      mix-blend-mode: multiply;
+    }
   }
-
+  
+  /* Heavy typography */
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    font-weight: 500;
+    font-weight: var(--font-weight-heavy);
+    letter-spacing: var(--letter-spacing-stark);
+    text-transform: uppercase;
   }
-
+  
+  h1 {
+    font-weight: 900;
+    letter-spacing: var(--letter-spacing-brutal);
+  }
+  
+  h2 {
+    font-weight: 800;
+    letter-spacing: var(--letter-spacing-stark);
+  }
+  
+  h3, h4 {
+    font-weight: 700;
+    letter-spacing: var(--letter-spacing-tight);
+  }
+  
   .font-display {
     font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: 0.1em;
   }
-
+  
   .font-trading {
     font-family: var(--font-mono);
-    font-weight: 300;
+    font-weight: 600;
     font-variant-numeric: tabular-nums;
   }
 }
 
-/**
- * Using the elevate system.
- * Automatic contrast adjustment.
- *
- * <element className="hover-elevate" />
- * <element className="active-elevate-2" />
- *
- * // Using the tailwind utility when a data attribute is "on"
- * <element className="toggle-elevate data-[state=on]:toggle-elevated" />
- * // Or manually controlling the toggle state
- * <element className="toggle-elevate toggle-elevated" />
- *
- * Elevation systems have to handle many states.
- * - not-hovered, vs. hovered vs. active  (three mutually exclusive states)
- * - toggled or not
- * - focused or not (this is not handled with these utilities)
- *
- * Even without handling focused or not, this is six possible combinations that
- * need to be distinguished from eachother visually.
- */
+/* BRUTAL ELEVATION SYSTEM - NO SOFT TRANSITIONS */
 @layer utilities {
-
-  /* Hide ugly search cancel button in Chrome until we can style it properly */
-  input[type="search"]::-webkit-search-cancel-button {
-    @apply hidden;
-  }
-
-  /* Placeholder styling for contentEditable div */
-  [contenteditable][data-placeholder]:empty::before {
-    content: attr(data-placeholder);
-    color: hsl(var(--muted-foreground));
-    pointer-events: none;
-  }
-
-  /* .no-default-hover-elevate/no-default-active-elevate is an escape hatch so consumers of
-   * buttons/badges can remove the automatic brightness adjustment on interactions
-   * and program their own. */
-  .no-default-hover-elevate {}
-
-  .no-default-active-elevate {}
-
-
-  /**
-   * Toggleable backgrounds go behind the content. Hoverable/active goes on top.
-   * This way they can stack/compound. Both will overlap the parent's borders!
-   * So borders will be automatically adjusted both on toggle, and hover/active,
-   * and they will be compounded.
-   */
-  .toggle-elevate::before,
-  .toggle-elevate-2::before {
-    content: "";
-    pointer-events: none;
-    position: absolute;
-    inset: 0px;
-    /*border-radius: inherit;   match rounded corners */
-    border-radius: inherit;
-    z-index: -1;
-    /* sits behind content but above backdrop */
-  }
-
-  .toggle-elevate.toggle-elevated::before {
-    background-color: var(--elevate-2);
-  }
-
-  /* If there's a 1px border, adjust the inset so that it covers that parent's border */
-  .border.toggle-elevate::before {
-    inset: -1px;
-  }
-
-  /* Does not work on elements with overflow:hidden! */
-  .hover-elevate:not(.no-default-hover-elevate),
-  .active-elevate:not(.no-default-active-elevate),
-  .hover-elevate-2:not(.no-default-hover-elevate),
-  .active-elevate-2:not(.no-default-active-elevate) {
-    position: relative;
-    z-index: 0;
-  }
-
-  .hover-elevate:not(.no-default-hover-elevate)::after,
-  .active-elevate:not(.no-default-active-elevate)::after,
-  .hover-elevate-2:not(.no-default-hover-elevate)::after,
-  .active-elevate-2:not(.no-default-active-elevate)::after {
-    content: "";
-    pointer-events: none;
-    position: absolute;
-    inset: 0px;
-    /*border-radius: inherit;   match rounded corners */
-    border-radius: inherit;
-    z-index: 999;
-    /* sits in front of content */
-  }
-
-  .hover-elevate:hover:not(.no-default-hover-elevate)::after,
-  .active-elevate:active:not(.no-default-active-elevate)::after {
-    background-color: var(--elevate-1);
-  }
-
-  .hover-elevate-2:hover:not(.no-default-hover-elevate)::after,
-  .active-elevate-2:active:not(.no-default-active-elevate)::after {
-    background-color: var(--elevate-2);
-  }
-
-  /* If there's a 1px border, adjust the inset so that it covers that parent's border */
-  .border.hover-elevate:not(.no-hover-interaction-elevate)::after,
-  .border.active-elevate:not(.no-active-interaction-elevate)::after,
-  .border.hover-elevate-2:not(.no-hover-interaction-elevate)::after,
-  .border.active-elevate-2:not(.no-active-interaction-elevate)::after,
-  .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
-    inset: -1px;
-  }
-
-  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
-  /* RPG MYTHOLOGICAL ANIMATIONS & UTILITY CLASSES */
-  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
-
-  /* Mystical Pulse Animation */
-  .mystical-pulse {
-    animation: mystical-pulse var(--pulse-duration) cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
-  @keyframes mystical-pulse {
-    0%, 100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.8;
-      transform: scale(1.02);
+  /* Remove all soft hover effects */
+  .hover-elevate {
+    transition: none !important;
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1) !important;
+      transform: none !important;
     }
   }
-
-  /* Divine Shimmer Effect */
-  .divine-shimmer {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .divine-shimmer::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.1),
-      transparent
-    );
-    animation: divine-shimmer var(--shimmer-duration) ease-in-out infinite;
-  }
-
-  @keyframes divine-shimmer {
-    0% {
-      left: -100%;
-    }
-    100% {
-      left: 100%;
+  
+  .active-elevate-2 {
+    transition: none !important;
+    &:active {
+      background-color: rgba(255, 255, 255, 0.2) !important;
+      transform: none !important;
     }
   }
-
-  /* Ethereal Float Animation */
-  .ethereal-float {
-    animation: ethereal-float var(--float-duration) ease-in-out infinite;
+  
+  .toggle-elevate {
+    transition: none !important;
   }
-
-  @keyframes ethereal-float {
-    0%, 100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-4px);
-    }
+  
+  .toggle-elevated {
+    background-color: rgba(255, 255, 255, 0.1) !important;
   }
-
-  /* Sacred Glow Effects */
-  .sacred-glow-subtle {
-    box-shadow: 0 0 10px hsla(var(--primary), var(--mystical-glow-subtle));
+  
+  /* NOIR SHADOWS */
+  .shadow-noir-sm {
+    box-shadow: var(--shadow-noir-sm) !important;
   }
-
-  .sacred-glow-moderate {
-    box-shadow: 0 0 15px hsla(var(--primary), var(--mystical-glow-moderate));
+  
+  .shadow-noir-md {
+    box-shadow: var(--shadow-noir-md) !important;
   }
-
-  .sacred-glow-intense {
-    box-shadow: 0 0 20px hsla(var(--primary), var(--mystical-glow-intense));
+  
+  .shadow-noir-lg {
+    box-shadow: var(--shadow-noir-lg) !important;
   }
-
-  .sacred-glow-divine {
-    box-shadow: 0 0 30px hsla(var(--primary), var(--mystical-glow-divine));
+  
+  .shadow-noir-xl {
+    box-shadow: var(--shadow-noir-xl) !important;
   }
-
-  /* Rarity Border Effects */
-  .rarity-common {
-    border-color: hsl(var(--rarity-common-border));
-    box-shadow: 0 0 8px hsla(var(--rarity-common-glow), 0.3);
+  
+  .shadow-noir-2xl {
+    box-shadow: var(--shadow-noir-2xl) !important;
   }
-
-  .rarity-rare {
-    border-color: hsl(var(--rarity-rare-border));
-    box-shadow: 0 0 12px hsla(var(--rarity-rare-glow), 0.4);
+  
+  .shadow-brutal {
+    box-shadow: var(--shadow-brutal) !important;
   }
-
-  .rarity-epic {
-    border-color: hsl(var(--rarity-epic-border));
-    box-shadow: 0 0 16px hsla(var(--rarity-epic-glow), 0.5);
+  
+  .shadow-blood {
+    box-shadow: var(--shadow-blood) !important;
   }
-
-  .rarity-legendary {
-    border-color: hsl(var(--rarity-legendary-border));
-    box-shadow: 0 0 24px hsla(var(--rarity-legendary-glow), 0.6);
-    animation: mystical-pulse var(--pulse-duration) cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  
+  .shadow-void {
+    box-shadow: var(--shadow-void) !important;
   }
-
-  /* House-Themed Aura Effects */
-  .house-aura-heroes {
-    box-shadow: 0 0 15px hsla(var(--house-heroes-primary), 0.3);
-  }
-
-  .house-aura-wisdom {
-    box-shadow: 0 0 15px hsla(var(--house-wisdom-primary), 0.3);
-  }
-
-  .house-aura-power {
-    box-shadow: 0 0 15px hsla(var(--house-power-primary), 0.3);
-  }
-
-  .house-aura-mystery {
-    box-shadow: 0 0 15px hsla(var(--house-mystery-primary), 0.3);
-  }
-
-  .house-aura-elements {
-    box-shadow: 0 0 15px hsla(var(--house-elements-primary), 0.3);
-  }
-
-  .house-aura-time {
-    box-shadow: 0 0 15px hsla(var(--house-time-primary), 0.3);
-  }
-
-  .house-aura-spirit {
-    box-shadow: 0 0 15px hsla(var(--house-spirit-primary), 0.3);
-  }
-
-  /* Achievement Badge Animations */
-  .achievement-unlock {
-    animation: achievement-unlock 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-
-  @keyframes achievement-unlock {
-    0% {
-      transform: scale(0) rotate(-180deg);
-      opacity: 0;
-    }
-    50% {
-      transform: scale(1.2) rotate(-90deg);
-      opacity: 1;
-    }
-    100% {
-      transform: scale(1) rotate(0deg);
-      opacity: 1;
+  
+  /* TEXTURE EFFECTS */
+  .texture-grain {
+    position: relative;
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: var(--grain-texture);
+      opacity: 0.1;
+      pointer-events: none;
+      mix-blend-mode: multiply;
     }
   }
-
-  /* Karma/XP Bar Fill Animation */
-  .karma-fill {
-    animation: karma-fill 1s ease-out;
-    background: linear-gradient(
-      90deg,
-      hsl(var(--karma-bronze)),
-      hsl(var(--karma-silver)),
-      hsl(var(--karma-gold))
-    );
-  }
-
-  @keyframes karma-fill {
-    0% {
-      width: 0%;
+  
+  .texture-ink {
+    position: relative;
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: var(--ink-splatter);
+      opacity: 0.15;
+      pointer-events: none;
+      mix-blend-mode: multiply;
     }
   }
-
-  /* Blessing Active Indicator */
-  .blessing-active {
-    position: relative;
+  
+  /* TORN EDGES */
+  .torn-edge-top {
+    clip-path: polygon(0 0, 100% 0, 100% 95%, 95% 100%, 90% 95%, 85% 100%, 80% 95%, 75% 100%, 70% 95%, 65% 100%, 60% 95%, 55% 100%, 50% 95%, 45% 100%, 40% 95%, 35% 100%, 30% 95%, 25% 100%, 20% 95%, 15% 100%, 10% 95%, 5% 100%, 0 95%);
   }
-
-  .blessing-active::after {
-    content: '';
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 8px;
-    height: 8px;
-    background: hsl(var(--blessing-active));
-    border-radius: 50%;
-    box-shadow: 0 0 6px hsl(var(--blessing-active));
-    animation: mystical-pulse var(--pulse-duration) ease-in-out infinite;
+  
+  .torn-edge-bottom {
+    clip-path: polygon(0 5%, 5% 0, 10% 5%, 15% 0, 20% 5%, 25% 0, 30% 5%, 35% 0, 40% 5%, 45% 0, 50% 5%, 55% 0, 60% 5%, 65% 0, 70% 5%, 75% 0, 80% 5%, 85% 0, 90% 5%, 95% 0, 100% 5%, 100% 100%, 0 100%);
   }
-
-  /* Sacred Typography Effects */
-  .legendary-text {
-    background: linear-gradient(
-      135deg,
-      hsl(var(--rarity-legendary)),
-      hsl(var(--karma-gold)),
-      hsl(var(--rarity-legendary))
-    );
-    background-size: 200% 200%;
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: divine-shimmer var(--shimmer-duration) ease-in-out infinite;
+  
+  /* BRUTAL BORDERS */
+  .border-brutal {
+    border-width: var(--border-brutal) !important;
   }
-
-  .epic-text {
-    color: hsl(var(--rarity-epic));
-    text-shadow: 0 0 8px hsla(var(--rarity-epic), 0.5);
+  
+  .border-stark {
+    border-width: var(--border-stark) !important;
   }
-
-  .rare-text {
-    color: hsl(var(--rarity-rare));
-    text-shadow: 0 0 6px hsla(var(--rarity-rare), 0.4);
+  
+  .border-heavy {
+    border-width: var(--border-heavy) !important;
   }
-
-  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
-  /* COMIC BOOK TYPOGRAPHY CLASSES - AUTHENTIC SEQUENTIAL ART STYLING */
-  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
-
-  /* Comic Display Text - Headlines and Action Text */
-  .font-comic-display {
-    font-family: var(--font-comic-display);
-    font-weight: 400;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+  
+  /* OPPRESSIVE SPACING */
+  .space-void {
+    margin: 4rem 0;
   }
-
-  /* Speech Bubble Text */
-  .font-comic-speech {
-    font-family: var(--font-comic-speech);
-    font-weight: 400;
-    line-height: 1.3;
-    letter-spacing: 0.02em;
+  
+  .space-dread {
+    margin: 6rem 0;
   }
-
-  /* Thought Bubble Text */
-  .font-comic-thought {
-    font-family: var(--font-comic-thought);
-    font-weight: 400;
-    line-height: 1.4;
-    font-style: italic;
-    letter-spacing: 0.01em;
+  
+  .space-abyss {
+    margin: 8rem 0;
   }
+}
 
-  /* Action/Sound Effect Text */
-  .font-comic-action {
-    font-family: var(--font-comic-action);
-    font-weight: 400;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3);
+/* Override all component styles to be brutal */
+@layer components {
+  /* Cards as brutal comic panels */
+  [class*="card"] {
+    border-radius: 0 !important;
+    border: var(--border-brutal) solid white !important;
+    box-shadow: var(--shadow-brutal) !important;
+    transition: none !important;
   }
-
-  /* Caption Box/Narrative Text */
-  .font-comic-narrative {
-    font-family: var(--font-comic-narrative);
-    font-weight: 400;
-    line-height: 1.5;
-    letter-spacing: 0.03em;
-  }
-
-  /* Comic Book Sound Effects */
-  .comic-sound-primary {
-    color: hsl(var(--comic-sound-primary));
-    text-shadow: 
-      2px 2px 0px #000,
-      -1px -1px 0px #000,
-      1px -1px 0px #000,
-      -1px 1px 0px #000,
-      0px 0px 10px hsl(var(--comic-sound-primary));
-    font-size: clamp(1.5rem, 4vw, 3rem);
-    animation: comic-impact 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  }
-
-  .comic-sound-secondary {
-    color: hsl(var(--comic-sound-secondary));
-    text-shadow: 
-      1px 1px 0px #000,
-      -1px -1px 0px #000,
-      1px -1px 0px #000,
-      -1px 1px 0px #000;
-    font-size: clamp(1rem, 2.5vw, 2rem);
-  }
-
-  /* Comic Panel Styling */
-  .comic-panel {
-    border: var(--comic-panel-border) solid #000;
-    border-radius: 4px;
-    background: hsl(var(--card));
-    position: relative;
-    overflow: hidden;
-  }
-
-  .comic-panel-gutter {
-    gap: var(--comic-panel-gutter);
-  }
-
-  /* Speech Bubble Base Styling */
-  .speech-bubble {
-    position: relative;
-    background: hsl(var(--comic-speech-bg));
-    border: 2px solid hsl(var(--comic-speech-border));
-    border-radius: 20px;
-    padding: 12px 16px;
-    color: hsl(var(--comic-speech-border));
-    max-width: 280px;
-    word-wrap: break-word;
-  }
-
-  .speech-bubble::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 0;
-    border: 10px solid transparent;
-  }
-
-  /* Speech bubble tail variations */
-  .speech-bubble.tail-bottom::after {
-    top: 100%;
-    left: 20px;
-    border-top-color: hsl(var(--comic-speech-bg));
-    border-bottom: none;
-  }
-
-  .speech-bubble.tail-bottom::before {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 18px;
-    width: 0;
-    height: 0;
-    border: 12px solid transparent;
-    border-top-color: hsl(var(--comic-speech-border));
-    border-bottom: none;
-    z-index: -1;
-  }
-
-  .speech-bubble.tail-top::after {
-    bottom: 100%;
-    left: 20px;
-    border-bottom-color: hsl(var(--comic-speech-bg));
-    border-top: none;
-  }
-
-  .speech-bubble.tail-top::before {
-    content: '';
-    position: absolute;
-    bottom: 100%;
-    left: 18px;
-    width: 0;
-    height: 0;
-    border: 12px solid transparent;
-    border-bottom-color: hsl(var(--comic-speech-border));
-    border-top: none;
-    z-index: -1;
-  }
-
-  /* Thought Bubble Styling */
-  .thought-bubble {
-    position: relative;
-    background: hsl(var(--comic-thought-bg));
-    border: 2px solid hsl(var(--comic-thought-border));
-    border-radius: 50px;
-    padding: 12px 20px;
-    color: hsl(var(--comic-thought-border));
-    max-width: 280px;
-    word-wrap: break-word;
-  }
-
-  .thought-bubble::after,
-  .thought-bubble::before {
-    content: '';
-    position: absolute;
-    border-radius: 50%;
-    background: hsl(var(--comic-thought-bg));
-    border: 2px solid hsl(var(--comic-thought-border));
-  }
-
-  .thought-bubble::after {
-    width: 12px;
-    height: 12px;
-    bottom: -20px;
-    left: 30px;
-  }
-
-  .thought-bubble::before {
-    width: 8px;
-    height: 8px;
-    bottom: -35px;
-    left: 20px;
-  }
-
-  /* Caption Box Styling */
-  .caption-box {
-    background: hsl(var(--comic-caption-bg));
-    border: 2px solid hsl(var(--comic-caption-border));
-    border-radius: 8px;
-    padding: 8px 12px;
-    color: hsl(var(--comic-caption-border));
-    position: relative;
-    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-  }
-
-  .caption-box.narrative {
-    border-radius: 2px;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-  }
-
-  /* Comic Action Animations */
-  @keyframes comic-impact {
-    0% {
-      transform: scale(0.8) rotate(-2deg);
-      opacity: 0;
-    }
-    50% {
-      transform: scale(1.1) rotate(1deg);
-      opacity: 1;
-    }
-    100% {
-      transform: scale(1) rotate(0deg);
-      opacity: 1;
+  
+  /* Buttons - brutal rectangles */
+  button, [role="button"], [class*="button"] {
+    border-radius: 0 !important;
+    transition: none !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    border: 2px solid currentColor !important;
+    &:hover {
+      background-color: white !important;
+      color: black !important;
     }
   }
-
-  @keyframes comic-shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-2px); }
-    75% { transform: translateX(2px); }
+  
+  /* Forms - interrogation documents */
+  input, textarea, select {
+    border-radius: 0 !important;
+    border: 2px solid white !important;
+    background: black !important;
+    color: white !important;
+    font-weight: 600 !important;
+    &:focus {
+      outline: 3px solid var(--accent) !important;
+      outline-offset: 0 !important;
+    }
   }
-
-  @keyframes comic-bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+  
+  /* Dialogs and modals */
+  [role="dialog"], [class*="modal"], [class*="dialog"] {
+    border-radius: 0 !important;
+    border: 4px solid white !important;
+    box-shadow: var(--shadow-noir-2xl) !important;
   }
-
-  /* Speed Lines for Price Movement */
-  .speed-lines {
-    position: relative;
-    overflow: hidden;
+  
+  /* Remove all smooth animations */
+  *, *::before, *::after {
+    animation-timing-function: linear !important;
+    transition: none !important;
   }
+}
 
-  .speed-lines::before {
+/* Chart overrides - only black, white, red */
+@layer utilities {
+  [class*="recharts"] {
+    & [class*="line"] {
+      stroke: white !important;
+      stroke-width: 2 !important;
+    }
+    & [class*="area"] {
+      fill: var(--primary) !important;
+      stroke: var(--primary) !important;
+    }
+    & [class*="bar"] {
+      fill: white !important;
+    }
+    & [class*="pie"] {
+      stroke: black !important;
+      stroke-width: 2 !important;
+    }
+  }
+}
+
+/* VOID CONSUMING DARKNESS */
+.void-top {
+  background: linear-gradient(to bottom, black 0%, transparent 100%);
+  height: 200px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.void-bottom {
+  background: linear-gradient(to top, black 0%, transparent 100%);
+  height: 200px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* BLOOD SPLATTER ACCENT */
+.blood-splatter {
+  position: relative;
+  &::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: 
-      linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.1) 50%, transparent 60%),
-      linear-gradient(-45deg, transparent 40%, rgba(255, 255, 255, 0.1) 50%, transparent 60%);
-    background-size: 20px 20px;
-    animation: speed-lines-move 0.5s linear infinite;
-    pointer-events: none;
-  }
-
-  @keyframes speed-lines-move {
-    0% { transform: translateX(-20px); }
-    100% { transform: translateX(20px); }
-  }
-
-  /* Comic Book Page Turn Effect */
-  .page-turn-enter {
-    transform: rotateY(-90deg);
-    opacity: 0;
-  }
-
-  .page-turn-enter-active {
-    transform: rotateY(0deg);
-    opacity: 1;
-    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
-
-  .page-turn-exit {
-    transform: rotateY(0deg);
-    opacity: 1;
-  }
-
-  .page-turn-exit-active {
-    transform: rotateY(90deg);
-    opacity: 0;
-    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
-
-  /* Comic Panel Layout Grid */
-  .comic-grid {
-    display: grid;
-    gap: var(--comic-panel-gutter);
-    padding: var(--comic-panel-gutter);
-  }
-
-  .comic-grid-2x2 {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-  }
-
-  .comic-grid-3x2 {
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-  }
-
-  .comic-grid-splash {
-    grid-template-columns: 2fr 1fr;
-    grid-template-rows: 1fr 1fr 1fr;
-  }
-
-  .comic-panel-splash {
-    grid-column: 1;
-    grid-row: 1 / -1;
-  }
-
-  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
-  /* HOUSE-SPECIFIC COMIC BOOK ART STYLE IMPLEMENTATIONS */
-  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
-
-  /* HOUSE OF HEROES - Classic Four-Color Comic Style */
-  .comic-panel.house-heroes {
-    border: var(--house-heroes-panel-border) solid #000;
-    border-radius: var(--house-heroes-panel-radius);
-    background: hsl(var(--house-heroes-card));
-    box-shadow: var(--house-heroes-shadow);
-    font-family: var(--house-heroes-font-display);
-    letter-spacing: var(--house-heroes-letter-spacing);
-    text-shadow: var(--house-heroes-text-shadow);
-  }
-
-  .house-heroes-speed-lines::before {
-    background: var(--house-heroes-speed-lines);
-    animation: heroes-speed-lines 0.6s linear infinite;
-  }
-
-  .house-heroes-impact-burst {
-    background: var(--house-heroes-impact-burst);
-    animation: heroes-impact-burst 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  }
-
-  @keyframes heroes-speed-lines {
-    0% { transform: translateX(-30px); }
-    100% { transform: translateX(30px); }
-  }
-
-  @keyframes heroes-impact-burst {
-    0% { opacity: 0; transform: scale(0.5); }
-    50% { opacity: 1; transform: scale(1.2); }
-    100% { opacity: 0.7; transform: scale(1); }
-  }
-
-  /* HOUSE OF WISDOM - Noir Investigation Style */
-  .comic-panel.house-wisdom {
-    border: var(--house-wisdom-panel-border) solid hsl(var(--house-wisdom-border));
-    border-radius: var(--house-wisdom-panel-radius);
-    background: hsl(var(--house-wisdom-card));
-    box-shadow: var(--house-wisdom-shadow);
-    font-family: var(--house-wisdom-font-display);
-    letter-spacing: var(--house-wisdom-letter-spacing);
-    text-shadow: var(--house-wisdom-text-shadow);
-    position: relative;
-  }
-
-  .house-wisdom-venetian-blinds::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--house-wisdom-venetian-blinds);
-    background-size: 100% 20px;
-    pointer-events: none;
-    animation: wisdom-blinds-sweep 2s ease-in-out;
-  }
-
-  .house-wisdom-spotlight {
-    background: var(--house-wisdom-spotlight);
-    animation: wisdom-spotlight 3s ease-in-out infinite;
-  }
-
-  @keyframes wisdom-blinds-sweep {
-    0% { transform: translateY(-100%); }
-    100% { transform: translateY(0); }
-  }
-
-  @keyframes wisdom-spotlight {
-    0%, 100% { opacity: 0.6; transform: scale(0.9); }
-    50% { opacity: 1; transform: scale(1.1); }
-  }
-
-  /* HOUSE OF POWER - Cosmic Splash Page Style */
-  .comic-panel.house-power {
-    border: var(--house-power-panel-border);
-    border-radius: var(--house-power-panel-radius);
-    background: linear-gradient(135deg, hsl(var(--house-power-background)), hsl(var(--house-power-card)));
-    box-shadow: var(--house-power-shadow);
-    font-family: var(--house-power-font-display);
-    letter-spacing: var(--house-power-letter-spacing);
-    text-shadow: var(--house-power-text-shadow);
-    overflow: hidden;
-  }
-
-  .house-power-energy-surge::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--house-power-energy-surge);
-    animation: power-energy-surge 2.5s ease-in-out infinite;
-    pointer-events: none;
-  }
-
-  .house-power-cosmic-explosion {
-    background: var(--house-power-cosmic-explosion);
-    animation: power-cosmic-explosion 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  }
-
-  @keyframes power-energy-surge {
-    0% { opacity: 0.3; transform: scale(0.8) rotate(0deg); }
-    50% { opacity: 0.8; transform: scale(1.2) rotate(180deg); }
-    100% { opacity: 0.3; transform: scale(0.8) rotate(360deg); }
-  }
-
-  @keyframes power-cosmic-explosion {
-    0% { opacity: 0; transform: scale(0) rotate(-45deg); }
-    50% { opacity: 1; transform: scale(1.5) rotate(0deg); }
-    100% { opacity: 0.6; transform: scale(1) rotate(45deg); }
-  }
-
-  /* HOUSE OF MYSTERY - Supernatural Mystery Style */
-  .comic-panel.house-mystery {
-    border: var(--house-mystery-panel-border) solid hsl(var(--house-mystery-border));
-    border-radius: var(--house-mystery-panel-radius);
-    background: hsl(var(--house-mystery-card));
-    box-shadow: var(--house-mystery-shadow);
-    font-family: var(--house-mystery-font-display);
-    letter-spacing: var(--house-mystery-letter-spacing);
-    text-shadow: var(--house-mystery-text-shadow);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .house-mystery-mist-reveal::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--house-mystery-mist-reveal);
-    animation: mystery-mist-reveal 4s ease-in-out infinite;
-    pointer-events: none;
-  }
-
-  .house-mystery-supernatural-glow {
-    background: var(--house-mystery-supernatural-glow);
-    animation: mystery-supernatural-glow 3s ease-in-out infinite;
-  }
-
-  @keyframes mystery-mist-reveal {
-    0%, 100% { opacity: 0.8; transform: translateY(100%); }
-    50% { opacity: 0.3; transform: translateY(-20%); }
-  }
-
-  @keyframes mystery-supernatural-glow {
-    0%, 100% { opacity: 0.5; filter: hue-rotate(0deg); }
-    33% { opacity: 0.8; filter: hue-rotate(60deg); }
-    66% { opacity: 0.6; filter: hue-rotate(120deg); }
-  }
-
-  /* HOUSE OF ELEMENTS - Elemental Forces Style */
-  .comic-panel.house-elements {
-    border: var(--house-elements-panel-border) solid hsl(var(--house-elements-border));
-    border-radius: var(--house-elements-panel-radius);
-    background: hsl(var(--house-elements-card));
-    box-shadow: var(--house-elements-shadow);
-    font-family: var(--house-elements-font-display);
-    letter-spacing: var(--house-elements-letter-spacing);
-    text-shadow: var(--house-elements-text-shadow);
-  }
-
-  .house-elements-fire-flow {
-    background: var(--house-elements-fire-flow);
-    animation: elements-fire-flow 2s ease-in-out infinite;
-  }
-
-  .house-elements-water-flow {
-    background: var(--house-elements-water-flow);
-    animation: elements-water-flow 3s ease-in-out infinite;
-  }
-
-  .house-elements-earth-flow {
-    background: var(--house-elements-earth-flow);
-    animation: elements-earth-flow 4s ease-in-out infinite;
-  }
-
-  .house-elements-air-flow {
-    background: var(--house-elements-air-flow);
-    animation: elements-air-flow 1.5s ease-in-out infinite;
-  }
-
-  @keyframes elements-fire-flow {
-    0%, 100% { opacity: 0.6; transform: scale(1) rotate(0deg); }
-    50% { opacity: 1; transform: scale(1.1) rotate(2deg); }
-  }
-
-  @keyframes elements-water-flow {
-    0%, 100% { opacity: 0.7; transform: translateY(0) scale(1); }
-    50% { opacity: 0.9; transform: translateY(-5px) scale(1.05); }
-  }
-
-  @keyframes elements-earth-flow {
-    0%, 100% { opacity: 0.8; transform: translateX(0); }
-    50% { opacity: 1; transform: translateX(2px); }
-  }
-
-  @keyframes elements-air-flow {
-    0%, 100% { opacity: 0.5; transform: scale(1) translateX(0); }
-    50% { opacity: 0.8; transform: scale(1.02) translateX(1px); }
-  }
-
-  /* HOUSE OF TIME - Temporal Distortion Style */
-  .comic-panel.house-time {
-    border: var(--house-time-panel-border) solid hsl(var(--house-time-border));
-    border-radius: var(--house-time-panel-radius);
-    background: hsl(var(--house-time-card));
-    box-shadow: var(--house-time-shadow);
-    font-family: var(--house-time-font-display);
-    letter-spacing: var(--house-time-letter-spacing);
-    text-shadow: var(--house-time-text-shadow);
-    position: relative;
-  }
-
-  .house-time-ripple::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 100%;
-    height: 100%;
-    background: var(--house-time-ripple);
-    border-radius: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    animation: time-ripple 2s ease-out infinite;
-    pointer-events: none;
-  }
-
-  .house-time-paradox {
-    background: var(--house-time-paradox);
-    background-size: 40px 40px;
-    animation: time-paradox 3s linear infinite;
-  }
-
-  @keyframes time-ripple {
-    0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
-    100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
-  }
-
-  @keyframes time-paradox {
-    0% { background-position: 0 0; }
-    100% { background-position: 40px 40px; }
-  }
-
-  /* HOUSE OF SPIRIT - Mystical Ethereal Style */
-  .comic-panel.house-spirit {
-    border: var(--house-spirit-panel-border);
-    border-radius: var(--house-spirit-panel-radius);
-    background: linear-gradient(135deg, hsl(var(--house-spirit-background)), hsl(var(--house-spirit-card)));
-    box-shadow: var(--house-spirit-shadow);
-    font-family: var(--house-spirit-font-display);
-    letter-spacing: var(--house-spirit-letter-spacing);
-    text-shadow: var(--house-spirit-text-shadow);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .house-spirit-divine-aura::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: var(--house-spirit-divine-aura);
-    animation: spirit-divine-aura 4s ease-in-out infinite;
-    pointer-events: none;
-  }
-
-  .house-spirit-energy-flow {
-    background: var(--house-spirit-energy-flow);
-    animation: spirit-energy-flow 3s ease-in-out infinite;
-  }
-
-  @keyframes spirit-divine-aura {
-    0%, 100% { transform: rotate(0deg) scale(0.8); opacity: 0.6; }
-    50% { transform: rotate(180deg) scale(1.2); opacity: 0.9; }
-  }
-
-  @keyframes spirit-energy-flow {
-    0%, 100% { opacity: 0.7; transform: translateX(0) scale(1); }
-    50% { opacity: 1; transform: translateX(5px) scale(1.05); }
-  }
-
-  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
-  /* HOUSE-SPECIFIC TRADING MECHANIC INTEGRATION */
-  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
-
-  /* Trading Bonus Indicators */
-  .house-trading-bonus {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .house-trading-bonus::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    opacity: 0.1;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-  }
-
-  .house-trading-bonus.active::before {
-    opacity: 0.3;
-  }
-
-  /* House-Specific Progress Bars */
-  .house-progress-bar {
-    position: relative;
-    background: hsl(var(--muted));
-    border-radius: 8px;
-    overflow: hidden;
-    height: 8px;
-  }
-
-  .house-progress-fill {
-    height: 100%;
-    transition: width 0.8s ease-out;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .house-progress-fill.heroes {
-    background: linear-gradient(90deg, hsl(var(--house-heroes-primary)), hsl(var(--house-heroes-accent)));
-    animation: heroes-progress-flow 2s ease-in-out infinite;
-  }
-
-  .house-progress-fill.wisdom {
-    background: linear-gradient(90deg, hsl(var(--house-wisdom-primary)), hsl(var(--house-wisdom-accent)));
-    animation: wisdom-progress-flow 3s ease-in-out infinite;
-  }
-
-  .house-progress-fill.power {
-    background: linear-gradient(90deg, hsl(var(--house-power-primary)), hsl(var(--house-power-accent)));
-    animation: power-progress-flow 1.5s ease-in-out infinite;
-  }
-
-  .house-progress-fill.mystery {
-    background: linear-gradient(90deg, hsl(var(--house-mystery-primary)), hsl(var(--house-mystery-accent)));
-    animation: mystery-progress-flow 4s ease-in-out infinite;
-  }
-
-  .house-progress-fill.elements {
-    background: linear-gradient(90deg, hsl(var(--house-elements-primary)), hsl(var(--house-elements-accent)));
-    animation: elements-progress-flow 2.5s ease-in-out infinite;
-  }
-
-  .house-progress-fill.time {
-    background: linear-gradient(90deg, hsl(var(--house-time-primary)), hsl(var(--house-time-accent)));
-    animation: time-progress-flow 3.5s ease-in-out infinite;
-  }
-
-  .house-progress-fill.spirit {
-    background: linear-gradient(90deg, hsl(var(--house-spirit-primary)), hsl(var(--house-spirit-accent)));
-    animation: spirit-progress-flow 3s ease-in-out infinite;
-  }
-
-  @keyframes heroes-progress-flow {
-    0%, 100% { filter: brightness(1); }
-    50% { filter: brightness(1.2); }
-  }
-
-  @keyframes wisdom-progress-flow {
-    0%, 100% { filter: contrast(1); }
-    50% { filter: contrast(1.3); }
-  }
-
-  @keyframes power-progress-flow {
-    0%, 100% { filter: saturate(1) hue-rotate(0deg); }
-    50% { filter: saturate(1.5) hue-rotate(10deg); }
-  }
-
-  @keyframes mystery-progress-flow {
-    0%, 100% { filter: hue-rotate(0deg) brightness(1); }
-    25% { filter: hue-rotate(5deg) brightness(1.1); }
-    75% { filter: hue-rotate(-5deg) brightness(0.9); }
-  }
-
-  @keyframes elements-progress-flow {
-    0% { filter: hue-rotate(0deg); }
-    25% { filter: hue-rotate(90deg); }
-    50% { filter: hue-rotate(180deg); }
-    75% { filter: hue-rotate(270deg); }
-    100% { filter: hue-rotate(360deg); }
-  }
-
-  @keyframes time-progress-flow {
-    0%, 100% { filter: blur(0px) brightness(1); }
-    50% { filter: blur(0.5px) brightness(1.1); }
-  }
-
-  @keyframes spirit-progress-flow {
-    0%, 100% { filter: brightness(1) drop-shadow(0 0 0px transparent); }
-    50% { filter: brightness(1.3) drop-shadow(0 0 4px hsl(var(--house-spirit-primary))); }
-  }
-
-  /* Market Sentiment Visualization */
-  .market-sentiment-orb {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .market-sentiment-orb.bullish {
-    background: radial-gradient(circle, hsl(var(--house-heroes-primary)), hsl(var(--house-heroes-secondary)));
-    box-shadow: 0 0 20px hsla(var(--house-heroes-primary), 0.6);
-    animation: bullish-pulse 2s ease-in-out infinite;
-  }
-
-  .market-sentiment-orb.bearish {
-    background: radial-gradient(circle, hsl(var(--house-mystery-primary)), hsl(var(--house-mystery-secondary)));
-    box-shadow: 0 0 20px hsla(var(--house-mystery-primary), 0.6);
-    animation: bearish-pulse 2s ease-in-out infinite;
-  }
-
-  .market-sentiment-orb.neutral {
-    background: radial-gradient(circle, hsl(var(--house-wisdom-primary)), hsl(var(--house-wisdom-secondary)));
-    box-shadow: 0 0 20px hsla(var(--house-wisdom-primary), 0.6);
-    animation: neutral-pulse 3s ease-in-out infinite;
-  }
-
-  .market-sentiment-orb.volatile {
-    background: radial-gradient(circle, hsl(var(--house-power-primary)), hsl(var(--house-power-secondary)));
-    box-shadow: 0 0 20px hsla(var(--house-power-primary), 0.6);
-    animation: volatile-pulse 1s ease-in-out infinite;
-  }
-
-  @keyframes bullish-pulse {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.1); opacity: 0.9; }
-  }
-
-  @keyframes bearish-pulse {
-    0%, 100% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(0.95); opacity: 1; }
-  }
-
-  @keyframes neutral-pulse {
-    0%, 100% { transform: scale(1); opacity: 0.9; }
-    50% { transform: scale(1.02); opacity: 1; }
-  }
-
-  @keyframes volatile-pulse {
-    0%, 100% { transform: scale(1) rotate(0deg); }
-    25% { transform: scale(1.15) rotate(2deg); }
-    75% { transform: scale(0.9) rotate(-2deg); }
-  }
-
-  /* Achievement Badge System */
-  .house-achievement-badge {
-    position: relative;
-    border-radius: 50%;
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 0.75rem;
-    overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-
-  .house-achievement-badge.unlocked {
-    animation: achievement-unlock 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-
-  .house-achievement-badge.heroes {
-    background: linear-gradient(135deg, hsl(var(--house-heroes-primary)), hsl(var(--house-heroes-accent)));
-    box-shadow: 0 4px 12px hsla(var(--house-heroes-primary), 0.4);
-  }
-
-  .house-achievement-badge.wisdom {
-    background: linear-gradient(135deg, hsl(var(--house-wisdom-primary)), hsl(var(--house-wisdom-accent)));
-    box-shadow: 0 4px 12px hsla(var(--house-wisdom-primary), 0.4);
-  }
-
-  .house-achievement-badge.power {
-    background: linear-gradient(135deg, hsl(var(--house-power-primary)), hsl(var(--house-power-accent)));
-    box-shadow: 0 4px 12px hsla(var(--house-power-primary), 0.4);
-  }
-
-  .house-achievement-badge.mystery {
-    background: linear-gradient(135deg, hsl(var(--house-mystery-primary)), hsl(var(--house-mystery-accent)));
-    box-shadow: 0 4px 12px hsla(var(--house-mystery-primary), 0.4);
-  }
-
-  .house-achievement-badge.elements {
-    background: linear-gradient(135deg, hsl(var(--house-elements-primary)), hsl(var(--house-elements-accent)));
-    box-shadow: 0 4px 12px hsla(var(--house-elements-primary), 0.4);
-  }
-
-  .house-achievement-badge.time {
-    background: linear-gradient(135deg, hsl(var(--house-time-primary)), hsl(var(--house-time-accent)));
-    box-shadow: 0 4px 12px hsla(var(--house-time-primary), 0.4);
-  }
-
-  .house-achievement-badge.spirit {
-    background: linear-gradient(135deg, hsl(var(--house-spirit-primary)), hsl(var(--house-spirit-accent)));
-    box-shadow: 0 4px 12px hsla(var(--house-spirit-primary), 0.4);
-  }
-
-  /* House Theme Switching Transitions */
-  .house-theme-transition {
-    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .house-theme-switching {
-    pointer-events: none;
+    top: -20px;
+    right: -20px;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle at 30% 30%, var(--primary) 0%, transparent 70%);
+    transform: rotate(45deg);
     opacity: 0.8;
-    transform: scale(0.98);
   }
+}
 
-  /* Utility Classes for House Theme Integration */
-  .house-themed-text {
-    font-family: var(--house-current-font, var(--font-comic-display));
-    letter-spacing: var(--house-current-letter-spacing, 0.05em);
-    text-shadow: var(--house-current-text-shadow, none);
-  }
+/* Remove focus rings - use stark outlines instead */
+*:focus {
+  outline: 2px solid white !important;
+  outline-offset: 2px !important;
+  border-radius: 0 !important;
+}
 
-  .house-themed-border {
-    border-color: hsl(var(--primary));
-    border-width: var(--house-current-border-width, 2px);
-    border-radius: var(--house-current-border-radius, 8px);
-  }
+/* Scrollbar styling - brutal and stark */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
 
-  .house-themed-shadow {
-    box-shadow: var(--house-current-shadow, var(--shadow-md));
-  }
+::-webkit-scrollbar-track {
+  background: black;
+  border: 1px solid white;
+}
 
-  .house-themed-background {
-    background: hsl(var(--house-current-background, var(--card)));
-  }
+::-webkit-scrollbar-thumb {
+  background: white;
+  border: 1px solid black;
+}
 
-  /* Mystical Transition Classes */
-  .transition-mystical {
-    transition: all var(--transition-mystical) cubic-bezier(0.4, 0, 0.2, 1);
-  }
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
 
-  .transition-arcane {
-    transition: all var(--transition-arcane) cubic-bezier(0.4, 0, 0.2, 1);
-  }
+/* Selection colors */
+::selection {
+  background: var(--primary);
+  color: white;
+}
 
-  .transition-divine {
-    transition: all var(--transition-divine) cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .transition-legendary {
-    transition: all var(--transition-legendary) cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* Sacred Particle Background Effect */
-  .sacred-particles {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .sacred-particles::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: 
-      radial-gradient(circle at 20% 80%, hsla(var(--primary), 0.1) 2px, transparent 2px),
-      radial-gradient(circle at 80% 20%, hsla(var(--accent), 0.1) 1px, transparent 1px),
-      radial-gradient(circle at 40% 40%, hsla(var(--primary), 0.08) 1px, transparent 1px);
-    background-size: 50px 50px, 30px 30px, 40px 40px;
-    animation: sacred-drift var(--particle-duration) linear infinite;
-    pointer-events: none;
-  }
-
-  @keyframes sacred-drift {
-    0% {
-      transform: translate(0, 0);
-    }
-    100% {
-      transform: translate(-50px, -50px);
-    }
-  }
-
-  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
-  /* COMIC BOOK PANEL LAYOUT SYSTEM - ADVANCED ANIMATIONS & CLIP PATHS */
-  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
-
-  /* Comic Panel Clip Paths for Authentic Shapes */
-  .clip-path-hexagon {
-    clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
-  }
-
-  .clip-path-star {
-    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-  }
-
-  .clip-path-explosion {
-    clip-path: polygon(50% 0%, 60% 15%, 80% 10%, 70% 30%, 95% 40%, 75% 50%, 90% 70%, 65% 65%, 60% 90%, 45% 75%, 35% 95%, 30% 75%, 10% 80%, 25% 60%, 0% 50%, 20% 35%, 5% 20%, 30% 25%, 40% 5%);
-  }
-
-  .clip-path-jagged {
-    clip-path: polygon(0% 20%, 20% 0%, 40% 10%, 60% 0%, 80% 15%, 100% 5%, 95% 25%, 85% 45%, 100% 65%, 90% 85%, 70% 95%, 50% 85%, 30% 100%, 10% 90%, 0% 70%, 15% 50%, 5% 30%);
-  }
-
-  .clip-path-wavy {
-    clip-path: polygon(0% 0%, 100% 0%, 100% 75%, 95% 85%, 85% 90%, 75% 95%, 65% 98%, 55% 100%, 45% 98%, 35% 95%, 25% 90%, 15% 85%, 5% 75%, 0% 65%);
-  }
-
-  /* Comic Book Transition Easings */
-  .ease-comic {
-    transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  }
-
-  .ease-bounce {
-    transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  }
-
-  .ease-elastic {
-    transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-
-  .ease-dramatic {
-    transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
-
-  /* 3D Transform Utilities */
-  .transform-style-preserve-3d {
-    transform-style: preserve-3d;
-  }
-
-  .backface-hidden {
-    backface-visibility: hidden;
-  }
-
-  .rotate-y-180 {
-    transform: rotateY(180deg);
-  }
-
-  .rotate-y-neg-180 {
-    transform: rotateY(-180deg);
-  }
-
-  /* Advanced Comic Animations */
-  @keyframes animate-comic-impact {
-    0% {
-      transform: scale(0.8) rotate(-2deg);
-      opacity: 0;
-    }
-    50% {
-      transform: scale(1.1) rotate(1deg);
-      opacity: 1;
-    }
-    100% {
-      transform: scale(1) rotate(0deg);
-      opacity: 1;
-    }
-  }
-
-  .animate-comic-impact {
-    animation: animate-comic-impact 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  }
-
-  @keyframes animate-fade-out {
-    0% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    100% {
-      opacity: 0;
-      transform: scale(0.9);
-    }
-  }
-
-  .animate-fade-out {
-    animation: animate-fade-out 0.3s ease-out forwards;
-  }
-
-  @keyframes animate-shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-3px) rotate(-1deg); }
-    75% { transform: translateX(3px) rotate(1deg); }
-  }
-
-  .animate-shake {
-    animation: animate-shake 0.5s ease-in-out infinite;
-  }
-
-  @keyframes animate-float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-6px); }
-  }
-
-  .animate-float {
-    animation: animate-float 3s ease-in-out infinite;
-  }
-
-  @keyframes animate-spin-slow {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  .animate-spin-slow {
-    animation: animate-spin-slow 3s linear infinite;
-  }
-
-  @keyframes animate-bounce-subtle {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-4px); }
-  }
-
-  .animate-bounce-subtle {
-    animation: animate-bounce-subtle 1s ease-in-out infinite;
-  }
-
-  /* Speed Lines Animations */
-  @keyframes animate-speed-right {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-  }
-
-  @keyframes animate-speed-left {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
-  }
-
-  @keyframes animate-speed-up {
-    0% { transform: translateY(100%); }
-    100% { transform: translateY(-100%); }
-  }
-
-  @keyframes animate-speed-down {
-    0% { transform: translateY(-100%); }
-    100% { transform: translateY(100%); }
-  }
-
-  .animate-speed-right {
-    animation: animate-speed-right 0.5s ease-out;
-  }
-
-  .animate-speed-left {
-    animation: animate-speed-left 0.5s ease-out;
-  }
-
-  .animate-speed-up {
-    animation: animate-speed-up 0.5s ease-out;
-  }
-
-  .animate-speed-down {
-    animation: animate-speed-down 0.5s ease-out;
-  }
-
-  /* Comic Page Background Effects */
-  .bg-sepia {
-    background-color: #f4f1e8;
-    background-image: 
-      radial-gradient(circle at 25% 25%, rgba(139, 69, 19, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 75% 75%, rgba(160, 82, 45, 0.1) 0%, transparent 50%);
-  }
-
-  .bg-sepia-100 {
-    background-color: #faf8f3;
-  }
-
-  /* Text Shadow Utilities for Comic Effects */
-  .text-shadow-sm {
-    text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.8);
-  }
-
-  .text-shadow-light {
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-  }
-
-  .text-shadow-medium {
-    text-shadow: 
-      1px 1px 0px #000,
-      -1px -1px 0px #000,
-      1px -1px 0px #000,
-      -1px 1px 0px #000;
-  }
-
-  .text-shadow-strong {
-    text-shadow: 
-      2px 2px 0px #000,
-      -1px -1px 0px #000,
-      1px -1px 0px #000,
-      -1px 1px 0px #000,
-      0px 0px 10px currentColor;
-  }
-
-  .text-shadow-heavy {
-    text-shadow: 
-      3px 3px 0px #000,
-      -2px -2px 0px #000,
-      2px -2px 0px #000,
-      -2px 2px 0px #000,
-      0px 0px 15px currentColor,
-      0px 0px 25px currentColor;
-  }
-
-  /* Panel Progression Indicators */
-  .panel-progress-indicator {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 1rem 0;
-  }
-
-  .panel-progress-indicator::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(to right, transparent, #000 20%, #000 80%, transparent);
-    z-index: 1;
-  }
-
-  .panel-progress-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid #000;
-    background: #fff;
-    position: relative;
-    z-index: 2;
-    transition: all 0.3s ease;
-  }
-
-  .panel-progress-dot.active {
-    background: #000;
-    transform: scale(1.5);
-  }
-
-  .panel-progress-dot.completed {
-    background: #4ade80;
-    border-color: #16a34a;
-  }
-
-  /* Comic Book Gutter System */
-  .comic-gutter-x {
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-  }
-
-  .comic-gutter-y {
-    border-top: 4px solid transparent;
-    border-bottom: 4px solid transparent;
-  }
-
-  .comic-bleed {
-    margin: -8px;
-    padding: 8px;
-    background-clip: padding-box;
-  }
-
-  /* Responsive Comic Panel Layouts */
-  @media (max-width: 768px) {
-    .comic-grid-responsive {
-      grid-template-columns: 1fr;
-      grid-template-rows: repeat(auto-fit, minmax(150px, 1fr));
-    }
-    
-    .comic-panel-splash {
-      grid-column: 1;
-      grid-row: 1 / 3;
-    }
-  }
-
-  @media (min-width: 769px) and (max-width: 1024px) {
-    .comic-grid-responsive {
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: repeat(auto-fit, minmax(200px, 1fr));
-    }
-  }
-
-  @media (min-width: 1025px) {
-    .comic-grid-responsive {
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(auto-fit, minmax(250px, 1fr));
-    }
-  }
+::-moz-selection {
+  background: var(--primary);
+  color: white;
 }
