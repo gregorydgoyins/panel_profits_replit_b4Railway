@@ -2423,3 +2423,331 @@ export type InsertAiOraclePersona = z.infer<typeof insertAiOraclePersonaSchema>;
 
 export type MarketAnomaly = typeof marketAnomalies.$inferSelect;
 export type InsertMarketAnomaly = z.infer<typeof insertMarketAnomalySchema>;
+
+// =============================================
+// PHASE 8: EXTERNAL TOOL INTEGRATION TABLES
+// =============================================
+
+// External tool integrations (Webflow, Figma, Relume, Zapier)
+export const externalIntegrations = pgTable("external_integrations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  integrationName: text("integration_name").notNull(), // 'webflow', 'figma', 'relume', 'zapier'
+  integrationDisplayName: text("integration_display_name").notNull(), // "Webflow", "Figma", etc.
+  status: text("status").notNull().default("disconnected"), // 'connected', 'disconnected', 'error', 'pending'
+  authType: text("auth_type").notNull(), // 'oauth', 'api_key', 'webhook'
+  // Encrypted credential storage (never store plaintext API keys)
+  encryptedCredentials: text("encrypted_credentials"), // Encrypted JSON of auth tokens/keys
+  authScopes: jsonb("auth_scopes"), // OAuth scopes or permission levels
+  connectionMetadata: jsonb("connection_metadata"), // Additional connection info (account IDs, team info, etc.)
+  configuration: jsonb("configuration"), // Integration-specific settings
+  // Integration health and monitoring
+  lastHealthCheck: timestamp("last_health_check"),
+  healthStatus: text("health_status").default("unknown"), // 'healthy', 'unhealthy', 'degraded', 'unknown'
+  errorMessage: text("error_message"), // Last error encountered
+  retryCount: integer("retry_count").default(0),
+  // Usage tracking
+  totalSyncs: integer("total_syncs").default(0),
+  lastSyncAt: timestamp("last_sync_at"),
+  nextScheduledSync: timestamp("next_scheduled_sync"),
+  // House-specific bonuses and preferences
+  houseId: text("house_id").references(() => users.houseId), // Inherit from user or override
+  houseBonusMultiplier: decimal("house_bonus_multiplier", { precision: 3, scale: 2 }).default("1.00"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_external_integrations_user").on(table.userId),
+  index("idx_external_integrations_name").on(table.integrationName),
+  index("idx_external_integrations_status").on(table.status),
+  index("idx_external_integrations_health").on(table.healthStatus),
+]);
+
+// Webhook management for bidirectional communication
+export const integrationWebhooks = pgTable("integration_webhooks", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  integrationId: varchar("integration_id").notNull().references(() => externalIntegrations.id),
+  webhookType: text("webhook_type").notNull(), // 'incoming', 'outgoing'
+  eventType: text("event_type").notNull(), // 'user.created', 'trade.executed', 'portfolio.updated', etc.
+  webhookUrl: text("webhook_url"), // For outgoing webhooks
+  secretKey: text("secret_key"), // For webhook verification
+  isActive: boolean("is_active").default(true),
+  // Webhook configuration
+  httpMethod: text("http_method").default("POST"), // POST, PUT, PATCH
+  headers: jsonb("headers"), // Custom headers to send
+  payload: jsonb("payload"), // Payload template or structure
+  retryPolicy: jsonb("retry_policy"), // Retry configuration
+  // Monitoring and analytics
+  totalTriggers: integer("total_triggers").default(0),
+  successfulTriggers: integer("successful_triggers").default(0),
+  failedTriggers: integer("failed_triggers").default(0),
+  lastTriggeredAt: timestamp("last_triggered_at"),
+  lastSuccessAt: timestamp("last_success_at"),
+  lastFailureAt: timestamp("last_failure_at"),
+  lastErrorMessage: text("last_error_message"),
+  averageResponseTime: decimal("average_response_time", { precision: 8, scale: 3 }), // milliseconds
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_integration_webhooks_integration").on(table.integrationId),
+  index("idx_integration_webhooks_type").on(table.webhookType),
+  index("idx_integration_webhooks_event").on(table.eventType),
+  index("idx_integration_webhooks_active").on(table.isActive),
+]);
+
+// Integration synchronization logs
+export const integrationSyncLogs = pgTable("integration_sync_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  integrationId: varchar("integration_id").notNull().references(() => externalIntegrations.id),
+  syncType: text("sync_type").notNull(), // 'full', 'incremental', 'manual', 'webhook'
+  direction: text("direction").notNull(), // 'import', 'export', 'bidirectional'
+  status: text("status").notNull(), // 'started', 'in_progress', 'completed', 'failed', 'cancelled'
+  dataType: text("data_type"), // 'portfolios', 'designs', 'workflows', 'analytics'
+  // Sync metrics
+  recordsProcessed: integer("records_processed").default(0),
+  recordsSuccessful: integer("records_successful").default(0),
+  recordsFailed: integer("records_failed").default(0),
+  durationMs: integer("duration_ms"), // Sync duration in milliseconds
+  // Sync details
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  errorMessage: text("error_message"),
+  errorDetails: jsonb("error_details"), // Detailed error information
+  syncMetadata: jsonb("sync_metadata"), // Additional sync context
+  // Data transformation tracking
+  transformationRules: jsonb("transformation_rules"), // Rules applied during sync
+  validationErrors: jsonb("validation_errors"), // Data validation issues
+  conflictResolution: jsonb("conflict_resolution"), // How conflicts were resolved
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_integration_sync_logs_integration").on(table.integrationId),
+  index("idx_integration_sync_logs_status").on(table.status),
+  index("idx_integration_sync_logs_type").on(table.syncType),
+  index("idx_integration_sync_logs_started").on(table.startedAt),
+]);
+
+// Workflow automation configurations (Sacred Rituals and Divine Protocols)
+export const workflowAutomations = pgTable("workflow_automations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  name: text("name").notNull(), // User-friendly workflow name
+  description: text("description"),
+  category: text("category").notNull(), // 'trading', 'portfolio', 'marketing', 'analytics', 'house_ritual'
+  // Workflow configuration
+  triggerType: text("trigger_type").notNull(), // 'schedule', 'event', 'webhook', 'manual'
+  triggerConfig: jsonb("trigger_config").notNull(), // Trigger-specific configuration
+  actionSteps: jsonb("action_steps").notNull(), // Array of automation steps
+  conditions: jsonb("conditions"), // Conditional logic for execution
+  // Mystical RPG elements
+  ritualType: text("ritual_type"), // 'sacred_ritual', 'divine_protocol', 'karmic_alignment'
+  houseBonus: decimal("house_bonus", { precision: 3, scale: 2 }).default("1.00"),
+  karmaRequirement: integer("karma_requirement").default(0),
+  mysticalPower: integer("mystical_power").default(1), // 1-10 scale
+  // Status and execution
+  isActive: boolean("is_active").default(true),
+  status: text("status").default("active"), // 'active', 'paused', 'disabled', 'error'
+  // Execution tracking
+  totalRuns: integer("total_runs").default(0),
+  successfulRuns: integer("successful_runs").default(0),
+  failedRuns: integer("failed_runs").default(0),
+  lastRunAt: timestamp("last_run_at"),
+  lastSuccessAt: timestamp("last_success_at"),
+  lastFailureAt: timestamp("last_failure_at"),
+  nextRunAt: timestamp("next_run_at"),
+  lastErrorMessage: text("last_error_message"),
+  averageExecutionTime: decimal("average_execution_time", { precision: 8, scale: 3 }), // milliseconds
+  // Advanced features
+  priority: integer("priority").default(5), // 1-10 execution priority
+  timeout: integer("timeout").default(300000), // Timeout in milliseconds
+  retryPolicy: jsonb("retry_policy"), // Retry configuration
+  notificationSettings: jsonb("notification_settings"), // How to notify on success/failure
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_workflow_automations_user").on(table.userId),
+  index("idx_workflow_automations_category").on(table.category),
+  index("idx_workflow_automations_trigger").on(table.triggerType),
+  index("idx_workflow_automations_active").on(table.isActive),
+  index("idx_workflow_automations_next_run").on(table.nextRunAt),
+]);
+
+// Workflow execution history
+export const workflowExecutions = pgTable("workflow_executions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  workflowId: varchar("workflow_id").notNull().references(() => workflowAutomations.id),
+  executionId: varchar("execution_id").notNull(), // Unique ID for this execution
+  status: text("status").notNull(), // 'started', 'running', 'completed', 'failed', 'timeout', 'cancelled'
+  triggerSource: text("trigger_source"), // What triggered this execution
+  triggerData: jsonb("trigger_data"), // Data from the trigger
+  // Execution details
+  startedAt: timestamp("started_at").notNull(),
+  completedAt: timestamp("completed_at"),
+  durationMs: integer("duration_ms"),
+  // Step tracking
+  totalSteps: integer("total_steps"),
+  completedSteps: integer("completed_steps"),
+  failedSteps: integer("failed_steps"),
+  currentStep: integer("current_step"),
+  stepExecutions: jsonb("step_executions"), // Detailed step execution log
+  // Results and outputs
+  outputData: jsonb("output_data"), // Results produced by the workflow
+  errorMessage: text("error_message"),
+  errorDetails: jsonb("error_details"),
+  // Mystical elements
+  karmaEarned: integer("karma_earned").default(0),
+  mysticalEffects: jsonb("mystical_effects"), // Special effects or bonuses
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_workflow_executions_workflow").on(table.workflowId),
+  index("idx_workflow_executions_status").on(table.status),
+  index("idx_workflow_executions_started").on(table.startedAt),
+  index("idx_workflow_executions_execution_id").on(table.executionId),
+]);
+
+// Integration usage analytics and performance monitoring
+export const integrationAnalytics = pgTable("integration_analytics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  integrationId: varchar("integration_id").notNull().references(() => externalIntegrations.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  analyticsDate: timestamp("analytics_date").notNull(), // Date for daily/hourly aggregations
+  timeframe: text("timeframe").notNull(), // 'hourly', 'daily', 'weekly', 'monthly'
+  // Usage metrics
+  apiCalls: integer("api_calls").default(0),
+  successfulCalls: integer("successful_calls").default(0),
+  failedCalls: integer("failed_calls").default(0),
+  dataTransferred: integer("data_transferred").default(0), // bytes
+  // Performance metrics
+  averageResponseTime: decimal("average_response_time", { precision: 8, scale: 3 }), // milliseconds
+  minResponseTime: decimal("min_response_time", { precision: 8, scale: 3 }),
+  maxResponseTime: decimal("max_response_time", { precision: 8, scale: 3 }),
+  // Error tracking
+  errorCategories: jsonb("error_categories"), // Categorized error counts
+  rateLimitHits: integer("rate_limit_hits").default(0),
+  timeoutCount: integer("timeout_count").default(0),
+  // Business metrics
+  automationsTriggered: integer("automations_triggered").default(0),
+  workflowsCompleted: integer("workflows_completed").default(0),
+  dataPointsSynced: integer("data_points_synced").default(0),
+  // Cost tracking
+  estimatedCost: decimal("estimated_cost", { precision: 10, scale: 4 }), // External API costs
+  creditsUsed: integer("credits_used").default(0), // Internal credits consumed
+  // House performance
+  houseId: text("house_id"),
+  houseBonusApplied: decimal("house_bonus_applied", { precision: 3, scale: 2 }),
+  karmaGenerated: integer("karma_generated").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_integration_analytics_integration").on(table.integrationId),
+  index("idx_integration_analytics_user").on(table.userId),
+  index("idx_integration_analytics_date").on(table.analyticsDate),
+  index("idx_integration_analytics_timeframe").on(table.timeframe),
+]);
+
+// External tool user mappings (for cross-platform identity management)
+export const externalUserMappings = pgTable("external_user_mappings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  integrationId: varchar("integration_id").notNull().references(() => externalIntegrations.id),
+  externalUserId: text("external_user_id").notNull(), // User ID in external system
+  externalUserName: text("external_user_name"), // Username in external system
+  externalUserEmail: text("external_user_email"), // Email in external system
+  permissions: jsonb("permissions"), // What Panel Profits data can be shared
+  dataMapping: jsonb("data_mapping"), // How Panel Profits data maps to external system
+  syncPreferences: jsonb("sync_preferences"), // User preferences for data synchronization
+  lastSyncAt: timestamp("last_sync_at"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_external_user_mappings_user").on(table.userId),
+  index("idx_external_user_mappings_integration").on(table.integrationId),
+  index("idx_external_user_mappings_external_id").on(table.externalUserId),
+]);
+
+// =============================================
+// PHASE 8 ZOD VALIDATION SCHEMAS
+// =============================================
+
+export const insertExternalIntegrationSchema = createInsertSchema(externalIntegrations).omit({
+  id: true,
+  totalSyncs: true,
+  lastSyncAt: true,
+  lastHealthCheck: true,
+  retryCount: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertIntegrationWebhookSchema = createInsertSchema(integrationWebhooks).omit({
+  id: true,
+  totalTriggers: true,
+  successfulTriggers: true,
+  failedTriggers: true,
+  lastTriggeredAt: true,
+  lastSuccessAt: true,
+  lastFailureAt: true,
+  averageResponseTime: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertIntegrationSyncLogSchema = createInsertSchema(integrationSyncLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertWorkflowAutomationSchema = createInsertSchema(workflowAutomations).omit({
+  id: true,
+  totalRuns: true,
+  successfulRuns: true,
+  failedRuns: true,
+  lastRunAt: true,
+  lastSuccessAt: true,
+  lastFailureAt: true,
+  averageExecutionTime: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertWorkflowExecutionSchema = createInsertSchema(workflowExecutions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertIntegrationAnalyticsSchema = createInsertSchema(integrationAnalytics).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertExternalUserMappingSchema = createInsertSchema(externalUserMappings).omit({
+  id: true,
+  lastSyncAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// =============================================
+// PHASE 8 TYPESCRIPT TYPES
+// =============================================
+
+export type ExternalIntegration = typeof externalIntegrations.$inferSelect;
+export type InsertExternalIntegration = z.infer<typeof insertExternalIntegrationSchema>;
+
+export type IntegrationWebhook = typeof integrationWebhooks.$inferSelect;
+export type InsertIntegrationWebhook = z.infer<typeof insertIntegrationWebhookSchema>;
+
+export type IntegrationSyncLog = typeof integrationSyncLogs.$inferSelect;
+export type InsertIntegrationSyncLog = z.infer<typeof insertIntegrationSyncLogSchema>;
+
+export type WorkflowAutomation = typeof workflowAutomations.$inferSelect;
+export type InsertWorkflowAutomation = z.infer<typeof insertWorkflowAutomationSchema>;
+
+export type WorkflowExecution = typeof workflowExecutions.$inferSelect;
+export type InsertWorkflowExecution = z.infer<typeof insertWorkflowExecutionSchema>;
+
+export type IntegrationAnalytics = typeof integrationAnalytics.$inferSelect;
+export type InsertIntegrationAnalytics = z.infer<typeof insertIntegrationAnalyticsSchema>;
+
+export type ExternalUserMapping = typeof externalUserMappings.$inferSelect;
+export type InsertExternalUserMapping = z.infer<typeof insertExternalUserMappingSchema>;

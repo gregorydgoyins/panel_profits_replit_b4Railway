@@ -4,7 +4,7 @@ import {
   Home, DollarSign, Newspaper, Briefcase, Brain, LineChart, Layers, 
   Users, Building, Zap, BookOpen, Calendar, Settings, HelpCircle,
   ChevronLeft, ChevronRight, Trophy, Camera, Heart, Crown, Shield,
-  Swords, Scroll, GraduationCap, Target, Sparkles, Gem
+  Swords, Scroll, GraduationCap, Target, Sparkles, Gem, Workflow
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -16,7 +16,7 @@ interface NavigationItem {
   label: string;
   icon: any;
   path: string;
-  category: 'main' | 'trading' | 'portfolio' | 'tools' | 'other';
+  category: 'main' | 'trading' | 'portfolio' | 'learning' | 'integrations' | 'houses' | 'tools' | 'other';
   badge?: string;
 }
 
@@ -46,6 +46,7 @@ export function NavigationSidebar() {
     if (location === '/houses') return 'houses';
     if (location === '/houses/dashboard') return 'house-dashboard';
     if (location === '/houses/competition') return 'house-competition';
+    if (location === '/integrations' || location === '/divine-connections') return 'divine-connections';
     if (location === '/news') return 'news';
     if (location === '/calendar') return 'calendar';
     if (location === '/settings') return 'settings';
@@ -80,6 +81,9 @@ export function NavigationSidebar() {
     // Learning Module
     { id: 'sacred-library', label: 'Sacred Library', icon: Scroll, path: '/learning', category: 'learning', badge: 'NEW' },
     
+    // Integration Management
+    { id: 'divine-connections', label: 'Divine Connections', icon: Sparkles, path: '/integrations', category: 'integrations', badge: 'NEW' },
+    
     // Houses
     { id: 'houses', label: 'House Selection', icon: Crown, path: '/houses', category: 'houses' },
     { id: 'house-dashboard', label: 'House Dashboard', icon: Shield, path: '/houses/dashboard', category: 'houses' },
@@ -113,6 +117,7 @@ export function NavigationSidebar() {
       watchlist: 'text-amber-400 bg-amber-900/30 hover:bg-amber-600',
       leaderboards: 'text-yellow-400 bg-yellow-900/30 hover:bg-yellow-600',
       'sacred-library': 'text-indigo-400 bg-indigo-900/30 hover:bg-indigo-600',
+      'divine-connections': 'text-violet-400 bg-violet-900/30 hover:bg-violet-600',
       houses: 'text-red-400 bg-red-900/30 hover:bg-red-600',
       'house-dashboard': 'text-blue-400 bg-blue-900/30 hover:bg-blue-600',
       'house-competition': 'text-purple-400 bg-purple-900/30 hover:bg-purple-600'
@@ -236,6 +241,41 @@ export function NavigationSidebar() {
             )}
             <div className="space-y-1">
               {getItemsByCategory('learning').map((item) => {
+                const IconComponent = item.icon;
+                const isActive = activeItem === item.id;
+                const itemColors = getItemColor(item.id);
+                
+                return (
+                  <Link key={item.id} href={item.path}>
+                    <div
+                      className={`w-full justify-start flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer transition-all hover:bg-accent hover:text-accent-foreground ${itemColors} ${isActive ? 'bg-opacity-100 text-white' : ''} ${isCollapsed ? 'justify-center w-10 h-10' : ''}`}
+                      data-testid={`nav-item-${item.id}`}
+                    >
+                      <IconComponent className="h-4 w-4" />
+                      {!isCollapsed && (
+                        <>
+                          <span className="ml-2">{item.label}</span>
+                          {item.badge && (
+                            <Badge variant="secondary" className="ml-auto text-xs">
+                              {item.badge}
+                            </Badge>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Integration Management Section */}
+          <div>
+            {!isCollapsed && (
+              <h3 className="text-xs font-medium text-muted-foreground uppercase mb-2">Integrations</h3>
+            )}
+            <div className="space-y-1">
+              {getItemsByCategory('integrations').map((item) => {
                 const IconComponent = item.icon;
                 const isActive = activeItem === item.id;
                 const itemColors = getItemColor(item.id);

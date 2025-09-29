@@ -42,7 +42,15 @@ import {
   type UserTrialAttempt, type InsertUserTrialAttempt,
   type DivineCertification, type InsertDivineCertification,
   type UserCertification, type InsertUserCertification,
-  type LearningAnalytics, type InsertLearningAnalytics
+  type LearningAnalytics, type InsertLearningAnalytics,
+  // Phase 8: External Integration Types
+  type ExternalIntegration, type InsertExternalIntegration,
+  type IntegrationWebhook, type InsertIntegrationWebhook,
+  type IntegrationSyncLog, type InsertIntegrationSyncLog,
+  type WorkflowAutomation, type InsertWorkflowAutomation,
+  type WorkflowExecution, type InsertWorkflowExecution,
+  type IntegrationAnalytics, type InsertIntegrationAnalytics,
+  type ExternalUserMapping, type InsertExternalUserMapping
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -532,6 +540,75 @@ export interface IStorage {
     recommendedPrerequisites: LearningPath[];
     riskFactors: string[];
   }>;
+
+  // =============================================
+  // PHASE 8: EXTERNAL INTEGRATION METHODS
+  // =============================================
+
+  // External Integrations
+  getExternalIntegration(id: string): Promise<ExternalIntegration | undefined>;
+  getUserExternalIntegrations(userId: string, filters?: { integrationName?: string; status?: string }): Promise<ExternalIntegration[]>;
+  createExternalIntegration(integration: InsertExternalIntegration): Promise<ExternalIntegration>;
+  updateExternalIntegration(id: string, integration: Partial<InsertExternalIntegration>): Promise<ExternalIntegration | undefined>;
+  deleteExternalIntegration(id: string): Promise<boolean>;
+
+  // Integration Webhooks
+  getIntegrationWebhook(id: string): Promise<IntegrationWebhook | undefined>;
+  getIntegrationWebhooks(integrationId: string, filters?: { webhookType?: string; eventType?: string; isActive?: boolean }): Promise<IntegrationWebhook[]>;
+  createIntegrationWebhook(webhook: InsertIntegrationWebhook): Promise<IntegrationWebhook>;
+  updateIntegrationWebhook(id: string, webhook: Partial<InsertIntegrationWebhook>): Promise<IntegrationWebhook | undefined>;
+  deleteIntegrationWebhook(id: string): Promise<boolean>;
+
+  // Integration Sync Logs
+  getIntegrationSyncLog(id: string): Promise<IntegrationSyncLog | undefined>;
+  getIntegrationSyncLogs(integrationId: string, filters?: { syncType?: string; status?: string; limit?: number }): Promise<IntegrationSyncLog[]>;
+  createIntegrationSyncLog(syncLog: InsertIntegrationSyncLog): Promise<IntegrationSyncLog>;
+  updateIntegrationSyncLog(id: string, syncLog: Partial<InsertIntegrationSyncLog>): Promise<IntegrationSyncLog | undefined>;
+  deleteIntegrationSyncLog(id: string): Promise<boolean>;
+
+  // Workflow Automations
+  getWorkflowAutomation(id: string): Promise<WorkflowAutomation | undefined>;
+  getUserWorkflowAutomations(userId: string, filters?: { category?: string; isActive?: boolean; ritualType?: string }): Promise<WorkflowAutomation[]>;
+  createWorkflowAutomation(workflow: InsertWorkflowAutomation): Promise<WorkflowAutomation>;
+  updateWorkflowAutomation(id: string, workflow: Partial<InsertWorkflowAutomation>): Promise<WorkflowAutomation | undefined>;
+  deleteWorkflowAutomation(id: string): Promise<boolean>;
+
+  // Workflow Executions
+  getWorkflowExecution(id: string): Promise<WorkflowExecution | undefined>;
+  getWorkflowExecutions(workflowId: string, filters?: { status?: string; limit?: number }): Promise<WorkflowExecution[]>;
+  createWorkflowExecution(execution: InsertWorkflowExecution): Promise<WorkflowExecution>;
+  updateWorkflowExecution(id: string, execution: Partial<InsertWorkflowExecution>): Promise<WorkflowExecution | undefined>;
+  getUserWorkflowExecutions(userId: string, filters?: { status?: string; limit?: number }): Promise<WorkflowExecution[]>;
+
+  // Integration Analytics
+  getIntegrationAnalytics(id: string): Promise<IntegrationAnalytics | undefined>;
+  getUserIntegrationAnalytics(userId: string, filters?: { timeframe?: string; integrationName?: string }): Promise<IntegrationAnalytics[]>;
+  createIntegrationAnalytics(analytics: InsertIntegrationAnalytics): Promise<IntegrationAnalytics>;
+  updateIntegrationAnalytics(id: string, analytics: Partial<InsertIntegrationAnalytics>): Promise<IntegrationAnalytics | undefined>;
+  
+  // External User Mappings
+  getExternalUserMapping(id: string): Promise<ExternalUserMapping | undefined>;
+  getUserExternalMappings(userId: string, integrationId?: string): Promise<ExternalUserMapping[]>;
+  getExternalUserMappingByExternalId(integrationId: string, externalUserId: string): Promise<ExternalUserMapping | undefined>;
+  createExternalUserMapping(mapping: InsertExternalUserMapping): Promise<ExternalUserMapping>;
+  updateExternalUserMapping(id: string, mapping: Partial<InsertExternalUserMapping>): Promise<ExternalUserMapping | undefined>;
+  deleteExternalUserMapping(id: string): Promise<boolean>;
+
+  // Integration Health and Monitoring
+  updateIntegrationHealth(integrationId: string, healthStatus: string, errorMessage?: string): Promise<void>;
+  getUnhealthyIntegrations(): Promise<ExternalIntegration[]>;
+  getIntegrationUsageStats(integrationId: string, timeframe: string): Promise<{
+    totalApiCalls: number;
+    successRate: number;
+    averageResponseTime: number;
+    errorCount: number;
+  }>;
+
+  // Workflow Automation Helpers
+  getActiveWorkflowAutomations(category?: string): Promise<WorkflowAutomation[]>;
+  getScheduledWorkflows(beforeDate?: Date): Promise<WorkflowAutomation[]>;
+  updateWorkflowLastRun(workflowId: string, success: boolean, errorMessage?: string): Promise<void>;
+  incrementWorkflowStats(workflowId: string, success: boolean, executionTime: number): Promise<void>;
 }
 
 // Time-series buffer implementation with memory limits and proper chronological ordering

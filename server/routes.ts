@@ -9,6 +9,7 @@ import dataImportRoutes from "./routes/dataImportRoutes.js";
 import housesRoutes from "./routes/housesRoutes.js";
 import karmaRoutes from "./routes/karmaRoutes.js";
 import learningRoutes from "./routes/learningRoutes.js";
+import integrationsRoutes from "./routes/integrations.js";
 import { registerComicRoutes } from "./routes/comicRoutes";
 import { registerComicCoverRoutes } from "./routes/comicCoverRoutes.js";
 import { registerNotificationRoutes } from "./routes/notificationRoutes.js";
@@ -1026,6 +1027,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Sacred Learning System Routes (Mythological Education RPG)
   app.use("/api/learning", learningRoutes);
+
+  // External Integrations Routes (Divine Connections Chamber) - Phase 8
+  app.use("/api/integrations", isAuthenticated, integrationsRoutes);
 
   // Enhanced Trading Data Routes (Phase 3 Mythological Interface)
   app.use("/api", enhancedDataRoutes);

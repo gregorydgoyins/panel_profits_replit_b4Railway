@@ -51,6 +51,9 @@ import HouseCompetition from '@/pages/HouseCompetition';
 // Learning Module pages
 import SacredLibrary from '@/pages/SacredLibrary';
 
+// Integration Management pages
+import DivineConnections from '@/pages/DivineConnections';
+
 // WebSocket service for real-time data
 import { webSocketService } from '@/services/websocketService';
 
@@ -115,6 +118,10 @@ function Router() {
       
       {/* Learning Module routes */}
       <Route path="/learning" component={SacredLibrary} />
+      
+      {/* Integration Management routes */}
+      <Route path="/integrations" component={DivineConnections} />
+      <Route path="/divine-connections" component={DivineConnections} />
       
       {/* Tools & Other routes */}
       <Route path="/news" component={NewsPage} />

@@ -14,7 +14,10 @@ import {
   enhancedCharacters, battleScenarios, enhancedComicIssues, moviePerformanceData,
   // Learning System Tables
   learningPaths, sacredLessons, mysticalSkills, userLessonProgress, userSkillUnlocks,
-  trialsOfMastery, userTrialAttempts, divineCertifications, userCertifications, learningAnalytics
+  trialsOfMastery, userTrialAttempts, divineCertifications, userCertifications, learningAnalytics,
+  // Phase 8: External Integration Tables
+  externalIntegrations, integrationWebhooks, integrationSyncLogs, workflowAutomations,
+  workflowExecutions, integrationAnalytics, externalUserMappings
 } from '@shared/schema.js';
 import type {
   User, InsertUser, UpsertUser, Asset, InsertAsset, MarketData, InsertMarketData,
@@ -40,7 +43,12 @@ import type {
   UserLessonProgress, InsertUserLessonProgress, UserSkillUnlock, InsertUserSkillUnlock,
   TrialOfMastery, InsertTrialOfMastery, UserTrialAttempt, InsertUserTrialAttempt,
   DivineCertification, InsertDivineCertification, UserCertification, InsertUserCertification,
-  LearningAnalytics, InsertLearningAnalytics
+  LearningAnalytics, InsertLearningAnalytics,
+  // Phase 8: External Integration Types
+  ExternalIntegration, InsertExternalIntegration, IntegrationWebhook, InsertIntegrationWebhook,
+  IntegrationSyncLog, InsertIntegrationSyncLog, WorkflowAutomation, InsertWorkflowAutomation,
+  WorkflowExecution, InsertWorkflowExecution, IntegrationAnalytics, InsertIntegrationAnalytics,
+  ExternalUserMapping, InsertExternalUserMapping
 } from '@shared/schema.js';
 import type { IStorage } from './storage.js';
 
@@ -2852,6 +2860,445 @@ export class DatabaseStorage implements IStorage {
       recommendedPrerequisites: [],
       riskFactors: [],
     };
+  }
+
+  // =============================================
+  // PHASE 8: EXTERNAL INTEGRATION METHODS
+  // =============================================
+
+  // External Integrations
+  async getExternalIntegration(id: string): Promise<ExternalIntegration | undefined> {
+    const result = await db.select().from(externalIntegrations).where(eq(externalIntegrations.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getUserExternalIntegrations(userId: string, filters?: { integrationName?: string; status?: string }): Promise<ExternalIntegration[]> {
+    let query = db.select().from(externalIntegrations).where(eq(externalIntegrations.userId, userId));
+    
+    const conditions = [eq(externalIntegrations.userId, userId)];
+    
+    if (filters?.integrationName) {
+      conditions.push(eq(externalIntegrations.integrationName, filters.integrationName));
+    }
+    
+    if (filters?.status) {
+      conditions.push(eq(externalIntegrations.status, filters.status));
+    }
+    
+    if (conditions.length > 1) {
+      query = query.where(and(...conditions));
+    }
+    
+    return await query.orderBy(desc(externalIntegrations.createdAt));
+  }
+
+  async createExternalIntegration(integration: InsertExternalIntegration): Promise<ExternalIntegration> {
+    const result = await db.insert(externalIntegrations).values(integration).returning();
+    return result[0];
+  }
+
+  async updateExternalIntegration(id: string, integration: Partial<InsertExternalIntegration>): Promise<ExternalIntegration | undefined> {
+    const result = await db.update(externalIntegrations)
+      .set({ ...integration, updatedAt: new Date() })
+      .where(eq(externalIntegrations.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteExternalIntegration(id: string): Promise<boolean> {
+    const result = await db.delete(externalIntegrations).where(eq(externalIntegrations.id, id));
+    return result.rowCount > 0;
+  }
+
+  // Integration Webhooks
+  async getIntegrationWebhook(id: string): Promise<IntegrationWebhook | undefined> {
+    const result = await db.select().from(integrationWebhooks).where(eq(integrationWebhooks.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getIntegrationWebhooks(integrationId: string, filters?: { webhookType?: string; eventType?: string; isActive?: boolean }): Promise<IntegrationWebhook[]> {
+    const conditions = [eq(integrationWebhooks.integrationId, integrationId)];
+    
+    if (filters?.webhookType) {
+      conditions.push(eq(integrationWebhooks.webhookType, filters.webhookType));
+    }
+    
+    if (filters?.eventType) {
+      conditions.push(eq(integrationWebhooks.eventType, filters.eventType));
+    }
+    
+    if (filters?.isActive !== undefined) {
+      conditions.push(eq(integrationWebhooks.isActive, filters.isActive));
+    }
+
+    return await db.select().from(integrationWebhooks)
+      .where(and(...conditions))
+      .orderBy(desc(integrationWebhooks.createdAt));
+  }
+
+  async createIntegrationWebhook(webhook: InsertIntegrationWebhook): Promise<IntegrationWebhook> {
+    const result = await db.insert(integrationWebhooks).values(webhook).returning();
+    return result[0];
+  }
+
+  async updateIntegrationWebhook(id: string, webhook: Partial<InsertIntegrationWebhook>): Promise<IntegrationWebhook | undefined> {
+    const result = await db.update(integrationWebhooks)
+      .set({ ...webhook, updatedAt: new Date() })
+      .where(eq(integrationWebhooks.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteIntegrationWebhook(id: string): Promise<boolean> {
+    const result = await db.delete(integrationWebhooks).where(eq(integrationWebhooks.id, id));
+    return result.rowCount > 0;
+  }
+
+  // Integration Sync Logs
+  async getIntegrationSyncLog(id: string): Promise<IntegrationSyncLog | undefined> {
+    const result = await db.select().from(integrationSyncLogs).where(eq(integrationSyncLogs.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getIntegrationSyncLogs(integrationId: string, filters?: { syncType?: string; status?: string; limit?: number }): Promise<IntegrationSyncLog[]> {
+    const conditions = [eq(integrationSyncLogs.integrationId, integrationId)];
+    
+    if (filters?.syncType) {
+      conditions.push(eq(integrationSyncLogs.syncType, filters.syncType));
+    }
+    
+    if (filters?.status) {
+      conditions.push(eq(integrationSyncLogs.status, filters.status));
+    }
+
+    let query = db.select().from(integrationSyncLogs)
+      .where(and(...conditions))
+      .orderBy(desc(integrationSyncLogs.startedAt));
+
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+
+    return await query;
+  }
+
+  async createIntegrationSyncLog(syncLog: InsertIntegrationSyncLog): Promise<IntegrationSyncLog> {
+    const result = await db.insert(integrationSyncLogs).values(syncLog).returning();
+    return result[0];
+  }
+
+  async updateIntegrationSyncLog(id: string, syncLog: Partial<InsertIntegrationSyncLog>): Promise<IntegrationSyncLog | undefined> {
+    const result = await db.update(integrationSyncLogs)
+      .set(syncLog)
+      .where(eq(integrationSyncLogs.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteIntegrationSyncLog(id: string): Promise<boolean> {
+    const result = await db.delete(integrationSyncLogs).where(eq(integrationSyncLogs.id, id));
+    return result.rowCount > 0;
+  }
+
+  // Workflow Automations
+  async getWorkflowAutomation(id: string): Promise<WorkflowAutomation | undefined> {
+    const result = await db.select().from(workflowAutomations).where(eq(workflowAutomations.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getUserWorkflowAutomations(userId: string, filters?: { category?: string; isActive?: boolean; ritualType?: string }): Promise<WorkflowAutomation[]> {
+    const conditions = [eq(workflowAutomations.userId, userId)];
+    
+    if (filters?.category) {
+      conditions.push(eq(workflowAutomations.category, filters.category));
+    }
+    
+    if (filters?.isActive !== undefined) {
+      conditions.push(eq(workflowAutomations.isActive, filters.isActive));
+    }
+    
+    if (filters?.ritualType) {
+      conditions.push(sql`${workflowAutomations.metadata}->>'ritualType' = ${filters.ritualType}`);
+    }
+
+    return await db.select().from(workflowAutomations)
+      .where(and(...conditions))
+      .orderBy(desc(workflowAutomations.createdAt));
+  }
+
+  async createWorkflowAutomation(workflow: InsertWorkflowAutomation): Promise<WorkflowAutomation> {
+    const result = await db.insert(workflowAutomations).values(workflow).returning();
+    return result[0];
+  }
+
+  async updateWorkflowAutomation(id: string, workflow: Partial<InsertWorkflowAutomation>): Promise<WorkflowAutomation | undefined> {
+    const result = await db.update(workflowAutomations)
+      .set({ ...workflow, updatedAt: new Date() })
+      .where(eq(workflowAutomations.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteWorkflowAutomation(id: string): Promise<boolean> {
+    const result = await db.delete(workflowAutomations).where(eq(workflowAutomations.id, id));
+    return result.rowCount > 0;
+  }
+
+  // Workflow Executions
+  async getWorkflowExecution(id: string): Promise<WorkflowExecution | undefined> {
+    const result = await db.select().from(workflowExecutions).where(eq(workflowExecutions.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getWorkflowExecutions(workflowId: string, filters?: { status?: string; limit?: number }): Promise<WorkflowExecution[]> {
+    const conditions = [eq(workflowExecutions.workflowId, workflowId)];
+    
+    if (filters?.status) {
+      conditions.push(eq(workflowExecutions.status, filters.status));
+    }
+
+    let query = db.select().from(workflowExecutions)
+      .where(and(...conditions))
+      .orderBy(desc(workflowExecutions.startedAt));
+
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+
+    return await query;
+  }
+
+  async createWorkflowExecution(execution: InsertWorkflowExecution): Promise<WorkflowExecution> {
+    const result = await db.insert(workflowExecutions).values(execution).returning();
+    return result[0];
+  }
+
+  async updateWorkflowExecution(id: string, execution: Partial<InsertWorkflowExecution>): Promise<WorkflowExecution | undefined> {
+    const result = await db.update(workflowExecutions)
+      .set(execution)
+      .where(eq(workflowExecutions.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async getUserWorkflowExecutions(userId: string, filters?: { status?: string; limit?: number }): Promise<WorkflowExecution[]> {
+    // Join with workflowAutomations to filter by userId
+    let query = db.select({
+      id: workflowExecutions.id,
+      workflowId: workflowExecutions.workflowId,
+      executionId: workflowExecutions.executionId,
+      status: workflowExecutions.status,
+      triggerSource: workflowExecutions.triggerSource,
+      triggerData: workflowExecutions.triggerData,
+      startedAt: workflowExecutions.startedAt,
+      completedAt: workflowExecutions.completedAt,
+      durationMs: workflowExecutions.durationMs,
+      errorMessage: workflowExecutions.errorMessage,
+      stepsCompleted: workflowExecutions.stepsCompleted,
+      totalSteps: workflowExecutions.totalSteps,
+      outputData: workflowExecutions.outputData,
+      createdAt: workflowExecutions.createdAt,
+      updatedAt: workflowExecutions.updatedAt,
+    }).from(workflowExecutions)
+      .innerJoin(workflowAutomations, eq(workflowExecutions.workflowId, workflowAutomations.id))
+      .where(eq(workflowAutomations.userId, userId));
+
+    if (filters?.status) {
+      query = query.where(and(
+        eq(workflowAutomations.userId, userId),
+        eq(workflowExecutions.status, filters.status)
+      ));
+    }
+
+    query = query.orderBy(desc(workflowExecutions.startedAt));
+
+    if (filters?.limit) {
+      query = query.limit(filters.limit);
+    }
+
+    return await query;
+  }
+
+  // Integration Analytics
+  async getIntegrationAnalytics(id: string): Promise<IntegrationAnalytics | undefined> {
+    const result = await db.select().from(integrationAnalytics).where(eq(integrationAnalytics.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getUserIntegrationAnalytics(userId: string, filters?: { timeframe?: string; integrationName?: string }): Promise<IntegrationAnalytics[]> {
+    const conditions = [eq(integrationAnalytics.userId, userId)];
+    
+    if (filters?.timeframe) {
+      conditions.push(eq(integrationAnalytics.timeframe, filters.timeframe));
+    }
+    
+    if (filters?.integrationName) {
+      conditions.push(eq(integrationAnalytics.integrationName, filters.integrationName));
+    }
+
+    return await db.select().from(integrationAnalytics)
+      .where(and(...conditions))
+      .orderBy(desc(integrationAnalytics.periodStart));
+  }
+
+  async createIntegrationAnalytics(analytics: InsertIntegrationAnalytics): Promise<IntegrationAnalytics> {
+    const result = await db.insert(integrationAnalytics).values(analytics).returning();
+    return result[0];
+  }
+
+  async updateIntegrationAnalytics(id: string, analytics: Partial<InsertIntegrationAnalytics>): Promise<IntegrationAnalytics | undefined> {
+    const result = await db.update(integrationAnalytics)
+      .set({ ...analytics, updatedAt: new Date() })
+      .where(eq(integrationAnalytics.id, id))
+      .returning();
+    return result[0];
+  }
+
+  // External User Mappings
+  async getExternalUserMapping(id: string): Promise<ExternalUserMapping | undefined> {
+    const result = await db.select().from(externalUserMappings).where(eq(externalUserMappings.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getUserExternalMappings(userId: string, integrationId?: string): Promise<ExternalUserMapping[]> {
+    const conditions = [eq(externalUserMappings.userId, userId)];
+    
+    if (integrationId) {
+      conditions.push(eq(externalUserMappings.integrationId, integrationId));
+    }
+
+    return await db.select().from(externalUserMappings)
+      .where(and(...conditions))
+      .orderBy(desc(externalUserMappings.createdAt));
+  }
+
+  async getExternalUserMappingByExternalId(integrationId: string, externalUserId: string): Promise<ExternalUserMapping | undefined> {
+    const result = await db.select().from(externalUserMappings)
+      .where(and(
+        eq(externalUserMappings.integrationId, integrationId),
+        eq(externalUserMappings.externalUserId, externalUserId)
+      ))
+      .limit(1);
+    return result[0];
+  }
+
+  async createExternalUserMapping(mapping: InsertExternalUserMapping): Promise<ExternalUserMapping> {
+    const result = await db.insert(externalUserMappings).values(mapping).returning();
+    return result[0];
+  }
+
+  async updateExternalUserMapping(id: string, mapping: Partial<InsertExternalUserMapping>): Promise<ExternalUserMapping | undefined> {
+    const result = await db.update(externalUserMappings)
+      .set({ ...mapping, updatedAt: new Date() })
+      .where(eq(externalUserMappings.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteExternalUserMapping(id: string): Promise<boolean> {
+    const result = await db.delete(externalUserMappings).where(eq(externalUserMappings.id, id));
+    return result.rowCount > 0;
+  }
+
+  // Integration Health and Monitoring
+  async updateIntegrationHealth(integrationId: string, healthStatus: string, errorMessage?: string): Promise<void> {
+    await db.update(externalIntegrations)
+      .set({ 
+        healthStatus, 
+        errorMessage, 
+        lastHealthCheck: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(externalIntegrations.id, integrationId));
+  }
+
+  async getUnhealthyIntegrations(): Promise<ExternalIntegration[]> {
+    return await db.select().from(externalIntegrations)
+      .where(sql`${externalIntegrations.healthStatus} IN ('unhealthy', 'degraded')`)
+      .orderBy(desc(externalIntegrations.lastHealthCheck));
+  }
+
+  async getIntegrationUsageStats(integrationId: string, timeframe: string): Promise<{
+    totalApiCalls: number;
+    successRate: number;
+    averageResponseTime: number;
+    errorCount: number;
+  }> {
+    // This would typically aggregate from integration analytics or sync logs
+    // For now, return placeholder data
+    return {
+      totalApiCalls: 0,
+      successRate: 1.0,
+      averageResponseTime: 250,
+      errorCount: 0,
+    };
+  }
+
+  // Workflow Automation Helpers
+  async getActiveWorkflowAutomations(category?: string): Promise<WorkflowAutomation[]> {
+    let query = db.select().from(workflowAutomations)
+      .where(eq(workflowAutomations.isActive, true));
+
+    if (category) {
+      query = query.where(and(
+        eq(workflowAutomations.isActive, true),
+        eq(workflowAutomations.category, category)
+      ));
+    }
+
+    return await query.orderBy(desc(workflowAutomations.priority));
+  }
+
+  async getScheduledWorkflows(beforeDate?: Date): Promise<WorkflowAutomation[]> {
+    const cutoffDate = beforeDate || new Date();
+    
+    return await db.select().from(workflowAutomations)
+      .where(and(
+        eq(workflowAutomations.isActive, true),
+        sql`${workflowAutomations.nextRunAt} <= ${cutoffDate}`
+      ))
+      .orderBy(workflowAutomations.nextRunAt);
+  }
+
+  async updateWorkflowLastRun(workflowId: string, success: boolean, errorMessage?: string): Promise<void> {
+    const updates: any = {
+      lastRunAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    if (success) {
+      updates.lastSuccessfulRunAt = new Date();
+      updates.errorMessage = null;
+    } else if (errorMessage) {
+      updates.errorMessage = errorMessage;
+    }
+
+    await db.update(workflowAutomations)
+      .set(updates)
+      .where(eq(workflowAutomations.id, workflowId));
+  }
+
+  async incrementWorkflowStats(workflowId: string, success: boolean, executionTime: number): Promise<void> {
+    // Update workflow statistics
+    const workflow = await this.getWorkflowAutomation(workflowId);
+    if (workflow) {
+      const updates: any = {
+        totalExecutions: (workflow.totalExecutions || 0) + 1,
+        updatedAt: new Date(),
+      };
+
+      if (success) {
+        updates.successfulExecutions = (workflow.successfulExecutions || 0) + 1;
+        updates.averageExecutionTimeMs = Math.round(
+          ((workflow.averageExecutionTimeMs || 0) * (workflow.totalExecutions || 0) + executionTime) / 
+          ((workflow.totalExecutions || 0) + 1)
+        );
+      }
+
+      await db.update(workflowAutomations)
+        .set(updates)
+        .where(eq(workflowAutomations.id, workflowId));
+    }
   }
 }
 
