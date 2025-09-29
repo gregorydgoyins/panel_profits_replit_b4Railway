@@ -126,6 +126,16 @@ export class MarketSimulationEngine {
         if (Math.random() < 0.3) { // 30% chance = roughly every 3rd update cycle
           await orderMatching.processAllPendingOrders();
         }
+        
+        // PHASE 1 INTEGRATION: Execute NPC Trading Cycle
+        if (Math.random() < 0.2) { // 20% chance = roughly every 5th update cycle
+          try {
+            const { NpcTradingEngine } = await import('./tradingEngine.js');
+            await NpcTradingEngine.executeNpcTradingCycle(storage, this);
+          } catch (error) {
+            console.error('Failed to execute NPC trading cycle:', error);
+          }
+        }
       }
     }, updateIntervalMs);
   }
@@ -1340,7 +1350,7 @@ export class OrderMatchingEngine {
   }
 
   /**
-   * Validate order before processing
+   * Validate order before processing - NOW WITH PHASE 1 INTEGRATION
    */
   async validateOrder(order: Order): Promise<{ isValid: boolean; reason?: string }> {
     // Get user and portfolio
@@ -1374,6 +1384,89 @@ export class OrderMatchingEngine {
     const currentPrice = parseFloat(marketData.currentPrice.currentPrice);
     const orderValue = quantity * currentPrice;
 
+    // PHASE 1 INTEGRATION: IMF Vaulting Checks
+    try {
+      const vaultSettings = await storage.getImfVaultSettings(order.assetId);
+      if (vaultSettings) {
+        const { ImfVaultingEngine } = await import('./tradingEngine.js');
+        
+        // Check if vaulting would be triggered by this trade
+        const shouldVault = ImfVaultingEngine.shouldTriggerVaulting(
+          vaultSettings,
+          currentPrice,
+          parseFloat(marketData.marketCap || '0'),
+          marketData.volume24h / (parseFloat(marketData.currentPrice.volume?.toString() || '1'))
+        );
+        
+        if (shouldVault && order.type === 'buy') {
+          const vaultingFee = ImfVaultingEngine.calculateVaultingFee(vaultSettings, quantity, currentPrice);
+          console.log(`🏦 IMF Vaulting triggered for ${order.assetId}: Additional fee ${vaultingFee}`);
+        }
+        
+        // Apply scarcity multiplier to price calculations
+        const scarcityMultiplier = ImfVaultingEngine.calculateScarcityMultiplier(vaultSettings);
+        if (scarcityMultiplier > 1.5) {
+          console.log(`⚡ High scarcity detected for ${order.assetId}: ${scarcityMultiplier}x multiplier`);
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to check IMF vaulting settings:', error);
+    }
+
+    // PHASE 1 INTEGRATION: Margin Account Validation
+    try {
+      const marginAccount = await storage.getMarginAccount(order.userId);
+      if (marginAccount) {
+        const marginEquity = parseFloat(marginAccount.marginEquity);
+        const marginDebt = parseFloat(marginAccount.marginDebt);
+        const buyingPower = parseFloat(marginAccount.buyingPower);
+        
+        // Check margin requirements for leveraged positions
+        if (order.type === 'buy' && orderValue > buyingPower) {
+          return { isValid: false, reason: `Order exceeds buying power: $${buyingPower.toFixed(2)}` };
+        }
+        
+        // Check maintenance margin requirements
+        const maintenanceMargin = parseFloat(marginAccount.maintenanceMargin);
+        if (marginEquity < maintenanceMargin) {
+          return { isValid: false, reason: 'Account below maintenance margin requirement' };
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to check margin account:', error);
+    }
+
+    // PHASE 1 INTEGRATION: Short Position Validation
+    if (order.type === 'sell') {
+      try {
+        const shortPositions = await storage.getShortPositions(order.userId);
+        const existingShort = shortPositions.find(pos => pos.assetId === order.assetId);
+        
+        if (existingShort && order.metadata?.isShortSale) {
+          const currentShortQuantity = parseFloat(existingShort.quantity);
+          const unrealizedPnL = parseFloat(existingShort.unrealizedPnL);
+          
+          // Check if adding to short position exceeds risk limits
+          const maxShortPosition = parseFloat(user.maxPositionSize || '5000') * 0.5; // 50% of max for shorts
+          if ((currentShortQuantity + quantity) * currentPrice > maxShortPosition) {
+            return { isValid: false, reason: `Short position would exceed maximum short limit` };
+          }
+          
+          console.log(`📉 Existing short position for ${order.assetId}: ${currentShortQuantity} shares, P&L: $${unrealizedPnL}`);
+        }
+        
+        // Check available shares for borrowing (basic implementation)
+        const holding = await storage.getHolding(order.portfolioId, order.assetId);
+        if (!holding || parseFloat(holding.quantity) < quantity) {
+          if (!order.metadata?.isShortSale) {
+            return { isValid: false, reason: 'Insufficient holdings for sell order' };
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to check short positions:', error);
+      }
+    }
+
     // Check position size limits
     const maxPositionSize = parseFloat(user.maxPositionSize || '5000');
     if (orderValue > maxPositionSize) {
@@ -1387,22 +1480,26 @@ export class OrderMatchingEngine {
       return { isValid: false, reason: `Order exceeds daily trading limit` };
     }
 
-    // For buy orders, check available cash
+    // For buy orders, check available cash (enhanced with margin)
     if (order.type === 'buy') {
       const cashBalance = parseFloat(portfolio.cashBalance || '100000');
       const fees = this.calculateOrderFees(orderValue);
       const totalRequired = orderValue + fees;
       
-      if (totalRequired > cashBalance) {
-        return { isValid: false, reason: 'Insufficient cash balance' };
-      }
-    }
-
-    // For sell orders, check available holdings
-    if (order.type === 'sell') {
-      const holding = await storage.getHolding(order.portfolioId, order.assetId);
-      if (!holding || parseFloat(holding.quantity) < quantity) {
-        return { isValid: false, reason: 'Insufficient holdings' };
+      // Check if margin account provides additional buying power
+      try {
+        const marginAccount = await storage.getMarginAccount(order.userId);
+        const availableBuyingPower = marginAccount 
+          ? parseFloat(marginAccount.buyingPower) 
+          : cashBalance;
+        
+        if (totalRequired > availableBuyingPower) {
+          return { isValid: false, reason: `Insufficient buying power: $${availableBuyingPower.toFixed(2)} available` };
+        }
+      } catch {
+        if (totalRequired > cashBalance) {
+          return { isValid: false, reason: 'Insufficient cash balance' };
+        }
       }
     }
 

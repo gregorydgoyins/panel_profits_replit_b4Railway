@@ -17,7 +17,10 @@ import {
   trialsOfMastery, userTrialAttempts, divineCertifications, userCertifications, learningAnalytics,
   // Phase 8: External Integration Tables
   externalIntegrations, integrationWebhooks, integrationSyncLogs, workflowAutomations,
-  workflowExecutions, integrationAnalytics, externalUserMappings
+  workflowExecutions, integrationAnalytics, externalUserMappings,
+  // Phase 1: Core Trading Foundation Tables
+  imfVaultSettings, tradingFirms, assetFinancialMapping, globalMarketHours,
+  optionsChain, marginAccounts, shortPositions, npcTraders, informationTiers, newsArticles
 } from '@shared/schema.js';
 import type {
   User, InsertUser, UpsertUser, Asset, InsertAsset, MarketData, InsertMarketData,
@@ -48,7 +51,13 @@ import type {
   ExternalIntegration, InsertExternalIntegration, IntegrationWebhook, InsertIntegrationWebhook,
   IntegrationSyncLog, InsertIntegrationSyncLog, WorkflowAutomation, InsertWorkflowAutomation,
   WorkflowExecution, InsertWorkflowExecution, IntegrationAnalytics, InsertIntegrationAnalytics,
-  ExternalUserMapping, InsertExternalUserMapping
+  ExternalUserMapping, InsertExternalUserMapping,
+  // Phase 1: Core Trading Foundation Types
+  ImfVaultSettings, InsertImfVaultSettings, TradingFirm, InsertTradingFirm,
+  AssetFinancialMapping, InsertAssetFinancialMapping, GlobalMarketHours, InsertGlobalMarketHours,
+  OptionsChain, InsertOptionsChain, MarginAccount, InsertMarginAccount,
+  ShortPosition, InsertShortPosition, NpcTrader, InsertNpcTrader,
+  InformationTier, InsertInformationTier, NewsArticle, InsertNewsArticle
 } from '@shared/schema.js';
 import type { IStorage } from './storage.js';
 
@@ -3299,6 +3308,489 @@ export class DatabaseStorage implements IStorage {
         .set(updates)
         .where(eq(workflowAutomations.id, workflowId));
     }
+  }
+
+  // =============================================
+  // PHASE 1: CORE TRADING FOUNDATION METHODS
+  // =============================================
+
+  // IMF Vaulting System Methods
+  async createImfVaultSettings(vaultSettings: InsertImfVaultSettings): Promise<ImfVaultSettings> {
+    const result = await db.insert(imfVaultSettings).values(vaultSettings).returning();
+    return result[0];
+  }
+
+  async getImfVaultSettings(assetId: string): Promise<ImfVaultSettings | undefined> {
+    const result = await db.select().from(imfVaultSettings)
+      .where(eq(imfVaultSettings.assetId, assetId))
+      .limit(1);
+    return result[0];
+  }
+
+  async getAllImfVaultSettings(): Promise<ImfVaultSettings[]> {
+    return await db.select().from(imfVaultSettings)
+      .orderBy(desc(imfVaultSettings.scarcityMultiplier));
+  }
+
+  async updateImfVaultSettings(assetId: string, updates: Partial<ImfVaultSettings>): Promise<ImfVaultSettings> {
+    const result = await db.update(imfVaultSettings)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(imfVaultSettings.assetId, assetId))
+      .returning();
+
+    if (!result[0]) {
+      throw new Error('IMF vault settings not found');
+    }
+
+    return result[0];
+  }
+
+  async deleteImfVaultSettings(assetId: string): Promise<void> {
+    await db.delete(imfVaultSettings).where(eq(imfVaultSettings.assetId, assetId));
+  }
+
+  // Trading Firms Methods
+  async createTradingFirm(firm: InsertTradingFirm): Promise<TradingFirm> {
+    const result = await db.insert(tradingFirms).values(firm).returning();
+    return result[0];
+  }
+
+  async getTradingFirm(id: string): Promise<TradingFirm | undefined> {
+    const result = await db.select().from(tradingFirms)
+      .where(eq(tradingFirms.id, id))
+      .limit(1);
+    return result[0];
+  }
+
+  async getTradingFirmByCode(firmCode: string): Promise<TradingFirm | undefined> {
+    const result = await db.select().from(tradingFirms)
+      .where(eq(tradingFirms.firmCode, firmCode))
+      .limit(1);
+    return result[0];
+  }
+
+  async getTradingFirmsByHouse(houseId: string): Promise<TradingFirm[]> {
+    return await db.select().from(tradingFirms)
+      .where(eq(tradingFirms.houseId, houseId))
+      .orderBy(desc(tradingFirms.totalAssetsUnderManagement));
+  }
+
+  async getAllTradingFirms(): Promise<TradingFirm[]> {
+    return await db.select().from(tradingFirms)
+      .where(eq(tradingFirms.isActive, true))
+      .orderBy(desc(tradingFirms.reputation));
+  }
+
+  async updateTradingFirm(id: string, updates: Partial<TradingFirm>): Promise<TradingFirm> {
+    const result = await db.update(tradingFirms)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(tradingFirms.id, id))
+      .returning();
+
+    if (!result[0]) {
+      throw new Error('Trading firm not found');
+    }
+
+    return result[0];
+  }
+
+  async deleteTradingFirm(id: string): Promise<void> {
+    await db.delete(tradingFirms).where(eq(tradingFirms.id, id));
+  }
+
+  // Asset Financial Mapping Methods
+  async createAssetFinancialMapping(mapping: InsertAssetFinancialMapping): Promise<AssetFinancialMapping> {
+    const result = await db.insert(assetFinancialMapping).values(mapping).returning();
+    return result[0];
+  }
+
+  async getAssetFinancialMapping(assetId: string): Promise<AssetFinancialMapping | undefined> {
+    const result = await db.select().from(assetFinancialMapping)
+      .where(eq(assetFinancialMapping.assetId, assetId))
+      .limit(1);
+    return result[0];
+  }
+
+  async getAssetFinancialMappingsByType(instrumentType: string): Promise<AssetFinancialMapping[]> {
+    return await db.select().from(assetFinancialMapping)
+      .where(eq(assetFinancialMapping.instrumentType, instrumentType))
+      .orderBy(assetFinancialMapping.assetId);
+  }
+
+  async updateAssetFinancialMapping(assetId: string, updates: Partial<AssetFinancialMapping>): Promise<AssetFinancialMapping> {
+    const result = await db.update(assetFinancialMapping)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(assetFinancialMapping.assetId, assetId))
+      .returning();
+
+    if (!result[0]) {
+      throw new Error('Asset financial mapping not found');
+    }
+
+    return result[0];
+  }
+
+  async deleteAssetFinancialMapping(assetId: string): Promise<void> {
+    await db.delete(assetFinancialMapping).where(eq(assetFinancialMapping.assetId, assetId));
+  }
+
+  // Global Market Hours Methods
+  async createGlobalMarketHours(marketHours: InsertGlobalMarketHours): Promise<GlobalMarketHours> {
+    const result = await db.insert(globalMarketHours).values(marketHours).returning();
+    return result[0];
+  }
+
+  async getGlobalMarketHours(marketCode: string): Promise<GlobalMarketHours | undefined> {
+    const result = await db.select().from(globalMarketHours)
+      .where(eq(globalMarketHours.marketCode, marketCode))
+      .limit(1);
+    return result[0];
+  }
+
+  async getAllGlobalMarketHours(): Promise<GlobalMarketHours[]> {
+    return await db.select().from(globalMarketHours)
+      .where(eq(globalMarketHours.isActive, true))
+      .orderBy(desc(globalMarketHours.influenceWeight));
+  }
+
+  async getActiveMarkets(): Promise<GlobalMarketHours[]> {
+    return await db.select().from(globalMarketHours)
+      .where(and(
+        eq(globalMarketHours.isActive, true),
+        eq(globalMarketHours.currentStatus, 'open')
+      ))
+      .orderBy(desc(globalMarketHours.influenceWeight));
+  }
+
+  async updateGlobalMarketHours(marketCode: string, updates: Partial<GlobalMarketHours>): Promise<GlobalMarketHours> {
+    const result = await db.update(globalMarketHours)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(globalMarketHours.marketCode, marketCode))
+      .returning();
+
+    if (!result[0]) {
+      throw new Error('Global market hours not found');
+    }
+
+    return result[0];
+  }
+
+  async deleteGlobalMarketHours(marketCode: string): Promise<void> {
+    await db.delete(globalMarketHours).where(eq(globalMarketHours.marketCode, marketCode));
+  }
+
+  // Options Chain Methods
+  async createOptionsChain(option: InsertOptionsChain): Promise<OptionsChain> {
+    const result = await db.insert(optionsChain).values(option).returning();
+    return result[0];
+  }
+
+  async getOptionsChain(id: string): Promise<OptionsChain | undefined> {
+    const result = await db.select().from(optionsChain)
+      .where(eq(optionsChain.id, id))
+      .limit(1);
+    return result[0];
+  }
+
+  async getOptionsChainBySymbol(optionSymbol: string): Promise<OptionsChain | undefined> {
+    const result = await db.select().from(optionsChain)
+      .where(eq(optionsChain.optionSymbol, optionSymbol))
+      .limit(1);
+    return result[0];
+  }
+
+  async getOptionsChainByUnderlying(underlyingAssetId: string): Promise<OptionsChain[]> {
+    return await db.select().from(optionsChain)
+      .where(and(
+        eq(optionsChain.underlyingAssetId, underlyingAssetId),
+        eq(optionsChain.isActive, true)
+      ))
+      .orderBy(optionsChain.expirationDate, optionsChain.strikePrice);
+  }
+
+  async getOptionsChainByExpiration(expirationDate: Date): Promise<OptionsChain[]> {
+    return await db.select().from(optionsChain)
+      .where(and(
+        eq(optionsChain.expirationDate, expirationDate),
+        eq(optionsChain.isActive, true)
+      ))
+      .orderBy(optionsChain.underlyingAssetId, optionsChain.strikePrice);
+  }
+
+  async updateOptionsChain(id: string, updates: Partial<OptionsChain>): Promise<OptionsChain> {
+    const result = await db.update(optionsChain)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(optionsChain.id, id))
+      .returning();
+
+    if (!result[0]) {
+      throw new Error('Options chain not found');
+    }
+
+    return result[0];
+  }
+
+  async deleteOptionsChain(id: string): Promise<void> {
+    await db.delete(optionsChain).where(eq(optionsChain.id, id));
+  }
+
+  // Margin Account Methods
+  async createMarginAccount(marginAccount: InsertMarginAccount): Promise<MarginAccount> {
+    const result = await db.insert(marginAccounts).values(marginAccount).returning();
+    return result[0];
+  }
+
+  async getMarginAccount(userId: string, portfolioId: string): Promise<MarginAccount | undefined> {
+    const result = await db.select().from(marginAccounts)
+      .where(and(
+        eq(marginAccounts.userId, userId),
+        eq(marginAccounts.portfolioId, portfolioId)
+      ))
+      .limit(1);
+    return result[0];
+  }
+
+  async getUserMarginAccounts(userId: string): Promise<MarginAccount[]> {
+    return await db.select().from(marginAccounts)
+      .where(eq(marginAccounts.userId, userId))
+      .orderBy(desc(marginAccounts.buyingPower));
+  }
+
+  async updateMarginAccount(userId: string, portfolioId: string, updates: Partial<MarginAccount>): Promise<MarginAccount> {
+    const result = await db.update(marginAccounts)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(and(
+        eq(marginAccounts.userId, userId),
+        eq(marginAccounts.portfolioId, portfolioId)
+      ))
+      .returning();
+
+    if (!result[0]) {
+      throw new Error('Margin account not found');
+    }
+
+    return result[0];
+  }
+
+  async deleteMarginAccount(userId: string, portfolioId: string): Promise<void> {
+    await db.delete(marginAccounts)
+      .where(and(
+        eq(marginAccounts.userId, userId),
+        eq(marginAccounts.portfolioId, portfolioId)
+      ));
+  }
+
+  // Short Position Methods
+  async createShortPosition(shortPosition: InsertShortPosition): Promise<ShortPosition> {
+    const result = await db.insert(shortPositions).values(shortPosition).returning();
+    return result[0];
+  }
+
+  async getShortPosition(id: string): Promise<ShortPosition | undefined> {
+    const result = await db.select().from(shortPositions)
+      .where(eq(shortPositions.id, id))
+      .limit(1);
+    return result[0];
+  }
+
+  async getUserShortPositions(userId: string): Promise<ShortPosition[]> {
+    return await db.select().from(shortPositions)
+      .where(and(
+        eq(shortPositions.userId, userId),
+        eq(shortPositions.positionStatus, 'open')
+      ))
+      .orderBy(desc(shortPositions.openedAt));
+  }
+
+  async getPortfolioShortPositions(portfolioId: string): Promise<ShortPosition[]> {
+    return await db.select().from(shortPositions)
+      .where(and(
+        eq(shortPositions.portfolioId, portfolioId),
+        eq(shortPositions.positionStatus, 'open')
+      ))
+      .orderBy(desc(shortPositions.openedAt));
+  }
+
+  async updateShortPosition(id: string, updates: Partial<ShortPosition>): Promise<ShortPosition> {
+    const result = await db.update(shortPositions)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(shortPositions.id, id))
+      .returning();
+
+    if (!result[0]) {
+      throw new Error('Short position not found');
+    }
+
+    return result[0];
+  }
+
+  async deleteShortPosition(id: string): Promise<void> {
+    await db.delete(shortPositions).where(eq(shortPositions.id, id));
+  }
+
+  // NPC Trader Methods
+  async createNpcTrader(npcTrader: InsertNpcTrader): Promise<NpcTrader> {
+    const result = await db.insert(npcTraders).values(npcTrader).returning();
+    return result[0];
+  }
+
+  async getNpcTrader(id: string): Promise<NpcTrader | undefined> {
+    const result = await db.select().from(npcTraders)
+      .where(eq(npcTraders.id, id))
+      .limit(1);
+    return result[0];
+  }
+
+  async getNpcTradersByType(traderType: string): Promise<NpcTrader[]> {
+    return await db.select().from(npcTraders)
+      .where(and(
+        eq(npcTraders.traderType, traderType),
+        eq(npcTraders.isActive, true)
+      ))
+      .orderBy(desc(npcTraders.availableCapital));
+  }
+
+  async getNpcTradersByFirm(firmId: string): Promise<NpcTrader[]> {
+    return await db.select().from(npcTraders)
+      .where(and(
+        eq(npcTraders.firmId, firmId),
+        eq(npcTraders.isActive, true)
+      ))
+      .orderBy(desc(npcTraders.totalPnL));
+  }
+
+  async getActiveNpcTraders(): Promise<NpcTrader[]> {
+    return await db.select().from(npcTraders)
+      .where(eq(npcTraders.isActive, true))
+      .orderBy(desc(npcTraders.influenceOnMarket));
+  }
+
+  async updateNpcTrader(id: string, updates: Partial<NpcTrader>): Promise<NpcTrader> {
+    const result = await db.update(npcTraders)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(npcTraders.id, id))
+      .returning();
+
+    if (!result[0]) {
+      throw new Error('NPC trader not found');
+    }
+
+    return result[0];
+  }
+
+  async deleteNpcTrader(id: string): Promise<void> {
+    await db.delete(npcTraders).where(eq(npcTraders.id, id));
+  }
+
+  // Information Tier Methods
+  async createInformationTier(tier: InsertInformationTier): Promise<InformationTier> {
+    const result = await db.insert(informationTiers).values(tier).returning();
+    return result[0];
+  }
+
+  async getInformationTier(tierName: string): Promise<InformationTier | undefined> {
+    const result = await db.select().from(informationTiers)
+      .where(eq(informationTiers.tierName, tierName))
+      .limit(1);
+    return result[0];
+  }
+
+  async getAllInformationTiers(): Promise<InformationTier[]> {
+    return await db.select().from(informationTiers)
+      .where(eq(informationTiers.isActive, true))
+      .orderBy(informationTiers.tierLevel);
+  }
+
+  async updateInformationTier(tierName: string, updates: Partial<InformationTier>): Promise<InformationTier> {
+    const result = await db.update(informationTiers)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(informationTiers.tierName, tierName))
+      .returning();
+
+    if (!result[0]) {
+      throw new Error('Information tier not found');
+    }
+
+    return result[0];
+  }
+
+  async deleteInformationTier(tierName: string): Promise<void> {
+    await db.delete(informationTiers).where(eq(informationTiers.tierName, tierName));
+  }
+
+  // News Article Methods
+  async createNewsArticle(article: InsertNewsArticle): Promise<NewsArticle> {
+    const result = await db.insert(newsArticles).values(article).returning();
+    return result[0];
+  }
+
+  async getNewsArticle(id: string): Promise<NewsArticle | undefined> {
+    const result = await db.select().from(newsArticles)
+      .where(eq(newsArticles.id, id))
+      .limit(1);
+    return result[0];
+  }
+
+  async getNewsArticlesByTier(userTier: 'elite' | 'pro' | 'free', limit?: number): Promise<NewsArticle[]> {
+    const now = new Date();
+    let condition;
+
+    switch (userTier) {
+      case 'elite':
+        condition = sql`${newsArticles.eliteReleaseTime} <= ${now}`;
+        break;
+      case 'pro':
+        condition = sql`${newsArticles.proReleaseTime} <= ${now}`;
+        break;
+      case 'free':
+        condition = sql`${newsArticles.freeReleaseTime} <= ${now}`;
+        break;
+    }
+
+    let query = db.select().from(newsArticles)
+      .where(and(
+        eq(newsArticles.isActive, true),
+        condition
+      ))
+      .orderBy(desc(newsArticles.publishTime));
+
+    if (limit) {
+      query = query.limit(limit);
+    }
+
+    return await query;
+  }
+
+  async getNewsArticlesByAsset(assetId: string, limit?: number): Promise<NewsArticle[]> {
+    let query = db.select().from(newsArticles)
+      .where(and(
+        eq(newsArticles.isActive, true),
+        sql`${assetId} = ANY(${newsArticles.affectedAssets})`
+      ))
+      .orderBy(desc(newsArticles.publishTime));
+
+    if (limit) {
+      query = query.limit(limit);
+    }
+
+    return await query;
+  }
+
+  async updateNewsArticle(id: string, updates: Partial<NewsArticle>): Promise<NewsArticle> {
+    const result = await db.update(newsArticles)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(newsArticles.id, id))
+      .returning();
+
+    if (!result[0]) {
+      throw new Error('News article not found');
+    }
+
+    return result[0];
+  }
+
+  async deleteNewsArticle(id: string): Promise<void> {
+    await db.delete(newsArticles).where(eq(newsArticles.id, id));
   }
 }
 

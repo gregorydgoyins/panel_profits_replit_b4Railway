@@ -15,6 +15,7 @@ import { registerComicCoverRoutes } from "./routes/comicCoverRoutes.js";
 import { registerNotificationRoutes } from "./routes/notificationRoutes.js";
 import enhancedDataRoutes from "./routes/enhancedDataRoutes.js";
 import enhancedAiRoutes from "./routes/enhancedAiRoutes.js";
+import phase1Routes from "./phase1Routes.js";
 import { marketSimulation, orderMatching } from "./marketSimulation.js";
 import { leaderboardService } from "./leaderboardService.js";
 import { 
@@ -1030,6 +1031,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // External Integrations Routes (Divine Connections Chamber) - Phase 8
   app.use("/api/integrations", isAuthenticated, integrationsRoutes);
+
+  // Phase 1: Core Trading Foundation Routes
+  app.use("/api/phase1", isAuthenticated, phase1Routes);
+
+  // Phase 1: Initialization Route
+  app.post("/api/phase1/initialize", isAuthenticated, async (req, res) => {
+    try {
+      const { Phase1Initializer } = await import('./phase1Initialization.js');
+      const result = await Phase1Initializer.initializeAllSystems();
+      res.json(result);
+    } catch (error) {
+      console.error('Error initializing Phase 1:', error);
+      res.status(500).json({ error: 'Failed to initialize Phase 1 systems' });
+    }
+  });
+
+  // Phase 1: Status Route
+  app.get("/api/phase1/status", isAuthenticated, async (req, res) => {
+    try {
+      const { Phase1Initializer } = await import('./phase1Initialization.js');
+      const status = await Phase1Initializer.getInitializationStatus();
+      const isInitialized = await Phase1Initializer.isPhase1Initialized();
+      res.json({ ...status, isInitialized });
+    } catch (error) {
+      console.error('Error getting Phase 1 status:', error);
+      res.status(500).json({ error: 'Failed to get Phase 1 status' });
+    }
+  });
 
   // Enhanced Trading Data Routes (Phase 3 Mythological Interface)
   app.use("/api", enhancedDataRoutes);

@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeWebSocketProtocolOverride, applyEmergencyProtocolOverride } from "./utils/webSocketProtocolOverride.js";
+import { phase1Services } from "./phase1ScheduledServices.js";
 
 
 const app = express();
@@ -77,7 +78,15 @@ app.use((req, res, next) => {
     port,
     host: "0.0.0.0",
     reusePort: true,
-  }, () => {
+  }, async () => {
     log(`serving on port ${port}`);
+    
+    // PHASE 1 INTEGRATION: Start all scheduled services for living financial simulation
+    try {
+      await phase1Services.start();
+      log('🚀 Phase 1 Core Trading Foundation: All engines are now LIVE and operational!');
+    } catch (error) {
+      console.error('Failed to start Phase 1 scheduled services:', error);
+    }
   });
 })();

@@ -2751,3 +2751,451 @@ export type InsertIntegrationAnalytics = z.infer<typeof insertIntegrationAnalyti
 
 export type ExternalUserMapping = typeof externalUserMappings.$inferSelect;
 export type InsertExternalUserMapping = z.infer<typeof insertExternalUserMappingSchema>;
+
+// =============================================
+// PHASE 1: CORE TRADING FOUNDATION SYSTEM
+// =============================================
+
+// IMF Vaulting System - Fixed Share Supply & Scarcity Mechanism
+export const imfVaultSettings = pgTable("imf_vault_settings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  assetId: varchar("asset_id").notNull().references(() => assets.id),
+  // Share Supply Control
+  totalSharesIssued: decimal("total_shares_issued", { precision: 15, scale: 4 }).notNull(),
+  sharesInVault: decimal("shares_in_vault", { precision: 15, scale: 4 }).default("0.0000"),
+  sharesInCirculation: decimal("shares_in_circulation", { precision: 15, scale: 4 }).notNull(),
+  maxSharesAllowed: decimal("max_shares_allowed", { precision: 15, scale: 4 }).notNull(),
+  shareCreationCutoffDate: timestamp("share_creation_cutoff_date").notNull(),
+  // Vaulting Conditions
+  vaultingThreshold: decimal("vaulting_threshold", { precision: 8, scale: 2 }).default("90.00"), // % market cap required to trigger vaulting
+  minHoldingPeriod: integer("min_holding_period_days").default(30), // Minimum days to hold before vaulting
+  vaultingFee: decimal("vaulting_fee", { precision: 8, scale: 4 }).default("0.0025"), // 0.25% fee for vaulting
+  // Scarcity Mechanics
+  scarcityMultiplier: decimal("scarcity_multiplier", { precision: 8, scale: 4 }).default("1.0000"),
+  lastScarcityUpdate: timestamp("last_scarcity_update").defaultNow(),
+  demandPressure: decimal("demand_pressure", { precision: 8, scale: 2 }).default("0.00"), // Buying pressure indicator
+  supplyConstraint: decimal("supply_constraint", { precision: 8, scale: 2 }).default("0.00"), // Supply limitation factor
+  // Vault Status
+  isVaultingActive: boolean("is_vaulting_active").default(true),
+  vaultStatus: text("vault_status").default("active"), // 'active', 'locked', 'emergency_release'
+  nextVaultingEvaluation: timestamp("next_vaulting_evaluation"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Seven House Trading Firms System
+export const tradingFirms = pgTable("trading_firms", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  houseId: text("house_id").notNull(), // Maps to mythological houses
+  firmName: text("firm_name").notNull(),
+  firmCode: text("firm_code").notNull().unique(), // 'HELLENIC', 'GM_FIN', 'ASHOKA', etc.
+  // Leadership
+  ceoName: text("ceo_name").notNull(),
+  ceoMythologyRef: text("ceo_mythology_ref"), // Zeus, Bacchus, etc.
+  advisors: jsonb("advisors"), // Array of advisor names and mythological references
+  // Trading Specializations
+  primarySpecialties: text("primary_specialties").array(), // ['options', 'bonds', 'blue_chip', etc.]
+  weaknesses: text("weaknesses").array(), // ['crypto', 'tech_options', etc.]
+  specialtyBonuses: jsonb("specialty_bonuses"), // Percentage bonuses for specialties
+  weaknessPenalties: jsonb("weakness_penalties"), // Percentage penalties for weaknesses
+  // Firm Characteristics
+  tradingStyle: text("trading_style").notNull(), // 'aggressive', 'conservative', 'systematic', 'opportunistic'
+  riskTolerance: text("risk_tolerance").notNull(), // 'low', 'medium', 'high', 'extreme'
+  marketCapacityUSD: decimal("market_capacity_usd", { precision: 15, scale: 2 }).notNull(),
+  minimumTradeSize: decimal("minimum_trade_size", { precision: 10, scale: 2 }).default("1000.00"),
+  // Performance Metrics
+  totalAssetsUnderManagement: decimal("total_aum", { precision: 15, scale: 2 }).default("0.00"),
+  ytdReturn: decimal("ytd_return", { precision: 8, scale: 2 }).default("0.00"),
+  sharpeRatio: decimal("sharpe_ratio", { precision: 8, scale: 4 }),
+  maxDrawdown: decimal("max_drawdown", { precision: 8, scale: 2 }),
+  winRate: decimal("win_rate", { precision: 8, scale: 2 }),
+  avgTradeSize: decimal("avg_trade_size", { precision: 10, scale: 2 }),
+  // Operational Status
+  isActive: boolean("is_active").default(true),
+  marketHours: jsonb("market_hours"), // Operating hours by timezone
+  communicationChannels: jsonb("communication_channels"), // How they announce trades/strategies
+  reputation: decimal("reputation", { precision: 8, scale: 2 }).default("50.00"), // 0-100 reputation score
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Comic-to-Financial Asset Mapping
+export const assetFinancialMapping = pgTable("asset_financial_mapping", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  assetId: varchar("asset_id").notNull().references(() => assets.id),
+  // Financial Instrument Classification
+  instrumentType: text("instrument_type").notNull(), // 'common_stock', 'preferred_stock', 'bond', 'etf', 'option', 'warrant'
+  instrumentSubtype: text("instrument_subtype"), // 'corporate_bond', 'government_bond', 'equity_option', etc.
+  underlyingAssetId: varchar("underlying_asset_id").references(() => assets.id), // For derivatives
+  // Stock-like Properties (for characters, creators)
+  shareClass: text("share_class").default("A"), // 'A', 'B', 'C' for different voting rights
+  votingRights: boolean("voting_rights").default(true),
+  dividendEligible: boolean("dividend_eligible").default(false),
+  dividendYield: decimal("dividend_yield", { precision: 8, scale: 4 }),
+  // Bond-like Properties (for publishers, institutional assets)
+  creditRating: text("credit_rating"), // 'AAA', 'AA+', 'A', 'BBB', etc.
+  maturityDate: timestamp("maturity_date"),
+  couponRate: decimal("coupon_rate", { precision: 8, scale: 4 }),
+  faceValue: decimal("face_value", { precision: 10, scale: 2 }),
+  // ETF/Fund Properties (for themed collections)
+  fundComponents: text("fund_components").array(), // Asset IDs that comprise the fund
+  expenseRatio: decimal("expense_ratio", { precision: 8, scale: 4 }),
+  trackingIndex: text("tracking_index"), // What index or theme this tracks
+  rebalanceFrequency: text("rebalance_frequency"), // 'daily', 'weekly', 'monthly', 'quarterly'
+  // Market Mechanics
+  lotSize: integer("lot_size").default(1), // Minimum trading unit
+  tickSize: decimal("tick_size", { precision: 8, scale: 4 }).default("0.0100"), // Minimum price movement
+  marginRequirement: decimal("margin_requirement", { precision: 8, scale: 2 }).default("50.00"), // % margin required
+  shortSellAllowed: boolean("short_sell_allowed").default(true),
+  // Corporate Actions
+  lastSplitDate: timestamp("last_split_date"),
+  splitRatio: text("split_ratio"), // '2:1', '3:2', etc.
+  lastDividendDate: timestamp("last_dividend_date"),
+  exDividendDate: timestamp("ex_dividend_date"),
+  // Regulatory Classification
+  securityType: text("security_type").notNull(), // 'equity', 'debt', 'derivative', 'fund'
+  exchangeListing: text("exchange_listing").default("PPX"), // Panel Profits Exchange
+  cusip: text("cusip"), // Committee on Uniform Securities Identification Procedures
+  isin: text("isin"), // International Securities Identification Number
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Global Market Hours System
+export const globalMarketHours = pgTable("global_market_hours", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  marketCode: text("market_code").notNull().unique(), // 'NYC', 'LON', 'SYD', 'HKG', 'BOM'
+  marketName: text("market_name").notNull(),
+  timezone: text("timezone").notNull(), // 'America/New_York', 'Europe/London', etc.
+  // Trading Hours (in market local time)
+  regularOpenTime: text("regular_open_time").notNull(), // '09:30'
+  regularCloseTime: text("regular_close_time").notNull(), // '16:00'
+  preMarketOpenTime: text("pre_market_open_time"), // '04:00'
+  afterHoursCloseTime: text("after_hours_close_time"), // '20:00'
+  // Market Status
+  isActive: boolean("is_active").default(true),
+  currentStatus: text("current_status").default("closed"), // 'open', 'closed', 'pre_market', 'after_hours'
+  lastStatusUpdate: timestamp("last_status_update").defaultNow(),
+  // Holiday Schedule
+  holidaySchedule: jsonb("holiday_schedule"), // Array of holiday dates
+  earlyCloseSchedule: jsonb("early_close_schedule"), // Special early close dates
+  // Cross-Market Trading
+  enablesCrossTrading: boolean("enables_cross_trading").default(true),
+  crossTradingFee: decimal("cross_trading_fee", { precision: 8, scale: 4 }).default("0.0010"),
+  // Volume and Activity
+  dailyVolumeTarget: decimal("daily_volume_target", { precision: 15, scale: 2 }),
+  currentDayVolume: decimal("current_day_volume", { precision: 15, scale: 2 }).default("0.00"),
+  avgDailyVolume: decimal("avg_daily_volume", { precision: 15, scale: 2 }),
+  // Market Influence
+  influenceWeight: decimal("influence_weight", { precision: 8, scale: 4 }).default("1.0000"), // How much this market affects global prices
+  leadMarket: boolean("lead_market").default(false), // True for NYC (primary market)
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Options Chain System
+export const optionsChain = pgTable("options_chain", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  underlyingAssetId: varchar("underlying_asset_id").notNull().references(() => assets.id),
+  optionSymbol: text("option_symbol").notNull().unique(), // 'BAT240315C120'
+  // Contract Specifications
+  contractType: text("contract_type").notNull(), // 'call', 'put'
+  strikePrice: decimal("strike_price", { precision: 10, scale: 2 }).notNull(),
+  expirationDate: timestamp("expiration_date").notNull(),
+  exerciseStyle: text("exercise_style").default("american"), // 'american', 'european'
+  contractSize: integer("contract_size").default(100), // Shares per contract
+  // Pricing
+  bidPrice: decimal("bid_price", { precision: 10, scale: 4 }),
+  askPrice: decimal("ask_price", { precision: 10, scale: 4 }),
+  lastPrice: decimal("last_price", { precision: 10, scale: 4 }),
+  markPrice: decimal("mark_price", { precision: 10, scale: 4 }), // Mid-market fair value
+  // Greeks
+  delta: decimal("delta", { precision: 8, scale: 6 }), // Price sensitivity to underlying
+  gamma: decimal("gamma", { precision: 8, scale: 6 }), // Delta sensitivity to underlying
+  theta: decimal("theta", { precision: 8, scale: 6 }), // Time decay
+  vega: decimal("vega", { precision: 8, scale: 6 }), // Volatility sensitivity
+  rho: decimal("rho", { precision: 8, scale: 6 }), // Interest rate sensitivity
+  // Volatility
+  impliedVolatility: decimal("implied_volatility", { precision: 8, scale: 4 }), // IV %
+  historicalVolatility: decimal("historical_volatility", { precision: 8, scale: 4 }), // HV %
+  // Volume and Open Interest
+  volume: integer("volume").default(0),
+  openInterest: integer("open_interest").default(0),
+  lastTradeTime: timestamp("last_trade_time"),
+  // Risk Metrics
+  intrinsicValue: decimal("intrinsic_value", { precision: 10, scale: 4 }),
+  timeValue: decimal("time_value", { precision: 10, scale: 4 }),
+  breakEvenPrice: decimal("break_even_price", { precision: 10, scale: 2 }),
+  maxRisk: decimal("max_risk", { precision: 10, scale: 2 }),
+  maxReward: decimal("max_reward", { precision: 10, scale: 2 }),
+  // Status
+  isActive: boolean("is_active").default(true),
+  lastGreeksUpdate: timestamp("last_greeks_update"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Advanced Trading Mechanics
+export const marginAccounts = pgTable("margin_accounts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  portfolioId: varchar("portfolio_id").notNull().references(() => portfolios.id),
+  // Account Balances
+  marginEquity: decimal("margin_equity", { precision: 15, scale: 2 }).default("0.00"),
+  marginCash: decimal("margin_cash", { precision: 15, scale: 2 }).default("0.00"),
+  marginDebt: decimal("margin_debt", { precision: 15, scale: 2 }).default("0.00"),
+  // Buying Power & Limits
+  buyingPower: decimal("buying_power", { precision: 15, scale: 2 }).default("0.00"),
+  dayTradingBuyingPower: decimal("day_trading_buying_power", { precision: 15, scale: 2 }).default("0.00"),
+  maintenanceMargin: decimal("maintenance_margin", { precision: 15, scale: 2 }).default("0.00"),
+  initialMarginReq: decimal("initial_margin_req", { precision: 8, scale: 2 }).default("50.00"), // %
+  maintenanceMarginReq: decimal("maintenance_margin_req", { precision: 8, scale: 2 }).default("25.00"), // %
+  // Leverage Settings
+  maxLeverage: decimal("max_leverage", { precision: 8, scale: 2 }).default("2.00"), // 2:1 leverage
+  currentLeverage: decimal("current_leverage", { precision: 8, scale: 2 }).default("1.00"),
+  leverageUtilization: decimal("leverage_utilization", { precision: 8, scale: 2 }).default("0.00"), // %
+  // Risk Management
+  marginCallThreshold: decimal("margin_call_threshold", { precision: 8, scale: 2 }).default("30.00"), // %
+  liquidationThreshold: decimal("liquidation_threshold", { precision: 8, scale: 2 }).default("20.00"), // %
+  lastMarginCall: timestamp("last_margin_call"),
+  marginCallsCount: integer("margin_calls_count").default(0),
+  dayTradesUsed: integer("day_trades_used").default(0), // For PDT rule
+  dayTradesMax: integer("day_trades_max").default(3),
+  // Status
+  accountStatus: text("account_status").default("good_standing"), // 'good_standing', 'margin_call', 'restricted'
+  marginTradingEnabled: boolean("margin_trading_enabled").default(false),
+  shortSellingEnabled: boolean("short_selling_enabled").default(false),
+  optionsTradingLevel: integer("options_trading_level").default(0), // 0-4 options approval levels
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Short Positions
+export const shortPositions = pgTable("short_positions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  portfolioId: varchar("portfolio_id").notNull().references(() => portfolios.id),
+  assetId: varchar("asset_id").notNull().references(() => assets.id),
+  // Position Details
+  sharesShorted: decimal("shares_shorted", { precision: 10, scale: 4 }).notNull(),
+  shortPrice: decimal("short_price", { precision: 10, scale: 2 }).notNull(),
+  currentPrice: decimal("current_price", { precision: 10, scale: 2 }),
+  // P&L
+  unrealizedPnL: decimal("unrealized_pnl", { precision: 15, scale: 2 }),
+  realizedPnL: decimal("realized_pnl", { precision: 15, scale: 2 }).default("0.00"),
+  // Borrowing Costs
+  borrowRate: decimal("borrow_rate", { precision: 8, scale: 4 }), // Daily borrow rate %
+  borrowFeeAccrued: decimal("borrow_fee_accrued", { precision: 10, scale: 2 }).default("0.00"),
+  lastBorrowFeeCalc: timestamp("last_borrow_fee_calc").defaultNow(),
+  // Risk Management
+  stopLossPrice: decimal("stop_loss_price", { precision: 10, scale: 2 }),
+  marginRequirement: decimal("margin_requirement", { precision: 15, scale: 2 }),
+  // Status
+  positionStatus: text("position_status").default("open"), // 'open', 'covering', 'closed'
+  canBorrow: boolean("can_borrow").default(true), // Can borrow shares for this asset
+  borrowSource: text("borrow_source"), // Where shares are borrowed from
+  openedAt: timestamp("opened_at").defaultNow(),
+  closedAt: timestamp("closed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// NPC/AI Trading System
+export const npcTraders = pgTable("npc_traders", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  traderName: text("trader_name").notNull(),
+  traderType: text("trader_type").notNull(), // 'whale', 'momentum', 'contrarian', 'arbitrage', 'market_maker'
+  firmId: varchar("firm_id").references(() => tradingFirms.id),
+  // Behavioral Characteristics
+  tradingPersonality: jsonb("trading_personality"), // Risk tolerance, preferred strategies, etc.
+  preferredAssets: text("preferred_assets").array(), // Asset types or specific assets
+  avoidedAssets: text("avoided_assets").array(),
+  tradingStyle: text("trading_style").notNull(), // 'aggressive', 'conservative', 'systematic'
+  // Capital & Capacity
+  availableCapital: decimal("available_capital", { precision: 15, scale: 2 }).notNull(),
+  maxPositionSize: decimal("max_position_size", { precision: 15, scale: 2 }),
+  maxDailyVolume: decimal("max_daily_volume", { precision: 15, scale: 2 }),
+  leveragePreference: decimal("leverage_preference", { precision: 8, scale: 2 }).default("1.00"),
+  // AI Behavior Parameters
+  aggressiveness: decimal("aggressiveness", { precision: 8, scale: 2 }).default("50.00"), // 0-100 scale
+  intelligence: decimal("intelligence", { precision: 8, scale: 2 }).default("50.00"), // 0-100 scale
+  emotionality: decimal("emotionality", { precision: 8, scale: 2 }).default("50.00"), // 0-100 scale
+  adaptability: decimal("adaptability", { precision: 8, scale: 2 }).default("50.00"), // 0-100 scale
+  // Trading Frequency
+  tradesPerDay: integer("trades_per_day").default(10),
+  minTimeBetweenTrades: integer("min_time_between_trades_minutes").default(15),
+  // Performance Tracking
+  totalTrades: integer("total_trades").default(0),
+  winRate: decimal("win_rate", { precision: 8, scale: 2 }),
+  avgTradeReturn: decimal("avg_trade_return", { precision: 8, scale: 4 }),
+  totalPnL: decimal("total_pnl", { precision: 15, scale: 2 }).default("0.00"),
+  sharpeRatio: decimal("sharpe_ratio", { precision: 8, scale: 4 }),
+  maxDrawdown: decimal("max_drawdown", { precision: 8, scale: 2 }),
+  // Status and Control
+  isActive: boolean("is_active").default(true),
+  lastTradeTime: timestamp("last_trade_time"),
+  nextTradeTime: timestamp("next_trade_time"),
+  pausedUntil: timestamp("paused_until"), // Temporary pause
+  influenceOnMarket: decimal("influence_on_market", { precision: 8, scale: 4 }).default("0.0001"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Information Tier System
+export const informationTiers = pgTable("information_tiers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  tierName: text("tier_name").notNull().unique(), // 'Elite', 'Pro', 'Free'
+  tierLevel: integer("tier_level").notNull(), // 1=Elite, 2=Pro, 3=Free
+  // Access Timing
+  newsDelayMinutes: integer("news_delay_minutes").default(0), // Elite=0, Pro=15, Free=30
+  marketDataDelayMs: integer("market_data_delay_ms").default(0), // Real-time delays
+  // Information Quality
+  analysisQuality: text("analysis_quality").notNull(), // 'family_office', 'senior_analyst', 'junior_broker'
+  insightDepth: text("insight_depth").notNull(), // 'comprehensive', 'standard', 'basic'
+  // Features Unlocked
+  advancedCharting: boolean("advanced_charting").default(false),
+  realTimeAlerts: boolean("real_time_alerts").default(false),
+  whaleTrackingAccess: boolean("whale_tracking_access").default(false),
+  firmIntelligence: boolean("firm_intelligence").default(false), // Trading firm activity insights
+  earlyMarketEvents: boolean("early_market_events").default(false),
+  exclusiveResearch: boolean("exclusive_research").default(false),
+  // Subscription Details
+  monthlyPrice: decimal("monthly_price", { precision: 8, scale: 2 }),
+  annualPrice: decimal("annual_price", { precision: 8, scale: 2 }),
+  creditsCost: integer("credits_cost").default(0), // Alternative pricing in trading credits
+  // Limits
+  maxPriceAlerts: integer("max_price_alerts").default(5),
+  maxWatchlistAssets: integer("max_watchlist_assets").default(20),
+  maxPortfolios: integer("max_portfolios").default(1),
+  // Status
+  isActive: boolean("is_active").default(true),
+  displayOrder: integer("display_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// News Feed with Tiered Access
+export const newsArticles = pgTable("news_articles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Content
+  headline: text("headline").notNull(),
+  summary: text("summary").notNull(),
+  fullContent: text("full_content"),
+  sourceOrganization: text("source_organization").notNull(),
+  authorName: text("author_name"),
+  // Classification
+  newsCategory: text("news_category").notNull(), // 'market_moving', 'earnings', 'merger', 'scandal', 'promotion'
+  impactLevel: text("impact_level").notNull(), // 'high', 'medium', 'low'
+  affectedAssets: text("affected_assets").array(), // Asset IDs that this news affects
+  // Timing and Access
+  createdAt: timestamp("created_at").defaultNow(),
+  publishTime: timestamp("publish_time").notNull(), // When each tier sees it
+  eliteReleaseTime: timestamp("elite_release_time").notNull(), // 30 min early
+  proReleaseTime: timestamp("pro_release_time").notNull(), // 15 min early
+  freeReleaseTime: timestamp("free_release_time").notNull(), // On time
+  // Market Impact
+  priceImpactDirection: text("price_impact_direction"), // 'positive', 'negative', 'neutral'
+  priceImpactMagnitude: decimal("price_impact_magnitude", { precision: 8, scale: 2 }), // Expected % change
+  volatilityImpact: decimal("volatility_impact", { precision: 8, scale: 2 }), // Expected volatility increase %
+  // Verification
+  isVerified: boolean("is_verified").default(true), // News ticker is always correct
+  verifiedBy: text("verified_by").default("panel_profits_oracle"),
+  confidenceScore: decimal("confidence_score", { precision: 8, scale: 2 }).default("100.00"),
+  // Status
+  isActive: boolean("is_active").default(true),
+  tags: text("tags").array(), // Searchable tags
+  relatedArticles: text("related_articles").array(), // Related article IDs
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Phase 1 Insert Schemas
+export const insertImfVaultSettingsSchema = createInsertSchema(imfVaultSettings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertTradingFirmSchema = createInsertSchema(tradingFirms).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertAssetFinancialMappingSchema = createInsertSchema(assetFinancialMapping).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertGlobalMarketHoursSchema = createInsertSchema(globalMarketHours).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertOptionsChainSchema = createInsertSchema(optionsChain).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertMarginAccountSchema = createInsertSchema(marginAccounts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertShortPositionSchema = createInsertSchema(shortPositions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertNpcTraderSchema = createInsertSchema(npcTraders).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertInformationTierSchema = createInsertSchema(informationTiers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertNewsArticleSchema = createInsertSchema(newsArticles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Phase 1 TypeScript Types
+export type ImfVaultSettings = typeof imfVaultSettings.$inferSelect;
+export type InsertImfVaultSettings = z.infer<typeof insertImfVaultSettingsSchema>;
+
+export type TradingFirm = typeof tradingFirms.$inferSelect;
+export type InsertTradingFirm = z.infer<typeof insertTradingFirmSchema>;
+
+export type AssetFinancialMapping = typeof assetFinancialMapping.$inferSelect;
+export type InsertAssetFinancialMapping = z.infer<typeof insertAssetFinancialMappingSchema>;
+
+export type GlobalMarketHours = typeof globalMarketHours.$inferSelect;
+export type InsertGlobalMarketHours = z.infer<typeof insertGlobalMarketHoursSchema>;
+
+export type OptionsChain = typeof optionsChain.$inferSelect;
+export type InsertOptionsChain = z.infer<typeof insertOptionsChainSchema>;
+
+export type MarginAccount = typeof marginAccounts.$inferSelect;
+export type InsertMarginAccount = z.infer<typeof insertMarginAccountSchema>;
+
+export type ShortPosition = typeof shortPositions.$inferSelect;
+export type InsertShortPosition = z.infer<typeof insertShortPositionSchema>;
+
+export type NpcTrader = typeof npcTraders.$inferSelect;
+export type InsertNpcTrader = z.infer<typeof insertNpcTraderSchema>;
+
+export type InformationTier = typeof informationTiers.$inferSelect;
+export type InsertInformationTier = z.infer<typeof insertInformationTierSchema>;
+
+export type NewsArticle = typeof newsArticles.$inferSelect;
+export type InsertNewsArticle = z.infer<typeof insertNewsArticleSchema>;
