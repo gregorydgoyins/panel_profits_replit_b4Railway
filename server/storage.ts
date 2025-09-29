@@ -350,6 +350,21 @@ export interface IStorage {
     avgTradeSize: string;
     topMovers: Array<TraderStats & { user: User }>;
   }>;
+
+  // MYTHOLOGICAL HOUSES SYSTEM METHODS
+
+  // House Member Management
+  getHouseMembers(houseId: string): Promise<User[]>;
+  getHouseMemberCount(houseId: string): Promise<number>;
+  getHouseTopTraders(houseId: string, limit?: number): Promise<Array<User & { karma: number; rank: number }>>;
+  getUserHouseRank(userId: string, houseId: string): Promise<{ rank: number; totalMembers: number } | undefined>;
+
+  // Karma System
+  getUserKarma(userId: string): Promise<number>;
+  recordKarmaAction(userId: string, action: string, karmaChange: number, reason?: string): Promise<boolean>;
+
+  // User Updates (for house joining)
+  updateUser(id: string, updates: Partial<User>): Promise<User | undefined>;
 }
 
 // Time-series buffer implementation with memory limits and proper chronological ordering

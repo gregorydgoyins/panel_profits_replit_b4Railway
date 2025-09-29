@@ -2105,6 +2105,104 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(moviePerformanceData.marketImpactScore))
       .limit(limit);
   }
+
+  // MYTHOLOGICAL HOUSES SYSTEM METHODS
+
+  async getHouseMembers(houseId: string): Promise<User[]> {
+    return await db.select()
+      .from(users)
+      .where(eq(users.currentHouse, houseId));
+  }
+
+  async getHouseMemberCount(houseId: string): Promise<number> {
+    const result = await db.select({ count: sql<number>`count(*)` })
+      .from(users)
+      .where(eq(users.currentHouse, houseId));
+    return result[0]?.count || 0;
+  }
+
+  async getHouseTopTraders(houseId: string, limit: number = 10): Promise<Array<User & { karma: number; rank: number }>> {
+    const result = await db.select({
+      id: users.id,
+      email: users.email,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      username: users.username,
+      currentHouse: users.currentHouse,
+      karma: users.karma,
+      tradingBalance: users.tradingBalance,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt
+    })
+      .from(users)
+      .where(eq(users.currentHouse, houseId))
+      .orderBy(desc(users.karma))
+      .limit(limit);
+
+    return result.map((user, index) => ({
+      ...user,
+      rank: index + 1
+    }));
+  }
+
+  async getUserHouseRank(userId: string, houseId: string): Promise<{ rank: number; totalMembers: number } | undefined> {
+    const user = await this.getUser(userId);
+    if (!user || user.currentHouse !== houseId) {
+      return undefined;
+    }
+
+    const [rankResult, totalResult] = await Promise.all([
+      db.select({ count: sql<number>`count(*)` })
+        .from(users)
+        .where(and(
+          eq(users.currentHouse, houseId),
+          sql`${users.karma} > ${user.karma}`
+        )),
+      this.getHouseMemberCount(houseId)
+    ]);
+
+    return {
+      rank: (rankResult[0]?.count || 0) + 1,
+      totalMembers: totalResult
+    };
+  }
+
+  async getUserKarma(userId: string): Promise<number> {
+    const user = await this.getUser(userId);
+    return user?.karma || 0;
+  }
+
+  async recordKarmaAction(userId: string, action: string, karmaChange: number, reason?: string): Promise<boolean> {
+    try {
+      // Update user karma
+      await db.update(users)
+        .set({
+          karma: sql`${users.karma} + ${karmaChange}`,
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, userId));
+      
+      // Note: We could also create a karma_actions table here for logging
+      // For now, just return success
+      return true;
+    } catch (error) {
+      console.error('Error recording karma action:', error);
+      return false;
+    }
+  }
+
+  async updateUser(id: string, updates: Partial<User>): Promise<User | undefined> {
+    try {
+      const [updated] = await db.update(users)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(users.id, id))
+        .returning();
+      return updated;
+    } catch (error) {
+      console.error('Error updating user:', error);
+      return undefined;
+    }
+  }
 }
 
 export const databaseStorage = new DatabaseStorage();
