@@ -86,69 +86,186 @@
   --chart-4: 48 96% 65%;
   --chart-5: 0 84% 55%;
 
-  /* Seven Mythological Houses Color Palettes - Trading Specializations */
-  /* House of Heroes - Character Assets (Red/Orange) */
-  --house-heroes-primary: 0 84% 60%;
+  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
+  /* SEVEN HOUSES VISUAL LANGUAGE SYSTEM - COMIC BOOK ART TRADITIONS */
+  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
+
+  /* HOUSE OF HEROES - CLASSIC FOUR-COLOR COMIC STYLE (Character Assets) */
+  /* Visual Style: Classic superhero comic aesthetics - bright primary colors, bold outlines */
+  --house-heroes-primary: 0 84% 60%; /* Classic red */
   --house-heroes-primary-foreground: 0 0% 98%;
-  --house-heroes-secondary: 14 91% 43%;
-  --house-heroes-accent: 22 91% 50%;
-  --house-heroes-background: 8 88% 65%;
-  --house-heroes-card: 12 85% 62%;
+  --house-heroes-secondary: 220 90% 65%; /* Classic blue */
+  --house-heroes-accent: 48 100% 50%; /* Classic yellow */
+  --house-heroes-background: 0 88% 55%;
+  --house-heroes-card: 0 85% 65%;
   --house-heroes-border: 0 80% 55%;
+  --house-heroes-panel-border: 3px; /* Bold black borders */
+  --house-heroes-panel-radius: 4px; /* Traditional rectangular */
+  --house-heroes-shadow: 4px 4px 0px rgba(0, 0, 0, 0.8); /* Bold drop shadow */
+  --house-heroes-gradient-start: 0 84% 60%;
+  --house-heroes-gradient-end: 220 90% 65%;
+  /* Typography */
+  --house-heroes-font-display: 'Bangers', cursive; /* Bold, block letters */
+  --house-heroes-font-body: 'Fredoka One', cursive;
+  --house-heroes-font-accent: 'Bungee', cursive;
+  --house-heroes-letter-spacing: 0.1em;
+  --house-heroes-text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
+  /* Effects */
+  --house-heroes-speed-lines: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.2) 50%, transparent 60%);
+  --house-heroes-impact-burst: radial-gradient(circle, rgba(255, 255, 0, 0.3) 0%, transparent 70%);
+  --house-heroes-cape-flow: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
-  /* House of Wisdom - Creator Assets (Blue/Indigo) */
-  --house-wisdom-primary: 213 93% 68%;
+  /* HOUSE OF WISDOM - NOIR INVESTIGATION STYLE (Creator Assets) */
+  /* Visual Style: Film noir aesthetic - high contrast black/white, dramatic shadows */
+  --house-wisdom-primary: 213 93% 68%; /* Film blue */
   --house-wisdom-primary-foreground: 0 0% 98%;
-  --house-wisdom-secondary: 225 73% 57%;
-  --house-wisdom-accent: 207 90% 61%;
-  --house-wisdom-background: 220 60% 50%;
-  --house-wisdom-card: 218 65% 52%;
+  --house-wisdom-secondary: 0 0% 25%; /* Noir gray */
+  --house-wisdom-accent: 213 50% 85%; /* Highlight blue */
+  --house-wisdom-background: 213 15% 15%;
+  --house-wisdom-card: 213 20% 20%;
   --house-wisdom-border: 213 88% 63%;
+  --house-wisdom-panel-border: 2px; /* Clean, professional */
+  --house-wisdom-panel-radius: 2px; /* Sharp corners */
+  --house-wisdom-shadow: 8px 8px 16px rgba(0, 0, 0, 0.6); /* Dramatic shadows */
+  --house-wisdom-gradient-start: 213 93% 68%;
+  --house-wisdom-gradient-end: 0 0% 10%;
+  /* Typography */
+  --house-wisdom-font-display: 'Righteous', sans-serif; /* Investigation file styling */
+  --house-wisdom-font-body: 'Space Grotesk', monospace;
+  --house-wisdom-font-accent: 'Hind', serif;
+  --house-wisdom-letter-spacing: 0.05em;
+  --house-wisdom-text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+  /* Effects */
+  --house-wisdom-venetian-blinds: linear-gradient(0deg, transparent 40%, rgba(255, 255, 255, 0.1) 42%, rgba(255, 255, 255, 0.1) 48%, transparent 50%);
+  --house-wisdom-spotlight: radial-gradient(ellipse at center, rgba(213, 198, 255, 0.2) 0%, transparent 70%);
+  --house-wisdom-magnify: cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* House of Power - Publisher Assets (Purple/Violet) */
-  --house-power-primary: 271 81% 56%;
+  /* HOUSE OF POWER - COSMIC SPLASH PAGE STYLE (Publisher Assets) */
+  /* Visual Style: Cosmic scale storytelling - galaxy backgrounds, energy effects */
+  --house-power-primary: 271 81% 56%; /* Cosmic purple */
   --house-power-primary-foreground: 0 0% 98%;
-  --house-power-secondary: 260 84% 48%;
-  --house-power-accent: 255 92% 76%;
-  --house-power-background: 266 75% 60%;
-  --house-power-card: 268 78% 58%;
+  --house-power-secondary: 260 84% 48%; /* Deep purple */
+  --house-power-accent: 48 100% 70%; /* Energy yellow */
+  --house-power-background: 271 60% 25%;
+  --house-power-card: 271 55% 35%;
   --house-power-border: 271 76% 51%;
+  --house-power-panel-border: 0px; /* Borderless cosmic vistas */
+  --house-power-panel-radius: 0px; /* Full splash */
+  --house-power-shadow: 0px 0px 20px rgba(138, 43, 226, 0.5); /* Energy glow */
+  --house-power-gradient-start: 271 81% 56%;
+  --house-power-gradient-end: 260 84% 48%;
+  /* Typography */
+  --house-power-font-display: 'Bungee', cursive; /* Cosmic fonts with energy glows */
+  --house-power-font-body: 'Bangers', cursive;
+  --house-power-font-accent: 'Fredoka One', cursive;
+  --house-power-letter-spacing: 0.15em;
+  --house-power-text-shadow: 0px 0px 10px rgba(138, 43, 226, 0.8);
+  /* Effects */
+  --house-power-energy-surge: linear-gradient(45deg, rgba(138, 43, 226, 0.3) 0%, rgba(255, 215, 0, 0.3) 100%);
+  --house-power-cosmic-explosion: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, rgba(138, 43, 226, 0.2) 50%, transparent 100%);
+  --house-power-dimensional-rift: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
-  /* House of Mystery - Rare Assets (Green/Emerald) */
-  --house-mystery-primary: 142 76% 36%;
+  /* HOUSE OF MYSTERY - SUPERNATURAL MYSTERY STYLE (Rare Assets) */
+  /* Visual Style: Supernatural horror aesthetics - dark atmospheres, mysterious fog */
+  --house-mystery-primary: 142 76% 36%; /* Mystical green */
   --house-mystery-primary-foreground: 0 0% 98%;
-  --house-mystery-secondary: 160 84% 39%;
-  --house-mystery-accent: 158 64% 52%;
-  --house-mystery-background: 150 70% 45%;
-  --house-mystery-card: 155 68% 48%;
+  --house-mystery-secondary: 160 84% 39%; /* Forest green */
+  --house-mystery-accent: 158 64% 52%; /* Ethereal green */
+  --house-mystery-background: 142 40% 15%;
+  --house-mystery-card: 142 35% 25%;
   --house-mystery-border: 142 71% 31%;
+  --house-mystery-panel-border: 1px; /* Irregular, twisted */
+  --house-mystery-panel-radius: 8px; /* Supernatural distortions */
+  --house-mystery-shadow: 0px 4px 16px rgba(34, 139, 34, 0.4); /* Mysterious glow */
+  --house-mystery-gradient-start: 142 76% 36%;
+  --house-mystery-gradient-end: 160 84% 39%;
+  /* Typography */
+  --house-mystery-font-display: 'Creepster', cursive; /* Gothic fonts with mystical flourishes */
+  --house-mystery-font-body: 'Kalam', cursive;
+  --house-mystery-font-accent: 'Righteous', sans-serif;
+  --house-mystery-letter-spacing: 0.08em;
+  --house-mystery-text-shadow: 0px 0px 8px rgba(34, 139, 34, 0.6);
+  /* Effects */
+  --house-mystery-mist-reveal: linear-gradient(180deg, transparent 0%, rgba(34, 139, 34, 0.2) 50%, transparent 100%);
+  --house-mystery-supernatural-glow: radial-gradient(circle, rgba(34, 139, 34, 0.3) 0%, transparent 60%);
+  --house-mystery-reality-distortion: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
-  /* House of Elements - Multi-Universe Assets (Amber/Yellow) */
-  --house-elements-primary: 48 96% 89%;
+  /* HOUSE OF ELEMENTS - ELEMENTAL FORCES STYLE (Team Assets) */
+  /* Visual Style: Natural elemental aesthetics - fire, water, earth, air visual effects */
+  --house-elements-primary: 48 96% 89%; /* Elemental gold */
   --house-elements-primary-foreground: 30 26% 9%;
-  --house-elements-secondary: 45 93% 47%;
-  --house-elements-accent: 48 95% 53%;
-  --house-elements-background: 46 87% 65%;
-  --house-elements-card: 45 86% 62%;
+  --house-elements-secondary: 45 93% 47%; /* Earth orange */
+  --house-elements-accent: 48 95% 53%; /* Fire yellow */
+  --house-elements-background: 48 70% 65%;
+  --house-elements-card: 48 65% 75%;
   --house-elements-border: 48 91% 85%;
+  --house-elements-panel-border: 2px; /* Organic, flowing */
+  --house-elements-panel-radius: 12px; /* Natural borders */
+  --house-elements-shadow: 0px 6px 12px rgba(255, 165, 0, 0.3); /* Warm glow */
+  --house-elements-gradient-start: 48 96% 89%;
+  --house-elements-gradient-end: 45 93% 47%;
+  /* Typography */
+  --house-elements-font-display: 'Fredoka One', cursive; /* Fonts that evoke natural elements */
+  --house-elements-font-body: 'Kalam', cursive;
+  --house-elements-font-accent: 'Bangers', cursive;
+  --house-elements-letter-spacing: 0.06em;
+  --house-elements-text-shadow: 1px 1px 4px rgba(255, 165, 0, 0.5);
+  /* Effects */
+  --house-elements-fire-flow: linear-gradient(45deg, rgba(255, 69, 0, 0.3) 0%, rgba(255, 215, 0, 0.3) 100%);
+  --house-elements-water-flow: linear-gradient(180deg, rgba(0, 191, 255, 0.3) 0%, rgba(30, 144, 255, 0.3) 100%);
+  --house-elements-earth-flow: linear-gradient(90deg, rgba(139, 69, 19, 0.3) 0%, rgba(160, 82, 45, 0.3) 100%);
+  --house-elements-air-flow: linear-gradient(270deg, rgba(245, 245, 245, 0.3) 0%, rgba(220, 220, 220, 0.3) 100%);
+  --house-elements-seasonal-cycle: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
-  /* House of Time - Historical Assets (Gray/Slate) */
-  --house-time-primary: 210 40% 15%;
+  /* HOUSE OF TIME - TEMPORAL DISTORTION STYLE (Event Assets) */
+  /* Visual Style: Time travel aesthetics - chronometer elements, temporal distortions */
+  --house-time-primary: 210 40% 15%; /* Temporal slate */
   --house-time-primary-foreground: 0 0% 98%;
-  --house-time-secondary: 215 50% 25%;
-  --house-time-accent: 210 60% 35%;
-  --house-time-background: 212 45% 20%;
-  --house-time-card: 214 48% 22%;
+  --house-time-secondary: 215 50% 25%; /* Deeper slate */
+  --house-time-accent: 43 96% 56%; /* Chronometer gold */
+  --house-time-background: 210 35% 25%;
+  --house-time-card: 210 30% 35%;
   --house-time-border: 210 35% 10%;
+  --house-time-panel-border: 2px; /* Clock-face layouts */
+  --house-time-panel-radius: 50%; /* Overlapping temporal panels */
+  --house-time-shadow: 0px 0px 12px rgba(255, 215, 0, 0.4); /* Time ripples */
+  --house-time-gradient-start: 210 40% 15%;
+  --house-time-gradient-end: 43 96% 56%;
+  /* Typography */
+  --house-time-font-display: 'Space Grotesk', monospace; /* Fonts with temporal effects */
+  --house-time-font-body: 'Hind', sans-serif;
+  --house-time-font-accent: 'Righteous', sans-serif;
+  --house-time-letter-spacing: 0.12em;
+  --house-time-text-shadow: 0px 0px 6px rgba(255, 215, 0, 0.6);
+  /* Effects */
+  --house-time-ripple: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 50%);
+  --house-time-paradox: linear-gradient(45deg, rgba(105, 105, 105, 0.3) 25%, transparent 25%, transparent 75%, rgba(105, 105, 105, 0.3) 75%);
+  --house-time-temporal-rewind: cubic-bezier(0.4, 0, 0.6, 1);
 
-  /* House of Spirit - Social Assets (Teal/Cyan) */
-  --house-spirit-primary: 173 80% 40%;
+  /* HOUSE OF SPIRIT - MYSTICAL ETHEREAL STYLE (Mythic Assets) */
+  /* Visual Style: Spiritual/ethereal aesthetics - auras, divine light, mystical energy */
+  --house-spirit-primary: 173 80% 40%; /* Spirit teal */
   --house-spirit-primary-foreground: 0 0% 98%;
-  --house-spirit-secondary: 180 83% 47%;
-  --house-spirit-accent: 172 66% 50%;
-  --house-spirit-background: 176 75% 45%;
-  --house-spirit-card: 178 78% 48%;
+  --house-spirit-secondary: 180 83% 47%; /* Ethereal cyan */
+  --house-spirit-accent: 43 96% 56%; /* Divine gold */
+  --house-spirit-background: 173 60% 55%;
+  --house-spirit-card: 173 55% 65%;
   --house-spirit-border: 173 75% 35%;
+  --house-spirit-panel-border: 0px; /* Ethereal, borderless */
+  --house-spirit-panel-radius: 16px; /* Spirit energy frames */
+  --house-spirit-shadow: 0px 0px 16px rgba(64, 224, 208, 0.5); /* Divine aura */
+  --house-spirit-gradient-start: 173 80% 40%;
+  --house-spirit-gradient-end: 180 83% 47%;
+  /* Typography */
+  --house-spirit-font-display: 'Kalam', cursive; /* Transcendent fonts with divine glows */
+  --house-spirit-font-body: 'Fredoka One', cursive;
+  --house-spirit-font-accent: 'Righteous', sans-serif;
+  --house-spirit-letter-spacing: 0.09em;
+  --house-spirit-text-shadow: 0px 0px 12px rgba(64, 224, 208, 0.7);
+  /* Effects */
+  --house-spirit-divine-aura: radial-gradient(circle, rgba(64, 224, 208, 0.4) 0%, rgba(255, 215, 0, 0.2) 50%, transparent 100%);
+  --house-spirit-energy-flow: linear-gradient(90deg, rgba(64, 224, 208, 0.3) 0%, rgba(255, 215, 0, 0.3) 100%);
+  --house-spirit-transcendent-glow: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
   --font-sans: 'Hind', system-ui, sans-serif;
   --font-display: 'Space Grotesk', system-ui, sans-serif;
@@ -1116,40 +1233,552 @@
     grid-row: 1 / -1;
   }
 
-  /* House-Specific Comic Panel Borders */
+  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
+  /* HOUSE-SPECIFIC COMIC BOOK ART STYLE IMPLEMENTATIONS */
+  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
+
+  /* HOUSE OF HEROES - Classic Four-Color Comic Style */
   .comic-panel.house-heroes {
-    border-color: hsl(var(--house-heroes-primary));
-    box-shadow: 0 0 10px hsla(var(--house-heroes-primary), 0.3);
+    border: var(--house-heroes-panel-border) solid #000;
+    border-radius: var(--house-heroes-panel-radius);
+    background: hsl(var(--house-heroes-card));
+    box-shadow: var(--house-heroes-shadow);
+    font-family: var(--house-heroes-font-display);
+    letter-spacing: var(--house-heroes-letter-spacing);
+    text-shadow: var(--house-heroes-text-shadow);
   }
 
+  .house-heroes-speed-lines::before {
+    background: var(--house-heroes-speed-lines);
+    animation: heroes-speed-lines 0.6s linear infinite;
+  }
+
+  .house-heroes-impact-burst {
+    background: var(--house-heroes-impact-burst);
+    animation: heroes-impact-burst 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  @keyframes heroes-speed-lines {
+    0% { transform: translateX(-30px); }
+    100% { transform: translateX(30px); }
+  }
+
+  @keyframes heroes-impact-burst {
+    0% { opacity: 0; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.7; transform: scale(1); }
+  }
+
+  /* HOUSE OF WISDOM - Noir Investigation Style */
   .comic-panel.house-wisdom {
-    border-color: hsl(var(--house-wisdom-primary));
-    box-shadow: 0 0 10px hsla(var(--house-wisdom-primary), 0.3);
+    border: var(--house-wisdom-panel-border) solid hsl(var(--house-wisdom-border));
+    border-radius: var(--house-wisdom-panel-radius);
+    background: hsl(var(--house-wisdom-card));
+    box-shadow: var(--house-wisdom-shadow);
+    font-family: var(--house-wisdom-font-display);
+    letter-spacing: var(--house-wisdom-letter-spacing);
+    text-shadow: var(--house-wisdom-text-shadow);
+    position: relative;
   }
 
+  .house-wisdom-venetian-blinds::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--house-wisdom-venetian-blinds);
+    background-size: 100% 20px;
+    pointer-events: none;
+    animation: wisdom-blinds-sweep 2s ease-in-out;
+  }
+
+  .house-wisdom-spotlight {
+    background: var(--house-wisdom-spotlight);
+    animation: wisdom-spotlight 3s ease-in-out infinite;
+  }
+
+  @keyframes wisdom-blinds-sweep {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(0); }
+  }
+
+  @keyframes wisdom-spotlight {
+    0%, 100% { opacity: 0.6; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.1); }
+  }
+
+  /* HOUSE OF POWER - Cosmic Splash Page Style */
   .comic-panel.house-power {
-    border-color: hsl(var(--house-power-primary));
-    box-shadow: 0 0 10px hsla(var(--house-power-primary), 0.3);
+    border: var(--house-power-panel-border);
+    border-radius: var(--house-power-panel-radius);
+    background: linear-gradient(135deg, hsl(var(--house-power-background)), hsl(var(--house-power-card)));
+    box-shadow: var(--house-power-shadow);
+    font-family: var(--house-power-font-display);
+    letter-spacing: var(--house-power-letter-spacing);
+    text-shadow: var(--house-power-text-shadow);
+    overflow: hidden;
   }
 
+  .house-power-energy-surge::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--house-power-energy-surge);
+    animation: power-energy-surge 2.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .house-power-cosmic-explosion {
+    background: var(--house-power-cosmic-explosion);
+    animation: power-cosmic-explosion 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  @keyframes power-energy-surge {
+    0% { opacity: 0.3; transform: scale(0.8) rotate(0deg); }
+    50% { opacity: 0.8; transform: scale(1.2) rotate(180deg); }
+    100% { opacity: 0.3; transform: scale(0.8) rotate(360deg); }
+  }
+
+  @keyframes power-cosmic-explosion {
+    0% { opacity: 0; transform: scale(0) rotate(-45deg); }
+    50% { opacity: 1; transform: scale(1.5) rotate(0deg); }
+    100% { opacity: 0.6; transform: scale(1) rotate(45deg); }
+  }
+
+  /* HOUSE OF MYSTERY - Supernatural Mystery Style */
   .comic-panel.house-mystery {
-    border-color: hsl(var(--house-mystery-primary));
-    box-shadow: 0 0 10px hsla(var(--house-mystery-primary), 0.3);
+    border: var(--house-mystery-panel-border) solid hsl(var(--house-mystery-border));
+    border-radius: var(--house-mystery-panel-radius);
+    background: hsl(var(--house-mystery-card));
+    box-shadow: var(--house-mystery-shadow);
+    font-family: var(--house-mystery-font-display);
+    letter-spacing: var(--house-mystery-letter-spacing);
+    text-shadow: var(--house-mystery-text-shadow);
+    position: relative;
+    overflow: hidden;
   }
 
+  .house-mystery-mist-reveal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--house-mystery-mist-reveal);
+    animation: mystery-mist-reveal 4s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .house-mystery-supernatural-glow {
+    background: var(--house-mystery-supernatural-glow);
+    animation: mystery-supernatural-glow 3s ease-in-out infinite;
+  }
+
+  @keyframes mystery-mist-reveal {
+    0%, 100% { opacity: 0.8; transform: translateY(100%); }
+    50% { opacity: 0.3; transform: translateY(-20%); }
+  }
+
+  @keyframes mystery-supernatural-glow {
+    0%, 100% { opacity: 0.5; filter: hue-rotate(0deg); }
+    33% { opacity: 0.8; filter: hue-rotate(60deg); }
+    66% { opacity: 0.6; filter: hue-rotate(120deg); }
+  }
+
+  /* HOUSE OF ELEMENTS - Elemental Forces Style */
   .comic-panel.house-elements {
-    border-color: hsl(var(--house-elements-primary));
-    box-shadow: 0 0 10px hsla(var(--house-elements-primary), 0.3);
+    border: var(--house-elements-panel-border) solid hsl(var(--house-elements-border));
+    border-radius: var(--house-elements-panel-radius);
+    background: hsl(var(--house-elements-card));
+    box-shadow: var(--house-elements-shadow);
+    font-family: var(--house-elements-font-display);
+    letter-spacing: var(--house-elements-letter-spacing);
+    text-shadow: var(--house-elements-text-shadow);
   }
 
+  .house-elements-fire-flow {
+    background: var(--house-elements-fire-flow);
+    animation: elements-fire-flow 2s ease-in-out infinite;
+  }
+
+  .house-elements-water-flow {
+    background: var(--house-elements-water-flow);
+    animation: elements-water-flow 3s ease-in-out infinite;
+  }
+
+  .house-elements-earth-flow {
+    background: var(--house-elements-earth-flow);
+    animation: elements-earth-flow 4s ease-in-out infinite;
+  }
+
+  .house-elements-air-flow {
+    background: var(--house-elements-air-flow);
+    animation: elements-air-flow 1.5s ease-in-out infinite;
+  }
+
+  @keyframes elements-fire-flow {
+    0%, 100% { opacity: 0.6; transform: scale(1) rotate(0deg); }
+    50% { opacity: 1; transform: scale(1.1) rotate(2deg); }
+  }
+
+  @keyframes elements-water-flow {
+    0%, 100% { opacity: 0.7; transform: translateY(0) scale(1); }
+    50% { opacity: 0.9; transform: translateY(-5px) scale(1.05); }
+  }
+
+  @keyframes elements-earth-flow {
+    0%, 100% { opacity: 0.8; transform: translateX(0); }
+    50% { opacity: 1; transform: translateX(2px); }
+  }
+
+  @keyframes elements-air-flow {
+    0%, 100% { opacity: 0.5; transform: scale(1) translateX(0); }
+    50% { opacity: 0.8; transform: scale(1.02) translateX(1px); }
+  }
+
+  /* HOUSE OF TIME - Temporal Distortion Style */
   .comic-panel.house-time {
-    border-color: hsl(var(--house-time-primary));
-    box-shadow: 0 0 10px hsla(var(--house-time-primary), 0.3);
+    border: var(--house-time-panel-border) solid hsl(var(--house-time-border));
+    border-radius: var(--house-time-panel-radius);
+    background: hsl(var(--house-time-card));
+    box-shadow: var(--house-time-shadow);
+    font-family: var(--house-time-font-display);
+    letter-spacing: var(--house-time-letter-spacing);
+    text-shadow: var(--house-time-text-shadow);
+    position: relative;
   }
 
+  .house-time-ripple::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: var(--house-time-ripple);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    animation: time-ripple 2s ease-out infinite;
+    pointer-events: none;
+  }
+
+  .house-time-paradox {
+    background: var(--house-time-paradox);
+    background-size: 40px 40px;
+    animation: time-paradox 3s linear infinite;
+  }
+
+  @keyframes time-ripple {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+  }
+
+  @keyframes time-paradox {
+    0% { background-position: 0 0; }
+    100% { background-position: 40px 40px; }
+  }
+
+  /* HOUSE OF SPIRIT - Mystical Ethereal Style */
   .comic-panel.house-spirit {
-    border-color: hsl(var(--house-spirit-primary));
-    box-shadow: 0 0 10px hsla(var(--house-spirit-primary), 0.3);
+    border: var(--house-spirit-panel-border);
+    border-radius: var(--house-spirit-panel-radius);
+    background: linear-gradient(135deg, hsl(var(--house-spirit-background)), hsl(var(--house-spirit-card)));
+    box-shadow: var(--house-spirit-shadow);
+    font-family: var(--house-spirit-font-display);
+    letter-spacing: var(--house-spirit-letter-spacing);
+    text-shadow: var(--house-spirit-text-shadow);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .house-spirit-divine-aura::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: var(--house-spirit-divine-aura);
+    animation: spirit-divine-aura 4s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .house-spirit-energy-flow {
+    background: var(--house-spirit-energy-flow);
+    animation: spirit-energy-flow 3s ease-in-out infinite;
+  }
+
+  @keyframes spirit-divine-aura {
+    0%, 100% { transform: rotate(0deg) scale(0.8); opacity: 0.6; }
+    50% { transform: rotate(180deg) scale(1.2); opacity: 0.9; }
+  }
+
+  @keyframes spirit-energy-flow {
+    0%, 100% { opacity: 0.7; transform: translateX(0) scale(1); }
+    50% { opacity: 1; transform: translateX(5px) scale(1.05); }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
+  /* HOUSE-SPECIFIC TRADING MECHANIC INTEGRATION */
+  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
+
+  /* Trading Bonus Indicators */
+  .house-trading-bonus {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .house-trading-bonus::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.1;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .house-trading-bonus.active::before {
+    opacity: 0.3;
+  }
+
+  /* House-Specific Progress Bars */
+  .house-progress-bar {
+    position: relative;
+    background: hsl(var(--muted));
+    border-radius: 8px;
+    overflow: hidden;
+    height: 8px;
+  }
+
+  .house-progress-fill {
+    height: 100%;
+    transition: width 0.8s ease-out;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .house-progress-fill.heroes {
+    background: linear-gradient(90deg, hsl(var(--house-heroes-primary)), hsl(var(--house-heroes-accent)));
+    animation: heroes-progress-flow 2s ease-in-out infinite;
+  }
+
+  .house-progress-fill.wisdom {
+    background: linear-gradient(90deg, hsl(var(--house-wisdom-primary)), hsl(var(--house-wisdom-accent)));
+    animation: wisdom-progress-flow 3s ease-in-out infinite;
+  }
+
+  .house-progress-fill.power {
+    background: linear-gradient(90deg, hsl(var(--house-power-primary)), hsl(var(--house-power-accent)));
+    animation: power-progress-flow 1.5s ease-in-out infinite;
+  }
+
+  .house-progress-fill.mystery {
+    background: linear-gradient(90deg, hsl(var(--house-mystery-primary)), hsl(var(--house-mystery-accent)));
+    animation: mystery-progress-flow 4s ease-in-out infinite;
+  }
+
+  .house-progress-fill.elements {
+    background: linear-gradient(90deg, hsl(var(--house-elements-primary)), hsl(var(--house-elements-accent)));
+    animation: elements-progress-flow 2.5s ease-in-out infinite;
+  }
+
+  .house-progress-fill.time {
+    background: linear-gradient(90deg, hsl(var(--house-time-primary)), hsl(var(--house-time-accent)));
+    animation: time-progress-flow 3.5s ease-in-out infinite;
+  }
+
+  .house-progress-fill.spirit {
+    background: linear-gradient(90deg, hsl(var(--house-spirit-primary)), hsl(var(--house-spirit-accent)));
+    animation: spirit-progress-flow 3s ease-in-out infinite;
+  }
+
+  @keyframes heroes-progress-flow {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.2); }
+  }
+
+  @keyframes wisdom-progress-flow {
+    0%, 100% { filter: contrast(1); }
+    50% { filter: contrast(1.3); }
+  }
+
+  @keyframes power-progress-flow {
+    0%, 100% { filter: saturate(1) hue-rotate(0deg); }
+    50% { filter: saturate(1.5) hue-rotate(10deg); }
+  }
+
+  @keyframes mystery-progress-flow {
+    0%, 100% { filter: hue-rotate(0deg) brightness(1); }
+    25% { filter: hue-rotate(5deg) brightness(1.1); }
+    75% { filter: hue-rotate(-5deg) brightness(0.9); }
+  }
+
+  @keyframes elements-progress-flow {
+    0% { filter: hue-rotate(0deg); }
+    25% { filter: hue-rotate(90deg); }
+    50% { filter: hue-rotate(180deg); }
+    75% { filter: hue-rotate(270deg); }
+    100% { filter: hue-rotate(360deg); }
+  }
+
+  @keyframes time-progress-flow {
+    0%, 100% { filter: blur(0px) brightness(1); }
+    50% { filter: blur(0.5px) brightness(1.1); }
+  }
+
+  @keyframes spirit-progress-flow {
+    0%, 100% { filter: brightness(1) drop-shadow(0 0 0px transparent); }
+    50% { filter: brightness(1.3) drop-shadow(0 0 4px hsl(var(--house-spirit-primary))); }
+  }
+
+  /* Market Sentiment Visualization */
+  .market-sentiment-orb {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .market-sentiment-orb.bullish {
+    background: radial-gradient(circle, hsl(var(--house-heroes-primary)), hsl(var(--house-heroes-secondary)));
+    box-shadow: 0 0 20px hsla(var(--house-heroes-primary), 0.6);
+    animation: bullish-pulse 2s ease-in-out infinite;
+  }
+
+  .market-sentiment-orb.bearish {
+    background: radial-gradient(circle, hsl(var(--house-mystery-primary)), hsl(var(--house-mystery-secondary)));
+    box-shadow: 0 0 20px hsla(var(--house-mystery-primary), 0.6);
+    animation: bearish-pulse 2s ease-in-out infinite;
+  }
+
+  .market-sentiment-orb.neutral {
+    background: radial-gradient(circle, hsl(var(--house-wisdom-primary)), hsl(var(--house-wisdom-secondary)));
+    box-shadow: 0 0 20px hsla(var(--house-wisdom-primary), 0.6);
+    animation: neutral-pulse 3s ease-in-out infinite;
+  }
+
+  .market-sentiment-orb.volatile {
+    background: radial-gradient(circle, hsl(var(--house-power-primary)), hsl(var(--house-power-secondary)));
+    box-shadow: 0 0 20px hsla(var(--house-power-primary), 0.6);
+    animation: volatile-pulse 1s ease-in-out infinite;
+  }
+
+  @keyframes bullish-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.9; }
+  }
+
+  @keyframes bearish-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(0.95); opacity: 1; }
+  }
+
+  @keyframes neutral-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.02); opacity: 1; }
+  }
+
+  @keyframes volatile-pulse {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.15) rotate(2deg); }
+    75% { transform: scale(0.9) rotate(-2deg); }
+  }
+
+  /* Achievement Badge System */
+  .house-achievement-badge {
+    position: relative;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.75rem;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .house-achievement-badge.unlocked {
+    animation: achievement-unlock 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .house-achievement-badge.heroes {
+    background: linear-gradient(135deg, hsl(var(--house-heroes-primary)), hsl(var(--house-heroes-accent)));
+    box-shadow: 0 4px 12px hsla(var(--house-heroes-primary), 0.4);
+  }
+
+  .house-achievement-badge.wisdom {
+    background: linear-gradient(135deg, hsl(var(--house-wisdom-primary)), hsl(var(--house-wisdom-accent)));
+    box-shadow: 0 4px 12px hsla(var(--house-wisdom-primary), 0.4);
+  }
+
+  .house-achievement-badge.power {
+    background: linear-gradient(135deg, hsl(var(--house-power-primary)), hsl(var(--house-power-accent)));
+    box-shadow: 0 4px 12px hsla(var(--house-power-primary), 0.4);
+  }
+
+  .house-achievement-badge.mystery {
+    background: linear-gradient(135deg, hsl(var(--house-mystery-primary)), hsl(var(--house-mystery-accent)));
+    box-shadow: 0 4px 12px hsla(var(--house-mystery-primary), 0.4);
+  }
+
+  .house-achievement-badge.elements {
+    background: linear-gradient(135deg, hsl(var(--house-elements-primary)), hsl(var(--house-elements-accent)));
+    box-shadow: 0 4px 12px hsla(var(--house-elements-primary), 0.4);
+  }
+
+  .house-achievement-badge.time {
+    background: linear-gradient(135deg, hsl(var(--house-time-primary)), hsl(var(--house-time-accent)));
+    box-shadow: 0 4px 12px hsla(var(--house-time-primary), 0.4);
+  }
+
+  .house-achievement-badge.spirit {
+    background: linear-gradient(135deg, hsl(var(--house-spirit-primary)), hsl(var(--house-spirit-accent)));
+    box-shadow: 0 4px 12px hsla(var(--house-spirit-primary), 0.4);
+  }
+
+  /* House Theme Switching Transitions */
+  .house-theme-transition {
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .house-theme-switching {
+    pointer-events: none;
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+
+  /* Utility Classes for House Theme Integration */
+  .house-themed-text {
+    font-family: var(--house-current-font, var(--font-comic-display));
+    letter-spacing: var(--house-current-letter-spacing, 0.05em);
+    text-shadow: var(--house-current-text-shadow, none);
+  }
+
+  .house-themed-border {
+    border-color: hsl(var(--primary));
+    border-width: var(--house-current-border-width, 2px);
+    border-radius: var(--house-current-border-radius, 8px);
+  }
+
+  .house-themed-shadow {
+    box-shadow: var(--house-current-shadow, var(--shadow-md));
+  }
+
+  .house-themed-background {
+    background: hsl(var(--house-current-background, var(--card)));
   }
 
   /* Mystical Transition Classes */

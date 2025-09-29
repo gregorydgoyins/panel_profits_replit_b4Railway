@@ -1,6 +1,8 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
+import { useHouseTheme, type MythologicalHouse } from "@/contexts/HouseThemeContext";
+import { houseEffects, triggerHouseAnimation, triggerHouseSound } from "@/lib/house-visual-effects";
 
 const comicPanelVariants = cva(
   "comic-panel transition-mystical hover-elevate",
@@ -52,6 +54,10 @@ export interface ComicPanelProps
   isActive?: boolean;
   soundEffect?: string;
   narrativeText?: string;
+  houseOverride?: MythologicalHouse;
+  showHouseEffects?: boolean;
+  onPanelClick?: (house: MythologicalHouse) => void;
+  effectIntensity?: 'low' | 'medium' | 'high';
 }
 
 const ComicPanel = React.forwardRef<HTMLDivElement, ComicPanelProps>(
@@ -65,18 +71,63 @@ const ComicPanel = React.forwardRef<HTMLDivElement, ComicPanelProps>(
     isActive = false, 
     soundEffect,
     narrativeText,
+    houseOverride,
+    showHouseEffects = true,
+    onPanelClick,
+    effectIntensity = 'medium',
     children, 
     ...props 
   }, ref) => {
+    const { currentHouse, getHouseTheme } = useHouseTheme();
+    const activeHouse = houseOverride || house || currentHouse;
+    const panelRef = React.useRef<HTMLDivElement>(null);
+    
+    // Trigger house-specific animations when panel becomes active
+    React.useEffect(() => {
+      if (isActive && panelRef.current && showHouseEffects) {
+        // Get house-specific animation
+        const houseLibrary = houseEffects.getHouseEffects(activeHouse);
+        const animationName = Object.keys(houseLibrary.animations)[0]; // Use first animation
+        
+        if (animationName) {
+          triggerHouseAnimation(
+            panelRef.current,
+            activeHouse,
+            animationName,
+            { intensity: effectIntensity }
+          );
+        }
+      }
+    }, [isActive, activeHouse, showHouseEffects, effectIntensity]);
+    
+    const handleClick = () => {
+      if (onPanelClick) {
+        onPanelClick(activeHouse);
+      }
+      
+      // Trigger sound effect if provided
+      if (soundEffect && panelRef.current) {
+        triggerHouseSound(activeHouse, 'click', panelRef.current);
+      }
+    };
     return (
       <div
-        ref={ref}
+        ref={(el) => {
+          panelRef.current = el;
+          if (ref) {
+            if (typeof ref === 'function') ref(el);
+            else ref.current = el;
+          }
+        }}
         className={cn(
-          comicPanelVariants({ variant, house, shape, size }),
-          isActive && "ring-2 ring-primary shadow-lg",
+          comicPanelVariants({ variant, house: activeHouse, shape, size }),
+          isActive && "ring-2 ring-primary shadow-lg house-themed-glow",
+          onPanelClick && "cursor-pointer hover-elevate",
+          showHouseEffects && "house-theme-transition",
           className
         )}
-        data-testid={`comic-panel-${panelNumber || 'default'}`}
+        onClick={handleClick}
+        data-testid={`comic-panel-${activeHouse}-${panelNumber || 'default'}`}
         {...props}
       >
         {/* Panel Number Indicator */}
@@ -86,9 +137,33 @@ const ComicPanel = React.forwardRef<HTMLDivElement, ComicPanelProps>(
           </div>
         )}
 
-        {/* Sound Effect Overlay */}
+        {/* House-specific visual effects overlay */}
+        {showHouseEffects && (
+          <div className={cn(
+            "absolute inset-0 pointer-events-none",
+            effectIntensity === 'high' ? "opacity-20" : effectIntensity === 'medium' ? "opacity-10" : "opacity-5",
+            activeHouse === 'heroes' && "house-heroes-speed-lines",
+            activeHouse === 'wisdom' && "house-wisdom-venetian-blinds",
+            activeHouse === 'power' && "house-power-energy-surge",
+            activeHouse === 'mystery' && "house-mystery-mist-reveal",
+            activeHouse === 'elements' && "house-elements-fire-flow",
+            activeHouse === 'time' && "house-time-ripple",
+            activeHouse === 'spirit' && "house-spirit-divine-aura"
+          )} />
+        )}
+
+        {/* Sound Effect Overlay with house-specific styling */}
         {soundEffect && (
-          <div className="absolute top-2 right-2 font-comic-action text-red-500 comic-sound-secondary transform -rotate-12 z-20">
+          <div className={cn(
+            "absolute top-2 right-2 font-comic-action transform -rotate-12 z-20",
+            activeHouse === 'heroes' && "text-red-500 comic-sound-secondary",
+            activeHouse === 'wisdom' && "text-blue-500 comic-sound-secondary",
+            activeHouse === 'power' && "text-purple-500 comic-sound-primary",
+            activeHouse === 'mystery' && "text-green-500 comic-sound-secondary",
+            activeHouse === 'elements' && "text-orange-500 comic-sound-secondary",
+            activeHouse === 'time' && "text-yellow-500 comic-sound-secondary",
+            activeHouse === 'spirit' && "text-cyan-500 comic-sound-secondary"
+          )}>
             {soundEffect}
           </div>
         )}

@@ -1,6 +1,8 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
+import { useHouseTheme, type MythologicalHouse } from "@/contexts/HouseThemeContext";
+import { HOUSE_EFFECT_LIBRARIES, type SoundEffect } from "@/lib/house-visual-effects";
 
 const soundEffectVariants = cva(
   "font-comic-action select-none pointer-events-none",
@@ -67,12 +69,216 @@ const tradingSoundEffects = {
 
 export type SoundEffectType = keyof typeof tradingSoundEffects;
 
+// House-specific sound effect mappings
+const HOUSE_SOUND_MAPPINGS: Record<MythologicalHouse, Record<string, string>> = {
+  heroes: {
+    click: 'CLICK',
+    success: 'POW!',
+    error: 'WHAM!',
+    victory: 'KAPOW!',
+    action: 'BAM!',
+  },
+  wisdom: {
+    click: 'CLICK',
+    success: 'AHA!',
+    error: 'HMPH',
+    discovery: 'EUREKA!',
+    investigate: 'CLACK',
+  },
+  power: {
+    click: 'ZAP!',
+    success: 'BLAST!',
+    error: 'CRASH!',
+    energy: 'BOOM!',
+    surge: 'WOOSH',
+  },
+  mystery: {
+    click: 'whisper...',
+    success: 'REVEAL!',
+    error: 'POOF!',
+    mystical: 'SHIMMER',
+    supernatural: 'WHOOSH',
+  },
+  elements: {
+    click: 'FLOW',
+    success: 'CRACKLE',
+    error: 'RUMBLE',
+    fire: 'CRACKLE',
+    water: 'SPLASH',
+  },
+  time: {
+    click: 'TICK',
+    success: 'CHIME',
+    error: 'VWORP',
+    rewind: 'WHIRR',
+    paradox: 'VWORP',
+  },
+  spirit: {
+    click: 'GLOW',
+    success: 'ENLIGHTEN',
+    error: 'AURA',
+    divine: 'RADIATE',
+    transcendent: 'SHINE',
+  },
+};
+
 export interface ComicSoundEffectProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof soundEffectVariants> {
   sound?: SoundEffectType | string;
   trigger?: boolean;
   duration?: number;
+  onComplete?: () => void;
+  autoPlay?: boolean;
+}
+
+const ComicSoundEffect = React.forwardRef<HTMLDivElement, ComicSoundEffectProps>(
+  ({
+    className,
+    variant,
+    intensity,
+    position,
+    sound,
+    trigger = false,
+    duration = 1000,
+    house,
+    houseOverride,
+    useHouseSound = true,
+    customIntensity = 'medium',
+    onComplete,
+    autoPlay = false,
+    ...props
+  }, ref) => {
+    const [isVisible, setIsVisible] = React.useState(false);
+    const [currentSound, setCurrentSound] = React.useState<string>('');
+    const { currentHouse } = useHouseTheme();
+    const activeHouse = houseOverride || house || currentHouse;
+    
+    // Get house-specific sound effect
+    const getHouseSoundEffect = (soundKey: string): string => {
+      if (!useHouseSound) return soundKey;
+      
+      const houseLibrary = HOUSE_EFFECT_LIBRARIES[activeHouse];
+      const houseSoundMappings = HOUSE_SOUND_MAPPINGS[activeHouse];
+      
+      // Check if sound exists in house sound mappings
+      if (houseSoundMappings[soundKey]) {
+        return houseSoundMappings[soundKey];
+      }
+      
+      // Check if sound exists in house library
+      if (houseLibrary.soundEffects[soundKey]) {
+        return houseLibrary.soundEffects[soundKey].visual;
+      }
+      
+      // Fallback to trading sound effects
+      if (tradingSoundEffects[soundKey as SoundEffectType]) {
+        return tradingSoundEffects[soundKey as SoundEffectType];
+      }
+      
+      return soundKey;
+    };
+    
+    // Get house-specific styling
+    const getHouseStyling = () => {
+      const houseStyles = {
+        heroes: 'text-red-500 text-shadow-strong font-comic-action',
+        wisdom: 'text-blue-500 text-shadow-medium font-mono',
+        power: 'text-purple-500 text-shadow-heavy font-comic-action',
+        mystery: 'text-green-500 text-shadow-medium font-comic-thought italic',
+        elements: 'text-orange-500 text-shadow-medium font-comic-speech',
+        time: 'text-yellow-500 text-shadow-light font-mono tracking-wider',
+        spirit: 'text-cyan-500 text-shadow-medium font-comic-thought italic',
+      };
+      return houseStyles[activeHouse] || 'text-yellow-500 text-shadow-medium';
+    };
+    
+    // Trigger sound effect
+    React.useEffect(() => {
+      if (trigger || autoPlay) {
+        const soundText = sound ? getHouseSoundEffect(sound) : 'POW!';
+        setCurrentSound(soundText);
+        setIsVisible(true);
+        
+        const timer = setTimeout(() => {
+          setIsVisible(false);
+          onComplete?.();
+        }, duration);
+        
+        return () => clearTimeout(timer);
+      }
+    }, [trigger, autoPlay, sound, duration, activeHouse, useHouseSound]);
+    
+    if (!isVisible) return null;
+    
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          soundEffectVariants({ variant, intensity, position }),
+          getHouseStyling(),
+          useHouseSound && `house-${activeHouse}`,
+          className
+        )}
+        data-testid={`comic-sound-effect-${activeHouse}`}
+        {...props}
+      >
+        {currentSound}
+      </div>
+    );
+  }
+);
+
+ComicSoundEffect.displayName = 'ComicSoundEffect';
+
+// House-specific sound effect presets
+export function HeroesSoundEffect({ children, ...props }: Omit<ComicSoundEffectProps, 'house'>) {
+  return (
+    <ComicSoundEffect 
+      house="heroes" 
+      variant="impact" 
+      intensity="high" 
+      useHouseSound={true}
+      {...props}
+    >
+      {children}
+    </ComicSoundEffect>
+  );
+}
+
+export function WisdomSoundEffect({ children, ...props }: Omit<ComicSoundEffectProps, 'house'>) {
+  return (
+    <ComicSoundEffect 
+      house="wisdom" 
+      variant="secondary" 
+      intensity="normal" 
+      useHouseSound={true}
+      {...props}
+    >
+      {children}
+    </ComicSoundEffect>
+  );
+}
+
+export function PowerSoundEffect({ children, ...props }: Omit<ComicSoundEffectProps, 'house'>) {
+  return (
+    <ComicSoundEffect 
+      house="power" 
+      variant="dramatic" 
+      intensity="extreme" 
+      useHouseSound={true}
+      {...props}
+    >
+      {children}
+    </ComicSoundEffect>
+  );
+}
+
+export { ComicSoundEffect, soundEffectVariants, tradingSoundEffects, HOUSE_SOUND_MAPPINGS };
+  house?: MythologicalHouse;
+  houseOverride?: MythologicalHouse;
+  useHouseSound?: boolean;
+  customIntensity?: 'low' | 'medium' | 'high';
   onComplete?: () => void;
 }
 

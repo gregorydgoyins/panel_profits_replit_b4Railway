@@ -2,6 +2,8 @@ import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
+import { useHouseTheme, type MythologicalHouse } from "@/contexts/HouseThemeContext";
+import { houseEffects, triggerHouseAnimation, triggerHouseSound } from "@/lib/house-visual-effects";
 
 const comicButtonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-comic-display text-sm font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0" +
@@ -19,6 +21,14 @@ const comicButtonVariants = cva(
         outline: "border-2 border-current bg-transparent hover:bg-current hover:text-background",
         hero: "bg-gradient-to-r from-blue-600 to-blue-700 text-white border-2 border-blue-800 shadow-lg",
         villain: "bg-gradient-to-r from-purple-600 to-purple-700 text-white border-2 border-purple-800 shadow-lg",
+        // House-specific variants
+        heroes: "bg-red-600 text-white border-2 border-red-800 shadow-lg font-comic-display",
+        wisdom: "bg-slate-800 text-blue-200 border-2 border-blue-600 shadow-lg font-mono",
+        power: "bg-purple-600 text-white border-2 border-purple-800 shadow-lg font-comic-action",
+        mystery: "bg-green-800 text-green-200 border-2 border-green-600 shadow-lg font-comic-thought",
+        elements: "bg-orange-600 text-white border-2 border-orange-800 shadow-lg font-comic-speech",
+        time: "bg-slate-700 text-yellow-200 border-2 border-yellow-600 shadow-lg font-mono",
+        spirit: "bg-cyan-800 text-cyan-200 border-2 border-cyan-600 shadow-lg font-comic-thought",
       },
       size: {
         default: "min-h-10 px-6 py-2 text-sm",
@@ -49,6 +59,11 @@ export interface ComicButtonProps
   asChild?: boolean;
   soundEffect?: string;
   onComicClick?: () => void;
+  house?: MythologicalHouse;
+  houseOverride?: MythologicalHouse;
+  showHouseEffects?: boolean;
+  triggerAnimation?: string;
+  useHouseSound?: boolean;
 }
 
 const ComicButton = React.forwardRef<HTMLButtonElement, ComicButtonProps>(
@@ -61,17 +76,43 @@ const ComicButton = React.forwardRef<HTMLButtonElement, ComicButtonProps>(
     soundEffect,
     onComicClick,
     onClick,
+    house,
+    houseOverride,
+    showHouseEffects = true,
+    triggerAnimation,
+    useHouseSound = true,
     children,
     ...props 
   }, ref) => {
     const [showSoundEffect, setShowSoundEffect] = React.useState(false);
+    const { currentHouse } = useHouseTheme();
+    const activeHouse = houseOverride || house || currentHouse;
+    const buttonRef = React.useRef<HTMLButtonElement>(null);
     const Comp = asChild ? Slot : "button";
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-      // Trigger sound effect animation
-      if (soundEffect) {
+      const element = buttonRef.current;
+      
+      // Trigger house-specific sound effect
+      if (useHouseSound && element) {
+        const houseLibrary = houseEffects.getHouseEffects(activeHouse);
+        const houseSoundName = soundEffect || 'click';
+        
+        // Use house-specific sound if available, otherwise use provided sound
+        if (houseLibrary.soundEffects[houseSoundName]) {
+          triggerHouseSound(activeHouse, houseSoundName, element);
+        } else if (soundEffect) {
+          setShowSoundEffect(true);
+          setTimeout(() => setShowSoundEffect(false), 1000);
+        }
+      } else if (soundEffect) {
         setShowSoundEffect(true);
         setTimeout(() => setShowSoundEffect(false), 1000);
+      }
+      
+      // Trigger house-specific animation
+      if (triggerAnimation && element && showHouseEffects) {
+        triggerHouseAnimation(element, activeHouse, triggerAnimation);
       }
 
       // Call custom comic click handler
@@ -84,9 +125,22 @@ const ComicButton = React.forwardRef<HTMLButtonElement, ComicButtonProps>(
     return (
       <div className="relative inline-block">
         <Comp
-          className={cn(comicButtonVariants({ variant, size, effect, className }))}
-          ref={ref}
+          className={cn(
+            comicButtonVariants({ variant, size, effect }),
+            showHouseEffects && "house-theme-transition",
+            // House-specific styling when house variant is used
+            house && `house-${activeHouse}`,
+            className
+          )}
+          ref={(el) => {
+            buttonRef.current = el;
+            if (ref) {
+              if (typeof ref === 'function') ref(el);
+              else ref.current = el;
+            }
+          }}
           onClick={handleClick}
+          data-testid={`comic-button-${activeHouse || 'default'}`}
           {...props}
         >
           {children}
@@ -107,12 +161,14 @@ const ComicButton = React.forwardRef<HTMLButtonElement, ComicButtonProps>(
 
 ComicButton.displayName = "ComicButton";
 
-// Convenience buttons for common trading actions
-export function BuyButton({ children, ...props }: Omit<ComicButtonProps, 'variant'>) {
+// Convenience buttons for common trading actions with house theming
+export function BuyButton({ children, house, ...props }: Omit<ComicButtonProps, 'variant'>) {
   return (
     <ComicButton 
-      variant="success" 
-      soundEffect="POW!" 
+      variant={house ? house : "success"}
+      soundEffect="success" 
+      house={house}
+      useHouseSound={true}
       data-testid="buy-button"
       {...props}
     >
