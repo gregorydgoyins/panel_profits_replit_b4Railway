@@ -1,154 +1,186 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Crown, Swords, Flame, BookOpen, Zap, Shield, Users } from "lucide-react";
+import { Skull, DollarSign, TrendingDown, AlertTriangle, Brain, Eye, Clock, Trophy } from "lucide-react";
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-slate-900">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/30" />
+    <div className="min-h-screen bg-black relative">
+      {/* Hero Section with torn edge and textures */}
+      <div className="relative overflow-hidden torn-edge-bottom">
+        <div className="absolute inset-0 crosshatch" />
         <div className="relative max-w-7xl mx-auto px-6 py-24">
           <div className="text-center">
             <div className="mb-6">
-              <Crown className="h-16 w-16 text-amber-400 mx-auto mb-4" />
+              <Skull className="h-16 w-16 text-destructive mx-auto mb-4" />
             </div>
-            <h1 className="text-6xl font-bold text-white mb-6 bg-gradient-to-r from-amber-300 to-amber-100 bg-clip-text text-transparent" data-testid="heading-hero-title">
+            <h1 className="text-6xl font-bold text-white mb-6 ink-bleed-heavy uppercase tracking-wider" data-testid="heading-hero-title">
               Panel Profits
             </h1>
-            <p className="text-2xl font-semibold text-amber-200 mb-4">The Mythological Financial RPG</p>
-            <p className="text-xl text-blue-100 mb-8 max-w-4xl mx-auto" data-testid="text-hero-description">
-              Choose your House. Master your specialization. Trade comic assets with mystical bonuses, karma-based modifiers, and AI-powered intelligence. This isn't just trading—it's legendary.
+            <p className="text-2xl font-semibold text-destructive mb-4 uppercase ink-bleed">Every Trade Has A Victim</p>
+            <p className="text-xl text-white mb-8 max-w-4xl mx-auto font-mono" data-testid="text-hero-description">
+              The market doesn't care about your dreams. Every profit you make is someone else's loss. Every portfolio built on corpses. Welcome to the real game where morality is a luxury and survival is the only currency.
             </p>
             <Button 
               size="lg" 
-              className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white px-8 py-4 text-lg font-semibold shadow-2xl"
+              className="bg-destructive hover:bg-destructive/80 text-white px-8 py-4 text-lg font-semibold uppercase shadow-noir-lg border-2 border-white"
               onClick={() => window.location.href = "/api/login"}
               data-testid="button-login"
             >
-              <Crown className="mr-2 h-5 w-5" />
-              Enter the Realm
+              <Skull className="mr-2 h-5 w-5" />
+              EMBRACE THE VOID
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Seven Houses Section */}
-      <div className="max-w-7xl mx-auto px-6 py-16">
+      {/* Seven Sins of Trading Section */}
+      <div className="max-w-7xl mx-auto px-6 py-16 relative">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-white mb-4" data-testid="heading-houses">
-            Choose Your Mythological House
+          <h2 className="text-4xl font-bold text-white mb-4 uppercase ink-bleed" data-testid="heading-houses">
+            The Seven Sins of Trading
           </h2>
-          <p className="text-amber-100 text-lg" data-testid="text-houses-description">
-            Each House grants unique trading specializations and mystical bonuses
+          <p className="text-destructive text-lg uppercase font-mono" data-testid="text-houses-description">
+            Choose your damnation. Every path leads to the same end.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="bg-gradient-to-br from-red-900/40 to-orange-900/40 border-red-600/50 hover-elevate" data-testid="card-house-heroes">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {/* GREED */}
+          <Card className="bg-black border-2 border-white noir-panel crosshatch shadow-noir-md" data-testid="card-sin-greed">
             <CardHeader>
-              <CardTitle className="flex items-center text-red-200">
-                <Shield className="mr-2 h-5 w-5 text-red-400" />
-                House of Heroes
+              <CardTitle className="flex items-center text-destructive uppercase">
+                <DollarSign className="mr-2 h-5 w-5 text-destructive" />
+                GREED
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-red-100">
-                Masters of character options and futures. +15% success on hero asset trades. Specialize in protagonist derivatives and superhero market predictions.
+              <p className="text-white font-mono text-sm">
+                <span className="text-destructive font-bold">The Comedian's Portfolio</span><br/>
+                Profit from tragedy. Every disaster is an opportunity. War is good for business. Death pays dividends.
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-900/40 to-indigo-900/40 border-blue-600/50 hover-elevate" data-testid="card-house-wisdom">
+          {/* HUBRIS */}
+          <Card className="bg-black border-2 border-white noir-panel crosshatch shadow-noir-md" data-testid="card-sin-hubris">
             <CardHeader>
-              <CardTitle className="flex items-center text-blue-200">
-                <BookOpen className="mr-2 h-5 w-5 text-blue-400" />
-                House of Wisdom
+              <CardTitle className="flex items-center text-destructive uppercase">
+                <Brain className="mr-2 h-5 w-5 text-destructive" />
+                HUBRIS
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-blue-100">
-                Scholars of creator bonds and intellectual property. Enhanced AI insights. Excel at long-term creator investments and franchise valuation.
+              <p className="text-white font-mono text-sm">
+                <span className="text-destructive font-bold">Ozymandias's Gambit</span><br/>
+                You think you control the markets. You see patterns where there's only chaos. Your models will fail.
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-900/40 to-violet-900/40 border-purple-600/50 hover-elevate" data-testid="card-house-power">
+          {/* WRATH */}
+          <Card className="bg-black border-2 border-white noir-panel crosshatch shadow-noir-md" data-testid="card-sin-wrath">
             <CardHeader>
-              <CardTitle className="flex items-center text-purple-200">
-                <Crown className="mr-2 h-5 w-5 text-purple-400" />
-                House of Power
+              <CardTitle className="flex items-center text-destructive uppercase">
+                <TrendingDown className="mr-2 h-5 w-5 text-destructive" />
+                WRATH
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-purple-100">
-                Rulers of publisher stocks and franchise NFTs. Lower trading fees on high-value assets. Command institutional-grade market access.
+              <p className="text-white font-mono text-sm">
+                <span className="text-destructive font-bold">Rorschach's Vengeance</span><br/>
+                Destroy the shorts. Burn the bears. Leave nothing but ash. The market is your battlefield.
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-green-900/40 to-emerald-900/40 border-green-600/50 hover-elevate" data-testid="card-house-mystery">
+          {/* ENVY */}
+          <Card className="bg-black border-2 border-white noir-panel crosshatch shadow-noir-md" data-testid="card-sin-envy">
             <CardHeader>
-              <CardTitle className="flex items-center text-green-200">
-                <Zap className="mr-2 h-5 w-5 text-green-400" />
-                House of Mystery
+              <CardTitle className="flex items-center text-destructive uppercase">
+                <Eye className="mr-2 h-5 w-5 text-destructive" />
+                ENVY
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-green-100">
-                Seers of rare issue derivatives and speculation tokens. Early access to exclusive assets. Predict market movements with mystical accuracy.
+              <p className="text-white font-mono text-sm">
+                <span className="text-destructive font-bold">Silk Spectre's Shadow</span><br/>
+                Copy the winners. Follow the whales. You'll always be one step behind, drowning in their wake.
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-amber-900/40 to-yellow-900/40 border-amber-600/50 hover-elevate" data-testid="card-house-elements">
+          {/* GLUTTONY */}
+          <Card className="bg-black border-2 border-white noir-panel crosshatch shadow-noir-md" data-testid="card-sin-gluttony">
             <CardHeader>
-              <CardTitle className="flex items-center text-amber-200">
-                <Flame className="mr-2 h-5 w-5 text-amber-400" />
-                House of Elements
+              <CardTitle className="flex items-center text-destructive uppercase">
+                <AlertTriangle className="mr-2 h-5 w-5 text-destructive" />
+                GLUTTONY
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-amber-100">
-                Wielders of cross-universe asset baskets. Elemental bonuses stack across different comic universes. Master complex portfolio strategies.
+              <p className="text-white font-mono text-sm">
+                <span className="text-destructive font-bold">Dr. Manhattan's Void</span><br/>
+                Consume everything. Leverage to the hilt. The appetite that devours portfolios whole.
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-gray-900/40 to-slate-900/40 border-gray-600/50 hover-elevate" data-testid="card-house-time">
+          {/* SLOTH */}
+          <Card className="bg-black border-2 border-white noir-panel crosshatch shadow-noir-md" data-testid="card-sin-sloth">
             <CardHeader>
-              <CardTitle className="flex items-center text-gray-200">
-                <Users className="mr-2 h-5 w-5 text-gray-400" />
-                House of Time
+              <CardTitle className="flex items-center text-destructive uppercase">
+                <Clock className="mr-2 h-5 w-5 text-destructive" />
+                SLOTH
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-100">
-                Guardians of historical price prediction markets. Time-based karma multipliers. Excel at vintage comic appreciation and market timing.
+              <p className="text-white font-mono text-sm">
+                <span className="text-destructive font-bold">Nite Owl's Regret</span><br/>
+                The trades you didn't make. The opportunities missed. Time decays everything, especially hope.
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* PRIDE */}
+          <Card className="bg-black border-2 border-white noir-panel crosshatch shadow-noir-md" data-testid="card-sin-pride">
+            <CardHeader>
+              <CardTitle className="flex items-center text-destructive uppercase">
+                <Trophy className="mr-2 h-5 w-5 text-destructive" />
+                PRIDE
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-white font-mono text-sm">
+                <span className="text-destructive font-bold">The Minutemen's Fall</span><br/>
+                Yesterday's wins mean nothing. Past performance is a lie. Your ego will be your undoing.
               </p>
             </CardContent>
           </Card>
         </div>
       </div>
 
-      {/* Call to Action */}
-      <div className="max-w-4xl mx-auto px-6 py-16 text-center">
-        <h3 className="text-4xl font-bold text-white mb-6" data-testid="heading-cta">
-          Your Legend Awaits
+      {/* Call to Action with ink splatter */}
+      <div className="max-w-4xl mx-auto px-6 py-16 text-center relative ink-splatter-1">
+        <h3 className="text-4xl font-bold text-white mb-6 uppercase ink-bleed-heavy" data-testid="heading-cta">
+          THE END IS WRITTEN
         </h3>
-        <p className="text-xl text-amber-100 mb-8" data-testid="text-cta-description">
-          Join the elite traders wielding mystical powers in the ultimate comic asset battlefield. Build your karma, master your House, and become a legend.
+        <p className="text-xl text-white mb-8 font-mono" data-testid="text-cta-description">
+          There are no heroes in this market. No redemption. No second chances. Just winners, losers, and the void that awaits us all. Choose your sin and face your damnation.
         </p>
         <Button 
           size="lg"
-          className="bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white px-8 py-4 text-lg font-semibold shadow-2xl"
+          className="bg-black border-4 border-destructive hover:bg-destructive text-white px-8 py-4 text-lg font-semibold uppercase shadow-noir-xl"
           onClick={() => window.location.href = "/api/login"}
           data-testid="button-cta-login"
         >
-          <Swords className="mr-2 h-5 w-5" />
-          Begin Your Quest
+          <Skull className="mr-2 h-5 w-5" />
+          ACCEPT YOUR DAMNATION
         </Button>
       </div>
+
+      {/* Additional texture overlays */}
+      <div className="fixed inset-0 pointer-events-none scratched opacity-20" />
+      <div className="fixed inset-0 pointer-events-none halftone opacity-10" />
     </div>
   );
 }
