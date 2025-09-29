@@ -85,7 +85,7 @@ export const marketData = pgTable("market_data", {
   close: decimal("close", { precision: 10, scale: 2 }).notNull(),
   volume: integer("volume").notNull(),
   change: decimal("change", { precision: 10, scale: 2 }),
-  percentChange: decimal("percent_change", { precision: 5, scale: 2 }),
+  percentChange: decimal("percent_change", { precision: 8, scale: 2 }),
   marketCap: decimal("market_cap", { precision: 15, scale: 2 }),
   technicalIndicators: jsonb("technical_indicators"), // RSI, MACD, SMA, EMA, etc.
   // Vector embeddings for price pattern recognition and similarity matching
@@ -101,9 +101,9 @@ export const portfolios = pgTable("portfolios", {
   description: text("description"),
   totalValue: decimal("total_value", { precision: 15, scale: 2 }),
   dayChange: decimal("day_change", { precision: 10, scale: 2 }),
-  dayChangePercent: decimal("day_change_percent", { precision: 5, scale: 2 }),
+  dayChangePercent: decimal("day_change_percent", { precision: 8, scale: 2 }),
   totalReturn: decimal("total_return", { precision: 10, scale: 2 }),
-  totalReturnPercent: decimal("total_return_percent", { precision: 5, scale: 2 }),
+  totalReturnPercent: decimal("total_return_percent", { precision: 8, scale: 2 }),
   diversificationScore: decimal("diversification_score", { precision: 3, scale: 1 }),
   // Phase 1 Portfolio Cash Management
   cashBalance: decimal("cash_balance", { precision: 15, scale: 2 }).default("100000.00"), // Available cash for trading
@@ -123,7 +123,7 @@ export const holdings = pgTable("holdings", {
   averageCost: decimal("average_cost", { precision: 10, scale: 2 }).notNull(),
   currentValue: decimal("current_value", { precision: 10, scale: 2 }),
   unrealizedGainLoss: decimal("unrealized_gain_loss", { precision: 10, scale: 2 }),
-  unrealizedGainLossPercent: decimal("unrealized_gain_loss_percent", { precision: 5, scale: 2 }),
+  unrealizedGainLossPercent: decimal("unrealized_gain_loss_percent", { precision: 8, scale: 2 }),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
@@ -174,7 +174,7 @@ export const marketIndexData = pgTable("market_index_data", {
   close: decimal("close", { precision: 10, scale: 2 }).notNull(),
   volume: integer("volume"),
   change: decimal("change", { precision: 10, scale: 2 }),
-  percentChange: decimal("percent_change", { precision: 5, scale: 2 }),
+  percentChange: decimal("percent_change", { precision: 8, scale: 2 }),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -693,7 +693,7 @@ export const assetCurrentPrices = pgTable("asset_current_prices", {
   bidPrice: decimal("bid_price", { precision: 10, scale: 2 }),
   askPrice: decimal("ask_price", { precision: 10, scale: 2 }),
   dayChange: decimal("day_change", { precision: 10, scale: 2 }),
-  dayChangePercent: decimal("day_change_percent", { precision: 5, scale: 2 }),
+  dayChangePercent: decimal("day_change_percent", { precision: 8, scale: 2 }),
   weekHigh: decimal("week_high", { precision: 10, scale: 2 }), // 52-week high price
   volume: integer("volume").default(0),
   lastTradePrice: decimal("last_trade_price", { precision: 10, scale: 2 }),
@@ -703,7 +703,7 @@ export const assetCurrentPrices = pgTable("asset_current_prices", {
   marketStatus: text("market_status").default("open"), // 'open', 'closed', 'suspended'
   priceSource: text("price_source").default("simulation"), // 'simulation', 'external_api', 'manual'
   // Volatility and risk metrics
-  volatility: decimal("volatility", { precision: 5, scale: 2 }), // Price volatility percentage
+  volatility: decimal("volatility", { precision: 8, scale: 2 }), // Price volatility percentage
   beta: decimal("beta", { precision: 3, scale: 2 }), // Beta relative to market
   updatedAt: timestamp("updated_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
@@ -1284,7 +1284,7 @@ export const traderStats = pgTable("trader_stats", {
   // Risk metrics
   sharpeRatio: decimal("sharpe_ratio", { precision: 5, scale: 3 }), // Risk-adjusted returns
   maxDrawdown: decimal("max_drawdown", { precision: 5, scale: 2 }), // Max portfolio decline %
-  volatility: decimal("volatility", { precision: 5, scale: 2 }), // Portfolio volatility
+  volatility: decimal("volatility", { precision: 8, scale: 2 }), // Portfolio volatility
   // Ranking and achievements
   rankPoints: decimal("rank_points", { precision: 10, scale: 2 }).default("0.00"), // Points for ranking calculation
   currentRank: integer("current_rank"),

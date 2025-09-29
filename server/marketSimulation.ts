@@ -488,7 +488,7 @@ export class MarketSimulationEngine {
     }
 
     // Category-specific multipliers
-    const categoryMultiplier = this.getCategoryMultiplier(event.category, asset);
+    const categoryMultiplier = this.getCategoryMultiplier(event.category, asset, event);
     
     // Significance multiplier (0.5x to 3x)
     const significance = event.significance ? parseFloat(event.significance.toString()) : 5;
@@ -503,7 +503,7 @@ export class MarketSimulationEngine {
   /**
    * Get category-specific impact multipliers
    */
-  private getCategoryMultiplier(category: string | null, asset: Asset): number {
+  private getCategoryMultiplier(category: string | null, asset: Asset, event: MarketEvent): number {
     const metadata = asset.metadata as any;
     
     switch (category) {
