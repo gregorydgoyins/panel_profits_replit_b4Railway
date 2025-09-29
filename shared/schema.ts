@@ -44,6 +44,10 @@ export const users = pgTable("users", {
   lastTradingActivity: timestamp("last_trading_activity"),
   tradingStreakDays: integer("trading_streak_days").default(0),
   totalTradingProfit: decimal("total_trading_profit", { precision: 15, scale: 2 }).default("0.00"),
+  // Mythological Houses System
+  houseId: text("house_id"), // 'heroes', 'wisdom', 'power', 'mystery', 'elements', 'time', 'spirit'
+  houseJoinedAt: timestamp("house_joined_at"),
+  karma: integer("karma").default(0), // Karma score affecting trading bonuses
   preferences: jsonb("preferences"), // UI settings, notifications, etc.
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -1347,6 +1351,23 @@ export const userAchievements = pgTable("user_achievements", {
   index("idx_user_achievements_unique").on(table.userId, table.achievementId),
 ]);
 
+// Karma actions for tracking karma-related events
+export const karmaActions = pgTable("karma_actions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  type: text("type").notNull(), // 'house_joined', 'trade_completed', 'achievement_unlocked', etc.
+  houseId: text("house_id"), // For house-specific actions
+  karmaChange: integer("karma_change").notNull(), // Can be positive or negative
+  description: text("description").notNull(),
+  metadata: jsonb("metadata"), // Additional context data
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_karma_actions_user_id").on(table.userId),
+  index("idx_karma_actions_type").on(table.type),
+  index("idx_karma_actions_house_id").on(table.houseId),
+  index("idx_karma_actions_created_at").on(table.createdAt),
+]);
+
 // Insert schemas for leaderboard tables
 export const insertTraderStatsSchema = createInsertSchema(traderStats).omit({
   id: true,
@@ -1363,6 +1384,11 @@ export const insertLeaderboardCategorySchema = createInsertSchema(leaderboardCat
 export const insertUserAchievementSchema = createInsertSchema(userAchievements).omit({
   id: true,
   unlockedAt: true,
+  createdAt: true,
+});
+
+export const insertKarmaActionSchema = createInsertSchema(karmaActions).omit({
+  id: true,
   createdAt: true,
 });
 
@@ -1388,3 +1414,6 @@ export type InsertNotificationPreferences = z.infer<typeof insertNotificationPre
 
 export type NotificationTemplate = typeof notificationTemplates.$inferSelect;
 export type InsertNotificationTemplate = z.infer<typeof insertNotificationTemplateSchema>;
+
+export type KarmaAction = typeof karmaActions.$inferSelect;
+export type InsertKarmaAction = z.infer<typeof insertKarmaActionSchema>;

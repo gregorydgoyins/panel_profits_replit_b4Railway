@@ -6,6 +6,7 @@ import { WebSocketServer } from 'ws';
 import comicDataRoutes from "./routes/comicData.js";
 import vectorRoutes from "./routes/vectorRoutes.js";
 import dataImportRoutes from "./routes/dataImportRoutes.js";
+import housesRoutes from "./routes/housesRoutes.js";
 import { registerComicRoutes } from "./routes/comicRoutes";
 import { registerComicCoverRoutes } from "./routes/comicCoverRoutes.js";
 import { registerNotificationRoutes } from "./routes/notificationRoutes.js";
@@ -1012,6 +1013,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Data import routes (Marvel vs DC dataset)
   app.use("/api/import", dataImportRoutes);
+
+  // Houses System Routes (Seven Mythological Houses)
+  app.use("/api/houses", housesRoutes);
 
   // Enhanced Trading Data Routes (Phase 3 Mythological Interface)
   app.use("/api", enhancedDataRoutes);
