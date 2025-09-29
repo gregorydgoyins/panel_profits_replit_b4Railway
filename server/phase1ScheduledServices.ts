@@ -11,6 +11,7 @@ import {
   NpcTradingEngine, 
   InformationTierManager 
 } from './tradingEngine.js';
+import { orderMatchingEngine } from './services/orderMatchingEngine.js';
 import type { 
   AssetCurrentPrice, 
   OptionsChain, 
@@ -25,6 +26,7 @@ export interface ScheduledServiceConfig {
   marginMaintenanceInterval: number;
   newsDistributionInterval: number;
   informationTierSyncInterval: number;
+  orderMatchingInterval: number; // New: Order matching engine interval
 }
 
 export const DEFAULT_SERVICE_CONFIG: ScheduledServiceConfig = {
@@ -33,6 +35,7 @@ export const DEFAULT_SERVICE_CONFIG: ScheduledServiceConfig = {
   marginMaintenanceInterval: 300000, // 5 minutes
   newsDistributionInterval: 120000,  // 2 minutes
   informationTierSyncInterval: 600000, // 10 minutes
+  orderMatchingInterval: 5000, // 5 seconds - Fast order matching for responsive trading
 };
 
 export class Phase1ScheduledServices {
@@ -66,6 +69,9 @@ export class Phase1ScheduledServices {
     
     // Information Tier News Distribution
     this.startInformationTierServices();
+    
+    // Order Matching Engine - Core Trading Foundation
+    this.startOrderMatchingEngine();
     
     this.isRunning = true;
     console.log('✅ Phase 1 Scheduled Services started successfully');
@@ -350,6 +356,23 @@ export class Phase1ScheduledServices {
     } catch (error) {
       console.error('News distribution cycle failed:', error);
     }
+  }
+
+  /**
+   * CRITICAL: Order Matching Engine
+   * Matches limit orders and executes trades based on price movements
+   */
+  private startOrderMatchingEngine(): void {
+    const interval = setInterval(async () => {
+      try {
+        await orderMatchingEngine.processOrders();
+      } catch (error) {
+        console.error('Order matching engine failed:', error);
+      }
+    }, this.config.orderMatchingInterval);
+    
+    this.intervals.set('orderMatchingEngine', interval);
+    console.log(`⚡ Order Matching Engine scheduled every ${this.config.orderMatchingInterval / 1000}s`);
   }
 
   /**

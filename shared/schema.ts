@@ -759,6 +759,125 @@ export type InsertAssetCurrentPrice = z.infer<typeof insertAssetCurrentPriceSche
 export type TradingLimit = typeof tradingLimits.$inferSelect;
 export type InsertTradingLimit = z.infer<typeof insertTradingLimitSchema>;
 
+// PHASE 1 CORE TRADING FOUNDATIONS - Real Order Execution and Portfolio Management
+
+// Trades table - Executed trades history with P&L tracking
+export const trades = pgTable("trades", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  portfolioId: varchar("portfolio_id").notNull().references(() => portfolios.id),
+  assetId: varchar("asset_id").notNull().references(() => assets.id),
+  orderId: varchar("order_id").references(() => orders.id), // Link to the order that created this trade
+  side: text("side").notNull(), // 'buy' or 'sell'
+  quantity: decimal("quantity", { precision: 10, scale: 4 }).notNull(),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  totalValue: decimal("total_value", { precision: 15, scale: 2 }).notNull(),
+  fees: decimal("fees", { precision: 10, scale: 2 }).default("0.00"),
+  // P&L Tracking
+  pnl: decimal("pnl", { precision: 15, scale: 2 }), // Realized P&L for sell trades
+  pnlPercent: decimal("pnl_percent", { precision: 8, scale: 2 }), // Percentage P&L
+  costBasis: decimal("cost_basis", { precision: 15, scale: 2 }), // For sell trades - the original cost
+  // Trade metadata
+  executedAt: timestamp("executed_at").defaultNow().notNull(),
+  tradeType: text("trade_type").default("manual"), // 'manual', 'stop_loss', 'take_profit', 'liquidation'
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Positions table - Current open positions with unrealized P&L
+export const positions = pgTable("positions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  portfolioId: varchar("portfolio_id").notNull().references(() => portfolios.id),
+  assetId: varchar("asset_id").notNull().references(() => assets.id),
+  quantity: decimal("quantity", { precision: 10, scale: 4 }).notNull(),
+  averageCost: decimal("average_cost", { precision: 10, scale: 2 }).notNull(),
+  totalCostBasis: decimal("total_cost_basis", { precision: 15, scale: 2 }).notNull(),
+  currentValue: decimal("current_value", { precision: 15, scale: 2 }),
+  currentPrice: decimal("current_price", { precision: 10, scale: 2 }),
+  unrealizedPnl: decimal("unrealized_pnl", { precision: 15, scale: 2 }),
+  unrealizedPnlPercent: decimal("unrealized_pnl_percent", { precision: 8, scale: 2 }),
+  // Position metadata
+  firstBuyDate: timestamp("first_buy_date").notNull(),
+  lastTradeDate: timestamp("last_trade_date").notNull(),
+  totalBuys: integer("total_buys").default(1),
+  totalSells: integer("total_sells").default(0),
+  holdingPeriodDays: integer("holding_period_days"),
+  // Risk management
+  stopLossPrice: decimal("stop_loss_price", { precision: 10, scale: 2 }),
+  takeProfitPrice: decimal("take_profit_price", { precision: 10, scale: 2 }),
+  maxPositionValue: decimal("max_position_value", { precision: 15, scale: 2 }), // Historical max value
+  maxUnrealizedProfit: decimal("max_unrealized_profit", { precision: 15, scale: 2 }), // Track max profit reached
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Balances table - User account balances and buying power
+export const balances = pgTable("balances", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  portfolioId: varchar("portfolio_id").notNull().references(() => portfolios.id),
+  // Core balances
+  cash: decimal("cash", { precision: 15, scale: 2 }).notNull().default("100000.00"),
+  totalValue: decimal("total_value", { precision: 15, scale: 2 }).notNull().default("100000.00"),
+  buyingPower: decimal("buying_power", { precision: 15, scale: 2 }).notNull().default("100000.00"),
+  // Position values
+  positionsValue: decimal("positions_value", { precision: 15, scale: 2 }).default("0.00"),
+  totalCostBasis: decimal("total_cost_basis", { precision: 15, scale: 2 }).default("0.00"),
+  // P&L tracking
+  realizedPnl: decimal("realized_pnl", { precision: 15, scale: 2 }).default("0.00"),
+  unrealizedPnl: decimal("unrealized_pnl", { precision: 15, scale: 2 }).default("0.00"),
+  totalPnl: decimal("total_pnl", { precision: 15, scale: 2 }).default("0.00"),
+  // Daily tracking
+  dayStartBalance: decimal("day_start_balance", { precision: 15, scale: 2 }),
+  dayPnl: decimal("day_pnl", { precision: 15, scale: 2 }).default("0.00"),
+  dayPnlPercent: decimal("day_pnl_percent", { precision: 8, scale: 2 }).default("0.00"),
+  // Performance metrics
+  allTimeHigh: decimal("all_time_high", { precision: 15, scale: 2 }).default("100000.00"),
+  allTimeLow: decimal("all_time_low", { precision: 15, scale: 2 }).default("100000.00"),
+  winRate: decimal("win_rate", { precision: 5, scale: 2 }), // Percentage of winning trades
+  sharpeRatio: decimal("sharpe_ratio", { precision: 5, scale: 2 }), // Risk-adjusted returns
+  // Margin and risk
+  marginUsed: decimal("margin_used", { precision: 15, scale: 2 }).default("0.00"),
+  maintenanceMargin: decimal("maintenance_margin", { precision: 15, scale: 2 }).default("0.00"),
+  marginCallLevel: decimal("margin_call_level", { precision: 15, scale: 2 }),
+  // Timestamps
+  lastTradeAt: timestamp("last_trade_at"),
+  lastCalculatedAt: timestamp("last_calculated_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Insert schemas for new trading tables
+export const insertTradeSchema = createInsertSchema(trades).omit({
+  id: true,
+  executedAt: true,
+  createdAt: true,
+});
+
+export const insertPositionSchema = createInsertSchema(positions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertBalanceSchema = createInsertSchema(balances).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  lastCalculatedAt: true,
+});
+
+// Export types for new trading tables
+export type Trade = typeof trades.$inferSelect;
+export type InsertTrade = z.infer<typeof insertTradeSchema>;
+
+export type Position = typeof positions.$inferSelect;
+export type InsertPosition = z.infer<typeof insertPositionSchema>;
+
+export type Balance = typeof balances.$inferSelect;
+export type InsertBalance = z.infer<typeof insertBalanceSchema>;
+
 // NOTIFICATION SYSTEM TABLES - Phase 1 Real-time Notifications
 
 // Notifications table for storing notification history

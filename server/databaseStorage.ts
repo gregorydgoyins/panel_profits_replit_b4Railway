@@ -8,6 +8,8 @@ import {
   comicGradingPredictions, users, comicSeries, comicIssues, comicCreators, featuredComics,
   // Phase 1 Trading Extensions
   tradingSessions, assetCurrentPrices, tradingLimits,
+  // Phase 1 Core Trading Foundations
+  trades, positions, balances,
   // Leaderboard System Tables
   traderStats, leaderboardCategories, userAchievements,
   // Enhanced Data Tables
@@ -39,6 +41,8 @@ import type {
   // Phase 1 Trading Extensions
   TradingSession, InsertTradingSession, AssetCurrentPrice, InsertAssetCurrentPrice,
   TradingLimit, InsertTradingLimit,
+  // Phase 1 Core Trading Foundations
+  Trade, InsertTrade, Position, InsertPosition, Balance, InsertBalance,
   // Leaderboard System Types
   TraderStats, InsertTraderStats, LeaderboardCategory, InsertLeaderboardCategory,
   UserAchievement, InsertUserAchievement,
@@ -4409,6 +4413,164 @@ export class DatabaseStorage implements IStorage {
       growthRate: Math.round(growthRate * 100) / 100,
       topPerformers
     };
+  }
+
+  // ==========================================
+  // PHASE 1 CORE TRADING FOUNDATIONS
+  // ==========================================
+
+  // Trades - Executed trades with P&L tracking
+  async getTrade(id: string): Promise<Trade | undefined> {
+    const [trade] = await this.db.select().from(trades).where(eq(trades.id, id)).limit(1);
+    return trade;
+  }
+
+  async getTrades(userId: string, portfolioId: string, limit?: number): Promise<Trade[]> {
+    const query = this.db
+      .select()
+      .from(trades)
+      .where(and(
+        eq(trades.userId, userId),
+        eq(trades.portfolioId, portfolioId)
+      ))
+      .orderBy(desc(trades.executedAt));
+    
+    return limit ? await query.limit(limit) : await query;
+  }
+
+  async getTradesByAsset(userId: string, assetId: string, limit?: number): Promise<Trade[]> {
+    const query = this.db
+      .select()
+      .from(trades)
+      .where(and(
+        eq(trades.userId, userId),
+        eq(trades.assetId, assetId)
+      ))
+      .orderBy(desc(trades.executedAt));
+    
+    return limit ? await query.limit(limit) : await query;
+  }
+
+  async createTrade(trade: InsertTrade): Promise<Trade> {
+    const [newTrade] = await this.db.insert(trades).values(trade).returning();
+    return newTrade;
+  }
+
+  async updateTrade(id: string, trade: Partial<InsertTrade>): Promise<Trade | undefined> {
+    const [updated] = await this.db
+      .update(trades)
+      .set({ ...trade, updatedAt: new Date() })
+      .where(eq(trades.id, id))
+      .returning();
+    return updated;
+  }
+  
+  // Positions - Current open positions with unrealized P&L
+  async getPosition(userId: string, portfolioId: string, assetId: string): Promise<Position | undefined> {
+    const [position] = await this.db
+      .select()
+      .from(positions)
+      .where(and(
+        eq(positions.userId, userId),
+        eq(positions.portfolioId, portfolioId),
+        eq(positions.assetId, assetId)
+      ))
+      .limit(1);
+    return position;
+  }
+
+  async getPositions(userId: string, portfolioId: string): Promise<Position[]> {
+    return await this.db
+      .select()
+      .from(positions)
+      .where(and(
+        eq(positions.userId, userId),
+        eq(positions.portfolioId, portfolioId)
+      ))
+      .orderBy(desc(positions.currentValue));
+  }
+
+  async getPositionById(id: string): Promise<Position | undefined> {
+    const [position] = await this.db.select().from(positions).where(eq(positions.id, id)).limit(1);
+    return position;
+  }
+
+  async createPosition(position: InsertPosition): Promise<Position> {
+    const [newPosition] = await this.db.insert(positions).values(position).returning();
+    return newPosition;
+  }
+
+  async updatePosition(id: string, position: Partial<InsertPosition>): Promise<Position | undefined> {
+    const [updated] = await this.db
+      .update(positions)
+      .set({ ...position, updatedAt: new Date() })
+      .where(eq(positions.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deletePosition(id: string): Promise<boolean> {
+    const result = await this.db.delete(positions).where(eq(positions.id, id));
+    return result.rowCount ? result.rowCount > 0 : false;
+  }
+  
+  // Balances - User account balances and buying power
+  async getBalance(userId: string, portfolioId: string): Promise<Balance | undefined> {
+    const [balance] = await this.db
+      .select()
+      .from(balances)
+      .where(and(
+        eq(balances.userId, userId),
+        eq(balances.portfolioId, portfolioId)
+      ))
+      .limit(1);
+    return balance;
+  }
+
+  async getBalanceById(id: string): Promise<Balance | undefined> {
+    const [balance] = await this.db.select().from(balances).where(eq(balances.id, id)).limit(1);
+    return balance;
+  }
+
+  async createBalance(balance: InsertBalance): Promise<Balance> {
+    const [newBalance] = await this.db.insert(balances).values(balance).returning();
+    return newBalance;
+  }
+
+  async updateBalance(id: string, balance: Partial<InsertBalance>): Promise<Balance | undefined> {
+    const [updated] = await this.db
+      .update(balances)
+      .set({ ...balance, updatedAt: new Date() })
+      .where(eq(balances.id, id))
+      .returning();
+    return updated;
+  }
+
+  async recalculateBalance(userId: string, portfolioId: string): Promise<Balance | undefined> {
+    // Get current positions
+    const userPositions = await this.getPositions(userId, portfolioId);
+    
+    // Calculate total value from positions
+    const positionsValue = userPositions.reduce((sum, position) => 
+      sum + parseFloat(position.currentValue || '0'), 0
+    );
+    
+    // Get current balance
+    const balance = await this.getBalance(userId, portfolioId);
+    
+    if (balance) {
+      const cash = parseFloat(balance.cash);
+      const reservedCash = parseFloat(balance.reservedCash || '0');
+      const totalValue = cash + positionsValue;
+      const buyingPower = cash - reservedCash;
+      
+      return await this.updateBalance(balance.id, {
+        totalValue: totalValue.toString(),
+        buyingPower: buyingPower.toString()
+      });
+    }
+    
+    return undefined;
   }
 }
 

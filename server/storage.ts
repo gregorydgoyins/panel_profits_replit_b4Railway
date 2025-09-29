@@ -23,6 +23,10 @@ import {
   type TradingSession, type InsertTradingSession,
   type AssetCurrentPrice, type InsertAssetCurrentPrice,
   type TradingLimit, type InsertTradingLimit,
+  // Phase 1 Core Trading Foundations
+  type Trade, type InsertTrade,
+  type Position, type InsertPosition,
+  type Balance, type InsertBalance,
   // Notification System Types
   type Notification, type InsertNotification,
   type PriceAlert, type InsertPriceAlert,
@@ -293,6 +297,30 @@ export interface IStorage {
   // Portfolio Cash Management
   updatePortfolioCashBalance(portfolioId: string, amount: string, operation: 'add' | 'subtract' | 'set'): Promise<Portfolio | undefined>;
   getPortfolioAvailableCash(portfolioId: string): Promise<{ cashBalance: string; reservedCash: string; availableCash: string }>;
+
+  // PHASE 1 CORE TRADING FOUNDATIONS
+
+  // Trades - Executed trades with P&L tracking
+  getTrade(id: string): Promise<Trade | undefined>;
+  getTrades(userId: string, portfolioId: string, limit?: number): Promise<Trade[]>;
+  getTradesByAsset(userId: string, assetId: string, limit?: number): Promise<Trade[]>;
+  createTrade(trade: InsertTrade): Promise<Trade>;
+  updateTrade(id: string, trade: Partial<InsertTrade>): Promise<Trade | undefined>;
+  
+  // Positions - Current open positions with unrealized P&L
+  getPosition(userId: string, portfolioId: string, assetId: string): Promise<Position | undefined>;
+  getPositions(userId: string, portfolioId: string): Promise<Position[]>;
+  getPositionById(id: string): Promise<Position | undefined>;
+  createPosition(position: InsertPosition): Promise<Position>;
+  updatePosition(id: string, position: Partial<InsertPosition>): Promise<Position | undefined>;
+  deletePosition(id: string): Promise<boolean>;
+  
+  // Balances - User account balances and buying power
+  getBalance(userId: string, portfolioId: string): Promise<Balance | undefined>;
+  getBalanceById(id: string): Promise<Balance | undefined>;
+  createBalance(balance: InsertBalance): Promise<Balance>;
+  updateBalance(id: string, balance: Partial<InsertBalance>): Promise<Balance | undefined>;
+  recalculateBalance(userId: string, portfolioId: string): Promise<Balance | undefined>;
 
   // NOTIFICATION SYSTEM METHODS
 

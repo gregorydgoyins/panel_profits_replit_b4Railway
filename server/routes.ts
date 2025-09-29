@@ -19,6 +19,7 @@ import enhancedAiRoutes from "./routes/enhancedAiRoutes.js";
 import visualStorytellingRoutes from "./routes/visualStorytellingRoutes.js";
 import progressionRoutes from "./routes/progressionRoutes.js";
 import phase1Routes from "./phase1Routes.js";
+import tradingRoutes from "./routes/tradingRoutes.js";
 import { registerStoryMarketRoutes } from "./routes/storyMarketRoutes.js";
 import { marketSimulation, orderMatching } from "./marketSimulation.js";
 import { leaderboardService } from "./leaderboardService.js";
@@ -1041,6 +1042,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Phase 1: Core Trading Foundation Routes
   app.use("/api/phase1", isAuthenticated, phase1Routes);
+
+  // Phase 1: Trading Routes
+  app.use("/api/trading", isAuthenticated, tradingRoutes);
 
   // Phase 1: Initialization Route
   app.post("/api/phase1/initialize", isAuthenticated, async (req, res) => {
