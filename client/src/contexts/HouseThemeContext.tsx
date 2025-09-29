@@ -1,13 +1,13 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export type MythologicalHouse = 
-  | 'eternity'
-  | 'conquest' 
   | 'heroes'
-  | 'ragnarok'
-  | 'balance'
-  | 'ancestors'
-  | 'karma';
+  | 'wisdom'
+  | 'power'
+  | 'mystery'
+  | 'elements'
+  | 'time'
+  | 'spirit';
 
 export interface HouseTheme {
   id: MythologicalHouse;
@@ -20,68 +20,68 @@ export interface HouseTheme {
 }
 
 export const MYTHOLOGICAL_HOUSES: Record<MythologicalHouse, HouseTheme> = {
-  eternity: {
-    id: 'eternity',
-    name: 'House of Eternity',
-    description: 'Masters of time and ancient wisdom',
-    mythology: 'Egyptian',
-    primaryColor: 'house-eternity',
-    accentColor: 'house-eternity-accent',
-    iconName: 'pyramid',
-  },
-  conquest: {
-    id: 'conquest',
-    name: 'House of Conquest',
-    description: 'Warriors of empire and dominion',
-    mythology: 'Roman',
-    primaryColor: 'house-conquest',
-    accentColor: 'house-conquest-accent',
-    iconName: 'sword',
-  },
   heroes: {
     id: 'heroes',
     name: 'House of Heroes',
-    description: 'Champions of honor and glory',
-    mythology: 'Greek',
+    description: 'Masters of character options and futures',
+    mythology: 'Character Assets',
     primaryColor: 'house-heroes',
     accentColor: 'house-heroes-accent',
     iconName: 'shield',
   },
-  ragnarok: {
-    id: 'ragnarok',
-    name: 'House of Ragnarok',
-    description: 'Wielders of storm and fate',
-    mythology: 'Norse',
-    primaryColor: 'house-ragnarok',
-    accentColor: 'house-ragnarok-accent',
+  wisdom: {
+    id: 'wisdom',
+    name: 'House of Wisdom',
+    description: 'Scholars of creator bonds and intellectual property',
+    mythology: 'Creator Assets',
+    primaryColor: 'house-wisdom',
+    accentColor: 'house-wisdom-accent',
+    iconName: 'book-open',
+  },
+  power: {
+    id: 'power',
+    name: 'House of Power',
+    description: 'Rulers of publisher stocks and franchise NFTs',
+    mythology: 'Publisher Assets',
+    primaryColor: 'house-power',
+    accentColor: 'house-power-accent',
+    iconName: 'crown',
+  },
+  mystery: {
+    id: 'mystery',
+    name: 'House of Mystery',
+    description: 'Seers of rare issue derivatives and speculation tokens',
+    mythology: 'Rare Assets',
+    primaryColor: 'house-mystery',
+    accentColor: 'house-mystery-accent',
     iconName: 'zap',
   },
-  balance: {
-    id: 'balance',
-    name: 'House of Balance',
-    description: 'Seekers of harmony and inner peace',
-    mythology: 'Asian',
-    primaryColor: 'house-balance',
-    accentColor: 'house-balance-accent',
-    iconName: 'yin-yang',
+  elements: {
+    id: 'elements',
+    name: 'House of Elements',
+    description: 'Wielders of cross-universe asset baskets',
+    mythology: 'Multi-Universe Assets',
+    primaryColor: 'house-elements',
+    accentColor: 'house-elements-accent',
+    iconName: 'flame',
   },
-  ancestors: {
-    id: 'ancestors',
-    name: 'House of Ancestors',
-    description: 'Keepers of heritage and tribal wisdom',
-    mythology: 'African',
-    primaryColor: 'house-ancestors',
-    accentColor: 'house-ancestors-accent',
-    iconName: 'tree-palm',
+  time: {
+    id: 'time',
+    name: 'House of Time',
+    description: 'Guardians of historical price prediction markets',
+    mythology: 'Historical Assets',
+    primaryColor: 'house-time',
+    accentColor: 'house-time-accent',
+    iconName: 'clock',
   },
-  karma: {
-    id: 'karma',
-    name: 'House of Karma',
-    description: 'Guardians of cosmic balance and enlightenment',
-    mythology: 'Indian',
-    primaryColor: 'house-karma',
-    accentColor: 'house-karma-accent',
-    iconName: 'flower-lotus',
+  spirit: {
+    id: 'spirit',
+    name: 'House of Spirit',
+    description: 'Masters of community sentiment and social trading',
+    mythology: 'Social Assets',
+    primaryColor: 'house-spirit',
+    accentColor: 'house-spirit-accent',
+    iconName: 'users',
   },
 };
 

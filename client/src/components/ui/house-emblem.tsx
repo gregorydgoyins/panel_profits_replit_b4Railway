@@ -104,30 +104,30 @@ export function HouseEmblem({
 }
 
 // Predefined emblem combinations for common use cases
-export function EternityEmblem(props: Omit<HouseEmblemProps, 'house'>) {
-  return <HouseEmblem house="eternity" {...props} />;
-}
-
-export function ConquestEmblem(props: Omit<HouseEmblemProps, 'house'>) {
-  return <HouseEmblem house="conquest" {...props} />;
-}
-
 export function HeroesEmblem(props: Omit<HouseEmblemProps, 'house'>) {
   return <HouseEmblem house="heroes" {...props} />;
 }
 
-export function RagnarokEmblem(props: Omit<HouseEmblemProps, 'house'>) {
-  return <HouseEmblem house="ragnarok" {...props} />;
+export function WisdomEmblem(props: Omit<HouseEmblemProps, 'house'>) {
+  return <HouseEmblem house="wisdom" {...props} />;
 }
 
-export function BalanceEmblem(props: Omit<HouseEmblemProps, 'house'>) {
-  return <HouseEmblem house="balance" {...props} />;
+export function PowerEmblem(props: Omit<HouseEmblemProps, 'house'>) {
+  return <HouseEmblem house="power" {...props} />;
 }
 
-export function AncestorsEmblem(props: Omit<HouseEmblemProps, 'house'>) {
-  return <HouseEmblem house="ancestors" {...props} />;
+export function MysteryEmblem(props: Omit<HouseEmblemProps, 'house'>) {
+  return <HouseEmblem house="mystery" {...props} />;
 }
 
-export function KarmaEmblem(props: Omit<HouseEmblemProps, 'house'>) {
-  return <HouseEmblem house="karma" {...props} />;
+export function ElementsEmblem(props: Omit<HouseEmblemProps, 'house'>) {
+  return <HouseEmblem house="elements" {...props} />;
+}
+
+export function TimeEmblem(props: Omit<HouseEmblemProps, 'house'>) {
+  return <HouseEmblem house="time" {...props} />;
+}
+
+export function SpiritEmblem(props: Omit<HouseEmblemProps, 'house'>) {
+  return <HouseEmblem house="spirit" {...props} />;
 }

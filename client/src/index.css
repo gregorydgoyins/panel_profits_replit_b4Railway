@@ -79,69 +79,69 @@
   --chart-4: 48 96% 65%;
   --chart-5: 0 84% 55%;
 
-  /* Seven Mythological Houses Color Palettes - Light Mode */
-  /* House of Eternity (Egyptian) - Gold with hieroglyphic accents */
-  --house-eternity-primary: 43 74% 49%;
-  --house-eternity-primary-foreground: 30 26% 9%;
-  --house-eternity-secondary: 45 93% 47%;
-  --house-eternity-accent: 48 95% 53%;
-  --house-eternity-background: 46 87% 65%;
-  --house-eternity-card: 45 86% 62%;
-  --house-eternity-border: 43 70% 45%;
-
-  /* House of Conquest (Roman) - Deep red with imperial elements */
-  --house-conquest-primary: 0 100% 27%;
-  --house-conquest-primary-foreground: 0 0% 98%;
-  --house-conquest-secondary: 0 84% 35%;
-  --house-conquest-accent: 14 91% 43%;
-  --house-conquest-background: 0 65% 51%;
-  --house-conquest-card: 0 70% 48%;
-  --house-conquest-border: 0 85% 32%;
-
-  /* House of Heroes (Greek) - Royal blue with heroic themes */
-  --house-heroes-primary: 225 73% 57%;
+  /* Seven Mythological Houses Color Palettes - Trading Specializations */
+  /* House of Heroes - Character Assets (Red/Orange) */
+  --house-heroes-primary: 0 84% 60%;
   --house-heroes-primary-foreground: 0 0% 98%;
-  --house-heroes-secondary: 213 93% 68%;
-  --house-heroes-accent: 207 90% 61%;
-  --house-heroes-background: 220 60% 50%;
-  --house-heroes-card: 218 65% 52%;
-  --house-heroes-border: 225 68% 53%;
+  --house-heroes-secondary: 14 91% 43%;
+  --house-heroes-accent: 22 91% 50%;
+  --house-heroes-background: 8 88% 65%;
+  --house-heroes-card: 12 85% 62%;
+  --house-heroes-border: 0 80% 55%;
 
-  /* House of Ragnarok (Norse) - Storm blue with runic elements */
-  --house-ragnarok-primary: 210 46% 28%;
-  --house-ragnarok-primary-foreground: 0 0% 98%;
-  --house-ragnarok-secondary: 200 50% 35%;
-  --house-ragnarok-accent: 195 62% 45%;
-  --house-ragnarok-background: 205 42% 32%;
-  --house-ragnarok-card: 208 45% 30%;
-  --house-ragnarok-border: 210 40% 25%;
+  /* House of Wisdom - Creator Assets (Blue/Indigo) */
+  --house-wisdom-primary: 213 93% 68%;
+  --house-wisdom-primary-foreground: 0 0% 98%;
+  --house-wisdom-secondary: 225 73% 57%;
+  --house-wisdom-accent: 207 90% 61%;
+  --house-wisdom-background: 220 60% 50%;
+  --house-wisdom-card: 218 65% 52%;
+  --house-wisdom-border: 213 88% 63%;
 
-  /* House of Balance (Asian) - Zen orange with harmony motifs */
-  --house-balance-primary: 11 100% 60%;
-  --house-balance-primary-foreground: 0 0% 98%;
-  --house-balance-secondary: 24 95% 53%;
-  --house-balance-accent: 33 92% 51%;
-  --house-balance-background: 18 90% 55%;
-  --house-balance-card: 16 88% 58%;
-  --house-balance-border: 11 95% 57%;
+  /* House of Power - Publisher Assets (Purple/Violet) */
+  --house-power-primary: 271 81% 56%;
+  --house-power-primary-foreground: 0 0% 98%;
+  --house-power-secondary: 260 84% 48%;
+  --house-power-accent: 255 92% 76%;
+  --house-power-background: 266 75% 60%;
+  --house-power-card: 268 78% 58%;
+  --house-power-border: 271 76% 51%;
 
-  /* House of Ancestors (African) - Earth brown with tribal patterns */
-  --house-ancestors-primary: 25 50% 35%;
-  --house-ancestors-primary-foreground: 0 0% 98%;
-  --house-ancestors-secondary: 30 45% 40%;
-  --house-ancestors-accent: 35 55% 45%;
-  --house-ancestors-background: 28 48% 38%;
-  --house-ancestors-card: 32 52% 42%;
-  --house-ancestors-border: 25 45% 32%;
+  /* House of Mystery - Rare Assets (Green/Emerald) */
+  --house-mystery-primary: 142 76% 36%;
+  --house-mystery-primary-foreground: 0 0% 98%;
+  --house-mystery-secondary: 160 84% 39%;
+  --house-mystery-accent: 158 64% 52%;
+  --house-mystery-background: 150 70% 45%;
+  --house-mystery-card: 155 68% 48%;
+  --house-mystery-border: 142 71% 31%;
 
-  /* House of Karma (Indian) - Cosmic purple with spiritual symbols */
-  --house-karma-primary: 300 100% 25%;
-  --house-karma-primary-foreground: 0 0% 98%;
-  --house-karma-secondary: 270 75% 35%;
-  --house-karma-accent: 285 90% 40%;
-  --house-karma-background: 290 65% 30%;
-  --house-karma-card: 295 70% 32%;
-  --house-karma-border: 300 90% 28%;
+  /* House of Elements - Multi-Universe Assets (Amber/Yellow) */
+  --house-elements-primary: 48 96% 89%;
+  --house-elements-primary-foreground: 30 26% 9%;
+  --house-elements-secondary: 45 93% 47%;
+  --house-elements-accent: 48 95% 53%;
+  --house-elements-background: 46 87% 65%;
+  --house-elements-card: 45 86% 62%;
+  --house-elements-border: 48 91% 85%;
+
+  /* House of Time - Historical Assets (Gray/Slate) */
+  --house-time-primary: 210 40% 15%;
+  --house-time-primary-foreground: 0 0% 98%;
+  --house-time-secondary: 215 50% 25%;
+  --house-time-accent: 210 60% 35%;
+  --house-time-background: 212 45% 20%;
+  --house-time-card: 214 48% 22%;
+  --house-time-border: 210 35% 10%;
+
+  /* House of Spirit - Social Assets (Teal/Cyan) */
+  --house-spirit-primary: 173 80% 40%;
+  --house-spirit-primary-foreground: 0 0% 98%;
+  --house-spirit-secondary: 180 83% 47%;
+  --house-spirit-accent: 172 66% 50%;
+  --house-spirit-background: 176 75% 45%;
+  --house-spirit-card: 178 78% 48%;
+  --house-spirit-border: 173 75% 35%;
 
   --font-sans: 'Hind', system-ui, sans-serif;
   --font-display: 'Space Grotesk', system-ui, sans-serif;
@@ -189,26 +189,26 @@
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 
   /* House Border Colors - Automatically computed */
-  --house-eternity-primary-border: hsl(var(--house-eternity-primary));
-  --house-eternity-primary-border: hsl(from hsl(var(--house-eternity-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  
-  --house-conquest-primary-border: hsl(var(--house-conquest-primary));
-  --house-conquest-primary-border: hsl(from hsl(var(--house-conquest-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  
   --house-heroes-primary-border: hsl(var(--house-heroes-primary));
   --house-heroes-primary-border: hsl(from hsl(var(--house-heroes-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
   
-  --house-ragnarok-primary-border: hsl(var(--house-ragnarok-primary));
-  --house-ragnarok-primary-border: hsl(from hsl(var(--house-ragnarok-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --house-wisdom-primary-border: hsl(var(--house-wisdom-primary));
+  --house-wisdom-primary-border: hsl(from hsl(var(--house-wisdom-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
   
-  --house-balance-primary-border: hsl(var(--house-balance-primary));
-  --house-balance-primary-border: hsl(from hsl(var(--house-balance-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --house-power-primary-border: hsl(var(--house-power-primary));
+  --house-power-primary-border: hsl(from hsl(var(--house-power-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
   
-  --house-ancestors-primary-border: hsl(var(--house-ancestors-primary));
-  --house-ancestors-primary-border: hsl(from hsl(var(--house-ancestors-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --house-mystery-primary-border: hsl(var(--house-mystery-primary));
+  --house-mystery-primary-border: hsl(from hsl(var(--house-mystery-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
   
-  --house-karma-primary-border: hsl(var(--house-karma-primary));
-  --house-karma-primary-border: hsl(from hsl(var(--house-karma-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --house-elements-primary-border: hsl(var(--house-elements-primary));
+  --house-elements-primary-border: hsl(from hsl(var(--house-elements-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  
+  --house-time-primary-border: hsl(var(--house-time-primary));
+  --house-time-primary-border: hsl(from hsl(var(--house-time-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  
+  --house-spirit-primary-border: hsl(var(--house-spirit-primary));
+  --house-spirit-primary-border: hsl(from hsl(var(--house-spirit-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
 .dark {

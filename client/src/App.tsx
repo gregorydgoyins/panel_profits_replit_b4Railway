@@ -43,6 +43,11 @@ import SpectacularShowcase from '@/pages/SpectacularShowcase';
 import RealDataShowcase from '@/pages/RealDataShowcase';
 import PPIxDashboard from '@/pages/PPIxDashboard';
 
+// House pages
+import HouseSelection from '@/pages/HouseSelection';
+import HouseDashboard from '@/pages/HouseDashboard';
+import HouseCompetition from '@/pages/HouseCompetition';
+
 // WebSocket service for real-time data
 import { webSocketService } from '@/services/websocketService';
 
@@ -119,6 +124,11 @@ function Router() {
       
       {/* PPIx Market Indices Dashboard */}
       <Route path="/ppix" component={PPIxDashboard} />
+      
+      {/* House routes */}
+      <Route path="/houses" component={HouseSelection} />
+      <Route path="/houses/dashboard" component={HouseDashboard} />
+      <Route path="/houses/competition" component={HouseCompetition} />
       
           <Route component={NotFound} />
         </>

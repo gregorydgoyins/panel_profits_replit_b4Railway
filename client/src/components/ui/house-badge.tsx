@@ -143,30 +143,30 @@ export function HouseToken({
 }
 
 // Predefined badge variants for each house
-export function EternityBadge(props: Omit<HouseBadgeProps, 'house'>) {
-  return <HouseBadge house="eternity" {...props} />;
-}
-
-export function ConquestBadge(props: Omit<HouseBadgeProps, 'house'>) {
-  return <HouseBadge house="conquest" {...props} />;
-}
-
 export function HeroesBadge(props: Omit<HouseBadgeProps, 'house'>) {
   return <HouseBadge house="heroes" {...props} />;
 }
 
-export function RagnarokBadge(props: Omit<HouseBadgeProps, 'house'>) {
-  return <HouseBadge house="ragnarok" {...props} />;
+export function WisdomBadge(props: Omit<HouseBadgeProps, 'house'>) {
+  return <HouseBadge house="wisdom" {...props} />;
 }
 
-export function BalanceBadge(props: Omit<HouseBadgeProps, 'house'>) {
-  return <HouseBadge house="balance" {...props} />;
+export function PowerBadge(props: Omit<HouseBadgeProps, 'house'>) {
+  return <HouseBadge house="power" {...props} />;
 }
 
-export function AncestorsBadge(props: Omit<HouseBadgeProps, 'house'>) {
-  return <HouseBadge house="ancestors" {...props} />;
+export function MysteryBadge(props: Omit<HouseBadgeProps, 'house'>) {
+  return <HouseBadge house="mystery" {...props} />;
 }
 
-export function KarmaBadge(props: Omit<HouseBadgeProps, 'house'>) {
-  return <HouseBadge house="karma" {...props} />;
+export function ElementsBadge(props: Omit<HouseBadgeProps, 'house'>) {
+  return <HouseBadge house="elements" {...props} />;
+}
+
+export function TimeBadge(props: Omit<HouseBadgeProps, 'house'>) {
+  return <HouseBadge house="time" {...props} />;
+}
+
+export function SpiritBadge(props: Omit<HouseBadgeProps, 'house'>) {
+  return <HouseBadge house="spirit" {...props} />;
 }

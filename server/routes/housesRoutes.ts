@@ -359,4 +359,257 @@ router.get('/my-house', isAuthenticated, async (req: any, res) => {
   }
 });
 
+// GET /api/houses/:houseId/competition - Get house competition data
+router.get('/:houseId/competition', async (req, res) => {
+  try {
+    const { houseId } = req.params;
+    const house = MYTHOLOGICAL_HOUSES[houseId as keyof typeof MYTHOLOGICAL_HOUSES];
+    
+    if (!house) {
+      return res.status(404).json({
+        success: false,
+        error: 'House not found'
+      });
+    }
+
+    // Get house competition metrics
+    const memberCount = await storage.getHouseMemberCount(houseId);
+    const members = await storage.getHouseMembers(houseId, 10); // Top 10 for calculations
+    
+    // Calculate house karma totals
+    let totalKarma = 0;
+    let topTraderKarma = 0;
+    for (const member of members) {
+      const memberKarma = await storage.getUserKarma(member.id);
+      totalKarma += memberKarma;
+      if (memberKarma > topTraderKarma) {
+        topTraderKarma = memberKarma;
+      }
+    }
+
+    const avgKarmaPerMember = memberCount > 0 ? Math.round(totalKarma / memberCount) : 0;
+    
+    // Calculate weekly growth (simulated for now - in real app this would be historical)
+    const weeklyGrowth = Math.random() * 20 - 10; // -10% to +10% for demo
+    
+    // Get achievements count (placeholder for now)
+    const achievements = Math.floor(totalKarma / 5000) + 2; // Based on karma milestones
+
+    res.json({
+      success: true,
+      house: houseId,
+      data: {
+        name: house.name,
+        specialization: house.specialization,
+        totalMembers: memberCount,
+        totalKarma,
+        avgKarmaPerMember,
+        weeklyGrowth,
+        topTraderKarma,
+        achievements,
+        lastUpdated: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching house competition data:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch house competition data' 
+    });
+  }
+});
+
+// GET /api/houses/leaderboard - Get overall house competition leaderboard
+router.get('/leaderboard', async (req, res) => {
+  try {
+    const metric = req.query.metric as string || 'karma';
+    const period = req.query.period as string || 'week';
+    
+    const houseLeaderboard = [];
+    
+    // Get data for all houses
+    for (const [houseId, house] of Object.entries(MYTHOLOGICAL_HOUSES)) {
+      const memberCount = await storage.getHouseMemberCount(houseId);
+      const members = await storage.getHouseMembers(houseId, 50); // Get more members for better calculations
+      
+      // Calculate house metrics
+      let totalKarma = 0;
+      let topTraderKarma = 0;
+      for (const member of members) {
+        const memberKarma = await storage.getUserKarma(member.id);
+        totalKarma += memberKarma;
+        if (memberKarma > topTraderKarma) {
+          topTraderKarma = memberKarma;
+        }
+      }
+
+      const avgKarmaPerMember = memberCount > 0 ? Math.round(totalKarma / memberCount) : 0;
+      const weeklyGrowth = Math.random() * 20 - 10; // -10% to +10% for demo
+      const achievements = Math.floor(totalKarma / 5000) + 2;
+
+      houseLeaderboard.push({
+        house: houseId,
+        name: house.name,
+        specialization: house.specialization,
+        totalMembers: memberCount,
+        totalKarma,
+        avgKarmaPerMember,
+        weeklyGrowth,
+        topTraderKarma,
+        achievements
+      });
+    }
+
+    // Sort by the requested metric
+    houseLeaderboard.sort((a, b) => {
+      switch (metric) {
+        case 'karma':
+          return b.totalKarma - a.totalKarma;
+        case 'growth':
+          return b.weeklyGrowth - a.weeklyGrowth;
+        case 'members':
+          return b.totalMembers - a.totalMembers;
+        case 'avgKarma':
+          return b.avgKarmaPerMember - a.avgKarmaPerMember;
+        default:
+          return b.totalKarma - a.totalKarma;
+      }
+    });
+
+    // Add ranks
+    houseLeaderboard.forEach((house, index) => {
+      house.competitionRank = index + 1;
+    });
+
+    res.json({
+      success: true,
+      metric,
+      period,
+      leaderboard: houseLeaderboard,
+      lastUpdated: new Date().toISOString(),
+      totalHouses: houseLeaderboard.length
+    });
+
+  } catch (error) {
+    console.error('Error fetching house leaderboard:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch house leaderboard' 
+    });
+  }
+});
+
+// GET /api/houses/:houseId/recommendations - Get house-specific asset recommendations
+router.get('/:houseId/recommendations', isAuthenticated, async (req: any, res) => {
+  try {
+    const { houseId } = req.params;
+    const userId = req.user.claims.sub;
+    const limit = parseInt(req.query.limit as string) || 5;
+    const category = req.query.category as string || 'specialty';
+    
+    const house = MYTHOLOGICAL_HOUSES[houseId as keyof typeof MYTHOLOGICAL_HOUSES];
+    if (!house) {
+      return res.status(404).json({
+        success: false,
+        error: 'House not found'
+      });
+    }
+
+    // Get assets that match the house specialization
+    const assets = await storage.getAssets({ type: 'character' }); // For demo, get character assets
+    
+    // Create house-specific recommendations based on specialization
+    const recommendations = [];
+    let recommendationCount = 0;
+    
+    for (const asset of assets) {
+      if (recommendationCount >= limit) break;
+      
+      // Determine if this asset matches house specialization
+      let isSpecialtyMatch = false;
+      let houseBonus = 0;
+      let confidence = 50;
+      let reason = 'Market analysis indicates potential';
+      
+      switch (house.specialization) {
+        case 'Character Assets':
+          if (asset.type === 'character') {
+            isSpecialtyMatch = true;
+            houseBonus = Math.round((house.bonuses.characterTrades || 0.15) * 100);
+            confidence = 75 + Math.random() * 20;
+            reason = 'Strong character trading performance in your house specialty';
+          }
+          break;
+        case 'Creator Assets':
+          if (asset.type === 'creator') {
+            isSpecialtyMatch = true;
+            houseBonus = Math.round((house.bonuses.creatorTrades || 0.12) * 100);
+            confidence = 70 + Math.random() * 25;
+            reason = 'Creator asset aligned with House of Wisdom expertise';
+          }
+          break;
+        case 'Publisher Assets':
+          if (asset.type === 'publisher') {
+            isSpecialtyMatch = true;
+            houseBonus = Math.round(((1 - (house.bonuses.tradingFees || 0.85)) * 100));
+            confidence = 80 + Math.random() * 15;
+            reason = 'Publisher strength matches House of Power specialization';
+          }
+          break;
+        case 'Rare Assets':
+          if (asset.rarity === 'rare' || asset.rarity === 'ultra-rare') {
+            isSpecialtyMatch = true;
+            houseBonus = Math.round((house.bonuses.rareTrades || 0.20) * 100);
+            confidence = 85 + Math.random() * 10;
+            reason = 'Rare asset detection by House of Mystery seers';
+          }
+          break;
+      }
+      
+      // For specialty category, only include matching assets
+      if (category === 'specialty' && !isSpecialtyMatch) {
+        continue;
+      }
+      
+      // Get current price (mock for demo)
+      const currentPrice = 800 + Math.random() * 2000;
+      const priceChange = (Math.random() - 0.5) * 20; // -10% to +10%
+      
+      recommendations.push({
+        id: asset.id,
+        name: asset.name,
+        type: asset.type,
+        currentPrice: Math.round(currentPrice),
+        priceChange: parseFloat(priceChange.toFixed(2)),
+        houseBonus: isSpecialtyMatch ? houseBonus : 0,
+        confidence: Math.round(confidence),
+        reason,
+        specialization: house.specialization,
+        isSpecialtyMatch
+      });
+      
+      recommendationCount++;
+    }
+
+    res.json({
+      success: true,
+      house: houseId,
+      houseName: house.name,
+      specialization: house.specialization,
+      category,
+      recommendations,
+      totalRecommendations: recommendations.length,
+      lastUpdated: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error fetching house recommendations:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to fetch house recommendations' 
+    });
+  }
+});
+
 export default router;
