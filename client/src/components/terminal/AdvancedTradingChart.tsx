@@ -10,21 +10,9 @@ import {
   Maximize2, RefreshCw
 } from 'lucide-react';
 
-// Import Highcharts modules for financial charting
-import HC_indicators from 'highcharts/indicators/indicators';
-import HC_ema from 'highcharts/indicators/ema';
-import HC_rsi from 'highcharts/indicators/rsi';
-import HC_macd from 'highcharts/indicators/macd';
-import HC_bollinger from 'highcharts/indicators/bollinger-bands';
-
-// Initialize Highcharts modules
-if (typeof Highcharts === 'object') {
-  HC_indicators(Highcharts);
-  HC_ema(Highcharts);
-  HC_rsi(Highcharts);
-  HC_macd(Highcharts);
-  HC_bollinger(Highcharts);
-}
+// Basic Highcharts imports for financial charting
+// Note: For now, using basic chart functionality to avoid import issues
+// Technical indicators can be added later once the basic chart is working
 
 interface AdvancedTradingChartProps {
   symbol: string;

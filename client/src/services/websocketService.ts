@@ -186,8 +186,8 @@ class WebSocketService {
   subscribeToAsset(assetId: string): void {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify({
-        type: 'subscribe',
-        data: { assetId }
+        type: 'subscribe_asset',
+        assetId: assetId
       }));
       console.log('📡 Subscribed to asset updates:', assetId);
     }
@@ -199,8 +199,8 @@ class WebSocketService {
   unsubscribeFromAsset(assetId: string): void {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify({
-        type: 'unsubscribe',
-        data: { assetId }
+        type: 'unsubscribe_asset',
+        assetId: assetId
       }));
       console.log('📡 Unsubscribed from asset updates:', assetId);
     }

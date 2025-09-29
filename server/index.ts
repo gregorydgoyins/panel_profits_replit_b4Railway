@@ -40,9 +40,10 @@ app.use((req, res, next) => {
 
 (async () => {
   // Initialize critical WebSocket protocol override BEFORE any WebSocket servers start
-  console.log('🔒 Pre-initializing WebSocket protocol override for Vite HMR...');
-  initializeWebSocketProtocolOverride();
-  applyEmergencyProtocolOverride();
+  // TEMPORARILY DISABLED: WebSocket overrides are causing Vite HMR frame errors
+  // console.log('🔒 Pre-initializing WebSocket protocol override for Vite HMR...');
+  // initializeWebSocketProtocolOverride();
+  // applyEmergencyProtocolOverride();
   
   const server = await registerRoutes(app);
 
@@ -57,9 +58,15 @@ app.use((req, res, next) => {
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
-  // TEMPORARY: Force production mode to bypass Vite HMR WebSocket issues
-  console.log('🚀 [PRODUCTION-FORCE] Using production static asset serving to bypass Vite HMR');
-  serveStatic(app);
+  
+  // EMERGENCY FIX: Use Vite development mode to bypass corrupted production bundle
+  // The production build is corrupted, so we'll use Vite dev mode instead
+  if (process.env.NODE_ENV === "development") {
+    const { setupVite } = await import("./vite.js");
+    await setupVite(app, server);
+  } else {
+    serveStatic(app);
+  }
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
   // Other ports are firewalled. Default to 5000 if not specified.

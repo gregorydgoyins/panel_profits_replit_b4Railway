@@ -2054,30 +2054,42 @@ Respond with valid JSON in this exact format:
   }
 
   // FINAL FIX: Apply binary-level WebSocket frame protection
-  console.log('🔧 [FINAL] Applying final binary-level WebSocket fix...');
-  const { applyFinalWebSocketFix, overrideViteWebSocketProcessing } = await import('./utils/finalWebSocketFix.js');
-  applyFinalWebSocketFix();
-  overrideViteWebSocketProcessing();
+  // TEMPORARILY DISABLED: These WebSocket overrides cause Vite HMR frame errors
+  // console.log('🔧 [FINAL] Applying final binary-level WebSocket fix...');
+  // const { applyFinalWebSocketFix, overrideViteWebSocketProcessing } = await import('./utils/finalWebSocketFix.js');
+  // applyFinalWebSocketFix();
+  // overrideViteWebSocketProcessing();
   
   // ULTIMATE FIX: Apply comprehensive WebSocket character ID prevention
-  console.log('🚀 [ULTIMATE] Applying ultimate WebSocket character ID prevention...');
-  const { applyUltimateWebSocketFix } = await import('./utils/ultimateWebSocketFix.js');
-  applyUltimateWebSocketFix();
+  // TEMPORARILY DISABLED: These WebSocket overrides cause Vite HMR frame errors
+  // console.log('🚀 [ULTIMATE] Applying ultimate WebSocket character ID prevention...');
+  // const { applyUltimateWebSocketFix } = await import('./utils/ultimateWebSocketFix.js');
+  // applyUltimateWebSocketFix();
   
   // EMERGENCY FIX: Keep emergency fix as additional layer
-  console.log('🚨 [EMERGENCY] Applying final WebSocket character ID fix...');
-  const { applyEmergencyWebSocketFix } = await import('./utils/webSocketEmergencyFix.js');
-  applyEmergencyWebSocketFix();
+  // TEMPORARILY DISABLED: These WebSocket overrides cause Vite HMR frame errors
+  // console.log('🚨 [EMERGENCY] Applying final WebSocket character ID fix...');
+  // const { applyEmergencyWebSocketFix } = await import('./utils/webSocketEmergencyFix.js');
+  // applyEmergencyWebSocketFix();
 
   const httpServer = createServer(app);
 
-  // Setup WebSocket for real-time market data
-  const wss = new WebSocketServer({ server: httpServer });
+  // Setup WebSocket for real-time market data with proper path filtering
+  const wss = new WebSocketServer({ 
+    server: httpServer,
+    path: '/ws/market-data' // Only accept connections to this specific path
+  });
   
   // Store connected clients for broadcasting
   const marketDataClients = new Set<any>();
   
-  wss.on('connection', (ws) => {
+  wss.on('connection', (ws, req) => {
+    // Double-check the path to ensure we only handle market data WebSocket connections
+    if (req.url !== '/ws/market-data') {
+      console.warn(`🚫 Rejecting WebSocket connection to invalid path: ${req.url}`);
+      ws.close(1008, 'Invalid WebSocket path');
+      return;
+    }
     console.log('📡 New WebSocket client connected for market data');
     
     // Apply WebSocket close code sanitization to this connection
