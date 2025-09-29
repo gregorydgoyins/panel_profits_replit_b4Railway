@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { 
   Trophy, Star, Target, Crown, Flame, Zap, Shield, Swords, Eye,
-  TrendingUp, Award, Users, Sparkles, Crystal, Scroll, BookOpen,
+  TrendingUp, Award, Users, Sparkles, Scroll, BookOpen,
   Gem, Globe, Heart, Wand2, Sword, Feather
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -137,7 +137,7 @@ export function LegendaryAchievementShrine({ selectedHouse }: LegendaryAchieveme
       case 'battle': return <Swords className="h-4 w-4" />;
       case 'discovery': return <Eye className="h-4 w-4" />;
       case 'social': return <Users className="h-4 w-4" />;
-      case 'mystical': return <Crystal className="h-4 w-4" />;
+      case 'mystical': return <Gem className="h-4 w-4" />;
       default: return <Star className="h-4 w-4" />;
     }
   };
@@ -147,7 +147,7 @@ export function LegendaryAchievementShrine({ selectedHouse }: LegendaryAchieveme
       case 'heroes': return Shield;
       case 'wisdom': return BookOpen;
       case 'power': return Crown;
-      case 'mystery': return Crystal;
+      case 'mystery': return Gem;
       case 'elements': return Flame;
       case 'time': return Globe;
       case 'spirit': return Heart;

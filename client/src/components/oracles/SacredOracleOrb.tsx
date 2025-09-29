@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Brain, TrendingUp, TrendingDown, Zap, Activity, Eye, Crown, 
-  Shield, Flame, Crystal, Globe, Users, Star, Sparkles 
+  Shield, Flame, Globe, Users, Star, Sparkles 
 } from 'lucide-react';
 
 type HouseType = 'heroes' | 'wisdom' | 'power' | 'mystery' | 'elements' | 'time' | 'spirit';
@@ -176,7 +176,7 @@ export function SacredOracleOrb({ sentimentData, className = "", house = 'wisdom
       case 'heroes': return Shield;
       case 'wisdom': return Eye;
       case 'power': return Crown;
-      case 'mystery': return Crystal;
+      case 'mystery': return Gem;
       case 'elements': return Flame;
       case 'time': return Globe;
       case 'spirit': return Users;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Activity, TrendingUp, TrendingDown, Zap, Globe, Brain, Eye, Target, 
-  Crown, Shield, Crystal, Flame, Users, Clock, Star, Sparkles, 
+  Crown, Shield, Flame, Users, Clock, Star, Sparkles, 
   Scroll, Swords, Gem, BookOpen
 } from 'lucide-react';
 
@@ -192,7 +192,7 @@ export function MythicalRealmDashboard({ marketData, className = "" }: MythicalR
       case 'heroes': return Shield;
       case 'wisdom': return BookOpen;
       case 'power': return Crown;
-      case 'mystery': return Crystal;
+      case 'mystery': return Gem;
       case 'elements': return Flame;
       case 'time': return Clock;
       case 'spirit': return Users;

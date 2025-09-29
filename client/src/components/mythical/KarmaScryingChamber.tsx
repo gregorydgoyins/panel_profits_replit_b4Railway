@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
-  Crystal, Eye, Sparkles, Balance, Clock, Shield, BookOpen, Crown,
+  Gem, Eye, Sparkles, Balance, Clock, Shield, BookOpen, Crown,
   Flame, Users, Zap, TrendingUp, TrendingDown, Minus, Star,
   Swords, Heart, Scale, Moon, Sun, Compass, Orb
 } from 'lucide-react';
@@ -184,7 +184,7 @@ export function KarmaScryingChamber({ isOpen, onClose }: KarmaScryingChamberProp
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="relative">
-                <Crystal className="h-8 w-8 text-amber-400" />
+                <Gem className="h-8 w-8 text-amber-400" />
                 <div className="absolute inset-0 bg-amber-400/20 rounded-full blur-md animate-pulse" />
               </div>
               <div>
@@ -259,7 +259,7 @@ export function KarmaScryingChamber({ isOpen, onClose }: KarmaScryingChamberProp
                 data-testid="button-reveal-alignment"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                <Crystal className="mr-2 h-6 w-6" />
+                <Gem className="mr-2 h-6 w-6" />
                 {revealingAlignment ? 'Scrying the Cosmic Threads...' : 'Begin Sacred Scrying Ritual'}
               </Button>
 

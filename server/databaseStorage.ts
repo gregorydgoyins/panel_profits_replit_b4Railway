@@ -11,7 +11,10 @@ import {
   // Leaderboard System Tables
   traderStats, leaderboardCategories, userAchievements,
   // Enhanced Data Tables
-  enhancedCharacters, battleScenarios, enhancedComicIssues, moviePerformanceData
+  enhancedCharacters, battleScenarios, enhancedComicIssues, moviePerformanceData,
+  // Learning System Tables
+  learningPaths, sacredLessons, mysticalSkills, userLessonProgress, userSkillUnlocks,
+  trialsOfMastery, userTrialAttempts, divineCertifications, userCertifications, learningAnalytics
 } from '@shared/schema.js';
 import type {
   User, InsertUser, UpsertUser, Asset, InsertAsset, MarketData, InsertMarketData,
@@ -31,7 +34,13 @@ import type {
   UserAchievement, InsertUserAchievement,
   // Enhanced Data Types
   EnhancedCharacter, InsertEnhancedCharacter, BattleScenario, InsertBattleScenario,
-  EnhancedComicIssue, InsertEnhancedComicIssue, MoviePerformanceData, InsertMoviePerformanceData
+  EnhancedComicIssue, InsertEnhancedComicIssue, MoviePerformanceData, InsertMoviePerformanceData,
+  // Learning System Types
+  LearningPath, InsertLearningPath, SacredLesson, InsertSacredLesson, MysticalSkill, InsertMysticalSkill,
+  UserLessonProgress, InsertUserLessonProgress, UserSkillUnlock, InsertUserSkillUnlock,
+  TrialOfMastery, InsertTrialOfMastery, UserTrialAttempt, InsertUserTrialAttempt,
+  DivineCertification, InsertDivineCertification, UserCertification, InsertUserCertification,
+  LearningAnalytics, InsertLearningAnalytics
 } from '@shared/schema.js';
 import type { IStorage } from './storage.js';
 
@@ -2202,6 +2211,647 @@ export class DatabaseStorage implements IStorage {
       console.error('Error updating user:', error);
       return undefined;
     }
+  }
+
+  // ========================================================================================
+  // COMPREHENSIVE LEARNING SYSTEM IMPLEMENTATION
+  // ========================================================================================
+
+  // Learning Paths Management
+  async getLearningPath(id: string): Promise<LearningPath | undefined> {
+    try {
+      const result = await db.select().from(learningPaths).where(eq(learningPaths.id, id)).limit(1);
+      return result[0];
+    } catch (error) {
+      console.error('Error fetching learning path:', error);
+      return undefined;
+    }
+  }
+
+  async getLearningPaths(filters?: { houseId?: string; difficultyLevel?: string; isActive?: boolean }): Promise<LearningPath[]> {
+    try {
+      let query = db.select().from(learningPaths);
+      const conditions = [];
+
+      if (filters?.houseId) {
+        conditions.push(eq(learningPaths.houseId, filters.houseId));
+      }
+      if (filters?.difficultyLevel) {
+        conditions.push(eq(learningPaths.difficultyLevel, filters.difficultyLevel));
+      }
+      if (filters?.isActive !== undefined) {
+        conditions.push(eq(learningPaths.isActive, filters.isActive));
+      }
+
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
+      }
+
+      return await query.orderBy(learningPaths.displayOrder, learningPaths.createdAt);
+    } catch (error) {
+      console.error('Error fetching learning paths:', error);
+      return [];
+    }
+  }
+
+  async getLearningPathsByHouse(houseId: string): Promise<LearningPath[]> {
+    return await this.getLearningPaths({ houseId, isActive: true });
+  }
+
+  async createLearningPath(path: InsertLearningPath): Promise<LearningPath> {
+    try {
+      const result = await db.insert(learningPaths).values(path).returning();
+      return result[0];
+    } catch (error) {
+      console.error('Error creating learning path:', error);
+      throw error;
+    }
+  }
+
+  async updateLearningPath(id: string, path: Partial<InsertLearningPath>): Promise<LearningPath | undefined> {
+    try {
+      const [updated] = await db.update(learningPaths)
+        .set({ ...path, updatedAt: new Date() })
+        .where(eq(learningPaths.id, id))
+        .returning();
+      return updated;
+    } catch (error) {
+      console.error('Error updating learning path:', error);
+      return undefined;
+    }
+  }
+
+  async deleteLearningPath(id: string): Promise<boolean> {
+    try {
+      await db.delete(learningPaths).where(eq(learningPaths.id, id));
+      return true;
+    } catch (error) {
+      console.error('Error deleting learning path:', error);
+      return false;
+    }
+  }
+
+  // Sacred Lessons Management
+  async getSacredLesson(id: string): Promise<SacredLesson | undefined> {
+    try {
+      const result = await db.select().from(sacredLessons).where(eq(sacredLessons.id, id)).limit(1);
+      return result[0];
+    } catch (error) {
+      console.error('Error fetching sacred lesson:', error);
+      return undefined;
+    }
+  }
+
+  async getSacredLessons(filters?: { houseId?: string; pathId?: string; lessonType?: string; difficultyLevel?: string; isActive?: boolean }): Promise<SacredLesson[]> {
+    try {
+      let query = db.select().from(sacredLessons);
+      const conditions = [];
+
+      if (filters?.houseId) {
+        conditions.push(eq(sacredLessons.houseId, filters.houseId));
+      }
+      if (filters?.pathId) {
+        conditions.push(eq(sacredLessons.pathId, filters.pathId));
+      }
+      if (filters?.lessonType) {
+        conditions.push(eq(sacredLessons.lessonType, filters.lessonType));
+      }
+      if (filters?.difficultyLevel) {
+        conditions.push(eq(sacredLessons.difficultyLevel, filters.difficultyLevel));
+      }
+      if (filters?.isActive !== undefined) {
+        conditions.push(eq(sacredLessons.isActive, filters.isActive));
+      }
+
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
+      }
+
+      return await query.orderBy(sacredLessons.createdAt);
+    } catch (error) {
+      console.error('Error fetching sacred lessons:', error);
+      return [];
+    }
+  }
+
+  async getLessonsByPath(pathId: string): Promise<SacredLesson[]> {
+    return await this.getSacredLessons({ pathId, isActive: true });
+  }
+
+  async getLessonsByHouse(houseId: string): Promise<SacredLesson[]> {
+    return await this.getSacredLessons({ houseId, isActive: true });
+  }
+
+  async createSacredLesson(lesson: InsertSacredLesson): Promise<SacredLesson> {
+    try {
+      const result = await db.insert(sacredLessons).values(lesson).returning();
+      return result[0];
+    } catch (error) {
+      console.error('Error creating sacred lesson:', error);
+      throw error;
+    }
+  }
+
+  async updateSacredLesson(id: string, lesson: Partial<InsertSacredLesson>): Promise<SacredLesson | undefined> {
+    try {
+      const [updated] = await db.update(sacredLessons)
+        .set({ ...lesson, updatedAt: new Date() })
+        .where(eq(sacredLessons.id, id))
+        .returning();
+      return updated;
+    } catch (error) {
+      console.error('Error updating sacred lesson:', error);
+      return undefined;
+    }
+  }
+
+  async deleteSacredLesson(id: string): Promise<boolean> {
+    try {
+      await db.delete(sacredLessons).where(eq(sacredLessons.id, id));
+      return true;
+    } catch (error) {
+      console.error('Error deleting sacred lesson:', error);
+      return false;
+    }
+  }
+
+  async searchLessons(searchTerm: string, filters?: { houseId?: string; difficultyLevel?: string }): Promise<SacredLesson[]> {
+    try {
+      let query = db.select().from(sacredLessons);
+      const conditions = [
+        sql`(
+          ${sacredLessons.title} ILIKE ${`%${searchTerm}%`} OR 
+          ${sacredLessons.description} ILIKE ${`%${searchTerm}%`} OR 
+          ${sacredLessons.sacredTitle} ILIKE ${`%${searchTerm}%`}
+        )`
+      ];
+
+      if (filters?.houseId) {
+        conditions.push(eq(sacredLessons.houseId, filters.houseId));
+      }
+      if (filters?.difficultyLevel) {
+        conditions.push(eq(sacredLessons.difficultyLevel, filters.difficultyLevel));
+      }
+      
+      conditions.push(eq(sacredLessons.isActive, true));
+
+      query = query.where(and(...conditions));
+      return await query.orderBy(sacredLessons.createdAt);
+    } catch (error) {
+      console.error('Error searching lessons:', error);
+      return [];
+    }
+  }
+
+  // Mystical Skills Management
+  async getMysticalSkill(id: string): Promise<MysticalSkill | undefined> {
+    try {
+      const result = await db.select().from(mysticalSkills).where(eq(mysticalSkills.id, id)).limit(1);
+      return result[0];
+    } catch (error) {
+      console.error('Error fetching mystical skill:', error);
+      return undefined;
+    }
+  }
+
+  async getMysticalSkills(filters?: { houseId?: string; skillCategory?: string; tier?: string; rarityLevel?: string; isActive?: boolean }): Promise<MysticalSkill[]> {
+    try {
+      let query = db.select().from(mysticalSkills);
+      const conditions = [];
+
+      if (filters?.houseId) {
+        conditions.push(eq(mysticalSkills.houseId, filters.houseId));
+      }
+      if (filters?.skillCategory) {
+        conditions.push(eq(mysticalSkills.skillCategory, filters.skillCategory));
+      }
+      if (filters?.tier) {
+        conditions.push(eq(mysticalSkills.tier, filters.tier));
+      }
+      if (filters?.rarityLevel) {
+        conditions.push(eq(mysticalSkills.rarityLevel, filters.rarityLevel));
+      }
+      if (filters?.isActive !== undefined) {
+        conditions.push(eq(mysticalSkills.isActive, filters.isActive));
+      }
+
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
+      }
+
+      return await query.orderBy(mysticalSkills.createdAt);
+    } catch (error) {
+      console.error('Error fetching mystical skills:', error);
+      return [];
+    }
+  }
+
+  async getSkillsByHouse(houseId: string): Promise<MysticalSkill[]> {
+    return await this.getMysticalSkills({ houseId, isActive: true });
+  }
+
+  async getSkillsByCategory(category: string): Promise<MysticalSkill[]> {
+    return await this.getMysticalSkills({ skillCategory: category, isActive: true });
+  }
+
+  async getSkillTree(houseId?: string): Promise<Array<MysticalSkill & { prerequisites: MysticalSkill[]; unlocks: MysticalSkill[] }>> {
+    try {
+      const filters = houseId ? { houseId, isActive: true } : { isActive: true };
+      const skills = await this.getMysticalSkills(filters);
+      
+      const skillTree = [];
+      
+      for (const skill of skills) {
+        const prerequisites = [];
+        const unlocks = [];
+        
+        // Get prerequisite skills
+        if (skill.prerequisiteSkills && skill.prerequisiteSkills.length > 0) {
+          for (const prereqId of skill.prerequisiteSkills) {
+            const prereqSkill = skills.find(s => s.id === prereqId);
+            if (prereqSkill) prerequisites.push(prereqSkill);
+          }
+        }
+        
+        // Get skills this unlocks
+        if (skill.childSkills && skill.childSkills.length > 0) {
+          for (const childId of skill.childSkills) {
+            const childSkill = skills.find(s => s.id === childId);
+            if (childSkill) unlocks.push(childSkill);
+          }
+        }
+        
+        skillTree.push({
+          ...skill,
+          prerequisites,
+          unlocks,
+        });
+      }
+      
+      return skillTree;
+    } catch (error) {
+      console.error('Error fetching skill tree:', error);
+      return [];
+    }
+  }
+
+  async createMysticalSkill(skill: InsertMysticalSkill): Promise<MysticalSkill> {
+    try {
+      const result = await db.insert(mysticalSkills).values(skill).returning();
+      return result[0];
+    } catch (error) {
+      console.error('Error creating mystical skill:', error);
+      throw error;
+    }
+  }
+
+  async updateMysticalSkill(id: string, skill: Partial<InsertMysticalSkill>): Promise<MysticalSkill | undefined> {
+    try {
+      const [updated] = await db.update(mysticalSkills)
+        .set({ ...skill, updatedAt: new Date() })
+        .where(eq(mysticalSkills.id, id))
+        .returning();
+      return updated;
+    } catch (error) {
+      console.error('Error updating mystical skill:', error);
+      return undefined;
+    }
+  }
+
+  async deleteMysticalSkill(id: string): Promise<boolean> {
+    try {
+      await db.delete(mysticalSkills).where(eq(mysticalSkills.id, id));
+      return true;
+    } catch (error) {
+      console.error('Error deleting mystical skill:', error);
+      return false;
+    }
+  }
+
+  // User Learning Progress Tracking  
+  async getUserLessonProgress(id: string): Promise<UserLessonProgress | undefined> {
+    try {
+      const result = await db.select().from(userLessonProgress).where(eq(userLessonProgress.id, id)).limit(1);
+      return result[0];
+    } catch (error) {
+      console.error('Error fetching user lesson progress:', error);
+      return undefined;
+    }
+  }
+
+  async getUserLessonProgresses(userId: string, filters?: { pathId?: string; status?: string; lessonId?: string }): Promise<UserLessonProgress[]> {
+    try {
+      let query = db.select().from(userLessonProgress);
+      const conditions = [eq(userLessonProgress.userId, userId)];
+
+      if (filters?.pathId) {
+        conditions.push(eq(userLessonProgress.pathId, filters.pathId));
+      }
+      if (filters?.status) {
+        conditions.push(eq(userLessonProgress.status, filters.status));
+      }
+      if (filters?.lessonId) {
+        conditions.push(eq(userLessonProgress.lessonId, filters.lessonId));
+      }
+
+      query = query.where(and(...conditions));
+      return await query.orderBy(desc(userLessonProgress.lastAccessedAt));
+    } catch (error) {
+      console.error('Error fetching user lesson progresses:', error);
+      return [];
+    }
+  }
+
+  async getLessonProgress(userId: string, lessonId: string): Promise<UserLessonProgress | undefined> {
+    try {
+      const result = await db.select().from(userLessonProgress)
+        .where(and(
+          eq(userLessonProgress.userId, userId),
+          eq(userLessonProgress.lessonId, lessonId)
+        ))
+        .limit(1);
+      return result[0];
+    } catch (error) {
+      console.error('Error fetching lesson progress:', error);
+      return undefined;
+    }
+  }
+
+  async createUserLessonProgress(progress: InsertUserLessonProgress): Promise<UserLessonProgress> {
+    try {
+      const result = await db.insert(userLessonProgress).values(progress).returning();
+      return result[0];
+    } catch (error) {
+      console.error('Error creating user lesson progress:', error);
+      throw error;
+    }
+  }
+
+  async updateUserLessonProgress(id: string, progress: Partial<InsertUserLessonProgress>): Promise<UserLessonProgress | undefined> {
+    try {
+      const [updated] = await db.update(userLessonProgress)
+        .set({ ...progress, updatedAt: new Date() })
+        .where(eq(userLessonProgress.id, id))
+        .returning();
+      return updated;
+    } catch (error) {
+      console.error('Error updating user lesson progress:', error);
+      return undefined;
+    }
+  }
+
+  async startLesson(userId: string, lessonId: string): Promise<UserLessonProgress> {
+    // Check if progress already exists
+    const existing = await this.getLessonProgress(userId, lessonId);
+    if (existing) {
+      return existing;
+    }
+
+    const progressData: InsertUserLessonProgress = {
+      userId,
+      lessonId,
+      status: 'in_progress',
+      progressPercent: 0,
+      currentSection: 1,
+      sectionsCompleted: [],
+      timeSpentMinutes: 0,
+      attempts: 1,
+      startedAt: new Date(),
+      lastAccessedAt: new Date(),
+    };
+
+    return await this.createUserLessonProgress(progressData);
+  }
+
+  async completeLesson(userId: string, lessonId: string, score: number, timeSpent: number): Promise<UserLessonProgress> {
+    const progress = await this.getLessonProgress(userId, lessonId);
+    if (!progress) {
+      throw new Error('No progress found for this lesson');
+    }
+
+    const lesson = await this.getSacredLesson(lessonId);
+    const masteryAchieved = lesson ? score >= parseFloat(lesson.masteryThreshold.toString()) : false;
+
+    const updateData = {
+      status: masteryAchieved ? 'mastered' : 'completed' as const,
+      progressPercent: 100,
+      timeSpentMinutes: (progress.timeSpentMinutes || 0) + timeSpent,
+      latestScore: score,
+      bestScore: Math.max(score, parseFloat(progress.bestScore?.toString() || '0')),
+      masteryAchieved,
+      completedAt: new Date(),
+      experienceAwarded: lesson?.experienceReward || 0,
+      karmaAwarded: lesson?.karmaReward || 0,
+    };
+
+    const updated = await this.updateUserLessonProgress(progress.id, updateData);
+    if (!updated) {
+      throw new Error('Failed to update lesson progress');
+    }
+
+    return updated;
+  }
+
+  async updateLessonProgress(userId: string, lessonId: string, progressData: { 
+    progressPercent: number; 
+    currentSection: number; 
+    timeSpent: number; 
+    interactionData?: any 
+  }): Promise<UserLessonProgress> {
+    const progress = await this.getLessonProgress(userId, lessonId);
+    if (!progress) {
+      throw new Error('No progress found for this lesson');
+    }
+
+    const updateData = {
+      progressPercent: progressData.progressPercent,
+      currentSection: progressData.currentSection,
+      timeSpentMinutes: (progress.timeSpentMinutes || 0) + progressData.timeSpent,
+      interactionData: progressData.interactionData,
+      lastAccessedAt: new Date(),
+    };
+
+    const updated = await this.updateUserLessonProgress(progress.id, updateData);
+    if (!updated) {
+      throw new Error('Failed to update lesson progress');
+    }
+
+    return updated;
+  }
+
+  // Placeholder implementations for remaining methods (would need full implementation)
+  async getUserSkillUnlock(id: string): Promise<UserSkillUnlock | undefined> { return undefined; }
+  async getUserSkillUnlocks(userId: string, filters?: { skillId?: string; masteryLevel?: number }): Promise<UserSkillUnlock[]> { return []; }
+  async getUserSkillById(userId: string, skillId: string): Promise<UserSkillUnlock | undefined> { return undefined; }
+  async createUserSkillUnlock(unlock: InsertUserSkillUnlock): Promise<UserSkillUnlock> { throw new Error('Not implemented'); }
+  async updateUserSkillUnlock(id: string, unlock: Partial<InsertUserSkillUnlock>): Promise<UserSkillUnlock | undefined> { return undefined; }
+  async unlockSkill(userId: string, skillId: string, unlockMethod: string): Promise<UserSkillUnlock> { throw new Error('Not implemented'); }
+  async upgradeSkillMastery(userId: string, skillId: string, experienceSpent: number): Promise<UserSkillUnlock | undefined> { return undefined; }
+  async getUserSkillBonuses(userId: string): Promise<Array<{ skill: MysticalSkill; unlock: UserSkillUnlock; effectiveBonus: number }>> { return []; }
+  async checkSkillUnlockEligibility(userId: string, skillId: string): Promise<{ eligible: boolean; requirements: any; missing: any }> { 
+    return { eligible: false, requirements: {}, missing: [] }; 
+  }
+
+  // Trials of Mastery Management
+  async getTrialOfMastery(id: string): Promise<TrialOfMastery | undefined> { return undefined; }
+  async getTrialsOfMastery(filters?: { houseId?: string; trialType?: string; difficultyLevel?: string; isActive?: boolean }): Promise<TrialOfMastery[]> { return []; }
+  async getTrialsByHouse(houseId: string): Promise<TrialOfMastery[]> { return []; }
+  async createTrialOfMastery(trial: InsertTrialOfMastery): Promise<TrialOfMastery> { throw new Error('Not implemented'); }
+  async updateTrialOfMastery(id: string, trial: Partial<InsertTrialOfMastery>): Promise<TrialOfMastery | undefined> { return undefined; }
+  async deleteTrialOfMastery(id: string): Promise<boolean> { return false; }
+
+  // User Trial Attempts Management
+  async getUserTrialAttempt(id: string): Promise<UserTrialAttempt | undefined> { return undefined; }
+  async getUserTrialAttempts(userId: string, filters?: { trialId?: string; status?: string; passed?: boolean }): Promise<UserTrialAttempt[]> { return []; }
+  async getTrialAttempts(trialId: string, filters?: { status?: string; passed?: boolean }): Promise<UserTrialAttempt[]> { return []; }
+  async createUserTrialAttempt(attempt: InsertUserTrialAttempt): Promise<UserTrialAttempt> { throw new Error('Not implemented'); }
+  async updateUserTrialAttempt(id: string, attempt: Partial<InsertUserTrialAttempt>): Promise<UserTrialAttempt | undefined> { return undefined; }
+  async startTrial(userId: string, trialId: string): Promise<UserTrialAttempt> { throw new Error('Not implemented'); }
+  async submitTrialResults(userId: string, trialId: string, attemptId: string, results: { 
+    phaseScores: any; 
+    overallScore: number; 
+    timeSpent: number; 
+    responses: any 
+  }): Promise<UserTrialAttempt> { throw new Error('Not implemented'); }
+  async checkTrialEligibility(userId: string, trialId: string): Promise<{ eligible: boolean; requirements: any; missing: any }> { 
+    return { eligible: false, requirements: {}, missing: [] }; 
+  }
+
+  // Divine Certifications Management
+  async getDivineCertification(id: string): Promise<DivineCertification | undefined> { return undefined; }
+  async getDivineCertifications(filters?: { houseId?: string; certificationLevel?: string; category?: string; rarityLevel?: string; isActive?: boolean }): Promise<DivineCertification[]> { return []; }
+  async getCertificationsByHouse(houseId: string): Promise<DivineCertification[]> { return []; }
+  async createDivineCertification(certification: InsertDivineCertification): Promise<DivineCertification> { throw new Error('Not implemented'); }
+  async updateDivineCertification(id: string, certification: Partial<InsertDivineCertification>): Promise<DivineCertification | undefined> { return undefined; }
+  async deleteDivineCertification(id: string): Promise<boolean> { return false; }
+
+  // User Certifications Management
+  async getUserCertification(id: string): Promise<UserCertification | undefined> { return undefined; }
+  async getUserCertifications(userId: string, filters?: { certificationId?: string; status?: string; displayInProfile?: boolean }): Promise<UserCertification[]> { return []; }
+  async getCertificationHolders(certificationId: string): Promise<UserCertification[]> { return []; }
+  async createUserCertification(certification: InsertUserCertification): Promise<UserCertification> { throw new Error('Not implemented'); }
+  async updateUserCertification(id: string, certification: Partial<InsertUserCertification>): Promise<UserCertification | undefined> { return undefined; }
+  async awardCertification(userId: string, certificationId: string, achievementMethod: string, verificationData?: any): Promise<UserCertification> { throw new Error('Not implemented'); }
+  async revokeCertification(userId: string, certificationId: string, reason: string): Promise<boolean> { return false; }
+  async checkCertificationEligibility(userId: string, certificationId: string): Promise<{ eligible: boolean; requirements: any; missing: any }> { 
+    return { eligible: false, requirements: {}, missing: [] }; 
+  }
+
+  // Learning Analytics Management
+  async getLearningAnalytics(userId: string): Promise<LearningAnalytics | undefined> { return undefined; }
+  async createLearningAnalytics(analytics: InsertLearningAnalytics): Promise<LearningAnalytics> { throw new Error('Not implemented'); }
+  async updateLearningAnalytics(userId: string, analytics: Partial<InsertLearningAnalytics>): Promise<LearningAnalytics | undefined> { return undefined; }
+  async recalculateLearningAnalytics(userId: string): Promise<LearningAnalytics> { throw new Error('Not implemented'); }
+  async generateLearningRecommendations(userId: string): Promise<{ 
+    recommendedPaths: LearningPath[]; 
+    suggestedLessons: SacredLesson[]; 
+    skillsToUnlock: MysticalSkill[]; 
+    interventions: any[] 
+  }> { 
+    return { recommendedPaths: [], suggestedLessons: [], skillsToUnlock: [], interventions: [] }; 
+  }
+
+  // Learning System Analytics and Insights
+  async getHouseLearningStats(houseId: string): Promise<{
+    totalPaths: number;
+    totalLessons: number;
+    totalSkills: number;
+    averageProgress: number;
+    topPerformers: Array<User & { progress: number }>;
+    engagement: number;
+  }> {
+    return {
+      totalPaths: 0,
+      totalLessons: 0,
+      totalSkills: 0,
+      averageProgress: 0,
+      topPerformers: [],
+      engagement: 0,
+    };
+  }
+
+  async getGlobalLearningStats(): Promise<{
+    totalLearners: number;
+    totalLessonsCompleted: number;
+    totalSkillsUnlocked: number;
+    averageTimeToComplete: number;
+    houseComparisons: Array<{ houseId: string; avgProgress: number; engagement: number }>;
+  }> {
+    return {
+      totalLearners: 0,
+      totalLessonsCompleted: 0,
+      totalSkillsUnlocked: 0,
+      averageTimeToComplete: 0,
+      houseComparisons: [],
+    };
+  }
+
+  async getUserLearningDashboard(userId: string): Promise<{
+    analytics: LearningAnalytics;
+    currentPaths: LearningPath[];
+    recentProgress: UserLessonProgress[];
+    unlockedSkills: Array<UserSkillUnlock & { skill: MysticalSkill }>;
+    certifications: Array<UserCertification & { certification: DivineCertification }>;
+    recommendations: { paths: LearningPath[]; lessons: SacredLesson[]; skills: MysticalSkill[] };
+    achievements: any[];
+  }> {
+    const analytics = await this.getLearningAnalytics(userId);
+    const recentProgress = await this.getUserLessonProgresses(userId);
+    const paths = await this.getLearningPaths({ isActive: true });
+    const lessons = await this.getSacredLessons({ isActive: true });
+    const skills = await this.getMysticalSkills({ isActive: true });
+
+    return {
+      analytics: analytics || {} as LearningAnalytics,
+      currentPaths: paths.slice(0, 3),
+      recentProgress: recentProgress.slice(0, 5),
+      unlockedSkills: [],
+      certifications: [],
+      recommendations: {
+        paths: paths.slice(0, 3),
+        lessons: lessons.slice(0, 5),
+        skills: skills.slice(0, 3),
+      },
+      achievements: [],
+    };
+  }
+
+  // Advanced Learning Features (Placeholder implementations)
+  async generatePersonalizedLearningPath(userId: string, preferences: { 
+    preferredHouses: string[]; 
+    difficultyPreference: string; 
+    timeCommitment: number; 
+    learningGoals: string[] 
+  }): Promise<LearningPath> { throw new Error('Not implemented'); }
+
+  async detectLearningPatterns(userId: string): Promise<{
+    learningStyle: string;
+    optimalSessionLength: number;
+    preferredContentTypes: string[];
+    strugglingAreas: string[];
+    strengthAreas: string[];
+  }> {
+    return {
+      learningStyle: 'visual',
+      optimalSessionLength: 30,
+      preferredContentTypes: ['crystal_orb'],
+      strugglingAreas: [],
+      strengthAreas: [],
+    };
+  }
+
+  async predictLearningOutcomes(userId: string, pathId: string): Promise<{
+    estimatedCompletionTime: number;
+    successProbability: number;
+    recommendedPrerequisites: LearningPath[];
+    riskFactors: string[];
+  }> {
+    return {
+      estimatedCompletionTime: 30,
+      successProbability: 0.85,
+      recommendedPrerequisites: [],
+      riskFactors: [],
+    };
   }
 }
 

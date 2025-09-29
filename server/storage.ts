@@ -31,7 +31,18 @@ import {
   // Leaderboard System Types
   type TraderStats, type InsertTraderStats,
   type LeaderboardCategory, type InsertLeaderboardCategory,
-  type UserAchievement, type InsertUserAchievement
+  type UserAchievement, type InsertUserAchievement,
+  // Learning System Types
+  type LearningPath, type InsertLearningPath,
+  type SacredLesson, type InsertSacredLesson,
+  type MysticalSkill, type InsertMysticalSkill,
+  type UserLessonProgress, type InsertUserLessonProgress,
+  type UserSkillUnlock, type InsertUserSkillUnlock,
+  type TrialOfMastery, type InsertTrialOfMastery,
+  type UserTrialAttempt, type InsertUserTrialAttempt,
+  type DivineCertification, type InsertDivineCertification,
+  type UserCertification, type InsertUserCertification,
+  type LearningAnalytics, type InsertLearningAnalytics
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -365,6 +376,162 @@ export interface IStorage {
 
   // User Updates (for house joining)
   updateUser(id: string, updates: Partial<User>): Promise<User | undefined>;
+
+  // COMPREHENSIVE LEARNING SYSTEM METHODS
+
+  // Learning Paths Management
+  getLearningPath(id: string): Promise<LearningPath | undefined>;
+  getLearningPaths(filters?: { houseId?: string; difficultyLevel?: string; isActive?: boolean }): Promise<LearningPath[]>;
+  getLearningPathsByHouse(houseId: string): Promise<LearningPath[]>;
+  createLearningPath(path: InsertLearningPath): Promise<LearningPath>;
+  updateLearningPath(id: string, path: Partial<InsertLearningPath>): Promise<LearningPath | undefined>;
+  deleteLearningPath(id: string): Promise<boolean>;
+
+  // Sacred Lessons Management
+  getSacredLesson(id: string): Promise<SacredLesson | undefined>;
+  getSacredLessons(filters?: { houseId?: string; pathId?: string; lessonType?: string; difficultyLevel?: string; isActive?: boolean }): Promise<SacredLesson[]>;
+  getLessonsByPath(pathId: string): Promise<SacredLesson[]>;
+  getLessonsByHouse(houseId: string): Promise<SacredLesson[]>;
+  createSacredLesson(lesson: InsertSacredLesson): Promise<SacredLesson>;
+  updateSacredLesson(id: string, lesson: Partial<InsertSacredLesson>): Promise<SacredLesson | undefined>;
+  deleteSacredLesson(id: string): Promise<boolean>;
+  searchLessons(searchTerm: string, filters?: { houseId?: string; difficultyLevel?: string }): Promise<SacredLesson[]>;
+
+  // Mystical Skills Management
+  getMysticalSkill(id: string): Promise<MysticalSkill | undefined>;
+  getMysticalSkills(filters?: { houseId?: string; skillCategory?: string; tier?: string; rarityLevel?: string; isActive?: boolean }): Promise<MysticalSkill[]>;
+  getSkillsByHouse(houseId: string): Promise<MysticalSkill[]>;
+  getSkillsByCategory(category: string): Promise<MysticalSkill[]>;
+  getSkillTree(houseId?: string): Promise<Array<MysticalSkill & { prerequisites: MysticalSkill[]; unlocks: MysticalSkill[] }>>;
+  createMysticalSkill(skill: InsertMysticalSkill): Promise<MysticalSkill>;
+  updateMysticalSkill(id: string, skill: Partial<InsertMysticalSkill>): Promise<MysticalSkill | undefined>;
+  deleteMysticalSkill(id: string): Promise<boolean>;
+
+  // User Learning Progress Tracking
+  getUserLessonProgress(id: string): Promise<UserLessonProgress | undefined>;
+  getUserLessonProgresses(userId: string, filters?: { pathId?: string; status?: string; lessonId?: string }): Promise<UserLessonProgress[]>;
+  getLessonProgress(userId: string, lessonId: string): Promise<UserLessonProgress | undefined>;
+  createUserLessonProgress(progress: InsertUserLessonProgress): Promise<UserLessonProgress>;
+  updateUserLessonProgress(id: string, progress: Partial<InsertUserLessonProgress>): Promise<UserLessonProgress | undefined>;
+  startLesson(userId: string, lessonId: string): Promise<UserLessonProgress>;
+  completeLesson(userId: string, lessonId: string, score: number, timeSpent: number): Promise<UserLessonProgress>;
+  updateLessonProgress(userId: string, lessonId: string, progressData: { 
+    progressPercent: number; 
+    currentSection: number; 
+    timeSpent: number; 
+    interactionData?: any 
+  }): Promise<UserLessonProgress>;
+
+  // User Skill Unlocks Management
+  getUserSkillUnlock(id: string): Promise<UserSkillUnlock | undefined>;
+  getUserSkillUnlocks(userId: string, filters?: { skillId?: string; masteryLevel?: number }): Promise<UserSkillUnlock[]>;
+  getUserSkillById(userId: string, skillId: string): Promise<UserSkillUnlock | undefined>;
+  createUserSkillUnlock(unlock: InsertUserSkillUnlock): Promise<UserSkillUnlock>;
+  updateUserSkillUnlock(id: string, unlock: Partial<InsertUserSkillUnlock>): Promise<UserSkillUnlock | undefined>;
+  unlockSkill(userId: string, skillId: string, unlockMethod: string): Promise<UserSkillUnlock>;
+  upgradeSkillMastery(userId: string, skillId: string, experienceSpent: number): Promise<UserSkillUnlock | undefined>;
+  getUserSkillBonuses(userId: string): Promise<Array<{ skill: MysticalSkill; unlock: UserSkillUnlock; effectiveBonus: number }>>;
+  checkSkillUnlockEligibility(userId: string, skillId: string): Promise<{ eligible: boolean; requirements: any; missing: any }>;
+
+  // Trials of Mastery Management
+  getTrialOfMastery(id: string): Promise<TrialOfMastery | undefined>;
+  getTrialsOfMastery(filters?: { houseId?: string; trialType?: string; difficultyLevel?: string; isActive?: boolean }): Promise<TrialOfMastery[]>;
+  getTrialsByHouse(houseId: string): Promise<TrialOfMastery[]>;
+  createTrialOfMastery(trial: InsertTrialOfMastery): Promise<TrialOfMastery>;
+  updateTrialOfMastery(id: string, trial: Partial<InsertTrialOfMastery>): Promise<TrialOfMastery | undefined>;
+  deleteTrialOfMastery(id: string): Promise<boolean>;
+
+  // User Trial Attempts Management
+  getUserTrialAttempt(id: string): Promise<UserTrialAttempt | undefined>;
+  getUserTrialAttempts(userId: string, filters?: { trialId?: string; status?: string; passed?: boolean }): Promise<UserTrialAttempt[]>;
+  getTrialAttempts(trialId: string, filters?: { status?: string; passed?: boolean }): Promise<UserTrialAttempt[]>;
+  createUserTrialAttempt(attempt: InsertUserTrialAttempt): Promise<UserTrialAttempt>;
+  updateUserTrialAttempt(id: string, attempt: Partial<InsertUserTrialAttempt>): Promise<UserTrialAttempt | undefined>;
+  startTrial(userId: string, trialId: string): Promise<UserTrialAttempt>;
+  submitTrialResults(userId: string, trialId: string, attemptId: string, results: { 
+    phaseScores: any; 
+    overallScore: number; 
+    timeSpent: number; 
+    responses: any 
+  }): Promise<UserTrialAttempt>;
+  checkTrialEligibility(userId: string, trialId: string): Promise<{ eligible: boolean; requirements: any; missing: any }>;
+
+  // Divine Certifications Management
+  getDivineCertification(id: string): Promise<DivineCertification | undefined>;
+  getDivineCertifications(filters?: { houseId?: string; certificationLevel?: string; category?: string; rarityLevel?: string; isActive?: boolean }): Promise<DivineCertification[]>;
+  getCertificationsByHouse(houseId: string): Promise<DivineCertification[]>;
+  createDivineCertification(certification: InsertDivineCertification): Promise<DivineCertification>;
+  updateDivineCertification(id: string, certification: Partial<InsertDivineCertification>): Promise<DivineCertification | undefined>;
+  deleteDivineCertification(id: string): Promise<boolean>;
+
+  // User Certifications Management
+  getUserCertification(id: string): Promise<UserCertification | undefined>;
+  getUserCertifications(userId: string, filters?: { certificationId?: string; status?: string; displayInProfile?: boolean }): Promise<UserCertification[]>;
+  getCertificationHolders(certificationId: string): Promise<UserCertification[]>;
+  createUserCertification(certification: InsertUserCertification): Promise<UserCertification>;
+  updateUserCertification(id: string, certification: Partial<InsertUserCertification>): Promise<UserCertification | undefined>;
+  awardCertification(userId: string, certificationId: string, achievementMethod: string, verificationData?: any): Promise<UserCertification>;
+  revokeCertification(userId: string, certificationId: string, reason: string): Promise<boolean>;
+  checkCertificationEligibility(userId: string, certificationId: string): Promise<{ eligible: boolean; requirements: any; missing: any }>;
+
+  // Learning Analytics Management
+  getLearningAnalytics(userId: string): Promise<LearningAnalytics | undefined>;
+  createLearningAnalytics(analytics: InsertLearningAnalytics): Promise<LearningAnalytics>;
+  updateLearningAnalytics(userId: string, analytics: Partial<InsertLearningAnalytics>): Promise<LearningAnalytics | undefined>;
+  recalculateLearningAnalytics(userId: string): Promise<LearningAnalytics>;
+  generateLearningRecommendations(userId: string): Promise<{ 
+    recommendedPaths: LearningPath[]; 
+    suggestedLessons: SacredLesson[]; 
+    skillsToUnlock: MysticalSkill[]; 
+    interventions: any[] 
+  }>;
+
+  // Learning System Analytics and Insights
+  getHouseLearningStats(houseId: string): Promise<{
+    totalPaths: number;
+    totalLessons: number;
+    totalSkills: number;
+    averageProgress: number;
+    topPerformers: Array<User & { progress: number }>;
+    engagement: number;
+  }>;
+  getGlobalLearningStats(): Promise<{
+    totalLearners: number;
+    totalLessonsCompleted: number;
+    totalSkillsUnlocked: number;
+    averageTimeToComplete: number;
+    houseComparisons: Array<{ houseId: string; avgProgress: number; engagement: number }>;
+  }>;
+  getUserLearningDashboard(userId: string): Promise<{
+    analytics: LearningAnalytics;
+    currentPaths: LearningPath[];
+    recentProgress: UserLessonProgress[];
+    unlockedSkills: Array<UserSkillUnlock & { skill: MysticalSkill }>;
+    certifications: Array<UserCertification & { certification: DivineCertification }>;
+    recommendations: { paths: LearningPath[]; lessons: SacredLesson[]; skills: MysticalSkill[] };
+    achievements: any[];
+  }>;
+
+  // Advanced Learning Features
+  generatePersonalizedLearningPath(userId: string, preferences: { 
+    preferredHouses: string[]; 
+    difficultyPreference: string; 
+    timeCommitment: number; 
+    learningGoals: string[] 
+  }): Promise<LearningPath>;
+  detectLearningPatterns(userId: string): Promise<{
+    learningStyle: string;
+    optimalSessionLength: number;
+    preferredContentTypes: string[];
+    strugglingAreas: string[];
+    strengthAreas: string[];
+  }>;
+  predictLearningOutcomes(userId: string, pathId: string): Promise<{
+    estimatedCompletionTime: number;
+    successProbability: number;
+    recommendedPrerequisites: LearningPath[];
+    riskFactors: string[];
+  }>;
 }
 
 // Time-series buffer implementation with memory limits and proper chronological ordering
@@ -1880,6 +2047,925 @@ export class MemStorage implements IStorage {
 
   async deleteComicCreator(id: string): Promise<boolean> {
     return this.comicCreators.delete(id);
+  }
+
+  // ========================================================================================
+  // COMPREHENSIVE LEARNING SYSTEM METHODS - MemStorage Implementation
+  // ========================================================================================
+
+  // Storage for learning system entities
+  private learningPaths = new Map<string, LearningPath>();
+  private sacredLessons = new Map<string, SacredLesson>();
+  private mysticalSkills = new Map<string, MysticalSkill>();
+  private userLessonProgress = new Map<string, UserLessonProgress>();
+  private userSkillUnlocks = new Map<string, UserSkillUnlock>();
+  private trialsOfMastery = new Map<string, TrialOfMastery>();
+  private userTrialAttempts = new Map<string, UserTrialAttempt>();
+  private divineCertifications = new Map<string, DivineCertification>();
+  private userCertifications = new Map<string, UserCertification>();
+  private learningAnalytics = new Map<string, LearningAnalytics>();
+
+  // Learning Paths Management
+  async getLearningPath(id: string): Promise<LearningPath | undefined> {
+    return this.learningPaths.get(id);
+  }
+
+  async getLearningPaths(filters?: { houseId?: string; difficultyLevel?: string; isActive?: boolean }): Promise<LearningPath[]> {
+    let paths = Array.from(this.learningPaths.values());
+    
+    if (filters?.houseId) {
+      paths = paths.filter(path => path.houseId === filters.houseId);
+    }
+    if (filters?.difficultyLevel) {
+      paths = paths.filter(path => path.difficultyLevel === filters.difficultyLevel);
+    }
+    if (filters?.isActive !== undefined) {
+      paths = paths.filter(path => path.isActive === filters.isActive);
+    }
+    
+    return paths.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+  }
+
+  async getLearningPathsByHouse(houseId: string): Promise<LearningPath[]> {
+    return this.getLearningPaths({ houseId, isActive: true });
+  }
+
+  async createLearningPath(path: InsertLearningPath): Promise<LearningPath> {
+    const id = randomUUID();
+    const newPath: LearningPath = { 
+      ...path, 
+      id, 
+      createdAt: new Date(), 
+      updatedAt: new Date() 
+    };
+    this.learningPaths.set(id, newPath);
+    return newPath;
+  }
+
+  async updateLearningPath(id: string, path: Partial<InsertLearningPath>): Promise<LearningPath | undefined> {
+    const existing = this.learningPaths.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...path, updatedAt: new Date() };
+    this.learningPaths.set(id, updated);
+    return updated;
+  }
+
+  async deleteLearningPath(id: string): Promise<boolean> {
+    return this.learningPaths.delete(id);
+  }
+
+  // Sacred Lessons Management
+  async getSacredLesson(id: string): Promise<SacredLesson | undefined> {
+    return this.sacredLessons.get(id);
+  }
+
+  async getSacredLessons(filters?: { houseId?: string; pathId?: string; lessonType?: string; difficultyLevel?: string; isActive?: boolean }): Promise<SacredLesson[]> {
+    let lessons = Array.from(this.sacredLessons.values());
+    
+    if (filters?.houseId) {
+      lessons = lessons.filter(lesson => lesson.houseId === filters.houseId);
+    }
+    if (filters?.pathId) {
+      lessons = lessons.filter(lesson => lesson.pathId === filters.pathId);
+    }
+    if (filters?.lessonType) {
+      lessons = lessons.filter(lesson => lesson.lessonType === filters.lessonType);
+    }
+    if (filters?.difficultyLevel) {
+      lessons = lessons.filter(lesson => lesson.difficultyLevel === filters.difficultyLevel);
+    }
+    if (filters?.isActive !== undefined) {
+      lessons = lessons.filter(lesson => lesson.isActive === filters.isActive);
+    }
+    
+    return lessons.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+  }
+
+  async getLessonsByPath(pathId: string): Promise<SacredLesson[]> {
+    return this.getSacredLessons({ pathId, isActive: true });
+  }
+
+  async getLessonsByHouse(houseId: string): Promise<SacredLesson[]> {
+    return this.getSacredLessons({ houseId, isActive: true });
+  }
+
+  async createSacredLesson(lesson: InsertSacredLesson): Promise<SacredLesson> {
+    const id = randomUUID();
+    const newLesson: SacredLesson = { 
+      ...lesson, 
+      id, 
+      createdAt: new Date(), 
+      updatedAt: new Date() 
+    };
+    this.sacredLessons.set(id, newLesson);
+    return newLesson;
+  }
+
+  async updateSacredLesson(id: string, lesson: Partial<InsertSacredLesson>): Promise<SacredLesson | undefined> {
+    const existing = this.sacredLessons.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...lesson, updatedAt: new Date() };
+    this.sacredLessons.set(id, updated);
+    return updated;
+  }
+
+  async deleteSacredLesson(id: string): Promise<boolean> {
+    return this.sacredLessons.delete(id);
+  }
+
+  async searchLessons(searchTerm: string, filters?: { houseId?: string; difficultyLevel?: string }): Promise<SacredLesson[]> {
+    const allLessons = await this.getSacredLessons(filters);
+    const searchLower = searchTerm.toLowerCase();
+    
+    return allLessons.filter(lesson => 
+      lesson.title.toLowerCase().includes(searchLower) ||
+      lesson.description.toLowerCase().includes(searchLower) ||
+      (lesson.mysticalNarrative && lesson.mysticalNarrative.toLowerCase().includes(searchLower))
+    );
+  }
+
+  // Mystical Skills Management
+  async getMysticalSkill(id: string): Promise<MysticalSkill | undefined> {
+    return this.mysticalSkills.get(id);
+  }
+
+  async getMysticalSkills(filters?: { houseId?: string; skillCategory?: string; tier?: string; rarityLevel?: string; isActive?: boolean }): Promise<MysticalSkill[]> {
+    let skills = Array.from(this.mysticalSkills.values());
+    
+    if (filters?.houseId) {
+      skills = skills.filter(skill => skill.houseId === filters.houseId);
+    }
+    if (filters?.skillCategory) {
+      skills = skills.filter(skill => skill.skillCategory === filters.skillCategory);
+    }
+    if (filters?.tier) {
+      skills = skills.filter(skill => skill.tier === filters.tier);
+    }
+    if (filters?.rarityLevel) {
+      skills = skills.filter(skill => skill.rarityLevel === filters.rarityLevel);
+    }
+    if (filters?.isActive !== undefined) {
+      skills = skills.filter(skill => skill.isActive === filters.isActive);
+    }
+    
+    return skills.sort((a, b) => (a.tier || '').localeCompare(b.tier || ''));
+  }
+
+  async getSkillsByHouse(houseId: string): Promise<MysticalSkill[]> {
+    return this.getMysticalSkills({ houseId, isActive: true });
+  }
+
+  async getSkillsByCategory(category: string): Promise<MysticalSkill[]> {
+    return this.getMysticalSkills({ skillCategory: category, isActive: true });
+  }
+
+  async getSkillTree(houseId?: string): Promise<Array<MysticalSkill & { prerequisites: MysticalSkill[]; unlocks: MysticalSkill[] }>> {
+    const skills = houseId ? await this.getSkillsByHouse(houseId) : Array.from(this.mysticalSkills.values());
+    
+    return skills.map(skill => ({
+      ...skill,
+      prerequisites: [], // Simplified for in-memory
+      unlocks: [] // Simplified for in-memory
+    }));
+  }
+
+  async createMysticalSkill(skill: InsertMysticalSkill): Promise<MysticalSkill> {
+    const id = randomUUID();
+    const newSkill: MysticalSkill = { 
+      ...skill, 
+      id, 
+      createdAt: new Date(), 
+      updatedAt: new Date() 
+    };
+    this.mysticalSkills.set(id, newSkill);
+    return newSkill;
+  }
+
+  async updateMysticalSkill(id: string, skill: Partial<InsertMysticalSkill>): Promise<MysticalSkill | undefined> {
+    const existing = this.mysticalSkills.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...skill, updatedAt: new Date() };
+    this.mysticalSkills.set(id, updated);
+    return updated;
+  }
+
+  async deleteMysticalSkill(id: string): Promise<boolean> {
+    return this.mysticalSkills.delete(id);
+  }
+
+  // User Learning Progress Tracking
+  async getUserLessonProgress(id: string): Promise<UserLessonProgress | undefined> {
+    return this.userLessonProgress.get(id);
+  }
+
+  async getUserLessonProgresses(userId: string, filters?: { pathId?: string; status?: string; lessonId?: string }): Promise<UserLessonProgress[]> {
+    let progresses = Array.from(this.userLessonProgress.values()).filter(p => p.userId === userId);
+    
+    if (filters?.pathId) {
+      progresses = progresses.filter(p => p.pathId === filters.pathId);
+    }
+    if (filters?.status) {
+      progresses = progresses.filter(p => p.status === filters.status);
+    }
+    if (filters?.lessonId) {
+      progresses = progresses.filter(p => p.lessonId === filters.lessonId);
+    }
+    
+    return progresses.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+  }
+
+  async getLessonProgress(userId: string, lessonId: string): Promise<UserLessonProgress | undefined> {
+    const progresses = await this.getUserLessonProgresses(userId, { lessonId });
+    return progresses[0];
+  }
+
+  async createUserLessonProgress(progress: InsertUserLessonProgress): Promise<UserLessonProgress> {
+    const id = randomUUID();
+    const newProgress: UserLessonProgress = { 
+      ...progress, 
+      id, 
+      createdAt: new Date(), 
+      updatedAt: new Date() 
+    };
+    this.userLessonProgress.set(id, newProgress);
+    return newProgress;
+  }
+
+  async updateUserLessonProgress(id: string, progress: Partial<InsertUserLessonProgress>): Promise<UserLessonProgress | undefined> {
+    const existing = this.userLessonProgress.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...progress, updatedAt: new Date() };
+    this.userLessonProgress.set(id, updated);
+    return updated;
+  }
+
+  async startLesson(userId: string, lessonId: string): Promise<UserLessonProgress> {
+    const progressData: InsertUserLessonProgress = {
+      userId,
+      lessonId,
+      pathId: '', // Will be filled by service layer
+      status: 'in_progress',
+      progressPercent: 0,
+      currentSection: 1,
+      timeSpent: 0,
+      score: null,
+      startedAt: new Date(),
+      completedAt: null,
+      interactionData: {}
+    };
+    
+    return this.createUserLessonProgress(progressData);
+  }
+
+  async completeLesson(userId: string, lessonId: string, score: number, timeSpent: number): Promise<UserLessonProgress> {
+    const existing = await this.getLessonProgress(userId, lessonId);
+    if (!existing) {
+      throw new Error('No lesson progress found to complete');
+    }
+    
+    const updated = await this.updateUserLessonProgress(existing.id, {
+      status: 'completed',
+      progressPercent: 100,
+      score,
+      timeSpent: existing.timeSpent + timeSpent,
+      completedAt: new Date()
+    });
+    
+    return updated!;
+  }
+
+  async updateLessonProgress(userId: string, lessonId: string, progressData: { 
+    progressPercent: number; 
+    currentSection: number; 
+    timeSpent: number; 
+    interactionData?: any 
+  }): Promise<UserLessonProgress> {
+    const existing = await this.getLessonProgress(userId, lessonId);
+    if (!existing) {
+      throw new Error('No lesson progress found to update');
+    }
+    
+    const updated = await this.updateUserLessonProgress(existing.id, {
+      progressPercent: progressData.progressPercent,
+      currentSection: progressData.currentSection,
+      timeSpent: existing.timeSpent + progressData.timeSpent,
+      interactionData: { ...existing.interactionData, ...progressData.interactionData }
+    });
+    
+    return updated!;
+  }
+
+  // User Skill Unlocks Management
+  async getUserSkillUnlock(id: string): Promise<UserSkillUnlock | undefined> {
+    return this.userSkillUnlocks.get(id);
+  }
+
+  async getUserSkillUnlocks(userId: string, filters?: { skillId?: string; masteryLevel?: number }): Promise<UserSkillUnlock[]> {
+    let unlocks = Array.from(this.userSkillUnlocks.values()).filter(u => u.userId === userId);
+    
+    if (filters?.skillId) {
+      unlocks = unlocks.filter(u => u.skillId === filters.skillId);
+    }
+    if (filters?.masteryLevel !== undefined) {
+      unlocks = unlocks.filter(u => u.masteryLevel >= filters.masteryLevel);
+    }
+    
+    return unlocks.sort((a, b) => b.unlockedAt.getTime() - a.unlockedAt.getTime());
+  }
+
+  async getUserSkillById(userId: string, skillId: string): Promise<UserSkillUnlock | undefined> {
+    const unlocks = await this.getUserSkillUnlocks(userId, { skillId });
+    return unlocks[0];
+  }
+
+  async createUserSkillUnlock(unlock: InsertUserSkillUnlock): Promise<UserSkillUnlock> {
+    const id = randomUUID();
+    const newUnlock: UserSkillUnlock = { 
+      ...unlock, 
+      id, 
+      createdAt: new Date(), 
+      updatedAt: new Date() 
+    };
+    this.userSkillUnlocks.set(id, newUnlock);
+    return newUnlock;
+  }
+
+  async updateUserSkillUnlock(id: string, unlock: Partial<InsertUserSkillUnlock>): Promise<UserSkillUnlock | undefined> {
+    const existing = this.userSkillUnlocks.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...unlock, updatedAt: new Date() };
+    this.userSkillUnlocks.set(id, updated);
+    return updated;
+  }
+
+  async unlockSkill(userId: string, skillId: string, unlockMethod: string): Promise<UserSkillUnlock> {
+    const unlockData: InsertUserSkillUnlock = {
+      userId,
+      skillId,
+      unlockedAt: new Date(),
+      masteryLevel: 1,
+      experienceSpent: 0,
+      unlockMethod,
+      bonusMultiplier: 1.0,
+      isActive: true
+    };
+    
+    return this.createUserSkillUnlock(unlockData);
+  }
+
+  async upgradeSkillMastery(userId: string, skillId: string, experienceSpent: number): Promise<UserSkillUnlock | undefined> {
+    const existing = await this.getUserSkillById(userId, skillId);
+    if (!existing) return undefined;
+    
+    return this.updateUserSkillUnlock(existing.id, {
+      masteryLevel: existing.masteryLevel + 1,
+      experienceSpent: existing.experienceSpent + experienceSpent
+    });
+  }
+
+  async getUserSkillBonuses(userId: string): Promise<Array<{ skill: MysticalSkill; unlock: UserSkillUnlock; effectiveBonus: number }>> {
+    const unlocks = await this.getUserSkillUnlocks(userId);
+    const results = [];
+    
+    for (const unlock of unlocks) {
+      const skill = await this.getMysticalSkill(unlock.skillId);
+      if (skill) {
+        results.push({
+          skill,
+          unlock,
+          effectiveBonus: unlock.bonusMultiplier * unlock.masteryLevel
+        });
+      }
+    }
+    
+    return results;
+  }
+
+  async checkSkillUnlockEligibility(userId: string, skillId: string): Promise<{ eligible: boolean; requirements: any; missing: any }> {
+    // Simplified eligibility check for in-memory storage
+    return { eligible: true, requirements: {}, missing: {} };
+  }
+
+  // Trials of Mastery Management
+  async getTrialOfMastery(id: string): Promise<TrialOfMastery | undefined> {
+    return this.trialsOfMastery.get(id);
+  }
+
+  async getTrialsOfMastery(filters?: { houseId?: string; trialType?: string; difficultyLevel?: string; isActive?: boolean }): Promise<TrialOfMastery[]> {
+    let trials = Array.from(this.trialsOfMastery.values());
+    
+    if (filters?.houseId) {
+      trials = trials.filter(trial => trial.houseId === filters.houseId);
+    }
+    if (filters?.trialType) {
+      trials = trials.filter(trial => trial.trialType === filters.trialType);
+    }
+    if (filters?.difficultyLevel) {
+      trials = trials.filter(trial => trial.difficultyLevel === filters.difficultyLevel);
+    }
+    if (filters?.isActive !== undefined) {
+      trials = trials.filter(trial => trial.isActive === filters.isActive);
+    }
+    
+    return trials.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+  }
+
+  async getTrialsByHouse(houseId: string): Promise<TrialOfMastery[]> {
+    return this.getTrialsOfMastery({ houseId, isActive: true });
+  }
+
+  async createTrialOfMastery(trial: InsertTrialOfMastery): Promise<TrialOfMastery> {
+    const id = randomUUID();
+    const newTrial: TrialOfMastery = { 
+      ...trial, 
+      id, 
+      createdAt: new Date(), 
+      updatedAt: new Date() 
+    };
+    this.trialsOfMastery.set(id, newTrial);
+    return newTrial;
+  }
+
+  async updateTrialOfMastery(id: string, trial: Partial<InsertTrialOfMastery>): Promise<TrialOfMastery | undefined> {
+    const existing = this.trialsOfMastery.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...trial, updatedAt: new Date() };
+    this.trialsOfMastery.set(id, updated);
+    return updated;
+  }
+
+  async deleteTrialOfMastery(id: string): Promise<boolean> {
+    return this.trialsOfMastery.delete(id);
+  }
+
+  // User Trial Attempts Management
+  async getUserTrialAttempt(id: string): Promise<UserTrialAttempt | undefined> {
+    return this.userTrialAttempts.get(id);
+  }
+
+  async getUserTrialAttempts(userId: string, filters?: { trialId?: string; status?: string; passed?: boolean }): Promise<UserTrialAttempt[]> {
+    let attempts = Array.from(this.userTrialAttempts.values()).filter(a => a.userId === userId);
+    
+    if (filters?.trialId) {
+      attempts = attempts.filter(a => a.trialId === filters.trialId);
+    }
+    if (filters?.status) {
+      attempts = attempts.filter(a => a.status === filters.status);
+    }
+    if (filters?.passed !== undefined) {
+      attempts = attempts.filter(a => a.passed === filters.passed);
+    }
+    
+    return attempts.sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime());
+  }
+
+  async getTrialAttempts(trialId: string, filters?: { status?: string; passed?: boolean }): Promise<UserTrialAttempt[]> {
+    let attempts = Array.from(this.userTrialAttempts.values()).filter(a => a.trialId === trialId);
+    
+    if (filters?.status) {
+      attempts = attempts.filter(a => a.status === filters.status);
+    }
+    if (filters?.passed !== undefined) {
+      attempts = attempts.filter(a => a.passed === filters.passed);
+    }
+    
+    return attempts.sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime());
+  }
+
+  async createUserTrialAttempt(attempt: InsertUserTrialAttempt): Promise<UserTrialAttempt> {
+    const id = randomUUID();
+    const newAttempt: UserTrialAttempt = { 
+      ...attempt, 
+      id, 
+      createdAt: new Date(), 
+      updatedAt: new Date() 
+    };
+    this.userTrialAttempts.set(id, newAttempt);
+    return newAttempt;
+  }
+
+  async updateUserTrialAttempt(id: string, attempt: Partial<InsertUserTrialAttempt>): Promise<UserTrialAttempt | undefined> {
+    const existing = this.userTrialAttempts.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...attempt, updatedAt: new Date() };
+    this.userTrialAttempts.set(id, updated);
+    return updated;
+  }
+
+  async startTrial(userId: string, trialId: string): Promise<UserTrialAttempt> {
+    const attemptData: InsertUserTrialAttempt = {
+      userId,
+      trialId,
+      attemptNumber: 1, // Should be calculated properly
+      status: 'in_progress',
+      startedAt: new Date(),
+      completedAt: null,
+      timeSpent: 0,
+      phaseScores: {},
+      overallScore: 0,
+      passed: false,
+      responses: {},
+      feedback: null,
+      bonusPoints: 0,
+      trialContext: {}
+    };
+    
+    return this.createUserTrialAttempt(attemptData);
+  }
+
+  async submitTrialResults(userId: string, trialId: string, attemptId: string, results: { 
+    phaseScores: any; 
+    overallScore: number; 
+    timeSpent: number; 
+    responses: any 
+  }): Promise<UserTrialAttempt> {
+    const updated = await this.updateUserTrialAttempt(attemptId, {
+      status: 'completed',
+      completedAt: new Date(),
+      timeSpent: results.timeSpent,
+      phaseScores: results.phaseScores,
+      overallScore: results.overallScore,
+      passed: results.overallScore >= 70, // Default passing score
+      responses: results.responses
+    });
+    
+    return updated!;
+  }
+
+  async checkTrialEligibility(userId: string, trialId: string): Promise<{ eligible: boolean; requirements: any; missing: any }> {
+    // Simplified eligibility check for in-memory storage
+    return { eligible: true, requirements: {}, missing: {} };
+  }
+
+  // Divine Certifications Management
+  async getDivineCertification(id: string): Promise<DivineCertification | undefined> {
+    return this.divineCertifications.get(id);
+  }
+
+  async getDivineCertifications(filters?: { houseId?: string; certificationLevel?: string; category?: string; rarityLevel?: string; isActive?: boolean }): Promise<DivineCertification[]> {
+    let certs = Array.from(this.divineCertifications.values());
+    
+    if (filters?.houseId) {
+      certs = certs.filter(cert => cert.houseId === filters.houseId);
+    }
+    if (filters?.certificationLevel) {
+      certs = certs.filter(cert => cert.certificationLevel === filters.certificationLevel);
+    }
+    if (filters?.category) {
+      certs = certs.filter(cert => cert.category === filters.category);
+    }
+    if (filters?.rarityLevel) {
+      certs = certs.filter(cert => cert.rarityLevel === filters.rarityLevel);
+    }
+    if (filters?.isActive !== undefined) {
+      certs = certs.filter(cert => cert.isActive === filters.isActive);
+    }
+    
+    return certs.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+  }
+
+  async getCertificationsByHouse(houseId: string): Promise<DivineCertification[]> {
+    return this.getDivineCertifications({ houseId, isActive: true });
+  }
+
+  async createDivineCertification(certification: InsertDivineCertification): Promise<DivineCertification> {
+    const id = randomUUID();
+    const newCert: DivineCertification = { 
+      ...certification, 
+      id, 
+      createdAt: new Date(), 
+      updatedAt: new Date() 
+    };
+    this.divineCertifications.set(id, newCert);
+    return newCert;
+  }
+
+  async updateDivineCertification(id: string, certification: Partial<InsertDivineCertification>): Promise<DivineCertification | undefined> {
+    const existing = this.divineCertifications.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...certification, updatedAt: new Date() };
+    this.divineCertifications.set(id, updated);
+    return updated;
+  }
+
+  async deleteDivineCertification(id: string): Promise<boolean> {
+    return this.divineCertifications.delete(id);
+  }
+
+  // User Certifications Management
+  async getUserCertification(id: string): Promise<UserCertification | undefined> {
+    return this.userCertifications.get(id);
+  }
+
+  async getUserCertifications(userId: string, filters?: { certificationId?: string; status?: string; displayInProfile?: boolean }): Promise<UserCertification[]> {
+    let certs = Array.from(this.userCertifications.values()).filter(c => c.userId === userId);
+    
+    if (filters?.certificationId) {
+      certs = certs.filter(c => c.certificationId === filters.certificationId);
+    }
+    if (filters?.status) {
+      certs = certs.filter(c => c.status === filters.status);
+    }
+    if (filters?.displayInProfile !== undefined) {
+      certs = certs.filter(c => c.displayInProfile === filters.displayInProfile);
+    }
+    
+    return certs.sort((a, b) => b.awardedAt.getTime() - a.awardedAt.getTime());
+  }
+
+  async getCertificationHolders(certificationId: string): Promise<UserCertification[]> {
+    return Array.from(this.userCertifications.values()).filter(c => c.certificationId === certificationId);
+  }
+
+  async createUserCertification(certification: InsertUserCertification): Promise<UserCertification> {
+    const id = randomUUID();
+    const newCert: UserCertification = { 
+      ...certification, 
+      id, 
+      createdAt: new Date(), 
+      updatedAt: new Date() 
+    };
+    this.userCertifications.set(id, newCert);
+    return newCert;
+  }
+
+  async updateUserCertification(id: string, certification: Partial<InsertUserCertification>): Promise<UserCertification | undefined> {
+    const existing = this.userCertifications.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...certification, updatedAt: new Date() };
+    this.userCertifications.set(id, updated);
+    return updated;
+  }
+
+  async awardCertification(userId: string, certificationId: string, achievementMethod: string, verificationData?: any): Promise<UserCertification> {
+    const certData: InsertUserCertification = {
+      userId,
+      certificationId,
+      awardedAt: new Date(),
+      achievementMethod,
+      verificationData,
+      status: 'active',
+      displayInProfile: true,
+      metadata: {}
+    };
+    
+    return this.createUserCertification(certData);
+  }
+
+  async revokeCertification(userId: string, certificationId: string, reason: string): Promise<boolean> {
+    const userCerts = await this.getUserCertifications(userId, { certificationId });
+    if (userCerts.length === 0) return false;
+    
+    const updated = await this.updateUserCertification(userCerts[0].id, {
+      status: 'revoked',
+      displayInProfile: false,
+      metadata: { revokedReason: reason, revokedAt: new Date() }
+    });
+    
+    return !!updated;
+  }
+
+  async checkCertificationEligibility(userId: string, certificationId: string): Promise<{ eligible: boolean; requirements: any; missing: any }> {
+    // Simplified eligibility check for in-memory storage
+    return { eligible: true, requirements: {}, missing: {} };
+  }
+
+  // Learning Analytics Management
+  async getLearningAnalytics(userId: string): Promise<LearningAnalytics | undefined> {
+    return this.learningAnalytics.get(userId);
+  }
+
+  async createLearningAnalytics(analytics: InsertLearningAnalytics): Promise<LearningAnalytics> {
+    const newAnalytics: LearningAnalytics = { 
+      ...analytics, 
+      createdAt: new Date(), 
+      updatedAt: new Date() 
+    };
+    this.learningAnalytics.set(analytics.userId, newAnalytics);
+    return newAnalytics;
+  }
+
+  async updateLearningAnalytics(userId: string, analytics: Partial<InsertLearningAnalytics>): Promise<LearningAnalytics | undefined> {
+    const existing = this.learningAnalytics.get(userId);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...analytics, updatedAt: new Date() };
+    this.learningAnalytics.set(userId, updated);
+    return updated;
+  }
+
+  async recalculateLearningAnalytics(userId: string): Promise<LearningAnalytics> {
+    // Simplified recalculation for in-memory storage
+    const progresses = await this.getUserLessonProgresses(userId);
+    const unlocks = await this.getUserSkillUnlocks(userId);
+    const attempts = await this.getUserTrialAttempts(userId);
+    
+    const analyticsData: InsertLearningAnalytics = {
+      userId,
+      totalLessonsStarted: progresses.length,
+      totalLessonsCompleted: progresses.filter(p => p.status === 'completed').length,
+      totalTimeSpent: progresses.reduce((sum, p) => sum + p.timeSpent, 0),
+      averageScore: progresses.length > 0 ? progresses.reduce((sum, p) => sum + (p.score || 0), 0) / progresses.length : 0,
+      skillsUnlocked: unlocks.length,
+      trialsAttempted: attempts.length,
+      trialsPassed: attempts.filter(a => a.passed).length,
+      currentStreak: 0, // Simplified
+      longestStreak: 0, // Simplified
+      lastActiveDate: new Date(),
+      performanceTrends: {},
+      strengths: [],
+      weaknesses: [],
+      recommendedFocus: [],
+      engagementScore: 50 // Default
+    };
+    
+    const existing = await this.getLearningAnalytics(userId);
+    if (existing) {
+      return this.updateLearningAnalytics(userId, analyticsData)!;
+    } else {
+      return this.createLearningAnalytics(analyticsData);
+    }
+  }
+
+  async generateLearningRecommendations(userId: string): Promise<{ 
+    recommendedPaths: LearningPath[]; 
+    suggestedLessons: SacredLesson[]; 
+    skillsToUnlock: MysticalSkill[]; 
+    interventions: any[] 
+  }> {
+    // Simplified recommendations for in-memory storage
+    const allPaths = await this.getLearningPaths({ isActive: true });
+    const allLessons = await this.getSacredLessons({ isActive: true });
+    const allSkills = await this.getMysticalSkills({ isActive: true });
+    
+    return {
+      recommendedPaths: allPaths.slice(0, 3),
+      suggestedLessons: allLessons.slice(0, 5),
+      skillsToUnlock: allSkills.slice(0, 3),
+      interventions: []
+    };
+  }
+
+  // Learning System Analytics and Insights
+  async getHouseLearningStats(houseId: string): Promise<{
+    totalPaths: number;
+    totalLessons: number;
+    totalSkills: number;
+    averageProgress: number;
+    topPerformers: Array<User & { progress: number }>;
+    engagement: number;
+  }> {
+    const paths = await this.getLearningPathsByHouse(houseId);
+    const lessons = await this.getLessonsByHouse(houseId);
+    const skills = await this.getSkillsByHouse(houseId);
+    
+    return {
+      totalPaths: paths.length,
+      totalLessons: lessons.length,
+      totalSkills: skills.length,
+      averageProgress: 50, // Simplified
+      topPerformers: [], // Simplified
+      engagement: 75 // Simplified
+    };
+  }
+
+  async getGlobalLearningStats(): Promise<{
+    totalLearners: number;
+    totalLessonsCompleted: number;
+    totalSkillsUnlocked: number;
+    averageTimeToComplete: number;
+    houseComparisons: Array<{ houseId: string; avgProgress: number; engagement: number }>;
+  }> {
+    const totalProgresses = Array.from(this.userLessonProgress.values());
+    const totalUnlocks = Array.from(this.userSkillUnlocks.values());
+    
+    return {
+      totalLearners: new Set(totalProgresses.map(p => p.userId)).size,
+      totalLessonsCompleted: totalProgresses.filter(p => p.status === 'completed').length,
+      totalSkillsUnlocked: totalUnlocks.length,
+      averageTimeToComplete: 3600, // 1 hour simplified
+      houseComparisons: [] // Simplified
+    };
+  }
+
+  async getUserLearningDashboard(userId: string): Promise<{
+    analytics: LearningAnalytics;
+    currentPaths: LearningPath[];
+    recentProgress: UserLessonProgress[];
+    unlockedSkills: Array<UserSkillUnlock & { skill: MysticalSkill }>;
+    certifications: Array<UserCertification & { certification: DivineCertification }>;
+    recommendations: { paths: LearningPath[]; lessons: SacredLesson[]; skills: MysticalSkill[] };
+    achievements: any[];
+  }> {
+    let analytics = await this.getLearningAnalytics(userId);
+    if (!analytics) {
+      analytics = await this.recalculateLearningAnalytics(userId);
+    }
+    
+    const recentProgress = await this.getUserLessonProgresses(userId);
+    const skillUnlocks = await this.getUserSkillUnlocks(userId);
+    const userCerts = await this.getUserCertifications(userId);
+    const recommendations = await this.generateLearningRecommendations(userId);
+    
+    // Populate related data
+    const unlockedSkills = [];
+    for (const unlock of skillUnlocks) {
+      const skill = await this.getMysticalSkill(unlock.skillId);
+      if (skill) {
+        unlockedSkills.push({ ...unlock, skill });
+      }
+    }
+    
+    const certifications = [];
+    for (const userCert of userCerts) {
+      const cert = await this.getDivineCertification(userCert.certificationId);
+      if (cert) {
+        certifications.push({ ...userCert, certification: cert });
+      }
+    }
+    
+    return {
+      analytics,
+      currentPaths: [], // Simplified
+      recentProgress: recentProgress.slice(0, 10),
+      unlockedSkills,
+      certifications,
+      recommendations,
+      achievements: [] // Simplified
+    };
+  }
+
+  // Advanced Learning Features
+  async generatePersonalizedLearningPath(userId: string, preferences: { 
+    preferredHouses: string[]; 
+    difficultyPreference: string; 
+    timeCommitment: number; 
+    learningGoals: string[] 
+  }): Promise<LearningPath> {
+    // Simplified personalized path generation
+    const pathData: InsertLearningPath = {
+      name: `Personalized Path for ${userId}`,
+      description: 'A customized learning journey based on your preferences',
+      houseId: preferences.preferredHouses[0] || 'heroes',
+      specialization: 'trading',
+      difficultyLevel: preferences.difficultyPreference,
+      prerequisites: [],
+      estimatedHours: preferences.timeCommitment,
+      experienceReward: 1000,
+      karmaReward: 100,
+      sacredTitle: 'Personalized Seeker',
+      mysticalDescription: 'Your unique path to mastery',
+      pathIcon: 'star',
+      pathColor: '#gold',
+      lessonSequence: [],
+      unlockConditions: {},
+      completionRewards: {},
+      isActive: true,
+      displayOrder: 0
+    };
+    
+    return this.createLearningPath(pathData);
+  }
+
+  async detectLearningPatterns(userId: string): Promise<{
+    learningStyle: string;
+    optimalSessionLength: number;
+    preferredContentTypes: string[];
+    strugglingAreas: string[];
+    strengthAreas: string[];
+  }> {
+    // Simplified pattern detection
+    return {
+      learningStyle: 'visual',
+      optimalSessionLength: 30,
+      preferredContentTypes: ['video', 'interactive'],
+      strugglingAreas: [],
+      strengthAreas: []
+    };
+  }
+
+  async predictLearningOutcomes(userId: string, pathId: string): Promise<{
+    estimatedCompletionTime: number;
+    successProbability: number;
+    recommendedPrerequisites: LearningPath[];
+    riskFactors: string[];
+  }> {
+    // Simplified outcome prediction
+    return {
+      estimatedCompletionTime: 7200, // 2 hours
+      successProbability: 0.8,
+      recommendedPrerequisites: [],
+      riskFactors: []
+    };
   }
 }
 

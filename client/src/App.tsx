@@ -48,6 +48,9 @@ import HouseSelection from '@/pages/HouseSelection';
 import HouseDashboard from '@/pages/HouseDashboard';
 import HouseCompetition from '@/pages/HouseCompetition';
 
+// Learning Module pages
+import SacredLibrary from '@/pages/SacredLibrary';
+
 // WebSocket service for real-time data
 import { webSocketService } from '@/services/websocketService';
 
@@ -109,6 +112,9 @@ function Router() {
       <Route path="/portfolio" component={PortfolioPage} />
       <Route path="/watchlist" component={WatchlistPage} />
       <Route path="/leaderboards" component={LeaderboardPage} />
+      
+      {/* Learning Module routes */}
+      <Route path="/learning" component={SacredLibrary} />
       
       {/* Tools & Other routes */}
       <Route path="/news" component={NewsPage} />

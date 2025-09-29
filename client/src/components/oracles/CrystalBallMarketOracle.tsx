@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   TrendingUp, TrendingDown, Activity, DollarSign, Users, Zap, 
-  Crystal, Eye, Crown, Sparkles, Star, Globe, Flame, Shield 
+  Gem, Eye, Crown, Sparkles, Star, Globe, Flame, Shield 
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -149,7 +149,7 @@ export function CrystalBallMarketOracle({ selectedHouse = 'heroes' }: CrystalBal
       case 'heroes': return Shield;
       case 'wisdom': return Eye;
       case 'power': return Crown;
-      case 'mystery': return Crystal;
+      case 'mystery': return Gem;
       case 'elements': return Flame;
       case 'time': return Globe;
       case 'spirit': return Users;
@@ -167,7 +167,7 @@ export function CrystalBallMarketOracle({ selectedHouse = 'heroes' }: CrystalBal
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl font-display font-bold flex items-center space-x-3">
               <div className="relative">
-                <Crystal className={`h-8 w-8 transition-mystical ${isScrying ? 'sacred-glow-divine' : 'sacred-glow-moderate'} 
+                <Gem className={`h-8 w-8 transition-mystical ${isScrying ? 'sacred-glow-divine' : 'sacred-glow-moderate'} 
                   ${isScrying ? 'scale-125' : 'scale-100'}`} />
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full animate-ping" />
               </div>

@@ -1667,3 +1667,563 @@ export type InsertAlignmentThreshold = z.infer<typeof insertAlignmentThresholdSc
 
 export type KarmicProfile = typeof karmicProfiles.$inferSelect;
 export type InsertKarmicProfile = z.infer<typeof insertKarmicProfileSchema>;
+
+// ========================================================================================
+// COMPREHENSIVE LEARN MODULE SYSTEM - MYTHOLOGICAL TRADING RPG EDUCATION
+// ========================================================================================
+
+// Learning Paths - House-specific curriculum tracks
+export const learningPaths = pgTable("learning_paths", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  houseId: text("house_id").notNull(), // 'heroes', 'wisdom', 'power', 'mystery', 'elements', 'time', 'spirit', 'universal'
+  specialization: text("specialization").notNull(), // House specialization area
+  difficultyLevel: text("difficulty_level").notNull(), // 'initiate', 'adept', 'master', 'grandmaster'
+  prerequisites: jsonb("prerequisites"), // Required skills, karma, house membership
+  estimatedHours: integer("estimated_hours").default(0),
+  experienceReward: integer("experience_reward").default(0),
+  karmaReward: integer("karma_reward").default(0),
+  // Mystical properties
+  sacredTitle: text("sacred_title").notNull(), // "Path of the Divine Oracle", "Way of the Shadow Trader"
+  mysticalDescription: text("mystical_description").notNull(),
+  pathIcon: text("path_icon").default("BookOpen"),
+  pathColor: text("path_color").default("blue-600"),
+  // Learning path metadata
+  lessonSequence: text("lesson_sequence").array(), // Ordered array of lesson IDs
+  unlockConditions: jsonb("unlock_conditions"), // Karma, trading performance, etc.
+  completionRewards: jsonb("completion_rewards"), // Skills, privileges, bonuses unlocked
+  isActive: boolean("is_active").default(true),
+  displayOrder: integer("display_order").default(0),
+  // Vector embeddings for path recommendations
+  pathEmbedding: vector("path_embedding", { dimensions: 1536 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_learning_paths_house_id").on(table.houseId),
+  index("idx_learning_paths_difficulty").on(table.difficultyLevel),
+  index("idx_learning_paths_active").on(table.isActive),
+  index("idx_learning_paths_display_order").on(table.displayOrder),
+]);
+
+// Sacred Lessons - Individual learning units with immersive RPG elements
+export const sacredLessons = pgTable("sacred_lessons", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  houseId: text("house_id"), // Primary house, null for universal lessons
+  pathId: varchar("path_id").references(() => learningPaths.id),
+  // Lesson structure and content
+  lessonType: text("lesson_type").notNull(), // 'crystal_orb', 'sacred_tome', 'simulation', 'trial', 'ritual'
+  difficultyLevel: text("difficulty_level").notNull(), // 'initiate', 'adept', 'master', 'grandmaster'
+  estimatedMinutes: integer("estimated_minutes").default(15),
+  experienceReward: integer("experience_reward").default(100),
+  karmaReward: integer("karma_reward").default(5),
+  // Content delivery
+  contentFormat: text("content_format").notNull(), // 'text', 'video', 'interactive', 'simulation', 'assessment'
+  contentData: jsonb("content_data").notNull(), // Lesson content, questions, simulations
+  mediaUrls: jsonb("media_urls"), // Images, videos, animations
+  interactiveElements: jsonb("interactive_elements"), // Quizzes, drag-drop, simulations
+  // Prerequisites and sequencing
+  prerequisites: jsonb("prerequisites"), // Required lessons, skills, karma
+  unlockConditions: jsonb("unlock_conditions"), // Detailed unlock requirements
+  nextLessons: text("next_lessons").array(), // Suggested next lessons
+  // Assessment and mastery
+  masteryThreshold: decimal("mastery_threshold", { precision: 5, scale: 2 }).default("80.00"), // % required to pass
+  allowRetakes: boolean("allow_retakes").default(true),
+  maxAttempts: integer("max_attempts").default(3),
+  // Mystical properties
+  sacredTitle: text("sacred_title").notNull(), // "The Orb of Market Wisdom", "Scroll of Ancient Trades"
+  mysticalNarrative: text("mystical_narrative").notNull(), // RPG-style introduction
+  guidingSpirit: text("guiding_spirit"), // Name of mythical guide/teacher
+  ritualDescription: text("ritual_description"), // How lesson is "performed"
+  lessonIcon: text("lesson_icon").default("BookOpen"),
+  atmosphericEffects: jsonb("atmospheric_effects"), // UI effects, sounds, animations
+  // Learning analytics
+  avgCompletionTime: integer("avg_completion_time_minutes"),
+  avgScoreAchieved: decimal("avg_score_achieved", { precision: 5, scale: 2 }),
+  completionRate: decimal("completion_rate", { precision: 5, scale: 2 }),
+  userRating: decimal("user_rating", { precision: 3, scale: 2 }),
+  isActive: boolean("is_active").default(true),
+  publishedAt: timestamp("published_at"),
+  // Vector embeddings for content search and recommendations
+  contentEmbedding: vector("content_embedding", { dimensions: 1536 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_sacred_lessons_house_id").on(table.houseId),
+  index("idx_sacred_lessons_path_id").on(table.pathId),
+  index("idx_sacred_lessons_type").on(table.lessonType),
+  index("idx_sacred_lessons_difficulty").on(table.difficultyLevel),
+  index("idx_sacred_lessons_active").on(table.isActive),
+  index("idx_sacred_lessons_published").on(table.publishedAt),
+]);
+
+// Mystical Skills - Tradeable abilities that unlock enhanced features
+export const mysticalSkills = pgTable("mystical_skills", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  houseId: text("house_id"), // Primary house specialization
+  skillCategory: text("skill_category").notNull(), // 'trading', 'analysis', 'social', 'mystical'
+  skillType: text("skill_type").notNull(), // 'passive', 'active', 'toggle', 'ritual'
+  tier: text("tier").notNull(), // 'initiate', 'adept', 'master', 'grandmaster', 'legendary'
+  // Skill effects and bonuses
+  tradingPrivileges: jsonb("trading_privileges"), // What trading features this unlocks
+  tradingBonuses: jsonb("trading_bonuses"), // Numerical bonuses applied
+  interfaceFeatures: jsonb("interface_features"), // UI features unlocked
+  specialAbilities: jsonb("special_abilities"), // Unique powers granted
+  // Unlock requirements
+  prerequisiteSkills: text("prerequisite_skills").array(), // Required skills
+  prerequisiteLessons: text("prerequisite_lessons").array(), // Required lessons completed
+  karmaRequirement: integer("karma_requirement").default(0),
+  tradingPerformanceRequirement: jsonb("trading_performance_requirement"), // Win rate, profit, etc.
+  houseStandingRequirement: text("house_standing_requirement"), // House rank required
+  // Experience and progression
+  experienceCost: integer("experience_cost").default(500), // Experience points to unlock
+  masteryLevels: integer("mastery_levels").default(1), // How many levels skill can be upgraded
+  maxMasteryBonus: decimal("max_mastery_bonus", { precision: 5, scale: 2 }).default("1.50"), // Max bonus at full mastery
+  // Mystical properties
+  sacredName: text("sacred_name").notNull(), // "Sight of the Divine Oracle", "Shadow Step Trading"
+  mysticalDescription: text("mystical_description").notNull(),
+  awakenRitual: text("awaken_ritual"), // Description of skill awakening ceremony
+  skillIcon: text("skill_icon").default("Zap"),
+  skillAura: text("skill_aura"), // Visual effect ('golden', 'shadow', 'prismatic', 'elemental')
+  rarityLevel: text("rarity_level").default("common"), // 'common', 'rare', 'epic', 'legendary'
+  // Skill tree positioning
+  parentSkills: text("parent_skills").array(), // Skills this branches from
+  childSkills: text("child_skills").array(), // Skills this unlocks
+  skillTreePosition: jsonb("skill_tree_position"), // X,Y coordinates for visualization
+  // Usage and impact tracking
+  timesUnlocked: integer("times_unlocked").default(0),
+  avgTimeToUnlock: integer("avg_time_to_unlock_days"),
+  userSatisfactionRating: decimal("user_satisfaction_rating", { precision: 3, scale: 2 }),
+  impactOnTrading: decimal("impact_on_trading", { precision: 5, scale: 2 }), // Measured improvement
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_mystical_skills_house_id").on(table.houseId),
+  index("idx_mystical_skills_category").on(table.skillCategory),
+  index("idx_mystical_skills_tier").on(table.tier),
+  index("idx_mystical_skills_rarity").on(table.rarityLevel),
+  index("idx_mystical_skills_active").on(table.isActive),
+]);
+
+// User Lesson Progress - Individual lesson completion tracking
+export const userLessonProgress = pgTable("user_lesson_progress", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  lessonId: varchar("lesson_id").notNull().references(() => sacredLessons.id),
+  pathId: varchar("path_id").references(() => learningPaths.id),
+  // Progress tracking
+  status: text("status").notNull().default("not_started"), // 'not_started', 'in_progress', 'completed', 'mastered'
+  progressPercent: decimal("progress_percent", { precision: 5, scale: 2 }).default("0.00"),
+  currentSection: integer("current_section").default(1),
+  sectionsCompleted: integer("sections_completed").array(),
+  timeSpentMinutes: integer("time_spent_minutes").default(0),
+  // Assessment results
+  attempts: integer("attempts").default(0),
+  bestScore: decimal("best_score", { precision: 5, scale: 2 }),
+  latestScore: decimal("latest_score", { precision: 5, scale: 2 }),
+  masteryAchieved: boolean("mastery_achieved").default(false),
+  // Learning data
+  interactionData: jsonb("interaction_data"), // Detailed interaction logs
+  difficultyRating: integer("difficulty_rating"), // User's rating 1-5
+  enjoymentRating: integer("enjoyment_rating"), // User's rating 1-5
+  notes: text("notes"), // User's personal notes
+  // Mystical ceremony tracking
+  ceremonyViewed: boolean("ceremony_viewed").default(false), // Completion ceremony watched
+  experienceAwarded: integer("experience_awarded").default(0),
+  karmaAwarded: integer("karma_awarded").default(0),
+  skillsUnlocked: text("skills_unlocked").array(), // Skills unlocked by this lesson
+  // Timing and analytics
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  lastAccessedAt: timestamp("last_accessed_at").defaultNow(),
+  nextReviewDue: timestamp("next_review_due"), // Spaced repetition
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_user_lesson_progress_user_id").on(table.userId),
+  index("idx_user_lesson_progress_lesson_id").on(table.lessonId),
+  index("idx_user_lesson_progress_path_id").on(table.pathId),
+  index("idx_user_lesson_progress_status").on(table.status),
+  index("idx_user_lesson_progress_completed").on(table.completedAt),
+  index("idx_user_lesson_progress_last_accessed").on(table.lastAccessedAt),
+  // Unique constraint - one progress record per user per lesson
+  index("idx_user_lesson_unique").on(table.userId, table.lessonId),
+]);
+
+// User Skill Unlocks - Skills and abilities unlocked by users
+export const userSkillUnlocks = pgTable("user_skill_unlocks", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  skillId: varchar("skill_id").notNull().references(() => mysticalSkills.id),
+  // Unlock details
+  unlockMethod: text("unlock_method").notNull(), // 'lesson_completion', 'trial_victory', 'karma_threshold', 'house_advancement'
+  masteryLevel: integer("mastery_level").default(1), // Current upgrade level
+  maxMasteryLevel: integer("max_mastery_level").default(1),
+  effectivenessBonus: decimal("effectiveness_bonus", { precision: 5, scale: 2 }).default("1.00"), // Current bonus multiplier
+  // Usage tracking
+  timesUsed: integer("times_used").default(0),
+  lastUsedAt: timestamp("last_used_at"),
+  totalBenefitGained: decimal("total_benefit_gained", { precision: 15, scale: 2 }).default("0.00"),
+  // Skill mastery progression
+  experienceInvested: integer("experience_invested").default(0),
+  masteryProgressPercent: decimal("mastery_progress_percent", { precision: 5, scale: 2 }).default("0.00"),
+  nextUpgradeCost: integer("next_upgrade_cost").default(500),
+  // Mystical awakening ceremony
+  awakeningCeremonyCompleted: boolean("awakening_ceremony_completed").default(false),
+  awakeningDate: timestamp("awakening_date"),
+  ceremonialWitnesses: text("ceremonial_witnesses").array(), // Other users who witnessed ceremony
+  mysticalBond: decimal("mystical_bond", { precision: 5, scale: 2 }).default("1.00"), // Spiritual connection to skill
+  // Skill performance tracking
+  skillRating: decimal("skill_rating", { precision: 3, scale: 2 }), // User's rating of skill usefulness
+  recommendsToOthers: boolean("recommends_to_others").default(true),
+  personalNotes: text("personal_notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_user_skill_unlocks_user_id").on(table.userId),
+  index("idx_user_skill_unlocks_skill_id").on(table.skillId),
+  index("idx_user_skill_unlocks_mastery").on(table.masteryLevel),
+  index("idx_user_skill_unlocks_awakening").on(table.awakeningDate),
+  // Unique constraint - one unlock record per user per skill
+  index("idx_user_skill_unique").on(table.userId, table.skillId),
+]);
+
+// Trials of Mastery - Assessment and certification system
+export const trialsOfMastery = pgTable("trials_of_mastery", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  houseId: text("house_id"), // House-specific trial or universal
+  trialType: text("trial_type").notNull(), // 'knowledge', 'practical', 'simulation', 'peer_review', 'divine_challenge'
+  difficultyLevel: text("difficulty_level").notNull(), // 'initiate', 'adept', 'master', 'grandmaster'
+  // Trial structure
+  phases: jsonb("phases").notNull(), // Multi-phase trial structure
+  timeLimit: integer("time_limit_minutes").default(60),
+  maxAttempts: integer("max_attempts").default(3),
+  passingScore: decimal("passing_score", { precision: 5, scale: 2 }).default("75.00"),
+  perfectScore: decimal("perfect_score", { precision: 5, scale: 2 }).default("100.00"),
+  // Prerequisites and rewards
+  prerequisites: jsonb("prerequisites"), // Required skills, lessons, karma
+  experienceReward: integer("experience_reward").default(1000),
+  karmaReward: integer("karma_reward").default(50),
+  skillsUnlocked: text("skills_unlocked").array(), // Skills granted on completion
+  tradingPrivilegesGranted: jsonb("trading_privileges_granted"), // New trading abilities
+  certificationsAwarded: text("certifications_awarded").array(), // Formal certifications
+  // Mystical properties
+  sacredTitle: text("sacred_title").notNull(), // "Trial of the Divine Oracle", "Ordeal of Shadow Trading"
+  mythicalLore: text("mythical_lore").notNull(), // Background story and significance
+  trialMaster: text("trial_master"), // Name of legendary figure who judges trial
+  sacredLocation: text("sacred_location"), // Mystical setting description
+  completionRitual: text("completion_ritual"), // Ceremony for successful completion
+  trialIcon: text("trial_icon").default("Award"),
+  atmosphericTheme: text("atmospheric_theme").default("mystical"), // UI theme
+  // Analytics and balancing
+  attemptCount: integer("attempt_count").default(0),
+  successRate: decimal("success_rate", { precision: 5, scale: 2 }).default("0.00"),
+  avgScore: decimal("avg_score", { precision: 5, scale: 2 }).default("0.00"),
+  avgCompletionTime: integer("avg_completion_time_minutes"),
+  difficulty_rating: decimal("difficulty_rating", { precision: 3, scale: 2 }), // User feedback
+  isActive: boolean("is_active").default(true),
+  seasonalAvailability: jsonb("seasonal_availability"), // Special availability windows
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_trials_mastery_house_id").on(table.houseId),
+  index("idx_trials_mastery_type").on(table.trialType),
+  index("idx_trials_mastery_difficulty").on(table.difficultyLevel),
+  index("idx_trials_mastery_active").on(table.isActive),
+]);
+
+// User Trial Attempts - Tracking trial participation and results
+export const userTrialAttempts = pgTable("user_trial_attempts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  trialId: varchar("trial_id").notNull().references(() => trialsOfMastery.id),
+  attemptNumber: integer("attempt_number").notNull().default(1),
+  // Attempt results
+  status: text("status").notNull().default("in_progress"), // 'in_progress', 'completed', 'abandoned', 'failed'
+  overallScore: decimal("overall_score", { precision: 5, scale: 2 }),
+  phaseScores: jsonb("phase_scores"), // Scores for each trial phase
+  timeSpentMinutes: integer("time_spent_minutes").default(0),
+  passed: boolean("passed").default(false),
+  perfectScore: boolean("perfect_score").default(false),
+  // Trial performance data
+  responses: jsonb("responses"), // User responses to questions/challenges
+  tradeSimulationResults: jsonb("trade_simulation_results"), // Performance in simulated trading
+  peerReviewScores: jsonb("peer_review_scores"), // Peer evaluation results
+  masterComments: text("master_comments"), // Feedback from trial master
+  // Rewards and unlocks
+  experienceAwarded: integer("experience_awarded").default(0),
+  karmaAwarded: integer("karma_awarded").default(0),
+  skillsUnlocked: text("skills_unlocked").array(),
+  certificationsEarned: text("certifications_earned").array(),
+  tradingPrivilegesGranted: jsonb("trading_privileges_granted"),
+  // Trial ceremony and recognition
+  completionCeremonyViewed: boolean("completion_ceremony_viewed").default(false),
+  publicRecognition: boolean("public_recognition").default(false), // Announcement to house/community
+  witnessedBy: text("witnessed_by").array(), // Other users who witnessed completion
+  legendaryAchievement: boolean("legendary_achievement").default(false), // Exceptional performance
+  // Analytics and feedback
+  difficultyRating: integer("difficulty_rating"), // User's rating 1-5
+  enjoymentRating: integer("enjoyment_rating"), // User's rating 1-5
+  wouldRecommend: boolean("would_recommend").default(true),
+  feedback: text("feedback"),
+  startedAt: timestamp("started_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_user_trial_attempts_user_id").on(table.userId),
+  index("idx_user_trial_attempts_trial_id").on(table.trialId),
+  index("idx_user_trial_attempts_status").on(table.status),
+  index("idx_user_trial_attempts_passed").on(table.passed),
+  index("idx_user_trial_attempts_completed").on(table.completedAt),
+]);
+
+// Divine Certifications - Formal achievement recognition
+export const divineCertifications = pgTable("divine_certifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  houseId: text("house_id"), // House-specific or universal certification
+  certificationLevel: text("certification_level").notNull(), // 'apprentice', 'journeyman', 'master', 'grandmaster', 'legendary'
+  category: text("category").notNull(), // 'trading', 'analysis', 'leadership', 'teaching', 'innovation'
+  // Certification requirements
+  requirements: jsonb("requirements").notNull(), // Detailed achievement requirements
+  prerequisiteCertifications: text("prerequisite_certifications").array(),
+  minimumKarma: integer("minimum_karma").default(0),
+  minimumHouseStanding: text("minimum_house_standing"),
+  // Visual and recognition elements
+  badgeDesign: jsonb("badge_design"), // NFT-style badge appearance
+  certificateTemplate: text("certificate_template"), // PDF template URL
+  publicTitle: text("public_title").notNull(), // "Master of Mystical Analytics", "Divine Oracle of Prophecy"
+  titleAbbreviation: text("title_abbreviation"), // "MMA", "DOP"
+  prestigePoints: integer("prestige_points").default(100),
+  // Certification benefits
+  tradingBonuses: jsonb("trading_bonuses"), // Bonuses granted to certificate holders
+  exclusiveAccess: jsonb("exclusive_access"), // Special features/areas unlocked
+  teachingPrivileges: boolean("teaching_privileges").default(false), // Can mentor others
+  leadershipPrivileges: boolean("leadership_privileges").default(false), // Can lead house activities
+  // Recognition and display
+  displayBorder: text("display_border").default("golden"), // 'bronze', 'silver', 'golden', 'prismatic'
+  glowEffect: text("glow_effect"), // Special visual effects
+  rarityLevel: text("rarity_level").default("rare"), // 'common', 'rare', 'epic', 'legendary', 'mythic'
+  limitedEdition: boolean("limited_edition").default(false),
+  maxIssuances: integer("max_issuances"), // Maximum certificates that can be issued
+  currentIssuances: integer("current_issuances").default(0),
+  // Metadata and lifecycle
+  validityPeriod: integer("validity_period_months"), // How long certification lasts
+  renewalRequired: boolean("renewal_required").default(false),
+  retireDate: timestamp("retire_date"), // When this certification is no longer available
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_divine_certifications_house_id").on(table.houseId),
+  index("idx_divine_certifications_level").on(table.certificationLevel),
+  index("idx_divine_certifications_category").on(table.category),
+  index("idx_divine_certifications_rarity").on(table.rarityLevel),
+  index("idx_divine_certifications_active").on(table.isActive),
+]);
+
+// User Certifications - Certifications earned by users
+export const userCertifications = pgTable("user_certifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  certificationId: varchar("certification_id").notNull().references(() => divineCertifications.id),
+  // Achievement details
+  achievementMethod: text("achievement_method").notNull(), // 'trial_completion', 'peer_recognition', 'divine_appointment'
+  verificationData: jsonb("verification_data"), // Proof of achievement
+  witnessedBy: text("witnessed_by").array(), // Other users who witnessed achievement
+  awardingMaster: text("awarding_master"), // Who granted the certification
+  // Certificate details
+  certificateNumber: text("certificate_number").notNull().unique(), // Unique certificate identifier
+  certificateUrl: text("certificate_url"), // PDF/NFT certificate URL
+  badgeImageUrl: text("badge_image_url"), // Badge image for display
+  publicTitle: text("public_title").notNull(), // User's granted title
+  // Recognition and ceremony
+  ceremonyCompleted: boolean("ceremony_completed").default(false),
+  ceremonyDate: timestamp("ceremony_date"),
+  publicAnnouncement: boolean("public_announcement").default(true),
+  featuredInHouse: boolean("featured_in_house").default(false),
+  communityReactions: jsonb("community_reactions"), // Likes, congratulations, etc.
+  // Certification status
+  status: text("status").notNull().default("active"), // 'active', 'expired', 'revoked', 'suspended'
+  validUntil: timestamp("valid_until"),
+  renewalReminderSent: boolean("renewal_reminder_sent").default(false),
+  // Usage and impact
+  displayInProfile: boolean("display_in_profile").default(true),
+  sharableUrl: text("sharable_url"), // Public sharing URL
+  timestampProof: text("timestamp_proof"), // Blockchain/verification timestamp
+  achievementScore: decimal("achievement_score", { precision: 5, scale: 2 }), // Quality of achievement
+  awardedAt: timestamp("awarded_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_user_certifications_user_id").on(table.userId),
+  index("idx_user_certifications_cert_id").on(table.certificationId),
+  index("idx_user_certifications_status").on(table.status),
+  index("idx_user_certifications_awarded").on(table.awardedAt),
+  index("idx_user_certifications_public").on(table.displayInProfile),
+  // Unique constraint - one certification per user per type
+  index("idx_user_cert_unique").on(table.userId, table.certificationId),
+]);
+
+// Learning Analytics - Comprehensive progress and performance tracking
+export const learningAnalytics = pgTable("learning_analytics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  // Overall learning progress
+  totalExperienceEarned: integer("total_experience_earned").default(0),
+  totalLessonsCompleted: integer("total_lessons_completed").default(0),
+  totalSkillsUnlocked: integer("total_skills_unlocked").default(0),
+  totalTrialsPassed: integer("total_trials_passed").default(0),
+  totalCertificationsEarned: integer("total_certifications_earned").default(0),
+  // Learning velocity and patterns
+  lessonsPerWeek: decimal("lessons_per_week", { precision: 5, scale: 2 }).default("0.00"),
+  avgScoreAchieved: decimal("avg_score_achieved", { precision: 5, scale: 2 }).default("0.00"),
+  learningStreak: integer("learning_streak_days").default(0),
+  longestLearningStreak: integer("longest_learning_streak_days").default(0),
+  preferredLearningTime: text("preferred_learning_time"), // 'morning', 'afternoon', 'evening', 'night'
+  avgSessionDuration: integer("avg_session_duration_minutes").default(0),
+  // House-specific progress
+  primaryHouseMastery: decimal("primary_house_mastery", { precision: 5, scale: 2 }).default("0.00"),
+  secondaryHousesExplored: text("secondary_houses_explored").array(),
+  crossHouseProgress: jsonb("cross_house_progress"), // Progress in other houses
+  houseRank: integer("house_rank").default(0), // Rank within house for learning
+  // Learning style and preferences
+  preferredLessonTypes: text("preferred_lesson_types").array(), // 'crystal_orb', 'sacred_tome', etc.
+  learningStyleProfile: jsonb("learning_style_profile"), // Visual, auditory, kinesthetic, etc.
+  difficultyPreference: text("difficulty_preference").default("adaptive"), // 'easy', 'moderate', 'challenging', 'adaptive'
+  pacePreference: text("pace_preference").default("self_paced"), // 'slow', 'self_paced', 'accelerated'
+  // Social learning aspects
+  mentorshipGiven: integer("mentorship_given_hours").default(0),
+  mentorshipReceived: integer("mentorship_received_hours").default(0),
+  peerReviewsGiven: integer("peer_reviews_given").default(0),
+  peerReviewsReceived: integer("peer_reviews_received").default(0),
+  communityContributions: integer("community_contributions").default(0),
+  teachingRating: decimal("teaching_rating", { precision: 3, scale: 2 }), // From students taught
+  // Adaptive learning data
+  knowledgeGaps: jsonb("knowledge_gaps"), // Areas needing improvement
+  strengthAreas: jsonb("strength_areas"), // Areas of excellence
+  recommendedPaths: jsonb("recommended_paths"), // AI-suggested learning paths
+  personalizedDifficulty: decimal("personalized_difficulty", { precision: 3, scale: 2 }).default("3.00"), // 1-5 scale
+  // Engagement and motivation
+  motivationLevel: decimal("motivation_level", { precision: 3, scale: 2 }).default("3.00"), // 1-5 scale
+  engagementTrend: text("engagement_trend").default("stable"), // 'increasing', 'stable', 'decreasing'
+  lastActiveDate: timestamp("last_active_date"),
+  totalTimeSpent: integer("total_time_spent_minutes").default(0),
+  achievementCelebrations: integer("achievement_celebrations").default(0),
+  // Predictive analytics
+  predictedCompletionDate: timestamp("predicted_completion_date"),
+  riskOfDropout: decimal("risk_of_dropout", { precision: 3, scale: 2 }).default("0.00"), // 0-1 probability
+  recommendedInterventions: jsonb("recommended_interventions"), // Suggestions to improve
+  // Timestamps
+  calculatedAt: timestamp("calculated_at").defaultNow(),
+  nextCalculationDue: timestamp("next_calculation_due"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_learning_analytics_user_id").on(table.userId),
+  index("idx_learning_analytics_house_mastery").on(table.primaryHouseMastery),
+  index("idx_learning_analytics_last_active").on(table.lastActiveDate),
+  index("idx_learning_analytics_calculated").on(table.calculatedAt),
+  // Unique constraint - one analytics record per user
+  index("idx_learning_analytics_unique_user").on(table.userId),
+]);
+
+// Insert schemas for learning system tables
+export const insertLearningPathSchema = createInsertSchema(learningPaths).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertSacredLessonSchema = createInsertSchema(sacredLessons).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertMysticalSkillSchema = createInsertSchema(mysticalSkills).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserLessonProgressSchema = createInsertSchema(userLessonProgress).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserSkillUnlockSchema = createInsertSchema(userSkillUnlocks).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertTrialOfMasterySchema = createInsertSchema(trialsOfMastery).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserTrialAttemptSchema = createInsertSchema(userTrialAttempts).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertDivineCertificationSchema = createInsertSchema(divineCertifications).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserCertificationSchema = createInsertSchema(userCertifications).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertLearningAnalyticsSchema = createInsertSchema(learningAnalytics).omit({
+  id: true,
+  calculatedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Export types for learning system
+export type LearningPath = typeof learningPaths.$inferSelect;
+export type InsertLearningPath = z.infer<typeof insertLearningPathSchema>;
+
+export type SacredLesson = typeof sacredLessons.$inferSelect;
+export type InsertSacredLesson = z.infer<typeof insertSacredLessonSchema>;
+
+export type MysticalSkill = typeof mysticalSkills.$inferSelect;
+export type InsertMysticalSkill = z.infer<typeof insertMysticalSkillSchema>;
+
+export type UserLessonProgress = typeof userLessonProgress.$inferSelect;
+export type InsertUserLessonProgress = z.infer<typeof insertUserLessonProgressSchema>;
+
+export type UserSkillUnlock = typeof userSkillUnlocks.$inferSelect;
+export type InsertUserSkillUnlock = z.infer<typeof insertUserSkillUnlockSchema>;
+
+export type TrialOfMastery = typeof trialsOfMastery.$inferSelect;
+export type InsertTrialOfMastery = z.infer<typeof insertTrialOfMasterySchema>;
+
+export type UserTrialAttempt = typeof userTrialAttempts.$inferSelect;
+export type InsertUserTrialAttempt = z.infer<typeof insertUserTrialAttemptSchema>;
+
+export type DivineCertification = typeof divineCertifications.$inferSelect;
+export type InsertDivineCertification = z.infer<typeof insertDivineCertificationSchema>;
+
+export type UserCertification = typeof userCertifications.$inferSelect;
+export type InsertUserCertification = z.infer<typeof insertUserCertificationSchema>;
+
+export type LearningAnalytics = typeof learningAnalytics.$inferSelect;
+export type InsertLearningAnalytics = z.infer<typeof insertLearningAnalyticsSchema>;

@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { 
-  Gem, Crown, TrendingUp, Shield, Crystal, Target, Sparkles, 
+  Gem, Crown, TrendingUp, Shield, Target, Sparkles, 
   Clock, Scroll, Eye, Star, Flame, Globe, Wand2, Heart
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -190,7 +190,7 @@ export function SacredTradingVault({ selectedHouse = 'heroes' }: SacredTradingVa
       case 'serene': return <Shield className="w-4 h-4" />;
       case 'balanced': return <Target className="w-4 h-4" />;
       case 'volatile': return <Flame className="w-4 h-4" />;
-      default: return <Crystal className="w-4 h-4" />;
+      default: return <Gem className="w-4 h-4" />;
     }
   };
 
@@ -199,7 +199,7 @@ export function SacredTradingVault({ selectedHouse = 'heroes' }: SacredTradingVa
       case 'heroes': return Shield;
       case 'wisdom': return Eye;
       case 'power': return Crown;
-      case 'mystery': return Crystal;
+      case 'mystery': return Gem;
       case 'elements': return Flame;
       case 'time': return Globe;
       case 'spirit': return Heart;

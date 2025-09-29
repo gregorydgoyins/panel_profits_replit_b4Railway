@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { 
   TrendingUp, TrendingDown, Shield, Crown, Sparkles, Target, Eye,
-  Flame, Crystal, Users, Star, BookOpen, Globe, Gem, Scroll, Swords
+  Flame, Users, Star, BookOpen, Globe, Gem, Scroll, Swords
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -185,7 +185,7 @@ export function MythicalPortfolioSanctuary({ selectedHouse = 'heroes' }: Mythica
   const getAscensionIcon = (change: number) => {
     if (change > 0) return <TrendingUp className="w-4 h-4" />;
     if (change < 0) return <TrendingDown className="w-4 h-4" />;
-    return <Crystal className="w-4 h-4" />;
+    return <Gem className="w-4 h-4" />;
   };
 
   const getChaosLabel = (score: number) => {
@@ -213,7 +213,7 @@ export function MythicalPortfolioSanctuary({ selectedHouse = 'heroes' }: Mythica
       case 'heroes': return Shield;
       case 'wisdom': return Eye;
       case 'power': return Crown;
-      case 'mystery': return Crystal;
+      case 'mystery': return Gem;
       case 'elements': return Flame;
       case 'time': return Globe;
       case 'spirit': return Users;
@@ -256,7 +256,7 @@ export function MythicalPortfolioSanctuary({ selectedHouse = 'heroes' }: Mythica
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <Crystal className={`h-8 w-8 text-purple-400 transition-mystical ${isAscending ? 'sacred-glow-intense scale-125' : 'mystical-pulse'}`} />
+                <Gem className={`h-8 w-8 text-purple-400 transition-mystical ${isAscending ? 'sacred-glow-intense scale-125' : 'mystical-pulse'}`} />
                 <HouseIcon className="absolute -bottom-1 -right-1 w-4 h-4 text-amber-400 mystical-pulse" />
               </div>
               <div>
