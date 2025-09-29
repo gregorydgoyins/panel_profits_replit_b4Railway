@@ -3792,6 +3792,21 @@ export class DatabaseStorage implements IStorage {
   async deleteNewsArticle(id: string): Promise<void> {
     await db.delete(newsArticles).where(eq(newsArticles.id, id));
   }
+
+  // Options Chain Methods for Phase 1 Scheduled Services
+  async getAllOptionsChains(): Promise<OptionsChain[]> {
+    return await db.select().from(optionsChains)
+      .where(eq(optionsChains.isActive, true))
+      .orderBy(desc(optionsChains.expirationDate));
+  }
+
+  async updateOptionsChain(id: string, updates: Partial<InsertOptionsChain>): Promise<OptionsChain | undefined> {
+    const result = await db.update(optionsChains)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(optionsChains.id, id))
+      .returning();
+    return result[0];
+  }
 }
 
 export const databaseStorage = new DatabaseStorage();
