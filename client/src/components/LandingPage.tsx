@@ -1,470 +1,331 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skull, DollarSign, TrendingDown, AlertTriangle, Brain, Eye, Clock, Trophy, Zap, Flame, Shield, Archive, Database, Activity } from "lucide-react";
-import { motion, useScroll, useTransform, AnimatePresence, useInView } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { VideoBackground } from "@/components/VideoBackground";
 import { useEffect, useRef, useState } from "react";
 
 export function LandingPage() {
   const { scrollY } = useScroll();
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isHovered, setIsHovered] = useState(false);
-  const heroRef = useRef(null);
-  const cardsRef = useRef(null);
-  const isHeroInView = useInView(heroRef, { once: true });
-  const isCardsInView = useInView(cardsRef, { once: true });
-
-  // Parallax transforms
-  const yPosAnim = useTransform(scrollY, [0, 500], [0, -100]);
-  const scaleAnim = useTransform(scrollY, [0, 300], [1, 1.2]);
-  const opacityAnim = useTransform(scrollY, [0, 300], [1, 0]);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
-  // Epic text animation variants
-  const titleVariants = {
-    hidden: { 
-      y: -100, 
-      opacity: 0,
-      scale: 0.5,
-      filter: "blur(20px)"
-    },
-    visible: {
-      y: 0,
-      opacity: 1,
-      scale: 1,
-      filter: "blur(0px)",
-      transition: {
-        duration: 1,
-        ease: [0.68, -0.55, 0.265, 1.55],
-        type: "spring",
-        stiffness: 100
-      }
-    }
-  };
-
-  const subtitleVariants = {
-    hidden: { x: -200, opacity: 0 },
-    visible: {
-      x: 0,
-      opacity: 1,
-      transition: {
-        duration: 0.8,
-        delay: 0.5,
-        ease: "easeOut"
-      }
-    }
-  };
-
-  const cardVariants = {
-    hidden: { 
-      opacity: 0,
-      y: 100,
-      rotateX: -45,
-      scale: 0.8
-    },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      rotateX: 0,
-      scale: 1,
-      transition: {
-        duration: 0.8,
-        delay: i * 0.1,
-        ease: [0.215, 0.61, 0.355, 1],
-        type: "spring",
-        stiffness: 100
-      }
-    }),
-    hover: {
-      scale: 1.05,
-      rotateY: 5,
-      z: 50,
-      transition: {
-        duration: 0.3,
-        ease: "easeOut"
-      }
-    }
-  };
-
-  const exchangeSections = [
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [activeSection, setActiveSection] = useState(0);
+  
+  // Scroll-based opacity transforms for each section's text
+  const text1Opacity = useTransform(scrollY, [0, 300, 600, 900], [0, 1, 1, 0]);
+  const text2Opacity = useTransform(scrollY, [600, 900, 1500, 1800], [0, 1, 1, 0]);
+  const text3Opacity = useTransform(scrollY, [1500, 1800, 2400, 2700], [0, 1, 1, 0]);
+  const text4Opacity = useTransform(scrollY, [2400, 2700, 3300, 3600], [0, 1, 1, 0]);
+  const text5Opacity = useTransform(scrollY, [3300, 3600, 4200, 4500], [0, 1, 1, 0]);
+  const text6Opacity = useTransform(scrollY, [4200, 4500, 5100], [0, 1, 1]);
+  
+  // Video URLs for each section - using stock cinematic videos
+  const videoSections = [
     {
+      url: "https://cdn.pixabay.com/video/2024/08/24/228197_large.mp4",
+      title: "PANEL PROFITS",
+      subtitle: ""
+    },
+    {
+      url: "https://cdn.pixabay.com/video/2023/08/31/178372-859001761_large.mp4",
+      title: "Every Number Has A Shadow",
+      subtitle: ""
+    },
+    {
+      url: "https://cdn.pixabay.com/video/2022/12/13/142923-781634322_large.mp4",
       title: "THE FLOOR",
-      icon: Flame,
-      heading: "Where Fortunes Dissolve",
-      description: "Watch digital empires crumble into binary dust. Every tick downward is a dream extinguished, a future erased. The floor doesn't care about your ambitions."
+      subtitle: "Where fortunes dissolve into void"
     },
     {
-      title: "THE LEDGER", 
-      icon: Database,
-      heading: "Permanent Scars",
-      description: "Every transaction etches itself into the eternal record. Your losses are immortalized, your gains fleeting. The ledger remembers what you'd rather forget."
+      url: "https://cdn.pixabay.com/video/2024/06/17/217090_large.mp4",
+      title: "THE REFLECTION",
+      subtitle: "What stares back isn't human anymore"
     },
     {
-      title: "THE MIRROR",
-      icon: Eye,
-      heading: "Market's Reflection", 
-      description: "Look into the abyss of your portfolio and see what stares back. You entered human. The market made you something else. Something that feeds on volatility."
-    },
-    {
-      title: "THE VAULT",
-      icon: Shield,
-      heading: "Compound Nightmares",
-      description: "Where broken dreams accumulate interest. Each failed position adds to the pile. The vault grows heavy with the weight of what could have been."
-    },
-    {
+      url: "https://cdn.pixabay.com/video/2023/10/29/187319-879218848_large.mp4",
       title: "THE TERMINAL",
-      icon: Activity,
-      heading: "Final Interface",
-      description: "Your last connection to financial mortality. Here, at the edge of ruin, you make your final trades. The terminal knows your fate before you do."
+      subtitle: "Your final interface with mortality"
     },
     {
-      title: "THE ECHO",
-      icon: Clock,
-      heading: "Portfolio Ghosts",
-      description: "Listen to the whispers of crashed positions. They speak of margin calls at 3 AM, of leveraged bets that consumed everything. Their warnings fall on deaf ears."
+      url: "https://cdn.pixabay.com/video/2024/01/27/198526_large.mp4",
+      title: "",
+      subtitle: "Enter if you dare"
     }
   ];
+  
+  useEffect(() => {
+    // Set up intersection observer for section changes
+    const sections = document.querySelectorAll('.video-section');
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = Number(entry.target.getAttribute('data-section'));
+            setActiveSection(index);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+    
+    sections.forEach((section) => {
+      observer.observe(section);
+    });
+    
+    return () => {
+      sections.forEach((section) => {
+        observer.unobserve(section);
+      });
+    };
+  }, []);
+  
+  const textOpacities = [text1Opacity, text2Opacity, text3Opacity, text4Opacity, text5Opacity, text6Opacity];
 
   return (
-    <div className="min-h-screen bg-black relative overflow-x-hidden">
-      {/* Epic Video Background */}
-      <VideoBackground />
-
-      {/* Hero Section with epic animations */}
-      <motion.div 
-        ref={heroRef}
-        className="relative min-h-screen flex items-center justify-center overflow-hidden"
-        style={{ y: yPosAnim }}
+    <div 
+      ref={containerRef}
+      className="relative w-full bg-black"
+      style={{
+        scrollSnapType: "y mandatory",
+        overflowY: "auto",
+        height: "100vh"
+      }}
+    >
+      {/* Opening Scene - PANEL PROFITS */}
+      <section 
+        className="video-section relative h-screen w-full overflow-hidden"
+        style={{ scrollSnapAlign: "start" }}
+        data-section="0"
       >
-        <motion.div 
-          className="absolute inset-0 crosshatch" 
-          style={{ scale: scaleAnim, opacity: opacityAnim }}
+        <VideoBackground 
+          videoUrl={videoSections[0].url}
+          overlay={true}
+          overlayOpacity={0.4}
+          minimalist={true}
         />
-        <div className="relative max-w-7xl mx-auto px-6 py-24 z-20">
-          <div className="text-center">
-            {/* Epic Skull with Energy Pulse */}
-            <motion.div 
-              className="mb-6 relative"
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ duration: 1, type: "spring", stiffness: 100 }}
+        <motion.div 
+          className="absolute inset-0 flex items-center justify-center"
+          style={{ opacity: text1Opacity }}
+        >
+          <motion.h1 
+            className="text-7xl md:text-9xl font-thin text-white tracking-widest mix-blend-difference"
+            initial={{ opacity: 0, letterSpacing: "0.5em" }}
+            animate={{ opacity: 1, letterSpacing: "0.2em" }}
+            transition={{ duration: 3, ease: "easeOut" }}
+          >
+            PANEL PROFITS
+          </motion.h1>
+        </motion.div>
+      </section>
+
+      {/* The Descent - Every Number Has A Shadow */}
+      <section 
+        className="video-section relative h-screen w-full overflow-hidden"
+        style={{ scrollSnapAlign: "start" }}
+        data-section="1"
+      >
+        <VideoBackground 
+          videoUrl={videoSections[1].url}
+          overlay={true}
+          overlayOpacity={0.5}
+          minimalist={true}
+        />
+        <motion.div 
+          className="absolute inset-0 flex items-end pb-32 pl-12"
+          style={{ opacity: text2Opacity }}
+        >
+          <motion.p 
+            className="text-4xl md:text-6xl font-light text-white/80 mix-blend-exclusion max-w-3xl"
+            initial={{ y: 50, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+          >
+            Every Number Has A Shadow
+          </motion.p>
+        </motion.div>
+      </section>
+
+      {/* The Floor - Trading chaos */}
+      <section 
+        className="video-section relative h-screen w-full overflow-hidden"
+        style={{ scrollSnapAlign: "start" }}
+        data-section="2"
+      >
+        <VideoBackground 
+          videoUrl={videoSections[2].url}
+          overlay={true}
+          overlayOpacity={0.6}
+          minimalist={true}
+        />
+        <motion.div 
+          className="absolute inset-0"
+          style={{ opacity: text3Opacity }}
+        >
+          {/* Text appears at different positions like ghosts */}
+          <motion.div 
+            className="absolute top-1/4 right-1/4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 0.7, 0] }}
+            transition={{ duration: 4, delay: 0, repeat: Infinity, repeatDelay: 2 }}
+          >
+            <h2 className="text-3xl font-light text-white/60 mix-blend-overlay">THE FLOOR</h2>
+          </motion.div>
+          
+          <motion.div 
+            className="absolute bottom-1/3 left-1/5"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 0.5, 0] }}
+            transition={{ duration: 3, delay: 2, repeat: Infinity, repeatDelay: 3 }}
+          >
+            <p className="text-xl font-thin text-white/40 italic mix-blend-difference">
+              Where fortunes dissolve into void
+            </p>
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* The Reflection - Mirror/glass effects */}
+      <section 
+        className="video-section relative h-screen w-full overflow-hidden"
+        style={{ scrollSnapAlign: "start" }}
+        data-section="3"
+      >
+        <VideoBackground 
+          videoUrl={videoSections[3].url}
+          overlay={true}
+          overlayOpacity={0.5}
+          minimalist={true}
+        />
+        <motion.div 
+          className="absolute inset-0 flex items-center justify-end pr-16"
+          style={{ opacity: text4Opacity }}
+        >
+          <div className="text-right">
+            <motion.h2 
+              className="text-5xl font-light text-white/70 mb-4 mix-blend-screen"
+              initial={{ x: 100, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              transition={{ duration: 2, ease: "easeOut" }}
             >
-              <motion.div
-                className="absolute inset-0 flex items-center justify-center"
-                animate={{
-                  scale: [1, 1.5, 1],
-                  opacity: [0.5, 0, 0.5]
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              >
-                <div className="w-32 h-32 bg-red-600/30 rounded-full blur-3xl" />
-              </motion.div>
-              <Skull className="h-16 w-16 text-destructive mx-auto mb-4 relative z-10 energy-glow" />
-            </motion.div>
+              THE REFLECTION
+            </motion.h2>
+            <motion.p 
+              className="text-xl font-thin text-white/50 max-w-md mix-blend-overlay"
+              initial={{ x: 100, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              transition={{ duration: 2, delay: 0.3, ease: "easeOut" }}
+            >
+              What stares back isn't human anymore
+            </motion.p>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* The Terminal - Dark screens, glitching */}
+      <section 
+        className="video-section relative h-screen w-full overflow-hidden"
+        style={{ scrollSnapAlign: "start" }}
+        data-section="4"
+      >
+        <VideoBackground 
+          videoUrl={videoSections[4].url}
+          overlay={true}
+          overlayOpacity={0.7}
+          minimalist={true}
+        />
+        <motion.div 
+          className="absolute inset-0"
+          style={{ opacity: text5Opacity }}
+        >
+          <motion.div 
+            className="absolute top-20 left-12"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1 }}
+          >
+            <h2 className="text-2xl font-mono text-green-400/60 mix-blend-screen glitch-text" data-text="THE TERMINAL">
+              THE TERMINAL
+            </h2>
+          </motion.div>
+          
+          <motion.div 
+            className="absolute bottom-1/4 left-1/2 transform -translate-x-1/2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 1, 0.8, 1] }}
+            transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 1 }}
+          >
+            <p className="text-lg font-mono text-red-500/50 mix-blend-multiply">
+              Your final interface with mortality
+            </p>
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* The Call - Final scene with CTA */}
+      <section 
+        className="video-section relative h-screen w-full overflow-hidden"
+        style={{ scrollSnapAlign: "start" }}
+        data-section="5"
+      >
+        <VideoBackground 
+          videoUrl={videoSections[5].url}
+          overlay={true}
+          overlayOpacity={0.8}
+          minimalist={true}
+        />
+        <motion.div 
+          className="absolute inset-0 flex flex-col items-center justify-center"
+          style={{ opacity: text6Opacity }}
+        >
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 2, ease: "easeOut" }}
+            className="text-center"
+          >
+            <motion.p 
+              className="text-2xl md:text-3xl font-light text-white/60 mb-12 mix-blend-difference"
+              initial={{ y: -20, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              transition={{ duration: 1.5, delay: 0.5 }}
+            >
+              Enter if you dare
+            </motion.p>
             
-            {/* Epic Title with Slam Animation */}
-            <motion.h1 
-              className="text-6xl md:text-8xl font-bold text-white mb-6 ink-bleed-heavy uppercase tracking-wider glitch-text"
-              data-testid="heading-hero-title"
-              variants={titleVariants}
-              initial="hidden"
-              animate={isHeroInView ? "visible" : "hidden"}
-              data-text="THE EXCHANGE"
-              style={{ perspective: 1000 }}
-            >
-              <motion.span 
-                className="inline-block"
-                animate={{
-                  textShadow: [
-                    "0 0 20px rgba(255,0,0,0.5)",
-                    "0 0 40px rgba(255,0,0,0.8)",
-                    "0 0 20px rgba(255,0,0,0.5)"
-                  ]
-                }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                THE EXCHANGE
-              </motion.span>
-            </motion.h1>
-
-            {/* Typewriter Subtitle */}
-            <motion.p 
-              className="text-2xl md:text-3xl font-semibold text-destructive mb-4 uppercase ink-bleed typewriter-text"
-              variants={subtitleVariants}
-              initial="hidden"
-              animate={isHeroInView ? "visible" : "hidden"}
-            >
-              <span className="glowing-text">Every Number Has A Shadow</span>
-            </motion.p>
-
-            {/* Epic Description with Fade-in Words */}
-            <motion.p 
-              className="text-xl md:text-2xl text-white mb-8 max-w-4xl mx-auto font-mono" 
-              data-testid="text-hero-description"
-              initial={{ opacity: 0 }}
-              animate={isHeroInView ? { opacity: 1 } : { opacity: 0 }}
-              transition={{ duration: 1, delay: 0.8 }}
-            >
-              {["Enter", "a", "world", "where", "algorithms", "dream", "in", "red", "and", "portfolios", "bleed", "pixels.", "The", "market", "never", "sleeps.", "Neither", "do", "its", "ghosts.", "Trading", "floors", "are", "built", "on", "buried", "ambitions.", "Your", "portfolio.", "Their", "obituary."].map((word, i) => (
-                <motion.span
-                  key={i}
-                  className="inline-block mr-2"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={isHeroInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                  transition={{ duration: 0.3, delay: 0.8 + i * 0.05 }}
-                >
-                  {word}
-                </motion.span>
-              ))}
-            </motion.p>
-
-            {/* Epic Pulsing CTA Button */}
             <motion.div
-              initial={{ opacity: 0, scale: 0 }}
-              animate={isHeroInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0 }}
-              transition={{ duration: 0.5, delay: 1.5, type: "spring", stiffness: 100 }}
-              className="relative inline-block"
-              onHoverStart={() => setIsHovered(true)}
-              onHoverEnd={() => setIsHovered(false)}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 1 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              {/* Particle Effects */}
-              <AnimatePresence>
-                {isHovered && (
-                  <>
-                    {[...Array(8)].map((_, i) => (
-                      <motion.div
-                        key={i}
-                        className="absolute w-2 h-2 bg-red-500 rounded-full"
-                        initial={{ 
-                          x: 0, 
-                          y: 0,
-                          scale: 0
-                        }}
-                        animate={{ 
-                          x: Math.cos((i / 8) * Math.PI * 2) * 100,
-                          y: Math.sin((i / 8) * Math.PI * 2) * 100,
-                          scale: [0, 1, 0],
-                          opacity: [1, 0.5, 0]
-                        }}
-                        exit={{ scale: 0, opacity: 0 }}
-                        transition={{ duration: 1, ease: "easeOut" }}
-                        style={{ left: "50%", top: "50%" }}
-                      />
-                    ))}
-                  </>
-                )}
-              </AnimatePresence>
-              
-              {/* Energy Rings */}
-              <motion.div
-                className="absolute inset-0 rounded-none"
-                animate={{
-                  boxShadow: [
-                    "0 0 20px rgba(220,20,60,0.5)",
-                    "0 0 40px rgba(220,20,60,0.8), 0 0 60px rgba(220,20,60,0.4)",
-                    "0 0 20px rgba(220,20,60,0.5)"
-                  ]
-                }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              />
-              
               <Button 
                 size="lg" 
-                className="bg-destructive hover:bg-destructive/80 text-white px-8 py-6 text-lg md:text-xl font-bold uppercase shadow-noir-lg border-4 border-white relative z-10 power-button transform-gpu"
+                className="bg-transparent border border-white/30 text-white hover:bg-white/10 backdrop-blur-sm px-12 py-6 text-lg font-light tracking-widest transition-all duration-500"
                 onClick={() => window.location.href = "/api/login"}
                 data-testid="button-login"
               >
-                <motion.div
-                  animate={{ rotate: isHovered ? 360 : 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="inline-flex items-center"
-                >
-                  <Skull className="mr-2 h-6 w-6" />
-                  <span className="electric-text">ENTER THE EXCHANGE</span>
-                </motion.div>
+                ENTER THE EXCHANGE
               </Button>
             </motion.div>
-          </div>
-        </div>
-        
-        {/* Floating Energy Particles */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {[...Array(20)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 h-1 bg-cyan-400 rounded-full"
-              initial={{ 
-                x: Math.random() * (typeof window !== "undefined" ? window.innerWidth : 1920),
-                y: (typeof window !== "undefined" ? window.innerHeight : 1080) + 10
-              }}
-              animate={{ 
-                y: -10,
-                x: Math.random() * (typeof window !== "undefined" ? window.innerWidth : 1920)
-              }}
-              transition={{
-                duration: 10 + Math.random() * 10,
-                repeat: Infinity,
-                delay: Math.random() * 5,
-                ease: "linear"
-              }}
-              style={{ filter: "blur(1px)" }}
-            />
-          ))}
-        </div>
-      </motion.div>
-
-      {/* The Exchange Sections with Epic Reveals */}
-      <motion.div 
-        ref={cardsRef}
-        className="max-w-7xl mx-auto px-6 py-16 relative z-20"
-        initial={{ opacity: 0 }}
-        animate={isCardsInView ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ duration: 1 }}
-      >
-        <motion.div 
-          className="text-center mb-12"
-          initial={{ y: 50, opacity: 0 }}
-          animate={isCardsInView ? { y: 0, opacity: 1 } : { y: 50, opacity: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          <h2 className="text-4xl md:text-6xl font-bold text-white mb-4 uppercase ink-bleed glitch-text" data-testid="heading-houses" data-text="Enter The Exchange">
-            <motion.span
-              animate={{
-                textShadow: [
-                  "0 0 10px rgba(255,255,255,0.5)",
-                  "0 0 30px rgba(255,255,255,0.8)",
-                  "0 0 10px rgba(255,255,255,0.5)"
-                ]
-              }}
-              transition={{ duration: 3, repeat: Infinity }}
-            >
-              Enter The Exchange
-            </motion.span>
-          </h2>
-          <p className="text-destructive text-lg md:text-xl uppercase font-mono glowing-text" data-testid="text-houses-description">
-            Six chambers of financial purgatory. The market doesn't forgive.
-          </p>
+          </motion.div>
         </motion.div>
+      </section>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 perspective-1000">
-          {exchangeSections.map((section, index) => {
-            const Icon = section.icon;
-            return (
-              <motion.div
-                key={section.title}
-                variants={cardVariants}
-                initial="hidden"
-                animate={isCardsInView ? "visible" : "hidden"}
-                whileHover="hover"
-                custom={index}
-                className="transform-gpu"
-              >
-                <Card className="bg-black border-4 border-white noir-panel crosshatch shadow-noir-md card-3d hover:shadow-noir-xl transition-all duration-300" data-testid={`card-exchange-${section.title.toLowerCase().replace(/\s+/g, '-')}`}>
-                  <CardHeader>
-                    <CardTitle className="flex items-center text-destructive uppercase">
-                      <Icon className="mr-2 h-5 w-5 text-destructive" />
-                      {section.title}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-white font-mono text-sm">
-                      <span className="text-destructive font-bold">{section.heading}</span><br/>
-                      {section.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            );
-          })}
-        </div>
-      </motion.div>
-
-      {/* Epic Call to Action with Power Surge */}
-      <motion.div 
-        className="max-w-4xl mx-auto px-6 py-16 text-center relative ink-splatter-1 z-20"
-        initial={{ opacity: 0, y: 100 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1 }}
-        viewport={{ once: true }}
-      >
-        <motion.h3 
-          className="text-4xl md:text-6xl font-bold text-white mb-6 uppercase ink-bleed-heavy glitch-text" 
-          data-testid="heading-cta"
-          data-text="THE END IS WRITTEN"
-          animate={{
-            scale: [1, 1.02, 1],
-            textShadow: [
-              "0 0 20px rgba(255,0,0,0.5)",
-              "0 0 40px rgba(255,0,0,1)",
-              "0 0 20px rgba(255,0,0,0.5)"
-            ]
-          }}
-          transition={{ duration: 3, repeat: Infinity }}
-        >
-          THE END IS WRITTEN
-        </motion.h3>
-
-        <motion.p 
-          className="text-xl md:text-2xl text-white mb-8 font-mono" 
-          data-testid="text-cta-description"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.3 }}
-          viewport={{ once: true }}
-        >
-          There are no heroes in this market. No redemption. No second chances. Just winners, losers, and the void that awaits us all. Choose your sin and face your damnation.
-        </motion.p>
-
-        <motion.div
-          className="relative inline-block"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+      {/* Subtle scroll indicator for first section only */}
+      {activeSection === 0 && (
+        <motion.div 
+          className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 3 }}
         >
           <motion.div
-            className="absolute inset-0 rounded-none"
-            animate={{
-              boxShadow: [
-                "0 0 30px rgba(220,20,60,0.5), inset 0 0 30px rgba(220,20,60,0.2)",
-                "0 0 60px rgba(220,20,60,1), inset 0 0 60px rgba(220,20,60,0.4)",
-                "0 0 30px rgba(220,20,60,0.5), inset 0 0 30px rgba(220,20,60,0.2)"
-              ]
-            }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
-          <Button 
-            size="lg"
-            className="bg-black border-4 border-destructive hover:bg-destructive text-white px-8 py-6 text-lg md:text-xl font-bold uppercase shadow-noir-xl relative z-10 power-button-final"
-            onClick={() => window.location.href = "/api/login"}
-            data-testid="button-cta-login"
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+            className="text-white/30 text-sm font-light tracking-widest"
           >
-            <motion.div
-              className="inline-flex items-center"
-              animate={{
-                x: [0, -2, 2, -2, 2, 0]
-              }}
-              transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 3 }}
-            >
-              <Skull className="mr-2 h-6 w-6" />
-              <span className="electric-text">ACCEPT YOUR DAMNATION</span>
-            </motion.div>
-          </Button>
+            SCROLL
+          </motion.div>
         </motion.div>
-      </motion.div>
-
-      {/* Additional texture overlays */}
-      <div className="fixed inset-0 pointer-events-none scratched opacity-20 z-30" />
-      <div className="fixed inset-0 pointer-events-none halftone opacity-10 z-30" />
+      )}
     </div>
   );
 }

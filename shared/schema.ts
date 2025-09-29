@@ -664,8 +664,8 @@ export type InsertComicGradingPrediction = z.infer<typeof insertComicGradingPred
 
 // Phase 1 Trading Extensions
 
-// Market Events - Terminal Clock market chaos events
-export const marketEvents = pgTable("market_events", {
+// Phase 1 Market Events - Terminal Clock market chaos events
+export const phase1MarketEvents = pgTable("phase1_market_events", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   eventType: text("event_type").notNull(), // 'flash_crash', 'liquidity_crisis', 'margin_call_cascade', 'volatility_spike'
   severity: text("severity").notNull(), // 'low', 'medium', 'high', 'critical'
