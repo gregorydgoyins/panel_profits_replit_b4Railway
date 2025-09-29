@@ -3795,15 +3795,15 @@ export class DatabaseStorage implements IStorage {
 
   // Options Chain Methods for Phase 1 Scheduled Services
   async getAllOptionsChains(): Promise<OptionsChain[]> {
-    return await db.select().from(optionsChains)
-      .where(eq(optionsChains.isActive, true))
-      .orderBy(desc(optionsChains.expirationDate));
+    return await db.select().from(optionsChain)
+      .where(eq(optionsChain.isActive, true))
+      .orderBy(desc(optionsChain.expirationDate));
   }
 
   async updateOptionsChain(id: string, updates: Partial<InsertOptionsChain>): Promise<OptionsChain | undefined> {
-    const result = await db.update(optionsChains)
+    const result = await db.update(optionsChain)
       .set({ ...updates, updatedAt: new Date() })
-      .where(eq(optionsChains.id, id))
+      .where(eq(optionsChain.id, id))
       .returning();
     return result[0];
   }
