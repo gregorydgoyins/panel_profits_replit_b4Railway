@@ -250,10 +250,10 @@ export const competitionParticipants = pgTable("competition_participants", {
   aiStrategy: text("ai_strategy"), // For AI participants
   portfolioValue: decimal("portfolio_value", { precision: 15, scale: 2 }).default("100000"),
   totalReturn: decimal("total_return", { precision: 10, scale: 2 }).default("0"),
-  totalReturnPercent: decimal("total_return_percent", { precision: 5, scale: 2 }).default("0"),
+  totalReturnPercent: decimal("total_return_percent", { precision: 8, scale: 2 }).default("0"),
   currentRank: integer("current_rank"),
   trades: integer("trades").default(0),
-  winRate: decimal("win_rate", { precision: 5, scale: 2 }),
+  winRate: decimal("win_rate", { precision: 8, scale: 2 }),
   riskScore: decimal("risk_score", { precision: 3, scale: 1 }),
   joinedAt: timestamp("joined_at").defaultNow(),
 });
@@ -282,7 +282,7 @@ export const userCourseProgress = pgTable("user_course_progress", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull().references(() => users.id),
   courseId: varchar("course_id").notNull().references(() => courses.id),
-  progress: decimal("progress", { precision: 5, scale: 2 }).default("0"), // 0-100%
+  progress: decimal("progress", { precision: 8, scale: 2 }).default("0"), // 0-100%
   currentModule: integer("current_module").default(1),
   completedModules: integer("completed_modules").array(),
   timeSpent: integer("time_spent").default(0), // Minutes
@@ -400,7 +400,7 @@ export const beatTheAIChallenge = pgTable('beat_the_ai_challenges', {
   endDate: timestamp('end_date').notNull(),
   prizePool: decimal('prize_pool', { precision: 10, scale: 2 }).notNull(),
   participantCount: integer('participant_count').default(0),
-  aiPrediction: decimal('ai_prediction', { precision: 5, scale: 2 }).notNull(),
+  aiPrediction: decimal('ai_prediction', { precision: 8, scale: 2 }).notNull(),
   status: text('status', { enum: ['ACTIVE', 'UPCOMING', 'COMPLETED'] }).notNull().default('ACTIVE'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
@@ -421,9 +421,9 @@ export const beatTheAIPrediction = pgTable('beat_the_ai_predictions', {
   userId: varchar('user_id').notNull(),
   username: text('username').notNull(),
   assetSymbol: text('asset_symbol').notNull(),
-  predictedChange: decimal('predicted_change', { precision: 5, scale: 2 }).notNull(),
+  predictedChange: decimal('predicted_change', { precision: 8, scale: 2 }).notNull(),
   submissionTime: timestamp('submission_time').defaultNow().notNull(),
-  actualChange: decimal('actual_change', { precision: 5, scale: 2 }),
+  actualChange: decimal('actual_change', { precision: 8, scale: 2 }),
   score: decimal('score', { precision: 8, scale: 2 }),
   isWinner: boolean('is_winner').default(false)
 });
@@ -444,7 +444,7 @@ export const beatTheAILeaderboard = pgTable('beat_the_ai_leaderboard', {
   userId: varchar('user_id').notNull(),
   username: text('username').notNull(),
   totalScore: decimal('total_score', { precision: 10, scale: 2 }).default('0'),
-  accuracy: decimal('accuracy', { precision: 5, scale: 2 }).default('0'),
+  accuracy: decimal('accuracy', { precision: 8, scale: 2 }).default('0'),
   totalPredictions: integer('total_predictions').default(0),
   winnings: decimal('winnings', { precision: 10, scale: 2 }).default('0'),
   rank: integer('rank').default(0),
@@ -561,8 +561,8 @@ export const comicCreators = pgTable("comic_creators", {
   notableWorks: text("notable_works").array(),
   awards: text("awards").array(),
   // Market influence
-  marketInfluence: decimal("market_influence", { precision: 5, scale: 2 }), // 0-100 score
-  trendingScore: decimal("trending_score", { precision: 5, scale: 2 }), // Current trending
+  marketInfluence: decimal("market_influence", { precision: 8, scale: 2 }), // 0-100 score
+  trendingScore: decimal("trending_score", { precision: 8, scale: 2 }), // Current trending
   // Vector embeddings for creator search and style matching
   creatorEmbedding: vector("creator_embedding", { dimensions: 1536 }),
   createdAt: timestamp("created_at").defaultNow(),
@@ -600,7 +600,7 @@ export const comicGradingPredictions = pgTable("comic_grading_predictions", {
   // Condition factors analysis
   conditionFactors: jsonb("condition_factors").notNull(), // { corners, spine, pages, colors, creases, tears, etc. }
   // AI analysis details
-  confidenceScore: decimal("confidence_score", { precision: 5, scale: 2 }).notNull(), // 0-100 percentage
+  confidenceScore: decimal("confidence_score", { precision: 8, scale: 2 }).notNull(), // 0-100 percentage
   analysisDetails: text("analysis_details").notNull(), // Detailed AI explanation
   gradingNotes: text("grading_notes"), // Specific observations affecting grade
   // Processing metadata
@@ -674,7 +674,7 @@ export const tradingSessions = pgTable("trading_sessions", {
   totalTrades: integer("total_trades").default(0),
   profitableTrades: integer("profitable_trades").default(0),
   sessionProfit: decimal("session_profit", { precision: 15, scale: 2 }).default("0.00"),
-  sessionProfitPercent: decimal("session_profit_percent", { precision: 5, scale: 2 }).default("0.00"),
+  sessionProfitPercent: decimal("session_profit_percent", { precision: 8, scale: 2 }).default("0.00"),
   largestWin: decimal("largest_win", { precision: 15, scale: 2 }).default("0.00"),
   largestLoss: decimal("largest_loss", { precision: 15, scale: 2 }).default("0.00"),
   // Session Activity
