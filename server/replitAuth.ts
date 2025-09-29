@@ -57,13 +57,26 @@ function updateUserSession(
 async function upsertUser(
   claims: any,
 ) {
+  // Generate username from claims - fallback chain: username > first_name+last_name > email > sub
+  let username = claims["username"];
+  if (!username && claims["first_name"] && claims["last_name"]) {
+    username = `${claims["first_name"].toLowerCase()}${claims["last_name"].toLowerCase()}`;
+  }
+  if (!username && claims["email"]) {
+    username = claims["email"].split("@")[0];
+  }
+  if (!username) {
+    username = `user_${claims["sub"]}`;
+  }
+
   await storage.upsertUser({
     id: claims["sub"],
     email: claims["email"],
     firstName: claims["first_name"],
     lastName: claims["last_name"],
     profileImageUrl: claims["profile_image_url"],
-  });
+    username: username, // Add username field
+  } as any);
 }
 
 export async function setupAuth(app: Express) {

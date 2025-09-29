@@ -1,8 +1,8 @@
-# Panel Profits Trading Platform
+# Panel Profits Trading Platform - Watchmen Edition
 
 ## Overview
 
-Panel Profits is a sophisticated virtual trading platform that simulates a stock market for comic book assets. Users can trade comic characters, key comic issues, creators, publishers, and other comic-related assets with real-time market dynamics, technical analysis tools, and AI-powered insights. The platform features a modern gaming-inspired UI combined with professional trading platform aesthetics, targeting comic enthusiasts and virtual trading enthusiasts.
+Panel Profits is a dark, morally complex virtual trading platform that simulates the brutal reality of financial markets through comic book assets. Inspired by Watchmen's noir aesthetic and philosophical depth, users confront the human cost of capitalism while trading comic characters, issues, creators, and publishers. Every profit has a victim. Every trade accelerates our collective doom. The platform features a brutalist, noir-inspired UI that exposes the existential horror beneath wealth accumulation, targeting those who understand that in finance, nobody is truly a hero.
 
 ## User Preferences
 

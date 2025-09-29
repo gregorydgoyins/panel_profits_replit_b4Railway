@@ -24,248 +24,249 @@
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
 
-  --background: 210 30% 8%;
+  /* WATCHMEN NOIR PALETTE - Dark, Gritty, Morally Complex */
+  --background: 0 0% 4%; /* Void Black - The abyss of capitalism */
 
-  --foreground: 210 20% 98%;
+  --foreground: 0 0% 95%; /* Harsh Light - Truth cuts through darkness */
 
-  --border: 210 20% 18%;
+  --border: 0 0% 15%; /* Shadow Concrete - Industrial boundaries */
 
-  --card: 210 30% 12%;
+  --card: 0 0% 8%; /* Shadow Concrete - Brutalist surfaces */
 
-  --card-foreground: 210 20% 98%;
+  --card-foreground: 0 0% 95%; /* Harsh Light */
 
-  --card-border: 210 20% 20%;
+  --card-border: 0 0% 20%; /* Weathered Steel */
 
-  --sidebar: 210 30% 10%;
+  --sidebar: 0 0% 6%; /* Deeper Void - Surveillance state */
 
-  --sidebar-foreground: 210 20% 98%;
+  --sidebar-foreground: 0 0% 90%; /* Slightly dimmed harsh light */
 
-  --sidebar-border: 210 20% 15%;
+  --sidebar-border: 0 0% 12%; /* Dark boundary */
 
-  --sidebar-primary: 0 84% 60%;
+  --sidebar-primary: 0 84% 45%; /* Blood Red - Moral consequence */
 
-  --sidebar-primary-foreground: 210 20% 98%;
+  --sidebar-primary-foreground: 0 0% 98%;
 
-  --sidebar-accent: 210 20% 18%;
+  --sidebar-accent: 240 15% 15%; /* Ink Blot - Rorschach patterns */
 
-  --sidebar-accent-foreground: 210 20% 98%;
+  --sidebar-accent-foreground: 0 0% 95%;
 
-  --sidebar-ring: 0 84% 60%;
+  --sidebar-ring: 45 100% 60%; /* Watchmen Yellow - Smiley badge */
 
-  --popover: 210 30% 12%;
+  --popover: 0 0% 10%; /* Slightly elevated shadow */
 
-  --popover-foreground: 210 20% 98%;
+  --popover-foreground: 0 0% 95%;
 
-  --popover-border: 210 20% 18%;
+  --popover-border: 0 0% 18%;
 
-  --primary: 0 84% 60%;
+  --primary: 0 84% 45%; /* Blood Red - Every trade has a cost */
 
-  --primary-foreground: 210 20% 98%;
+  --primary-foreground: 0 0% 98%;
 
-  --secondary: 210 20% 18%;
+  --secondary: 0 0% 15%; /* Ash Gray - Moral ambiguity */
 
-  --secondary-foreground: 210 20% 98%;
+  --secondary-foreground: 0 0% 85%;
 
-  --muted: 210 15% 15%;
+  --muted: 0 0% 12%; /* Muted concrete */
 
-  --muted-foreground: 210 40% 65%;
+  --muted-foreground: 0 0% 65%; /* Weathered Gray - exhausted text */
 
-  --accent: 220 100% 50%;
+  --accent: 45 100% 60%; /* Watchmen Yellow - Ironic optimism */
 
-  --accent-foreground: 210 20% 98%;
+  --accent-foreground: 0 0% 4%;
 
-  --destructive: 0 84% 60%;
+  --destructive: 0 84% 45%; /* Blood Red - Loss is visceral */
 
   --destructive-foreground: 0 0% 98%;
 
   --input: 210 40% 78%;
   --ring: 239 68% 68%;
-  --chart-1: 210 40% 25%;
-  --chart-2: 239 68% 50%;
-  --chart-3: 142 76% 36%;
-  --chart-4: 48 96% 65%;
-  --chart-5: 0 84% 55%;
+  --chart-1: 0 0% 30%; /* Gunmetal - Cold data */
+  --chart-2: 0 84% 45%; /* Blood Red - Losses */
+  --chart-3: 142 30% 35%; /* Corruption Green - Tainted profit */
+  --chart-4: 45 100% 60%; /* Watchmen Yellow - False hope */
+  --chart-5: 240 15% 25%; /* Ink Blot Blue - Psychology */
 
   /* ═══════════════════════════════════════════════════════════════════════════════════════ */
   /* SEVEN HOUSES VISUAL LANGUAGE SYSTEM - COMIC BOOK ART TRADITIONS */
   /* ═══════════════════════════════════════════════════════════════════════════════════════ */
 
-  /* HOUSE OF HEROES - CLASSIC FOUR-COLOR COMIC STYLE (Character Assets) */
-  /* Visual Style: Classic superhero comic aesthetics - bright primary colors, bold outlines */
-  --house-heroes-primary: 0 84% 60%; /* Classic red */
-  --house-heroes-primary-foreground: 0 0% 98%;
-  --house-heroes-secondary: 220 90% 65%; /* Classic blue */
-  --house-heroes-accent: 48 100% 50%; /* Classic yellow */
-  --house-heroes-background: 0 88% 55%;
-  --house-heroes-card: 0 85% 65%;
-  --house-heroes-border: 0 80% 55%;
-  --house-heroes-panel-border: 3px; /* Bold black borders */
-  --house-heroes-panel-radius: 4px; /* Traditional rectangular */
-  --house-heroes-shadow: 4px 4px 0px rgba(0, 0, 0, 0.8); /* Bold drop shadow */
-  --house-heroes-gradient-start: 0 84% 60%;
-  --house-heroes-gradient-end: 220 90% 65%;
+  /* HOUSE OF HEROES - FALSE IDOLS (Character Assets) */
+  /* Visual Style: Corrupted heroes, tarnished symbols, moral compromise */
+  --house-heroes-primary: 0 70% 35%; /* Dried blood - Heroes fall */
+  --house-heroes-primary-foreground: 0 0% 90%;
+  --house-heroes-secondary: 220 20% 25%; /* Tarnished steel */
+  --house-heroes-accent: 45 80% 40%; /* Faded gold - Lost glory */
+  --house-heroes-background: 0 30% 15%;
+  --house-heroes-card: 0 25% 20%;
+  --house-heroes-border: 0 60% 30%;
+  --house-heroes-panel-border: 2px; /* Cracked boundaries */
+  --house-heroes-panel-radius: 0px; /* Brutal edges */
+  --house-heroes-shadow: 0px 8px 16px rgba(0, 0, 0, 0.9); /* Deep shadows */
+  --house-heroes-gradient-start: 0 70% 35%;
+  --house-heroes-gradient-end: 0 0% 10%;
   /* Typography */
-  --house-heroes-font-display: 'Bangers', cursive; /* Bold, block letters */
-  --house-heroes-font-body: 'Fredoka One', cursive;
-  --house-heroes-font-accent: 'Bungee', cursive;
-  --house-heroes-letter-spacing: 0.1em;
-  --house-heroes-text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.8);
+  --house-heroes-font-display: 'Space Grotesk', sans-serif; /* Cold, clinical */
+  --house-heroes-font-body: 'Hind', sans-serif;
+  --house-heroes-font-accent: 'Space Grotesk', sans-serif;
+  --house-heroes-letter-spacing: 0.02em;
+  --house-heroes-text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.9);
   /* Effects */
-  --house-heroes-speed-lines: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.2) 50%, transparent 60%);
-  --house-heroes-impact-burst: radial-gradient(circle, rgba(255, 255, 0, 0.3) 0%, transparent 70%);
+  --house-heroes-speed-lines: linear-gradient(45deg, transparent 40%, rgba(139, 0, 0, 0.2) 50%, transparent 60%);
+  --house-heroes-impact-burst: radial-gradient(circle, rgba(139, 0, 0, 0.4) 0%, transparent 70%);
   --house-heroes-cape-flow: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
-  /* HOUSE OF WISDOM - NOIR INVESTIGATION STYLE (Creator Assets) */
-  /* Visual Style: Film noir aesthetic - high contrast black/white, dramatic shadows */
-  --house-wisdom-primary: 213 93% 68%; /* Film blue */
-  --house-wisdom-primary-foreground: 0 0% 98%;
-  --house-wisdom-secondary: 0 0% 25%; /* Noir gray */
-  --house-wisdom-accent: 213 50% 85%; /* Highlight blue */
-  --house-wisdom-background: 213 15% 15%;
-  --house-wisdom-card: 213 20% 20%;
-  --house-wisdom-border: 213 88% 63%;
-  --house-wisdom-panel-border: 2px; /* Clean, professional */
-  --house-wisdom-panel-radius: 2px; /* Sharp corners */
-  --house-wisdom-shadow: 8px 8px 16px rgba(0, 0, 0, 0.6); /* Dramatic shadows */
-  --house-wisdom-gradient-start: 213 93% 68%;
-  --house-wisdom-gradient-end: 0 0% 10%;
+  /* HOUSE OF WISDOM - RORSCHACH'S JOURNAL (Creator Assets) */
+  /* Visual Style: Ink blot tests, psychological profiles, uncompromising truth */
+  --house-wisdom-primary: 240 15% 25%; /* Ink Blot Blue */
+  --house-wisdom-primary-foreground: 0 0% 95%;
+  --house-wisdom-secondary: 0 0% 15%; /* Void gray */
+  --house-wisdom-accent: 240 10% 40%; /* Deep ink */
+  --house-wisdom-background: 240 10% 8%;
+  --house-wisdom-card: 240 10% 12%;
+  --house-wisdom-border: 240 15% 20%;
+  --house-wisdom-panel-border: 1px; /* Thin, precise */
+  --house-wisdom-panel-radius: 0px; /* No compromise */
+  --house-wisdom-shadow: 0px 0px 20px rgba(0, 0, 0, 0.8); /* Void gaze */
+  --house-wisdom-gradient-start: 240 15% 25%;
+  --house-wisdom-gradient-end: 0 0% 4%;
   /* Typography */
-  --house-wisdom-font-display: 'Righteous', sans-serif; /* Investigation file styling */
-  --house-wisdom-font-body: 'Space Grotesk', monospace;
-  --house-wisdom-font-accent: 'Hind', serif;
-  --house-wisdom-letter-spacing: 0.05em;
-  --house-wisdom-text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+  --house-wisdom-font-display: 'Space Grotesk', monospace; /* Clinical observation */
+  --house-wisdom-font-body: 'Hind', sans-serif;
+  --house-wisdom-font-accent: 'Space Grotesk', monospace;
+  --house-wisdom-letter-spacing: 0.01em;
+  --house-wisdom-text-shadow: none; /* Truth needs no embellishment */
   /* Effects */
-  --house-wisdom-venetian-blinds: linear-gradient(0deg, transparent 40%, rgba(255, 255, 255, 0.1) 42%, rgba(255, 255, 255, 0.1) 48%, transparent 50%);
-  --house-wisdom-spotlight: radial-gradient(ellipse at center, rgba(213, 198, 255, 0.2) 0%, transparent 70%);
+  --house-wisdom-venetian-blinds: linear-gradient(0deg, transparent 45%, rgba(0, 0, 0, 0.3) 46%, rgba(0, 0, 0, 0.3) 54%, transparent 55%);
+  --house-wisdom-spotlight: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4) 0%, transparent 70%);
   --house-wisdom-magnify: cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* HOUSE OF POWER - COSMIC SPLASH PAGE STYLE (Publisher Assets) */
-  /* Visual Style: Cosmic scale storytelling - galaxy backgrounds, energy effects */
-  --house-power-primary: 271 81% 56%; /* Cosmic purple */
-  --house-power-primary-foreground: 0 0% 98%;
-  --house-power-secondary: 260 84% 48%; /* Deep purple */
-  --house-power-accent: 48 100% 70%; /* Energy yellow */
-  --house-power-background: 271 60% 25%;
-  --house-power-card: 271 55% 35%;
-  --house-power-border: 271 76% 51%;
-  --house-power-panel-border: 0px; /* Borderless cosmic vistas */
-  --house-power-panel-radius: 0px; /* Full splash */
-  --house-power-shadow: 0px 0px 20px rgba(138, 43, 226, 0.5); /* Energy glow */
-  --house-power-gradient-start: 271 81% 56%;
-  --house-power-gradient-end: 260 84% 48%;
+  /* HOUSE OF POWER - OZYMANDIAS COMPLEX (Publisher Assets) */
+  /* Visual Style: Corporate dystopia, calculated control, the ends justify the means */
+  --house-power-primary: 271 30% 25%; /* Corporate purple - Muted power */
+  --house-power-primary-foreground: 0 0% 90%;
+  --house-power-secondary: 260 25% 20%; /* Deep control */
+  --house-power-accent: 45 70% 45%; /* Calculated gold */
+  --house-power-background: 271 20% 10%;
+  --house-power-card: 271 20% 15%;
+  --house-power-border: 271 30% 20%;
+  --house-power-panel-border: 1px; /* Precise control */
+  --house-power-panel-radius: 0px; /* Brutalist architecture */
+  --house-power-shadow: 0px 10px 30px rgba(0, 0, 0, 0.7); /* Oppressive presence */
+  --house-power-gradient-start: 271 30% 25%;
+  --house-power-gradient-end: 0 0% 5%;
   /* Typography */
-  --house-power-font-display: 'Bungee', cursive; /* Cosmic fonts with energy glows */
-  --house-power-font-body: 'Bangers', cursive;
-  --house-power-font-accent: 'Fredoka One', cursive;
-  --house-power-letter-spacing: 0.15em;
-  --house-power-text-shadow: 0px 0px 10px rgba(138, 43, 226, 0.8);
+  --house-power-font-display: 'Space Grotesk', sans-serif; /* Corporate brutalism */
+  --house-power-font-body: 'Hind', sans-serif;
+  --house-power-font-accent: 'Space Grotesk', sans-serif;
+  --house-power-letter-spacing: 0.08em;
+  --house-power-text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
   /* Effects */
-  --house-power-energy-surge: linear-gradient(45deg, rgba(138, 43, 226, 0.3) 0%, rgba(255, 215, 0, 0.3) 100%);
-  --house-power-cosmic-explosion: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, rgba(138, 43, 226, 0.2) 50%, transparent 100%);
-  --house-power-dimensional-rift: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --house-power-energy-surge: linear-gradient(45deg, rgba(69, 39, 86, 0.3) 0%, rgba(184, 134, 11, 0.2) 100%);
+  --house-power-cosmic-explosion: radial-gradient(circle, rgba(0, 0, 0, 0.6) 0%, rgba(69, 39, 86, 0.3) 50%, transparent 100%);
+  --house-power-dimensional-rift: cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* HOUSE OF MYSTERY - SUPERNATURAL MYSTERY STYLE (Rare Assets) */
-  /* Visual Style: Supernatural horror aesthetics - dark atmospheres, mysterious fog */
-  --house-mystery-primary: 142 76% 36%; /* Mystical green */
-  --house-mystery-primary-foreground: 0 0% 98%;
-  --house-mystery-secondary: 160 84% 39%; /* Forest green */
-  --house-mystery-accent: 158 64% 52%; /* Ethereal green */
-  --house-mystery-background: 142 40% 15%;
-  --house-mystery-card: 142 35% 25%;
-  --house-mystery-border: 142 71% 31%;
-  --house-mystery-panel-border: 1px; /* Irregular, twisted */
-  --house-mystery-panel-radius: 8px; /* Supernatural distortions */
-  --house-mystery-shadow: 0px 4px 16px rgba(34, 139, 34, 0.4); /* Mysterious glow */
-  --house-mystery-gradient-start: 142 76% 36%;
-  --house-mystery-gradient-end: 160 84% 39%;
+  /* HOUSE OF MYSTERY - DR. MANHATTAN'S VOID (Rare Assets) */
+  /* Visual Style: Quantum uncertainty, existential dread, detachment from humanity */
+  --house-mystery-primary: 142 30% 20%; /* Radioactive decay */
+  --house-mystery-primary-foreground: 0 0% 85%;
+  --house-mystery-secondary: 160 25% 15%; /* Toxic sludge */
+  --house-mystery-accent: 158 35% 30%; /* Quantum glow */
+  --house-mystery-background: 142 20% 8%;
+  --house-mystery-card: 142 20% 12%;
+  --house-mystery-border: 142 30% 18%;
+  --house-mystery-panel-border: 0px; /* Reality has no boundaries */
+  --house-mystery-panel-radius: 0px; /* No curves in quantum space */
+  --house-mystery-shadow: 0px 0px 25px rgba(0, 255, 0, 0.2); /* Radiation leak */
+  --house-mystery-gradient-start: 142 30% 20%;
+  --house-mystery-gradient-end: 0 0% 4%;
   /* Typography */
-  --house-mystery-font-display: 'Creepster', cursive; /* Gothic fonts with mystical flourishes */
-  --house-mystery-font-body: 'Kalam', cursive;
-  --house-mystery-font-accent: 'Righteous', sans-serif;
-  --house-mystery-letter-spacing: 0.08em;
-  --house-mystery-text-shadow: 0px 0px 8px rgba(34, 139, 34, 0.6);
+  --house-mystery-font-display: 'Space Grotesk', monospace; /* Clinical detachment */
+  --house-mystery-font-body: 'Hind', sans-serif;
+  --house-mystery-font-accent: 'Space Grotesk', monospace;
+  --house-mystery-letter-spacing: 0.04em;
+  --house-mystery-text-shadow: 0px 0px 6px rgba(0, 255, 0, 0.3);
   /* Effects */
-  --house-mystery-mist-reveal: linear-gradient(180deg, transparent 0%, rgba(34, 139, 34, 0.2) 50%, transparent 100%);
-  --house-mystery-supernatural-glow: radial-gradient(circle, rgba(34, 139, 34, 0.3) 0%, transparent 60%);
-  --house-mystery-reality-distortion: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --house-mystery-mist-reveal: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%);
+  --house-mystery-supernatural-glow: radial-gradient(circle, rgba(0, 255, 0, 0.15) 0%, transparent 60%);
+  --house-mystery-reality-distortion: cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* HOUSE OF ELEMENTS - ELEMENTAL FORCES STYLE (Team Assets) */
-  /* Visual Style: Natural elemental aesthetics - fire, water, earth, air visual effects */
-  --house-elements-primary: 48 96% 89%; /* Elemental gold */
-  --house-elements-primary-foreground: 30 26% 9%;
-  --house-elements-secondary: 45 93% 47%; /* Earth orange */
-  --house-elements-accent: 48 95% 53%; /* Fire yellow */
-  --house-elements-background: 48 70% 65%;
-  --house-elements-card: 48 65% 75%;
-  --house-elements-border: 48 91% 85%;
-  --house-elements-panel-border: 2px; /* Organic, flowing */
-  --house-elements-panel-radius: 12px; /* Natural borders */
-  --house-elements-shadow: 0px 6px 12px rgba(255, 165, 0, 0.3); /* Warm glow */
-  --house-elements-gradient-start: 48 96% 89%;
-  --house-elements-gradient-end: 45 93% 47%;
+  /* HOUSE OF ELEMENTS - THE COMEDIAN'S CHAOS (Team Assets) */
+  /* Visual Style: Nihilistic destruction, dark humor, violence as comedy */
+  --house-elements-primary: 25 85% 35%; /* Napalm orange - War is a joke */
+  --house-elements-primary-foreground: 0 0% 90%;
+  --house-elements-secondary: 15 75% 25%; /* Burnt sienna */
+  --house-elements-accent: 45 60% 40%; /* Faded brass */
+  --house-elements-background: 25 30% 10%;
+  --house-elements-card: 25 25% 15%;
+  --house-elements-border: 25 70% 25%;
+  --house-elements-panel-border: 2px; /* Broken boundaries */
+  --house-elements-panel-radius: 0px; /* No soft edges */
+  --house-elements-shadow: 0px 6px 20px rgba(0, 0, 0, 0.8); /* Explosive shadows */
+  --house-elements-gradient-start: 25 85% 35%;
+  --house-elements-gradient-end: 0 0% 5%;
   /* Typography */
-  --house-elements-font-display: 'Fredoka One', cursive; /* Fonts that evoke natural elements */
-  --house-elements-font-body: 'Kalam', cursive;
-  --house-elements-font-accent: 'Bangers', cursive;
-  --house-elements-letter-spacing: 0.06em;
-  --house-elements-text-shadow: 1px 1px 4px rgba(255, 165, 0, 0.5);
+  --house-elements-font-display: 'Space Grotesk', sans-serif; /* Brutal reality */
+  --house-elements-font-body: 'Hind', sans-serif;
+  --house-elements-font-accent: 'Space Grotesk', sans-serif;
+  --house-elements-letter-spacing: 0.03em;
+  --house-elements-text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
   /* Effects */
-  --house-elements-fire-flow: linear-gradient(45deg, rgba(255, 69, 0, 0.3) 0%, rgba(255, 215, 0, 0.3) 100%);
-  --house-elements-water-flow: linear-gradient(180deg, rgba(0, 191, 255, 0.3) 0%, rgba(30, 144, 255, 0.3) 100%);
-  --house-elements-earth-flow: linear-gradient(90deg, rgba(139, 69, 19, 0.3) 0%, rgba(160, 82, 45, 0.3) 100%);
-  --house-elements-air-flow: linear-gradient(270deg, rgba(245, 245, 245, 0.3) 0%, rgba(220, 220, 220, 0.3) 100%);
-  --house-elements-seasonal-cycle: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --house-elements-fire-flow: linear-gradient(45deg, rgba(139, 0, 0, 0.4) 0%, rgba(255, 69, 0, 0.3) 100%);
+  --house-elements-water-flow: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(30, 30, 30, 0.4) 100%);
+  --house-elements-earth-flow: linear-gradient(90deg, rgba(46, 25, 5, 0.4) 0%, rgba(92, 51, 23, 0.3) 100%);
+  --house-elements-air-flow: linear-gradient(270deg, rgba(128, 128, 128, 0.3) 0%, rgba(64, 64, 64, 0.3) 100%);
+  --house-elements-seasonal-cycle: cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* HOUSE OF TIME - TEMPORAL DISTORTION STYLE (Event Assets) */
-  /* Visual Style: Time travel aesthetics - chronometer elements, temporal distortions */
-  --house-time-primary: 210 40% 15%; /* Temporal slate */
-  --house-time-primary-foreground: 0 0% 98%;
-  --house-time-secondary: 215 50% 25%; /* Deeper slate */
-  --house-time-accent: 43 96% 56%; /* Chronometer gold */
-  --house-time-background: 210 35% 25%;
-  --house-time-card: 210 30% 35%;
-  --house-time-border: 210 35% 10%;
-  --house-time-panel-border: 2px; /* Clock-face layouts */
-  --house-time-panel-radius: 50%; /* Overlapping temporal panels */
-  --house-time-shadow: 0px 0px 12px rgba(255, 215, 0, 0.4); /* Time ripples */
-  --house-time-gradient-start: 210 40% 15%;
-  --house-time-gradient-end: 43 96% 56%;
+  /* HOUSE OF TIME - DOOMSDAY CLOCK (Event Assets) */
+  /* Visual Style: Counting down to midnight, inevitability of destruction */
+  --house-time-primary: 210 20% 12%; /* Midnight blue */
+  --house-time-primary-foreground: 0 0% 85%;
+  --house-time-secondary: 215 25% 10%; /* Deeper void */
+  --house-time-accent: 45 70% 35%; /* Tarnished brass */
+  --house-time-background: 210 15% 6%;
+  --house-time-card: 210 15% 10%;
+  --house-time-border: 210 20% 8%;
+  --house-time-panel-border: 1px; /* Precise countdown */
+  --house-time-panel-radius: 0px; /* No curves before the end */
+  --house-time-shadow: 0px 0px 15px rgba(0, 0, 0, 0.9); /* Approaching darkness */
+  --house-time-gradient-start: 210 20% 12%;
+  --house-time-gradient-end: 0 0% 2%;
   /* Typography */
-  --house-time-font-display: 'Space Grotesk', monospace; /* Fonts with temporal effects */
+  --house-time-font-display: 'Space Grotesk', monospace; /* Mechanical precision */
   --house-time-font-body: 'Hind', sans-serif;
-  --house-time-font-accent: 'Righteous', sans-serif;
-  --house-time-letter-spacing: 0.12em;
-  --house-time-text-shadow: 0px 0px 6px rgba(255, 215, 0, 0.6);
+  --house-time-font-accent: 'Space Grotesk', monospace;
+  --house-time-letter-spacing: 0.06em;
+  --house-time-text-shadow: 0px 0px 4px rgba(255, 0, 0, 0.3);
   /* Effects */
-  --house-time-ripple: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 50%);
-  --house-time-paradox: linear-gradient(45deg, rgba(105, 105, 105, 0.3) 25%, transparent 25%, transparent 75%, rgba(105, 105, 105, 0.3) 75%);
-  --house-time-temporal-rewind: cubic-bezier(0.4, 0, 0.6, 1);
+  --house-time-ripple: radial-gradient(circle, rgba(255, 0, 0, 0.2) 0%, transparent 50%);
+  --house-time-paradox: linear-gradient(45deg, rgba(0, 0, 0, 0.5) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.5) 75%);
+  --house-time-temporal-rewind: cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* HOUSE OF SPIRIT - MYSTICAL ETHEREAL STYLE (Mythic Assets) */
-  /* Visual Style: Spiritual/ethereal aesthetics - auras, divine light, mystical energy */
-  --house-spirit-primary: 173 80% 40%; /* Spirit teal */
-  --house-spirit-primary-foreground: 0 0% 98%;
-  --house-spirit-secondary: 180 83% 47%; /* Ethereal cyan */
-  --house-spirit-accent: 43 96% 56%; /* Divine gold */
-  --house-spirit-background: 173 60% 55%;
-  --house-spirit-card: 173 55% 65%;
-  --house-spirit-border: 173 75% 35%;
-  --house-spirit-panel-border: 0px; /* Ethereal, borderless */
-  --house-spirit-panel-radius: 16px; /* Spirit energy frames */
-  --house-spirit-shadow: 0px 0px 16px rgba(64, 224, 208, 0.5); /* Divine aura */
-  --house-spirit-gradient-start: 173 80% 40%;
-  --house-spirit-gradient-end: 180 83% 47%;
+  /* HOUSE OF SPIRIT - SILK SPECTRE'S LEGACY (Mythic Assets) */
+  /* Visual Style: Generational trauma, complex inheritance, moral compromise */
+  --house-spirit-primary: 173 25% 20%; /* Faded teal - Lost idealism */
+  --house-spirit-primary-foreground: 0 0% 85%;
+  --house-spirit-secondary: 180 20% 18%; /* Weathered cyan */
+  --house-spirit-accent: 43 50% 35%; /* Tarnished gold */
+  --house-spirit-background: 173 15% 8%;
+  --house-spirit-card: 173 15% 12%;
+  --house-spirit-border: 173 25% 15%;
+  --house-spirit-panel-border: 1px; /* Fragile boundaries */
+  --house-spirit-panel-radius: 0px; /* Sharp edges of memory */
+  --house-spirit-shadow: 0px 0px 20px rgba(0, 0, 0, 0.7); /* Shadow of the past */
+  --house-spirit-gradient-start: 173 25% 20%;
+  --house-spirit-gradient-end: 0 0% 6%;
   /* Typography */
-  --house-spirit-font-display: 'Kalam', cursive; /* Transcendent fonts with divine glows */
-  --house-spirit-font-body: 'Fredoka One', cursive;
-  --house-spirit-font-accent: 'Righteous', sans-serif;
-  --house-spirit-letter-spacing: 0.09em;
-  --house-spirit-text-shadow: 0px 0px 12px rgba(64, 224, 208, 0.7);
+  --house-spirit-font-display: 'Space Grotesk', sans-serif; /* Clinical examination */
+  --house-spirit-font-body: 'Hind', sans-serif;
+  --house-spirit-font-accent: 'Space Grotesk', sans-serif;
+  --house-spirit-letter-spacing: 0.04em;
+  --house-spirit-text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
   /* Effects */
-  --house-spirit-divine-aura: radial-gradient(circle, rgba(64, 224, 208, 0.4) 0%, rgba(255, 215, 0, 0.2) 50%, transparent 100%);
-  --house-spirit-energy-flow: linear-gradient(90deg, rgba(64, 224, 208, 0.3) 0%, rgba(255, 215, 0, 0.3) 100%);
-  --house-spirit-transcendent-glow: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --house-spirit-divine-aura: radial-gradient(circle, rgba(0, 0, 0, 0.5) 0%, rgba(64, 64, 64, 0.3) 50%, transparent 100%);
+  --house-spirit-energy-flow: linear-gradient(90deg, rgba(32, 32, 32, 0.4) 0%, rgba(0, 0, 0, 0.5) 100%);
+  --house-spirit-transcendent-glow: cubic-bezier(0.4, 0, 0.2, 1);
 
   --font-sans: 'Hind', system-ui, sans-serif;
   --font-display: 'Space Grotesk', system-ui, sans-serif;

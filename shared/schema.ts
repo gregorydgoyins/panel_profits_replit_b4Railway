@@ -19,7 +19,8 @@ export const sessions = pgTable(
 // (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  // Replit Auth fields
+  // Replit Auth fields  
+  username: varchar("username").notNull().unique(), // Required for authentication
   email: varchar("email").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
@@ -317,6 +318,7 @@ export const insertUserSchema = createInsertSchema(users).omit({
 // Schema for Replit Auth upsert operations
 export const upsertUserSchema = createInsertSchema(users).pick({
   id: true,
+  username: true,
   email: true,
   firstName: true,
   lastName: true,

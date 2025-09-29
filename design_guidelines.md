@@ -1,141 +1,119 @@
-# Panel Profits: Mythological Trading RPG Design Guidelines
+# Panel Profits: Watchmen-Inspired Noir Trading Platform Design Guidelines
 
 ## Design Philosophy
-**Revolutionary Transformation**: Panel Profits transcends traditional trading platforms to become an immersive mythological trading RPG. Drawing inspiration from legendary fantasy realms, ancient mythologies, and modern gaming aesthetics, we create a trading experience where financial expertise meets mystical powers through the Seven Houses system.
+**Moral Complexity Trading**: Panel Profits transforms into a dystopian financial thriller where every trade carries existential weight. Drawing inspiration from Watchmen, Sin City, and The Dark Knight Returns, we create a platform for morally complex antiheroes navigating the brutal realities of wealth and power. No heroes, only flawed actors in an unforgiving market.
 
 ## Core Design Elements
 
-### Mythological Color Palettes
+### Noir Color Palettes
 
-**Dark Mystical Mode (Default)**
-- Primary: 43 96% 56% (Divine Gold - for legendary elements)
-- Background Base: 210 40% 6% (Abyssal Depths)
-- Surface: 210 40% 12% (Shadowed Stone)
-- Legendary Green: 142 76% 36% (Emerald Enchantment for profits)
-- Epic Red: 0 84% 60% (Crimson Doom for losses)
-- Rare Purple: 285 100% 68% (Arcane Violet for special elements)
-- Mystical Blue: 213 93% 68% (Ethereal Sapphire)
-- Text Primary: 0 0% 100% (Pure Light)
-- Text Secondary: 210 40% 60% (Misted Silver)
+**Dystopian Dark Mode (Default)**
+- Primary: 0 0% 85% (Ash Gray - for harsh reality)
+- Background Base: 0 0% 4% (Void Black)
+- Surface: 0 0% 8% (Shadow Concrete)
+- Blood Red: 0 84% 45% (Moral Consequence for losses)
+- Corruption Green: 142 30% 35% (Tainted Profit - muted, sickly)
+- Warning Orange: 25 85% 55% (Danger Threshold)
+- Watchmen Yellow: 45 100% 60% (Smiley Badge accent - used sparingly)
+- Text Primary: 0 0% 95% (Harsh Light)
+- Text Secondary: 0 0% 65% (Weathered Gray)
+- Ink Blot: 240 15% 15% (Rorschach patterns)
 
-**Seven Houses Mythological Themes**
-- **House of Heroes**: Valorous gold and azure blues - representing nobility and strength
-- **House of Wisdom**: Mystic purples and silver - embodying knowledge and foresight
-- **House of Power**: Imperial reds and obsidian blacks - commanding authority and dominance
-- **House of Mystery**: Emerald greens and forest shadows - secrets and rare discoveries
-- **House of Elements**: Amber yellows and elemental fire - multi-dimensional power
-- **House of Time**: Steel grays and temporal blues - ancient wisdom and historical value
-- **House of Spirit**: Teal cyans and ocean depths - community and social bonds
+### Brutal Typography
+**Font Hierarchy**:
+- **Headlines**: 'Space Grotesk' (700-800 weight) - Unforgiving, brutal impact
+- **Subheads**: 'Space Grotesk' (600 weight) - Harsh authority
+- **Body Text**: 'Hind' (300-400 weights) - Clinical, detached readability
+- **Data/Numbers**: 'Space Grotesk' (500 weight) - Cold, factual delivery
+- **Commentary**: 'Hind' (400 weight) - Philosophical observations
 
-### RPG-Inspired Typography
-**Font Hierarchy**: 
-- **Legendary Headers**: 'Space Grotesk' (700 weight) - Bold, commanding presence for epic announcements
-- **Epic Text**: 'Space Grotesk' (500-600 weights) - Strong impact for important content
-- **Mystical Body**: 'Hind' (300-400 weights) - Elegant readability with ethereal feel
-- **Rune Numbers/Data**: 'Space Grotesk' (300 weight) - Ancient script feeling for trading data
-- **Achievement Text**: 'Space Grotesk' (600 weight) - Celebration typography for accomplishments
+### Harsh Layout System
+**Brutalist Spacing**: Unforgiving geometric precision
+- **Tight Constraints**: p-1, m-1, gap-1 (oppressive proximity)
+- **Standard Brutalism**: p-2, m-2, gap-2 (clinical efficiency)
+- **Institutional**: p-4, m-4, gap-4 (bureaucratic structure)
+- **Imposing**: p-6, m-6, gap-6 (authority and control)
+- **Monumental**: p-8, m-8, gap-8 (overwhelming presence)
 
-### Mythological Layout System
-**Spatial Harmony**: Based on sacred geometry and mystical proportions
-- **Rune Spacing**: p-1, m-1, gap-1 (intimate mystical elements)
-- **Sacred Spacing**: p-2, m-2, gap-2 (personal power elements)
-- **Arcane Spacing**: p-4, m-4, gap-4 (standard magical constructs)
-- **Divine Spacing**: p-6, m-6, gap-6 (powerful spell structures)
-- **Legendary Spacing**: p-8, m-8, gap-8 (epic realm layouts)
+### Noir Component Library
 
-### RPG Component Library
+**Dystopian Navigation**
+- Film noir-inspired top navigation with harsh shadows and stark contrasts
+- Minimalist sidebar with ink-blot pattern overlays
+- Brutalist controls with unforgiving angular geometries
+- Existential loading states with philosophical micro-copy
 
-**Mystical Navigation & Spells**
-- Quest-like navigation with glowing rune indicators and house emblems
-- Magical toolbar with elemental category symbols and animated hover states
-- Enchanted controls with particle effects and mystical transitions
-- Guild-style navigation feeling like exploring ancient temples
+**Market Reality Displays**
+- **Corruption Cards**: Trading instruments with moral complexity indicators and halftone patterns
+- **Surveillance Charts**: Watchful market displays with panopticon-style layouts
+- **Blood Money Flows**: Live data streams with dripping red loss indicators
+- **Moral Barometers**: Ethics meters showing the human cost of trades
 
-**Mystical Data Oracles**
-- **Spell Cards/Artifact Cards**: Transform trading cards with rarity borders (Common/Rare/Epic/Legendary)
-- **Crystal Ball Charts**: Mystical chart displays with ethereal overlays and house colors
-- **Arcane Heatmaps**: Energy-based visualization with magical color coding
-- **Divine Feeds**: Live data streams with mystical scroll animations and house blessings
+**Trading Interface**
+- **Consequence Engine**: Order forms with moral weight calculations
+- **Antihero Portfolios**: Complex character-driven position displays
+- **Watchlist Dossiers**: Asset surveillance with psychological profiles
+- **Black Market Tickers**: Underground asset flows with criminal undertones
 
-**Legendary Trading Interface**
-- **Enchanted Tickers**: Mystical asset flows with house-specific magical effects
-- **Guild Portfolios**: House-themed portfolio displays with karma/experience indicators
-- **Ritual Order Forms**: Spell-casting style order entry with mystical validation
-- **Sacred Watchlists**: Ancient scroll-style asset organization with drag-and-drop magic
+### Visual Treatments
 
-**Epic Content Realms**
-- **Hero Asset Cards**: Character portraits with mythological frames and power indicators
-- **Oracle Stats**: Market overview with mystical symbols and divine insights
-- **Prophecy Integration**: News with fate indicators and house impact analysis
-- **Legendary Search**: Comic discovery with artifact-style thumbnails and power ratings
+**Noir Cinematography**
+- **Harsh Shadows**: Deep black backgrounds with stark white highlights
+- **Ink Blot Overlays**: Rorschach-inspired patterns for psychological depth
+- **Halftone Textures**: Comic book printing artifacts throughout interface
+- **Film Grain**: Subtle noise textures adding gritty realism
+- **Venetian Blinds**: Striped shadow patterns evoking detective offices
 
-### Mystical Visual Treatments
+**Moral Complexity Indicators**
+- **Blood Splatter**: Loss visualizations with dripping red effects
+- **Corruption Meters**: Sliding scales of ethical compromise
+- **Smiley Badge**: Occasional yellow accents for ironic system notifications
+- **Clock Faces**: Doomsday countdown aesthetics for market events
 
-**Atmospheric Backgrounds & Realms**
-- **Abyssal Glass**: Slate-800/90 with ethereal backdrop-blur for mystical depth
-- **Divine Gradients**: Multi-house colored overlays creating realm-specific atmospheres
-- **Enchanted Borders**: Glowing house-colored accents with mystical pulsing effects
-- **Sacred Hover States**: Aura effects with divine glow and elemental particles
+### Philosophical Market Commentary
+**Existential Content**
+- **Trade Consequences**: Every action has moral weight and societal impact
+- **Antihero Narratives**: User profiles as complex, flawed characters
+- **Market Psychology**: Rorschach-style interpretation widgets
+- **Dystopian News**: Headlines with noir-style cynicism and moral ambiguity
 
-**Legendary Interactive Elements**
-- **Epic Transitions**: Smooth magical animations (400ms) with particle trails
-- **Divine Feedback**: House-colored magical effects (profit=emerald aura, loss=crimson glow)
-- **Mystical Loading**: Ancient rune spinners and ethereal fade effects
-- **Sacred Pulses**: Gentle magical energy animations for live mystical indicators
+### Watchmen-Inspired Interactions
+**Morally Weighted Animations**
+- **Consequence Ripples**: Trade effects spreading through society (400ms)
+- **Blood Drip**: Loss animations with visceral weight
+- **Clock Ticking**: Doomsday-style countdown effects
+- **Ink Spread**: Pattern reveals for data loading states
+- **Shadow Shifts**: Film noir lighting changes on state transitions
 
-### RPG Animations & Effects
-**Magical & Purposeful**
-- **Epic Transitions**: Smooth spell-casting feel (400ms) with mystical particles
-- **Legendary Animations**: Level-up style effects for achievements and rank progression
-- **Karma Indicators**: XP-style visual feedback with house-colored energy flows
-- **Divine Pulses**: Sacred rhythm animations for real-time market heartbeat
-- **Mystical Loading**: Ancient sigil rotations and ethereal emergence effects
-- **Achievement Fanfare**: Celebration animations with house emblems and divine light
+### Character-Driven Personalization
+**Antihero Archetypes**
+- **The Comedian**: Cynical trader profile with dark humor elements
+- **Rorschach**: Uncompromising moral absolutist with ink-blot patterns
+- **Ozymandias**: Calculating manipulator with grand scheme visualizations
+- **Silk Spectre**: Complex legacy trader with generational themes
+- **Dr. Manhattan**: Detached analytical view with quantum probability displays
 
-### Asset Rarity System
-**Legendary Classification Hierarchy**
-- **Common Assets**: Standard gray borders, basic tooltips, minimal effects
-- **Rare Assets**: Blue mystical borders, enhanced descriptions, subtle glow
-- **Epic Assets**: Purple divine borders, rich lore text, pulsing aura effects  
-- **Legendary Assets**: Golden sacred borders, epic descriptions, particle effects, divine glow
+### Brutalist Accessibility
+- **High Contrast**: Stark black/white ensuring readability
+- **Harsh Focus**: Sharp, unforgiving focus indicators
+- **Audio Noir**: Ambient city sounds and film noir audio cues
+- **Screen Reader Cynicism**: Darkly humorous alt text maintaining theme
+- **Simplified Complexity**: Clear navigation despite moral ambiguity
 
-### House-Specific UI Elements
-**Guild Identity Integration**
-- **House Emblems**: Sacred symbols for each mythological house
-- **Blessing Indicators**: Visual buff/debuff displays for house trading bonuses
-- **Karma Meters**: XP-style progress bars for house advancement and achievements
-- **Guild Banners**: House-themed headers with mythological imagery and colors
-- **Sacred Crests**: House badges integrated throughout interface elements
+### Performance Optimization
+**Efficient Dystopia**
+- **Lazy Loading**: Gradual revelation like noir plot development
+- **Compressed Assets**: Optimized halftone patterns and grain textures
+- **Minimal Animation**: Purposeful effects only, no frivolous motion
+- **Dark-First**: Optimized for low-light environments and power efficiency
 
-### Mythological Accessibility
-- **Divine Contrast**: High contrast mystical palettes ensuring readability
-- **Sacred Navigation**: Keyboard shortcuts feeling like casting spells
-- **Oracular Feedback**: Audio cues with mystical tones for trading actions
-- **Legendary Structure**: Screen reader friendly with epic content descriptions
-- **House Inclusion**: Color-blind friendly house distinction through symbols and patterns
+## Images
+**Hero Section**: Large atmospheric image (1920x800px) featuring noir cityscape with financial district, heavy shadows, venetian blind lighting effects, and subtle halftone overlay. Conveys moral complexity of modern finance.
 
-### Epic Imagery & Artifacts
-**Mystical Asset Gallery**
-- **Hero Banners**: Epic landscape imagery with house mythological themes and divine overlays
-- **Artifact Thumbnails**: Comic covers presented as ancient magical tomes (400x600px)
-- **Ethereal Backgrounds**: Subtle mystical overlays enhancing but not obscuring data
-- **Sacred Icons**: Comprehensive mystical symbol library (Lucide React + custom house runes)
-- **Divine Particles**: Atmospheric particle effects adding immersion without distraction
+**Asset Thumbnails**: Company logos treated with ink-blot effects and halftone patterns (200x200px)
 
-### Gamification Integration
-**RPG Progression Systems**
-- **Karma/XP Systems**: Experience point displays with house-specific advancement paths
-- **Achievement Unlocks**: Badge collection with mythological themes and house rewards
-- **Guild Rankings**: Leaderboard systems with epic titles and legendary status indicators
-- **Quest Progress**: Trading challenges presented as mystical quests with divine rewards
-- **House Wars**: Competition interfaces feeling like ancient guild battle chambers
-- **Sacred Rituals**: Daily challenges and special events with ceremonial presentation
+**Background Textures**: Subtle film grain, ink blot patterns, and concrete textures for surface elements
 
-### Performance & Sacred Optimization
-**Divine Efficiency**
-- **Mystical Lazy Loading**: Gradual spell-like revelation of content
-- **Sacred Caching**: Optimized house themes and mystical asset management
-- **Ethereal Compression**: Lightweight particle effects and atmospheric elements
-- **Divine Responsiveness**: Adaptive mystical layouts across all viewing crystals (devices)
+**Icons**: Minimalist line icons with harsh angular geometries, avoiding any playful elements
 
-The design creates an immersive trading experience where users feel like powerful guild members wielding financial magic through their chosen House, transforming traditional market activities into legendary quests for profit and glory.
+The platform creates an immersive experience where users confront the moral complexity of financial power, transforming trading into a philosophical exploration of wealth's impact on society through the lens of graphic novel noir storytelling.

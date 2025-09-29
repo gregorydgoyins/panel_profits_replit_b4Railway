@@ -246,20 +246,20 @@ export function registerStoryMarketRoutes(app: Express, storage: IStorage) {
         else if (item.source === 'analysis') type = 'thought';
         else if (item.source === 'system') type = 'narration';
         
-        // Determine speaker based on sentiment and source
+        // Determine speaker based on sentiment and source - Watchmen characters
         let speaker = {
-          name: 'Market Oracle',
+          name: 'Dr. Manhattan',
           role: 'oracle' as const,
         };
         
         if (sentiment > 0.5) {
-          speaker = { name: 'Bull Champion', role: 'hero' as const };
+          speaker = { name: 'Ozymandias', role: 'hero' as const }; // "Hero" who sacrifices millions
         } else if (sentiment < -0.5) {
-          speaker = { name: 'Bear Lord', role: 'villain' as const };
+          speaker = { name: 'The Comedian', role: 'villain' as const }; // Laughs at the horror
         } else if (item.source === 'community') {
-          speaker = { name: 'The Trading Masses', role: 'crowd' as const };
+          speaker = { name: 'Rorschach', role: 'crowd' as const }; // Voice of uncompromising truth
         } else if (item.source === 'official') {
-          speaker = { name: 'The Chronicle Keeper', role: 'narrator' as const };
+          speaker = { name: 'Silk Spectre', role: 'narrator' as const }; // Inherited legacy
         }
         
         // Determine impact
@@ -337,22 +337,22 @@ export function registerStoryMarketRoutes(app: Express, storage: IStorage) {
       let intensity = 5;
       
       if (avgChange > 5) {
-        summary = 'The heroes of the market rise triumphant! Bulls charge forward with unstoppable momentum as fortunes are made in the great ascension.';
+        summary = 'The market gorges itself on false prosperity. Every profit is built on someone else\'s ruin. The smiley face badge grins while widows weep over portfolios. Nothing ever ends.';
         currentAct = 3;
         mood = 'heroic';
         intensity = 8;
       } else if (avgChange < -5) {
-        summary = 'Darkness falls upon the trading realm! Bears unleash their fury as values crumble and hope fades into the crimson void.';
+        summary = 'Blood in the streets. Not metaphorical - real human cost measured in foreclosures and suicides. The Comedian would laugh. Dr. Manhattan sees it all as inevitable atomic decay.';
         currentAct = 4;
         mood = 'tragic';
         intensity = 9;
       } else if (volatility > 8) {
-        summary = 'Chaos reigns supreme! The market battles rage with legendary intensity as fortunes swing wildly between victory and defeat.';
+        summary = 'The doomsday clock ticks closer to midnight. Every trade accelerates our collective destruction. Ozymandias has a plan, but at what cost? Who watches the market makers?';
         currentAct = 2;
         mood = 'mysterious';
         intensity = 10;
       } else {
-        summary = 'The market rests in an uneasy peace, gathering strength for the battles yet to come. Wise traders watch and wait...';
+        summary = 'Rorschach\'s journal: Market date ' + new Date().toDateString() + '. This city is afraid of me. I\'ve seen its true face. The accumulated filth of all their trades will foam up about their waists.';
         currentAct = 1;
         mood = 'mysterious';
         intensity = 3;
