@@ -209,6 +209,83 @@
   
   --house-spirit-primary-border: hsl(var(--house-spirit-primary));
   --house-spirit-primary-border: hsl(from hsl(var(--house-spirit-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
+  /* RPG MYTHOLOGICAL SYSTEM - RARITY & MYSTICAL EFFECTS */
+  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
+
+  /* Asset Rarity Classification System */
+  --rarity-common: 210 15% 30%; /* Gray Stone */
+  --rarity-common-foreground: 0 0% 85%;
+  --rarity-common-border: 210 15% 25%;
+  --rarity-common-glow: 210 15% 40%;
+
+  --rarity-rare: 213 93% 68%; /* Mystical Blue */
+  --rarity-rare-foreground: 0 0% 98%;
+  --rarity-rare-border: 213 80% 55%;
+  --rarity-rare-glow: 213 93% 75%;
+
+  --rarity-epic: 285 100% 68%; /* Arcane Purple */
+  --rarity-epic-foreground: 0 0% 98%;
+  --rarity-epic-border: 285 85% 55%;
+  --rarity-epic-glow: 285 100% 75%;
+
+  --rarity-legendary: 43 96% 56%; /* Divine Gold */
+  --rarity-legendary-foreground: 43 20% 9%;
+  --rarity-legendary-border: 43 80% 45%;
+  --rarity-legendary-glow: 43 96% 65%;
+
+  /* Mystical Effect Intensities */
+  --mystical-glow-subtle: 0.15;
+  --mystical-glow-moderate: 0.25;
+  --mystical-glow-intense: 0.4;
+  --mystical-glow-divine: 0.6;
+
+  /* Sacred Geometry Spacing (based on mystical proportions) */
+  --sacred-xs: 0.125rem; /* 2px - Rune details */
+  --sacred-sm: 0.25rem;  /* 4px - Sacred symbols */
+  --sacred-md: 0.5rem;   /* 8px - Mystical elements */
+  --sacred-lg: 1rem;     /* 16px - Arcane structures */
+  --sacred-xl: 1.5rem;   /* 24px - Divine proportions */
+  --sacred-2xl: 2rem;    /* 32px - Legendary spacing */
+  --sacred-3xl: 3rem;    /* 48px - Epic realm divisions */
+
+  /* Divine Transition Timings */
+  --transition-swift: 200ms; /* Quick magical responses */
+  --transition-mystical: 300ms; /* Standard magical transitions */
+  --transition-arcane: 500ms; /* Deep magical effects */
+  --transition-divine: 750ms; /* Epic transformation timing */
+  --transition-legendary: 1000ms; /* Legendary animation duration */
+
+  /* Karma/Experience Point Colors */
+  --karma-bronze: 25 80% 55%; /* Bronze achievement */
+  --karma-silver: 210 15% 75%; /* Silver achievement */
+  --karma-gold: 43 96% 56%; /* Gold achievement */
+  --karma-platinum: 213 93% 68%; /* Platinum achievement */
+  --karma-diamond: 285 100% 68%; /* Diamond achievement */
+
+  /* House Blessing/Buff Effect Colors */
+  --blessing-active: 142 76% 36%; /* Active house bonus */
+  --blessing-cooldown: 210 40% 60%; /* Bonus on cooldown */
+  --blessing-expired: 0 84% 60%; /* Bonus expired */
+
+  /* Mystical Animation Variables */
+  --pulse-duration: 2s;
+  --shimmer-duration: 3s;
+  --float-duration: 4s;
+  --particle-duration: 6s;
+
+  /* Sacred Shadow Depths */
+  --shadow-mystical: 0px 4px 12px rgba(0, 0, 0, 0.3), 0px 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-arcane: 0px 8px 24px rgba(0, 0, 0, 0.4), 0px 4px 8px rgba(0, 0, 0, 0.2);
+  --shadow-divine: 0px 12px 36px rgba(0, 0, 0, 0.5), 0px 6px 12px rgba(0, 0, 0, 0.3);
+  --shadow-legendary: 0px 16px 48px rgba(0, 0, 0, 0.6), 0px 8px 16px rgba(0, 0, 0, 0.4);
+
+  /* Achievement Badge System */
+  --achievement-new: 43 96% 56%; /* New achievement gold */
+  --achievement-completed: 142 76% 36%; /* Completed green */
+  --achievement-locked: 210 15% 30%; /* Locked gray */
+  --achievement-progress: 213 93% 68%; /* In progress blue */
 }
 
 .dark {
@@ -494,5 +571,266 @@
   .border.active-elevate-2:not(.no-active-interaction-elevate)::after,
   .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
     inset: -1px;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
+  /* RPG MYTHOLOGICAL ANIMATIONS & UTILITY CLASSES */
+  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
+
+  /* Mystical Pulse Animation */
+  .mystical-pulse {
+    animation: mystical-pulse var(--pulse-duration) cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes mystical-pulse {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.02);
+    }
+  }
+
+  /* Divine Shimmer Effect */
+  .divine-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .divine-shimmer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
+    animation: divine-shimmer var(--shimmer-duration) ease-in-out infinite;
+  }
+
+  @keyframes divine-shimmer {
+    0% {
+      left: -100%;
+    }
+    100% {
+      left: 100%;
+    }
+  }
+
+  /* Ethereal Float Animation */
+  .ethereal-float {
+    animation: ethereal-float var(--float-duration) ease-in-out infinite;
+  }
+
+  @keyframes ethereal-float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+
+  /* Sacred Glow Effects */
+  .sacred-glow-subtle {
+    box-shadow: 0 0 10px hsla(var(--primary), var(--mystical-glow-subtle));
+  }
+
+  .sacred-glow-moderate {
+    box-shadow: 0 0 15px hsla(var(--primary), var(--mystical-glow-moderate));
+  }
+
+  .sacred-glow-intense {
+    box-shadow: 0 0 20px hsla(var(--primary), var(--mystical-glow-intense));
+  }
+
+  .sacred-glow-divine {
+    box-shadow: 0 0 30px hsla(var(--primary), var(--mystical-glow-divine));
+  }
+
+  /* Rarity Border Effects */
+  .rarity-common {
+    border-color: hsl(var(--rarity-common-border));
+    box-shadow: 0 0 8px hsla(var(--rarity-common-glow), 0.3);
+  }
+
+  .rarity-rare {
+    border-color: hsl(var(--rarity-rare-border));
+    box-shadow: 0 0 12px hsla(var(--rarity-rare-glow), 0.4);
+  }
+
+  .rarity-epic {
+    border-color: hsl(var(--rarity-epic-border));
+    box-shadow: 0 0 16px hsla(var(--rarity-epic-glow), 0.5);
+  }
+
+  .rarity-legendary {
+    border-color: hsl(var(--rarity-legendary-border));
+    box-shadow: 0 0 24px hsla(var(--rarity-legendary-glow), 0.6);
+    animation: mystical-pulse var(--pulse-duration) cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* House-Themed Aura Effects */
+  .house-aura-heroes {
+    box-shadow: 0 0 15px hsla(var(--house-heroes-primary), 0.3);
+  }
+
+  .house-aura-wisdom {
+    box-shadow: 0 0 15px hsla(var(--house-wisdom-primary), 0.3);
+  }
+
+  .house-aura-power {
+    box-shadow: 0 0 15px hsla(var(--house-power-primary), 0.3);
+  }
+
+  .house-aura-mystery {
+    box-shadow: 0 0 15px hsla(var(--house-mystery-primary), 0.3);
+  }
+
+  .house-aura-elements {
+    box-shadow: 0 0 15px hsla(var(--house-elements-primary), 0.3);
+  }
+
+  .house-aura-time {
+    box-shadow: 0 0 15px hsla(var(--house-time-primary), 0.3);
+  }
+
+  .house-aura-spirit {
+    box-shadow: 0 0 15px hsla(var(--house-spirit-primary), 0.3);
+  }
+
+  /* Achievement Badge Animations */
+  .achievement-unlock {
+    animation: achievement-unlock 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes achievement-unlock {
+    0% {
+      transform: scale(0) rotate(-180deg);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.2) rotate(-90deg);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+  }
+
+  /* Karma/XP Bar Fill Animation */
+  .karma-fill {
+    animation: karma-fill 1s ease-out;
+    background: linear-gradient(
+      90deg,
+      hsl(var(--karma-bronze)),
+      hsl(var(--karma-silver)),
+      hsl(var(--karma-gold))
+    );
+  }
+
+  @keyframes karma-fill {
+    0% {
+      width: 0%;
+    }
+  }
+
+  /* Blessing Active Indicator */
+  .blessing-active {
+    position: relative;
+  }
+
+  .blessing-active::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    background: hsl(var(--blessing-active));
+    border-radius: 50%;
+    box-shadow: 0 0 6px hsl(var(--blessing-active));
+    animation: mystical-pulse var(--pulse-duration) ease-in-out infinite;
+  }
+
+  /* Sacred Typography Effects */
+  .legendary-text {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--rarity-legendary)),
+      hsl(var(--karma-gold)),
+      hsl(var(--rarity-legendary))
+    );
+    background-size: 200% 200%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: divine-shimmer var(--shimmer-duration) ease-in-out infinite;
+  }
+
+  .epic-text {
+    color: hsl(var(--rarity-epic));
+    text-shadow: 0 0 8px hsla(var(--rarity-epic), 0.5);
+  }
+
+  .rare-text {
+    color: hsl(var(--rarity-rare));
+    text-shadow: 0 0 6px hsla(var(--rarity-rare), 0.4);
+  }
+
+  /* Mystical Transition Classes */
+  .transition-mystical {
+    transition: all var(--transition-mystical) cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .transition-arcane {
+    transition: all var(--transition-arcane) cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .transition-divine {
+    transition: all var(--transition-divine) cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .transition-legendary {
+    transition: all var(--transition-legendary) cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Sacred Particle Background Effect */
+  .sacred-particles {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sacred-particles::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(circle at 20% 80%, hsla(var(--primary), 0.1) 2px, transparent 2px),
+      radial-gradient(circle at 80% 20%, hsla(var(--accent), 0.1) 1px, transparent 1px),
+      radial-gradient(circle at 40% 40%, hsla(var(--primary), 0.08) 1px, transparent 1px);
+    background-size: 50px 50px, 30px 30px, 40px 40px;
+    animation: sacred-drift var(--particle-duration) linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes sacred-drift {
+    0% {
+      transform: translate(0, 0);
+    }
+    100% {
+      transform: translate(-50px, -50px);
+    }
   }
 }
