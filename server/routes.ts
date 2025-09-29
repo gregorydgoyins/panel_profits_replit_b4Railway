@@ -15,6 +15,7 @@ import { registerComicCoverRoutes } from "./routes/comicCoverRoutes.js";
 import { registerNotificationRoutes } from "./routes/notificationRoutes.js";
 import enhancedDataRoutes from "./routes/enhancedDataRoutes.js";
 import enhancedAiRoutes from "./routes/enhancedAiRoutes.js";
+import visualStorytellingRoutes from "./routes/visualStorytellingRoutes.js";
 import phase1Routes from "./phase1Routes.js";
 import { marketSimulation, orderMatching } from "./marketSimulation.js";
 import { leaderboardService } from "./leaderboardService.js";
@@ -1062,6 +1063,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Enhanced Trading Data Routes (Phase 3 Mythological Interface)
   app.use("/api", enhancedDataRoutes);
+
+  // Visual Storytelling Routes (Phase 2 Narrative Systems)
+  app.use("/api/storytelling", visualStorytellingRoutes);
 
   // PPIx Index Routes (Comic Book Market Indices) - SCHOLARLY INVESTMENT FRAMEWORK
   app.get("/api/ppix/indices", async (req, res) => {
