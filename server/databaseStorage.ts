@@ -4145,6 +4145,246 @@ export class DatabaseStorage implements IStorage {
       .where(eq(marginAccounts.isActive, true))
       .orderBy(desc(marginAccounts.accountValue));
   }
+
+  // =============================================================================
+  // COLLECTOR-GRADE ASSET DISPLAY METHODS
+  // =============================================================================
+
+  // Graded Asset Profile Methods
+  async createGradedAssetProfile(profileData: InsertGradedAssetProfile): Promise<GradedAssetProfile> {
+    const result = await db.insert(gradedAssetProfiles).values(profileData).returning();
+    return result[0];
+  }
+
+  async getUserGradedAssetProfiles(userId: string, filters?: {
+    rarityFilter?: string;
+    storageTypeFilter?: string;
+    sortBy?: string;
+  }): Promise<GradedAssetProfile[]> {
+    // CRITICAL SECURITY FIX: Build all conditions in array and combine with and()
+    // to ensure userId filter is NEVER lost when applying additional filters
+    const conditions = [eq(gradedAssetProfiles.userId, userId)];
+    
+    if (filters?.rarityFilter) {
+      conditions.push(eq(gradedAssetProfiles.rarityTier, filters.rarityFilter));
+    }
+    
+    if (filters?.storageTypeFilter) {
+      conditions.push(eq(gradedAssetProfiles.storageType, filters.storageTypeFilter));
+    }
+    
+    // Apply all conditions using and() to maintain proper user isolation
+    const query = db.select().from(gradedAssetProfiles)
+      .where(and(...conditions));
+    
+    // Default sort by display priority, then acquisition date
+    const sortField = filters?.sortBy === 'grade' ? gradedAssetProfiles.overallGrade 
+                    : filters?.sortBy === 'value' ? gradedAssetProfiles.currentMarketValue
+                    : gradedAssetProfiles.displayPriority;
+    
+    return await query.orderBy(desc(sortField), desc(gradedAssetProfiles.acquisitionDate));
+  }
+
+  async getGradedAssetProfile(profileId: string, userId?: string): Promise<GradedAssetProfile | undefined> {
+    // CRITICAL SECURITY FIX: Add user ownership validation to prevent cross-user access
+    const conditions = [eq(gradedAssetProfiles.id, profileId)];
+    
+    // If userId is provided, ensure the profile belongs to that user
+    if (userId) {
+      conditions.push(eq(gradedAssetProfiles.userId, userId));
+    }
+    
+    const result = await db.select().from(gradedAssetProfiles)
+      .where(and(...conditions));
+    return result[0];
+  }
+
+  async updateGradedAssetProfile(profileId: string, updates: Partial<InsertGradedAssetProfile>, userId?: string): Promise<GradedAssetProfile | undefined> {
+    // CRITICAL SECURITY FIX: Add user ownership validation to prevent unauthorized updates
+    const conditions = [eq(gradedAssetProfiles.id, profileId)];
+    
+    // If userId is provided, ensure the profile belongs to that user
+    if (userId) {
+      conditions.push(eq(gradedAssetProfiles.userId, userId));
+    }
+    
+    const result = await db.update(gradedAssetProfiles)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(and(...conditions))
+      .returning();
+    return result[0];
+  }
+
+  async deleteGradedAssetProfile(profileId: string, userId?: string): Promise<boolean> {
+    // CRITICAL SECURITY FIX: Add user ownership validation to prevent unauthorized deletions
+    const conditions = [eq(gradedAssetProfiles.id, profileId)];
+    
+    // If userId is provided, ensure the profile belongs to that user
+    if (userId) {
+      conditions.push(eq(gradedAssetProfiles.userId, userId));
+    }
+    
+    const result = await db.delete(gradedAssetProfiles)
+      .where(and(...conditions))
+      .returning();
+    return result.length > 0;
+  }
+
+  // Collection Storage Box Methods
+  async getCollectionStorageBoxes(userId: string): Promise<CollectionStorageBox[]> {
+    return await db.select().from(collectionStorageBoxes)
+      .where(eq(collectionStorageBoxes.userId, userId))
+      .orderBy(collectionStorageBoxes.boxName);
+  }
+
+  async createCollectionStorageBox(boxData: InsertCollectionStorageBox): Promise<CollectionStorageBox> {
+    const result = await db.insert(collectionStorageBoxes).values(boxData).returning();
+    return result[0];
+  }
+
+  async updateCollectionStorageBox(boxId: string, updates: Partial<InsertCollectionStorageBox>): Promise<CollectionStorageBox | undefined> {
+    const result = await db.update(collectionStorageBoxes)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(collectionStorageBoxes.id, boxId))
+      .returning();
+    return result[0];
+  }
+
+  // Variant Cover Registry Methods
+  async getVariantCoversByAsset(baseAssetId: string): Promise<VariantCoverRegistry[]> {
+    return await db.select().from(variantCoverRegistry)
+      .where(eq(variantCoverRegistry.baseAssetId, baseAssetId))
+      .orderBy(desc(variantCoverRegistry.baseRarityMultiplier));
+  }
+
+  async createVariantCover(variantData: InsertVariantCoverRegistry): Promise<VariantCoverRegistry> {
+    const result = await db.insert(variantCoverRegistry).values(variantData).returning();
+    return result[0];
+  }
+
+  async getVariantCover(variantId: string): Promise<VariantCoverRegistry | undefined> {
+    const result = await db.select().from(variantCoverRegistry)
+      .where(eq(variantCoverRegistry.id, variantId));
+    return result[0];
+  }
+
+  async searchVariantCovers(criteria: {
+    variantType?: string;
+    coverArtist?: string;
+    publisher?: string;
+    minRarity?: string;
+    maxPrice?: number;
+  }): Promise<VariantCoverRegistry[]> {
+    let query = db.select().from(variantCoverRegistry);
+    const conditions = [];
+
+    if (criteria.variantType) {
+      conditions.push(eq(variantCoverRegistry.variantType, criteria.variantType));
+    }
+    
+    if (criteria.coverArtist) {
+      conditions.push(ilike(variantCoverRegistry.coverArtist, `%${criteria.coverArtist}%`));
+    }
+    
+    if (criteria.maxPrice) {
+      conditions.push(sql`${variantCoverRegistry.currentPremium} <= ${criteria.maxPrice}`);
+    }
+
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+
+    return await query.orderBy(desc(variantCoverRegistry.baseRarityMultiplier));
+  }
+
+  // Collection Analytics Methods
+  async getCollectionAnalytics(userId: string): Promise<{
+    totalItems: number;
+    totalValue: number;
+    averageGrade: number;
+    gradeDistribution: { [grade: string]: number };
+    rarityDistribution: { [rarity: string]: number };
+    houseDistribution: { [house: string]: number };
+    keyIssuesCount: number;
+    signedCount: number;
+    growthRate: number;
+    topPerformers: GradedAssetProfile[];
+  }> {
+    // Get all graded profiles for the user
+    const profiles = await this.getUserGradedAssetProfiles(userId);
+    
+    if (profiles.length === 0) {
+      return {
+        totalItems: 0,
+        totalValue: 0,
+        averageGrade: 0,
+        gradeDistribution: {},
+        rarityDistribution: {},
+        houseDistribution: {},
+        keyIssuesCount: 0,
+        signedCount: 0,
+        growthRate: 0,
+        topPerformers: []
+      };
+    }
+
+    // Calculate analytics
+    const totalValue = profiles.reduce((sum, profile) => sum + (profile.currentMarketValue || 0), 0);
+    const averageGrade = profiles.reduce((sum, profile) => sum + profile.overallGrade, 0) / profiles.length;
+    
+    // Grade distribution
+    const gradeDistribution: { [grade: string]: number } = {};
+    profiles.forEach(profile => {
+      const gradeRange = Math.floor(profile.overallGrade);
+      const key = `${gradeRange}.0-${gradeRange}.9`;
+      gradeDistribution[key] = (gradeDistribution[key] || 0) + 1;
+    });
+
+    // Rarity distribution
+    const rarityDistribution: { [rarity: string]: number } = {};
+    profiles.forEach(profile => {
+      rarityDistribution[profile.rarityTier] = (rarityDistribution[profile.rarityTier] || 0) + 1;
+    });
+
+    // House distribution
+    const houseDistribution: { [house: string]: number } = {};
+    profiles.forEach(profile => {
+      if (profile.houseAffiliation) {
+        houseDistribution[profile.houseAffiliation] = (houseDistribution[profile.houseAffiliation] || 0) + 1;
+      }
+    });
+
+    // Key issues and signed count
+    const keyIssuesCount = profiles.filter(p => p.isKeyIssue).length;
+    const signedCount = profiles.filter(p => p.isSigned).length;
+
+    // Calculate growth rate (simplified - based on average market value appreciation)
+    const totalAcquisitionValue = profiles.reduce((sum, profile) => sum + (profile.acquisitionPrice || 0), 0);
+    const growthRate = totalAcquisitionValue > 0 ? ((totalValue - totalAcquisitionValue) / totalAcquisitionValue) * 100 : 0;
+
+    // Top performers (highest value appreciation)
+    const topPerformers = profiles
+      .filter(p => p.acquisitionPrice && p.currentMarketValue)
+      .sort((a, b) => {
+        const aAppreciation = (a.currentMarketValue! - a.acquisitionPrice!) / a.acquisitionPrice!;
+        const bAppreciation = (b.currentMarketValue! - b.acquisitionPrice!) / b.acquisitionPrice!;
+        return bAppreciation - aAppreciation;
+      })
+      .slice(0, 5);
+
+    return {
+      totalItems: profiles.length,
+      totalValue,
+      averageGrade: Math.round(averageGrade * 10) / 10,
+      gradeDistribution,
+      rarityDistribution,
+      houseDistribution,
+      keyIssuesCount,
+      signedCount,
+      growthRate: Math.round(growthRate * 100) / 100,
+      topPerformers
+    };
+  }
 }
 
 export const databaseStorage = new DatabaseStorage();

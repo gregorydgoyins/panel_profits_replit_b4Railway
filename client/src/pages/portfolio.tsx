@@ -1,17 +1,25 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Briefcase, TrendingUp, TrendingDown, Target, Users, Brain, 
   Sparkles, DollarSign, BarChart3, PieChart, ArrowUpRight,
-  Heart, RefreshCw, AlertTriangle, CheckCircle
+  Heart, RefreshCw, AlertTriangle, CheckCircle, Archive,
+  Shield, Crown, Award, Star, Gem
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
+import { ComicStorageVault } from '@/components/collector/ComicStorageVault';
+import { GradedSlabModal } from '@/components/collector/GradedSlabModal';
+import { VariantTradingCard } from '@/components/collector/VariantTradingCard';
+import { useCollectorVault } from '@/hooks/useCollectorVault';
+import { useVariantRegistry } from '@/hooks/useVariantRegistry';
+import { useHouseTheme } from '@/contexts/HouseThemeContext';
 
 interface PortfolioAsset {
   id: string;
@@ -62,51 +70,72 @@ interface VectorPortfolioResponse {
 
 export default function PortfolioPage() {
   const [selectedPortfolioId] = useState('demo-portfolio-1');
+  const [activeView, setActiveView] = useState<'traditional' | 'collector'>('traditional');
+  const [selectedAsset, setSelectedAsset] = useState<any>(null);
+  const [showGradedModal, setShowGradedModal] = useState(false);
   const { toast } = useToast();
+  const { currentHouse, getHouseTheme } = useHouseTheme();
+  
+  // Collector vault hooks
+  const {
+    gradedProfiles,
+    storageBoxes,
+    analytics,
+    isLoading: isLoadingCollector,
+    performGradingAssessment,
+    createGradedProfile
+  } = useCollectorVault();
+  
+  const { useVariantTradingCard } = useVariantRegistry();
 
-  // Mock portfolio data
-  const portfolioAssets: PortfolioAsset[] = [
-    {
-      id: 'xmen1',
-      name: 'X-Men #1 (1963)',
-      type: 'Key Issue',
-      quantity: 1,
-      avgPrice: 8500,
-      currentPrice: 12000,
-      totalValue: 12000,
-      percentChange: 41.2,
-      weight: 35.3,
-      riskScore: 6.5
-    },
-    {
-      id: 'ih181',
-      name: 'Incredible Hulk #181',
-      type: 'Key Issue',
-      quantity: 2,
-      avgPrice: 6200,
-      currentPrice: 8500,
-      totalValue: 17000,
-      percentChange: 37.1,
-      weight: 50.0,
-      riskScore: 7.2
-    },
-    {
-      id: 'asm129',
-      name: 'Amazing Spider-Man #129',
-      type: 'Key Issue',
-      quantity: 1,
-      avgPrice: 4800,
-      currentPrice: 5000,
-      totalValue: 5000,
-      percentChange: 4.2,
-      weight: 14.7,
-      riskScore: 5.8
-    }
-  ];
+  // Real portfolio data from collector vault - replaces all mock data
+  const portfolioAssets = useMemo(() => {
+    if (!gradedProfiles || gradedProfiles.length === 0) return [];
+    
+    // Convert graded profiles to portfolio assets format
+    const totalValue = gradedProfiles.reduce((sum, profile) => sum + (profile.currentMarketValue || 0), 0);
+    
+    return gradedProfiles.map((profile) => {
+      const acquisitionPrice = profile.acquisitionPrice || 0;
+      const currentValue = profile.currentMarketValue || 0;
+      const percentChange = acquisitionPrice > 0 ? ((currentValue - acquisitionPrice) / acquisitionPrice) * 100 : 0;
+      const weight = totalValue > 0 ? (currentValue / totalValue) * 100 : 0;
+      
+      // Calculate risk score based on rarity and grade
+      const riskScore = profile.rarityTier === 'mythic' ? 9.0
+                      : profile.rarityTier === 'legendary' ? 7.5
+                      : profile.rarityTier === 'ultra_rare' ? 6.0
+                      : profile.rarityTier === 'rare' ? 4.5
+                      : profile.rarityTier === 'uncommon' ? 3.0
+                      : 2.0;
+      
+      return {
+        id: profile.id,
+        name: profile.name,
+        type: profile.isKeyIssue ? 'Key Issue' : 'Comic',
+        quantity: 1, // Each graded profile represents one item
+        avgPrice: acquisitionPrice,
+        currentPrice: currentValue,
+        totalValue: currentValue,
+        percentChange,
+        weight,
+        riskScore
+      };
+    });
+  }, [gradedProfiles]);
 
-  const totalPortfolioValue = portfolioAssets.reduce((sum, asset) => sum + asset.totalValue, 0);
-  const totalPortfolioChange = portfolioAssets.reduce((sum, asset) => sum + (asset.totalValue - (asset.avgPrice * asset.quantity)), 0);
-  const totalPortfolioChangePercent = (totalPortfolioChange / (totalPortfolioValue - totalPortfolioChange)) * 100;
+  // Calculate portfolio totals from real data
+  const totalPortfolioValue = useMemo(() => {
+    return analytics?.totalValue || portfolioAssets.reduce((sum, asset) => sum + asset.totalValue, 0);
+  }, [analytics, portfolioAssets]);
+
+  const totalPortfolioChange = useMemo(() => {
+    return portfolioAssets.reduce((sum, asset) => sum + (asset.totalValue - (asset.avgPrice * asset.quantity)), 0);
+  }, [portfolioAssets]);
+
+  const totalPortfolioChangePercent = useMemo(() => {
+    return analytics?.growthRate || (totalPortfolioValue > 0 ? (totalPortfolioChange / (totalPortfolioValue - totalPortfolioChange)) * 100 : 0);
+  }, [analytics, totalPortfolioValue, totalPortfolioChange]);
 
   // Vector portfolio analysis query
   const { 
@@ -164,6 +193,54 @@ export default function PortfolioPage() {
     if (riskScore >= 5) return "Medium Risk";
     return "Low Risk";
   };
+  
+  // Collector-specific handlers
+  const handleAssetSelect = (asset: any) => {
+    setSelectedAsset(asset);
+    setShowGradedModal(true);
+  };
+  
+  const handleBoxSelect = (box: any) => {
+    toast({
+      title: "Storage Box Selected",
+      description: `Opening ${box.name} with ${box.currentCount} items.`,
+    });
+  };
+  
+  const handleCreateBox = () => {
+    toast({
+      title: "Create Storage Box",
+      description: "Storage box creation dialog would open here.",
+    });
+  };
+  
+  const handleGradeAsset = (assetId: string) => {
+    toast({
+      title: "Grade Asset",
+      description: "Asset grading workflow would start here.",
+    });
+  };
+  
+  const getRarityIcon = (rarity: string) => {
+    switch (rarity) {
+      case 'mythic': return Crown;
+      case 'legendary': return Award;
+      case 'ultra_rare': return Star;
+      case 'rare': return Gem;
+      default: return Shield;
+    }
+  };
+  
+  const getRarityColor = (rarity: string) => {
+    switch (rarity) {
+      case 'mythic': return 'text-amber-400 bg-amber-950 border-amber-400';
+      case 'legendary': return 'text-orange-400 bg-orange-950 border-orange-400';
+      case 'ultra_rare': return 'text-purple-400 bg-purple-950 border-purple-400';
+      case 'rare': return 'text-blue-400 bg-blue-950 border-blue-400';
+      case 'uncommon': return 'text-green-400 bg-green-950 border-green-400';
+      default: return 'text-gray-400 bg-gray-800 border-gray-500';
+    }
+  };
 
   return (
     <div className="space-y-6" data-testid="page-portfolio">
@@ -172,13 +249,39 @@ export default function PortfolioPage() {
         <div>
           <h1 className="text-3xl font-bold">Portfolio Management</h1>
           <p className="text-muted-foreground mt-1">
-            AI-powered portfolio analysis with vector-based insights and recommendations
+            {activeView === 'collector' 
+              ? 'Professional collector-grade asset management with CGC-style grading'
+              : 'AI-powered portfolio analysis with vector-based insights and recommendations'
+            }
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {/* View Toggle */}
+          <Tabs value={activeView} onValueChange={(value: any) => setActiveView(value)} className="mr-4">
+            <TabsList>
+              <TabsTrigger value="traditional" data-testid="tab-traditional-view">
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Traditional
+              </TabsTrigger>
+              <TabsTrigger value="collector" data-testid="tab-collector-view">
+                <Archive className="w-4 h-4 mr-2" />
+                Collector
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+          
           <Badge variant="secondary" className="flex items-center gap-1">
-            <Brain className="w-3 h-3" />
-            AI Analysis
+            {activeView === 'collector' ? (
+              <>
+                <Shield className="w-3 h-3" />
+                CGC Certified
+              </>
+            ) : (
+              <>
+                <Brain className="w-3 h-3" />
+                AI Analysis
+              </>
+            )}
           </Badge>
           <Button
             onClick={() => optimizeMutation.mutate()}
@@ -191,7 +294,7 @@ export default function PortfolioPage() {
             ) : (
               <Sparkles className="w-4 h-4 mr-2" />
             )}
-            Optimize Portfolio
+            {activeView === 'collector' ? 'Grade Assets' : 'Optimize Portfolio'}
           </Button>
         </div>
       </div>
@@ -259,20 +362,38 @@ export default function PortfolioPage() {
         </Card>
       </div>
 
-      {/* Holdings */}
+      {/* Holdings - with loading states and collector view integration */}
       <Card data-testid="card-holdings">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Briefcase className="w-5 h-5 text-blue-500" />
-            Your Holdings
+            {activeView === 'collector' ? 'Graded Collection' : 'Your Holdings'}
           </CardTitle>
           <CardDescription>
-            Current portfolio composition with AI-powered risk and performance analysis
+            {activeView === 'collector' 
+              ? 'Professional graded comic collection with CGC-style certification and rarity analysis'
+              : 'Current portfolio composition with AI-powered risk and performance analysis'
+            }
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {portfolioAssets.map((asset) => (
+          {/* Loading state for collector data */}
+          {isLoadingCollector && activeView === 'collector' ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center justify-between p-4 border rounded-lg animate-pulse">
+                  <div className="flex-1">
+                    <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                  </div>
+                  <div className="h-4 bg-gray-200 rounded w-16"></div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {portfolioAssets.length > 0 ? (
+                portfolioAssets.map((asset) => (
               <div key={asset.id} className="flex items-center justify-between p-4 border rounded-lg" data-testid={`holding-${asset.id}`}>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
@@ -298,11 +419,97 @@ export default function PortfolioPage() {
                     <span className="text-xs font-medium">{asset.weight.toFixed(1)}%</span>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <div className="flex flex-col items-center gap-4">
+                    <Archive className="w-12 h-12 text-gray-400" />
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-600">
+                        {activeView === 'collector' ? 'No Graded Assets Yet' : 'No Holdings Found'}
+                      </h3>
+                      <p className="text-sm text-gray-500 mt-1">
+                        {activeView === 'collector' 
+                          ? 'Start building your graded collection by adding certified comic book assets'
+                          : 'Begin your investment journey by adding comic assets to your portfolio'
+                        }
+                      </p>
+                    </div>
+                    <Button 
+                      onClick={() => handleGradeAsset('')}
+                      data-testid="button-start-collection"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      {activeView === 'collector' ? 'Grade Your First Asset' : 'Add First Asset'}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      {/* Collector-Specific Components */}
+      {activeView === 'collector' && (
+        <>
+          {/* Comic Storage Vault */}
+          <ComicStorageVault
+            gradedAssets={gradedProfiles || []}
+            storageBoxes={storageBoxes || []}
+            analytics={analytics}
+            onAssetSelect={handleAssetSelect}
+            onBoxSelect={handleBoxSelect}
+            onCreateBox={handleCreateBox}
+            isLoading={isLoadingCollector}
+          />
+
+          {/* Graded Slab Modal */}
+          {selectedAsset && showGradedModal && (
+            <GradedSlabModal
+              asset={selectedAsset}
+              isOpen={showGradedModal}
+              onClose={() => setShowGradedModal(false)}
+              onGradeAsset={handleGradeAsset}
+            />
+          )}
+
+          {/* Variant Trading Cards for Collection */}
+          {gradedProfiles && gradedProfiles.length > 0 && (
+            <Card data-testid="card-variant-trading-cards">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Star className="w-5 h-5 text-yellow-500" />
+                  Variant Trading Cards
+                </CardTitle>
+                <CardDescription>
+                  Collectible trading cards for your rarest variants with holographic effects
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {gradedProfiles.slice(0, 6).map((profile) => (
+                    <VariantTradingCard
+                      key={profile.id}
+                      variant={{
+                        id: profile.id,
+                        name: profile.name,
+                        rarity: profile.rarityTier,
+                        grade: profile.overallGrade,
+                        imageUrl: profile.imageUrl,
+                        marketValue: profile.currentMarketValue || 0,
+                        houseAffiliation: profile.houseAffiliation
+                      }}
+                      onClick={() => handleAssetSelect(profile)}
+                    />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
+      )}
 
       {/* AI Insights */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

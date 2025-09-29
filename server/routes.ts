@@ -10,6 +10,7 @@ import housesRoutes from "./routes/housesRoutes.js";
 import karmaRoutes from "./routes/karmaRoutes.js";
 import learningRoutes from "./routes/learningRoutes.js";
 import integrationsRoutes from "./routes/integrations.js";
+import collectorRoutes from "./routes/collectorRoutes.js";
 import { registerComicRoutes } from "./routes/comicRoutes";
 import { registerComicCoverRoutes } from "./routes/comicCoverRoutes.js";
 import { registerNotificationRoutes } from "./routes/notificationRoutes.js";
@@ -1010,6 +1011,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register notification routes for real-time notification system
   registerNotificationRoutes(app);
+  
+  // Collector-Grade Asset Display Routes
+  app.use("/api/collector", collectorRoutes);
   
   // AI Market Intelligence Routes
   const aiRoutes = (await import('./routes/aiRoutes.js')).default;

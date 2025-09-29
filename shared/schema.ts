@@ -5138,3 +5138,235 @@ export type InsertCollectionChallenge = z.infer<typeof insertCollectionChallenge
 
 export type UserChallengeParticipation = typeof userChallengeParticipation.$inferSelect;
 export type InsertUserChallengeParticipation = z.infer<typeof insertUserChallengeParticipationSchema>;
+
+// =============================================================================
+// COLLECTOR-GRADE ASSET DISPLAY SYSTEM
+// Phase: Collector Experience Enhancement
+// =============================================================================
+
+// Graded Asset Profiles - CGC-style grading system with collector authenticity
+export const gradedAssetProfiles = pgTable("graded_asset_profiles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  assetId: varchar("asset_id").notNull().references(() => assets.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  
+  // CGC-Style Grading Scores (0.5 - 10.0 scale)
+  overallGrade: decimal("overall_grade", { precision: 3, scale: 1 }).notNull(), // Final composite grade
+  conditionScore: decimal("condition_score", { precision: 3, scale: 1 }).notNull(), // Overall condition
+  centeringScore: decimal("centering_score", { precision: 3, scale: 1 }).notNull(), // Cover centering
+  cornersScore: decimal("corners_score", { precision: 3, scale: 1 }).notNull(), // Corner condition
+  edgesScore: decimal("edges_score", { precision: 3, scale: 1 }).notNull(), // Edge integrity
+  surfaceScore: decimal("surface_score", { precision: 3, scale: 1 }).notNull(), // Surface quality
+  
+  // Provenance & Certification Metadata
+  certificationAuthority: text("certification_authority").notNull(), // 'cgc', 'cbcs', 'pgx', 'internal'
+  certificationNumber: text("certification_number").unique(), // Serial number from grading company
+  gradingDate: timestamp("grading_date").notNull(),
+  gradingNotes: text("grading_notes"), // Detailed condition notes
+  
+  // Variant Classifications & Special Designations
+  variantType: text("variant_type"), // 'first_print', 'variant_cover', 'special_edition', 'limited_run', 'error', 'misprint'
+  printRun: integer("print_run"), // Known print run numbers
+  isKeyIssue: boolean("is_key_issue").default(false),
+  isFirstAppearance: boolean("is_first_appearance").default(false),
+  isSigned: boolean("is_signed").default(false),
+  signatureAuthenticated: boolean("signature_authenticated").default(false),
+  
+  // Rarity Tier System (Mythological Themed)
+  rarityTier: text("rarity_tier").notNull(), // 'common', 'uncommon', 'rare', 'ultra_rare', 'legendary', 'mythic'
+  rarityScore: decimal("rarity_score", { precision: 5, scale: 2 }).notNull(), // Calculated rarity index
+  marketDemandScore: decimal("market_demand_score", { precision: 5, scale: 2 }), // Market desirability
+  
+  // Storage & Collection Metadata
+  storageType: text("storage_type").default("bag_and_board"), // 'bag_and_board', 'mylar', 'graded_slab', 'top_loader'
+  storageCondition: text("storage_condition").default("excellent"), // 'poor', 'fair', 'good', 'excellent', 'mint'
+  acquisitionDate: timestamp("acquisition_date").notNull(),
+  acquisitionPrice: decimal("acquisition_price", { precision: 10, scale: 2 }),
+  currentMarketValue: decimal("current_market_value", { precision: 10, scale: 2 }),
+  
+  // Collection Organization
+  collectionSeries: text("collection_series"), // Series grouping
+  issueNumber: text("issue_number"), // Specific issue number
+  volumeNumber: integer("volume_number"), // Volume/series number
+  
+  // Collector Notes & Personal Data  
+  personalRating: integer("personal_rating"), // 1-5 star personal rating
+  collectorNotes: text("collector_notes"), // Personal collection notes
+  displayPriority: integer("display_priority").default(0), // Display order preference
+  
+  // House Integration & Progression
+  houseAffiliation: text("house_affiliation"), // Associated mythological house
+  houseProgressionValue: decimal("house_progression_value", { precision: 8, scale: 2 }).default("0.00"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Variant Cover Registry - Comprehensive variant tracking
+export const variantCoverRegistry = pgTable("variant_cover_registry", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  baseAssetId: varchar("base_asset_id").notNull().references(() => assets.id), // Base comic issue
+  
+  // Variant Identification
+  variantIdentifier: text("variant_identifier").notNull(), // Unique variant code
+  variantName: text("variant_name").notNull(), // Display name
+  coverArtist: text("cover_artist"), // Cover artist name
+  variantType: text("variant_type").notNull(), // 'retailer', 'convention', 'artist', 'incentive', 'sketch'
+  
+  // Market Data
+  printRun: integer("print_run"), // Known or estimated print run
+  incentiveRatio: text("incentive_ratio"), // For incentive variants (e.g., "1:25", "1:100")
+  exclusiveRetailer: text("exclusive_retailer"), // Exclusive retailer if applicable
+  releaseDate: timestamp("release_date"),
+  
+  // Visual Assets
+  coverImageUrl: text("cover_image_url"),
+  thumbnailUrl: text("thumbnail_url"),
+  backCoverUrl: text("back_cover_url"), // For trading card flip effect
+  
+  // Rarity & Valuation
+  baseRarityMultiplier: decimal("base_rarity_multiplier", { precision: 5, scale: 2 }).default("1.00"),
+  currentPremium: decimal("current_premium", { precision: 8, scale: 2 }), // Premium over base issue
+  
+  // Metadata
+  description: text("description"),
+  specialFeatures: text("special_features").array(), // Special printing techniques, etc.
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Collection Storage Boxes - Physical storage simulation
+export const collectionStorageBoxes = pgTable("collection_storage_boxes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  
+  // Box Identification
+  boxName: text("box_name").notNull(),
+  boxType: text("box_type").notNull(), // 'long_box', 'short_box', 'magazine_box', 'display_case', 'graded_slab_storage'
+  capacity: integer("capacity").notNull(), // Maximum number of issues
+  currentCount: integer("current_count").default(0),
+  
+  // Organization
+  organizationMethod: text("organization_method").default("alphabetical"), // 'alphabetical', 'chronological', 'value', 'rarity', 'series', 'publisher'
+  seriesFilter: text("series_filter"), // Optional series grouping
+  publisherFilter: text("publisher_filter"), // Optional publisher grouping
+  
+  // Physical Attributes
+  location: text("location"), // Physical location description
+  condition: text("condition").default("excellent"), // Box condition
+  
+  // Collection Stats
+  totalValue: decimal("total_value", { precision: 15, scale: 2 }).default("0.00"),
+  averageGrade: decimal("average_grade", { precision: 3, scale: 1 }),
+  keyIssuesCount: integer("key_issues_count").default(0),
+  
+  // Rarity Distribution
+  commonCount: integer("common_count").default(0),
+  uncommonCount: integer("uncommon_count").default(0),
+  rareCount: integer("rare_count").default(0),
+  ultraRareCount: integer("ultra_rare_count").default(0),
+  legendaryCount: integer("legendary_count").default(0),
+  mythicCount: integer("mythic_count").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Grading Certification History - Track certification events
+export const gradingCertifications = pgTable("grading_certifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  gradedAssetId: varchar("graded_asset_id").notNull().references(() => gradedAssetProfiles.id),
+  
+  // Certification Event
+  certificationType: text("certification_type").notNull(), // 'initial_grade', 're_grade', 'signature_verification', 'restoration_check'
+  previousGrade: decimal("previous_grade", { precision: 3, scale: 1 }), // Previous grade if re-certification
+  newGrade: decimal("new_grade", { precision: 3, scale: 1 }).notNull(),
+  
+  // Certification Details
+  certifyingAuthority: text("certifying_authority").notNull(),
+  certificateNumber: text("certificate_number"),
+  certificationFee: decimal("certification_fee", { precision: 8, scale: 2 }),
+  
+  // Process Tracking
+  submissionDate: timestamp("submission_date"),
+  completionDate: timestamp("completion_date").notNull(),
+  turnaroundDays: integer("turnaround_days"),
+  
+  // Results
+  certificationNotes: text("certification_notes"),
+  qualityAssessment: jsonb("quality_assessment"), // Detailed breakdown of grading criteria
+  
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Market Comparables - Track similar sales for valuation
+export const marketComparables = pgTable("market_comparables", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  gradedAssetId: varchar("graded_asset_id").notNull().references(() => gradedAssetProfiles.id),
+  
+  // Sale Information
+  salePrice: decimal("sale_price", { precision: 10, scale: 2 }).notNull(),
+  saleDate: timestamp("sale_date").notNull(),
+  marketplace: text("marketplace"), // 'ebay', 'heritage', 'comic_connect', 'mycomicshop'
+  
+  // Comparable Details
+  comparableGrade: decimal("comparable_grade", { precision: 3, scale: 1 }).notNull(),
+  gradingAuthority: text("grading_authority").notNull(),
+  saleConditions: text("sale_conditions"), // Auction, buy-it-now, etc.
+  
+  // Relevance Scoring
+  relevanceScore: decimal("relevance_score", { precision: 3, scale: 2 }), // How similar to target asset
+  ageRelevance: decimal("age_relevance", { precision: 3, scale: 2 }), // How recent the sale
+  
+  // Metadata
+  saleReference: text("sale_reference"), // External reference/link
+  notes: text("notes"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Create insert schemas for Collector-Grade Asset Display system
+export const insertGradedAssetProfileSchema = createInsertSchema(gradedAssetProfiles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertVariantCoverRegistrySchema = createInsertSchema(variantCoverRegistry).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertCollectionStorageBoxSchema = createInsertSchema(collectionStorageBoxes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertGradingCertificationSchema = createInsertSchema(gradingCertifications).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertMarketComparableSchema = createInsertSchema(marketComparables).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Export TypeScript types for Collector-Grade Asset Display system
+export type GradedAssetProfile = typeof gradedAssetProfiles.$inferSelect;
+export type InsertGradedAssetProfile = z.infer<typeof insertGradedAssetProfileSchema>;
+
+export type VariantCoverRegistry = typeof variantCoverRegistry.$inferSelect;
+export type InsertVariantCoverRegistry = z.infer<typeof insertVariantCoverRegistrySchema>;
+
+export type CollectionStorageBox = typeof collectionStorageBoxes.$inferSelect;
+export type InsertCollectionStorageBox = z.infer<typeof insertCollectionStorageBoxSchema>;
+
+export type GradingCertification = typeof gradingCertifications.$inferSelect;
+export type InsertGradingCertification = z.infer<typeof insertGradingCertificationSchema>;
+
+export type MarketComparable = typeof marketComparables.$inferSelect;
+export type InsertMarketComparable = z.infer<typeof insertMarketComparableSchema>;
