@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, decimal, integer, timestamp, boolean, jsonb, vector, index } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, decimal, integer, timestamp, boolean, jsonb, vector, bigint, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -3199,3 +3199,1215 @@ export type InsertInformationTier = z.infer<typeof insertInformationTierSchema>;
 
 export type NewsArticle = typeof newsArticles.$inferSelect;
 export type InsertNewsArticle = z.infer<typeof insertNewsArticleSchema>;
+
+// ============================================================================
+// PHASE 2: HIGH-VOLUME NARRATIVE DATASET INGESTION SYSTEM
+// ============================================================================
+
+// ============================================================================
+// STAGING TABLES - CSV File Processing and Temporary Storage
+// ============================================================================
+
+// Raw Dataset Files - Track uploaded CSV files with checksums and metadata
+export const rawDatasetFiles = pgTable("raw_dataset_files", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // File identification
+  filename: text("filename").notNull(),
+  originalFilename: text("original_filename").notNull(),
+  fileSize: integer("file_size").notNull(), // Size in bytes
+  mimeType: text("mime_type").notNull(),
+  // File integrity
+  checksum: text("checksum").notNull(), // MD5 or SHA256 hash
+  checksumAlgorithm: text("checksum_algorithm").default("sha256"),
+  // Dataset metadata
+  datasetType: text("dataset_type").notNull(), // 'characters', 'comics', 'battles', 'movies', 'reviews'
+  source: text("source").notNull(), // 'marvel_wikia', 'dc_wikia', 'imdb', 'manual_upload'
+  sourceUrl: text("source_url"), // Original download URL if applicable
+  universe: text("universe"), // 'marvel', 'dc', 'independent', 'crossover'
+  // Processing status
+  processingStatus: text("processing_status").default("uploaded"), // 'uploaded', 'validating', 'processing', 'completed', 'failed'
+  processingProgress: decimal("processing_progress", { precision: 5, scale: 2 }).default("0.00"), // 0-100%
+  totalRows: integer("total_rows"),
+  processedRows: integer("processed_rows").default(0),
+  failedRows: integer("failed_rows").default(0),
+  // File storage
+  storageLocation: text("storage_location").notNull(), // File path or URL
+  compressionType: text("compression_type"), // 'gzip', 'zip', null
+  // Ingestion metadata
+  uploadedBy: varchar("uploaded_by").references(() => users.id),
+  ingestionJobId: varchar("ingestion_job_id"), // References ingestion_jobs table
+  csvHeaders: text("csv_headers").array(), // Column names from CSV header
+  sampleData: jsonb("sample_data"), // First few rows for preview
+  validationRules: jsonb("validation_rules"), // Applied validation rules
+  // Error tracking
+  errorSummary: jsonb("error_summary"), // Summary of validation/processing errors
+  lastErrorMessage: text("last_error_message"),
+  retryCount: integer("retry_count").default(0),
+  maxRetries: integer("max_retries").default(3),
+  // Timestamps
+  uploadedAt: timestamp("uploaded_at").defaultNow(),
+  processingStartedAt: timestamp("processing_started_at"),
+  processingCompletedAt: timestamp("processing_completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_raw_dataset_files_status").on(table.processingStatus),
+  index("idx_raw_dataset_files_type").on(table.datasetType),
+  index("idx_raw_dataset_files_source").on(table.source),
+  index("idx_raw_dataset_files_uploaded_by").on(table.uploadedBy),
+  index("idx_raw_dataset_files_checksum").on(table.checksum),
+]);
+
+// Staging Records - Temporary storage for parsed CSV rows before normalization
+export const stagingRecords = pgTable("staging_records", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Source tracking
+  datasetFileId: varchar("dataset_file_id").notNull().references(() => rawDatasetFiles.id),
+  rowNumber: integer("row_number").notNull(), // Row number in original CSV
+  // Raw data
+  rawData: jsonb("raw_data").notNull(), // Complete row data as JSON
+  dataHash: text("data_hash").notNull(), // Hash of raw data for deduplication
+  // Processing status
+  processingStatus: text("processing_status").default("pending"), // 'pending', 'processing', 'normalized', 'failed', 'skipped'
+  normalizationAttempts: integer("normalization_attempts").default(0),
+  // Identification and classification
+  recordType: text("record_type"), // 'character', 'comic_issue', 'battle', 'movie', 'review'
+  detectedEntityType: text("detected_entity_type"), // AI-detected entity type
+  confidenceScore: decimal("confidence_score", { precision: 3, scale: 2 }), // 0-1 confidence in classification
+  // Normalization mapping
+  mappedFields: jsonb("mapped_fields"), // Field mapping from raw data to normalized schema
+  extractedEntities: jsonb("extracted_entities"), // Extracted entity references
+  relationshipHints: jsonb("relationship_hints"), // Potential relationships with other entities
+  // Quality metrics
+  dataQualityScore: decimal("data_quality_score", { precision: 3, scale: 2 }), // 0-1 quality assessment
+  missingFields: text("missing_fields").array(), // Required fields that are missing
+  dataInconsistencies: jsonb("data_inconsistencies"), // Detected data issues
+  // Deduplication
+  isDuplicate: boolean("is_duplicate").default(false),
+  duplicateOf: varchar("duplicate_of").references(() => stagingRecords.id), // Reference to original record
+  similarityScore: decimal("similarity_score", { precision: 3, scale: 2 }), // Similarity to potential duplicates
+  // Error handling
+  errorMessages: text("error_messages").array(),
+  lastErrorDetails: jsonb("last_error_details"),
+  // Vector embeddings for similarity detection and entity matching
+  contentEmbedding: vector("content_embedding", { dimensions: 1536 }),
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  processedAt: timestamp("processed_at"),
+  normalizedAt: timestamp("normalized_at"),
+}, (table) => [
+  index("idx_staging_records_file_id").on(table.datasetFileId),
+  index("idx_staging_records_status").on(table.processingStatus),
+  index("idx_staging_records_type").on(table.recordType),
+  index("idx_staging_records_hash").on(table.dataHash),
+  index("idx_staging_records_duplicate").on(table.isDuplicate),
+  // Unique constraint to prevent duplicate rows from same file
+  index("idx_staging_records_unique").on(table.datasetFileId, table.rowNumber),
+]);
+
+// ============================================================================
+// CANONICAL ENTITY EXTENSIONS - Normalized Entities and Traits
+// ============================================================================
+
+// Narrative Entities - Normalized character/comic/media entities with unique IDs
+export const narrativeEntities = pgTable("narrative_entities", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Core identification
+  canonicalName: text("canonical_name").notNull(),
+  entityType: text("entity_type").notNull(), // 'character', 'comic_series', 'comic_issue', 'movie', 'tv_show', 'creator', 'publisher', 'team', 'location', 'artifact'
+  subtype: text("subtype"), // 'hero', 'villain', 'antihero', 'supporting', 'ongoing_series', 'limited_series', etc.
+  universe: text("universe").notNull(), // 'marvel', 'dc', 'image', 'dark_horse', 'independent', 'crossover'
+  // Identity and classification
+  realName: text("real_name"), // For characters
+  secretIdentity: boolean("secret_identity").default(false),
+  publicIdentity: boolean("public_identity").default(false),
+  isDeceased: boolean("is_deceased").default(false),
+  // Physical characteristics (for characters)
+  gender: text("gender"),
+  species: text("species").default("human"),
+  height: decimal("height", { precision: 5, scale: 2 }), // Height in cm
+  weight: decimal("weight", { precision: 5, scale: 1 }), // Weight in kg
+  eyeColor: text("eye_color"),
+  hairColor: text("hair_color"),
+  // Publication/creation details
+  firstAppearance: text("first_appearance"), // Comic issue or media where entity first appeared
+  firstAppearanceDate: text("first_appearance_date"), // Publication date
+  creators: text("creators").array(), // Original creators
+  currentCreators: text("current_creators").array(), // Current writers/artists
+  // Relationship data
+  teams: text("teams").array(), // Team affiliations
+  allies: text("allies").array(), // Allied entity IDs
+  enemies: text("enemies").array(), // Enemy entity IDs
+  familyMembers: text("family_members").array(), // Family relationship entity IDs
+  // Geographic and temporal context
+  originLocation: text("origin_location"), // Place of origin
+  currentLocation: text("current_location"), // Current location
+  timelineEra: text("timeline_era"), // 'golden_age', 'silver_age', 'bronze_age', 'modern_age', 'future'
+  // Publication status
+  publicationStatus: text("publication_status").default("active"), // 'active', 'inactive', 'limited', 'concluded', 'cancelled'
+  lastAppearance: text("last_appearance"),
+  lastAppearanceDate: text("last_appearance_date"),
+  // Market and trading data
+  assetId: varchar("asset_id").references(() => assets.id), // Link to tradeable asset
+  marketValue: decimal("market_value", { precision: 10, scale: 2 }),
+  popularityScore: decimal("popularity_score", { precision: 8, scale: 2 }),
+  culturalImpact: decimal("cultural_impact", { precision: 8, scale: 2 }), // 0-100 cultural significance score
+  // Content and description
+  biography: text("biography"), // Comprehensive character/entity background
+  description: text("description"), // Brief description
+  keyStorylines: text("key_storylines").array(), // Important story arcs
+  notableQuotes: text("notable_quotes").array(),
+  // Visual representation
+  primaryImageUrl: text("primary_image_url"),
+  alternateImageUrls: text("alternate_image_urls").array(),
+  iconographicElements: text("iconographic_elements").array(), // Visual symbols, costume elements
+  // Data quality and verification
+  canonicalityScore: decimal("canonicality_score", { precision: 3, scale: 2 }).default("1.00"), // 0-1 how canonical this entity is
+  dataCompleteness: decimal("data_completeness", { precision: 3, scale: 2 }), // 0-1 how complete the data is
+  verificationStatus: text("verification_status").default("unverified"), // 'verified', 'unverified', 'disputed'
+  verifiedBy: varchar("verified_by").references(() => users.id),
+  // External references
+  externalIds: jsonb("external_ids"), // IDs from other databases (wikia, imdb, etc.)
+  sourceUrls: text("source_urls").array(), // Original source URLs
+  wikipediaUrl: text("wikipedia_url"),
+  officialWebsite: text("official_website"),
+  // Vector embeddings for similarity and recommendations
+  entityEmbedding: vector("entity_embedding", { dimensions: 1536 }),
+  biographyEmbedding: vector("biography_embedding", { dimensions: 1536 }),
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  lastVerifiedAt: timestamp("last_verified_at"),
+}, (table) => [
+  index("idx_narrative_entities_type").on(table.entityType),
+  index("idx_narrative_entities_universe").on(table.universe),
+  index("idx_narrative_entities_subtype").on(table.subtype),
+  index("idx_narrative_entities_canonical_name").on(table.canonicalName),
+  index("idx_narrative_entities_asset_id").on(table.assetId),
+  index("idx_narrative_entities_popularity").on(table.popularityScore),
+  index("idx_narrative_entities_verification").on(table.verificationStatus),
+  // Unique constraint on canonical name + universe for entity types
+  index("idx_narrative_entities_unique").on(table.canonicalName, table.universe, table.entityType),
+]);
+
+// Narrative Traits - Character powers, abilities, and attributes with quantified values
+export const narrativeTraits = pgTable("narrative_traits", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Entity association
+  entityId: varchar("entity_id").notNull().references(() => narrativeEntities.id),
+  // Trait classification
+  traitCategory: text("trait_category").notNull(), // 'power', 'skill', 'equipment', 'weakness', 'personality', 'physical_attribute'
+  traitType: text("trait_type").notNull(), // 'superhuman_strength', 'telepathy', 'martial_arts', 'armor', 'kryptonite_vulnerability'
+  traitName: text("trait_name").notNull(), // Human-readable trait name
+  // Quantification
+  potencyLevel: integer("potency_level"), // 1-10 scale for power level
+  masteryLevel: integer("mastery_level"), // 1-10 scale for skill mastery
+  reliabilityLevel: integer("reliability_level"), // 1-10 scale for how consistently the trait manifests
+  versatilityScore: decimal("versatility_score", { precision: 3, scale: 2 }), // 0-1 how versatile the trait is
+  // Detailed specifications
+  description: text("description").notNull(),
+  limitations: text("limitations").array(), // Known limitations or restrictions
+  triggers: text("triggers").array(), // What activates this trait
+  duration: text("duration"), // How long the trait lasts when active
+  range: text("range"), // Physical or mental range of the trait
+  energyCost: text("energy_cost"), // Physical or mental cost to use
+  // Contextual factors
+  environmentalFactors: text("environmental_factors").array(), // Environmental conditions that affect the trait
+  combatEffectiveness: decimal("combat_effectiveness", { precision: 3, scale: 2 }), // 0-1 effectiveness in combat
+  utilityValue: decimal("utility_value", { precision: 3, scale: 2 }), // 0-1 usefulness outside combat
+  rarityScore: decimal("rarity_score", { precision: 3, scale: 2 }), // 0-1 how rare this trait is in universe
+  // Evolution and progression
+  acquisitionMethod: text("acquisition_method"), // 'birth', 'mutation', 'training', 'accident', 'technology', 'magic'
+  developmentStage: text("development_stage").default("stable"), // 'emerging', 'developing', 'stable', 'declining', 'lost'
+  evolutionPotential: decimal("evolution_potential", { precision: 3, scale: 2 }), // 0-1 potential for growth
+  // Canon and continuity
+  canonicity: text("canonicity").default("main"), // 'main', 'alternate', 'what_if', 'elseworld', 'non_canon'
+  continuityEra: text("continuity_era"), // When this trait was active in continuity
+  retconStatus: text("retcon_status").default("current"), // 'current', 'retconned', 'disputed', 'restored'
+  // Source and verification
+  sourceIssues: text("source_issues").array(), // Comic issues where this trait was established/shown
+  sourceMedia: text("source_media").array(), // Movies, TV shows, games where trait appeared
+  verificationLevel: text("verification_level").default("unverified"), // 'verified', 'likely', 'unverified', 'disputed'
+  // Market impact
+  marketRelevance: decimal("market_relevance", { precision: 3, scale: 2 }), // 0-1 how much this trait affects market value
+  fanAppeal: decimal("fan_appeal", { precision: 3, scale: 2 }), // 0-1 how much fans care about this trait
+  // Metadata
+  tags: text("tags").array(), // Searchable tags
+  aliases: text("aliases").array(), // Alternative names for this trait
+  relatedTraits: text("related_traits").array(), // IDs of related trait records
+  // Vector embeddings for trait similarity and clustering
+  traitEmbedding: vector("trait_embedding", { dimensions: 1536 }),
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  lastVerifiedAt: timestamp("last_verified_at"),
+}, (table) => [
+  index("idx_narrative_traits_entity_id").on(table.entityId),
+  index("idx_narrative_traits_category").on(table.traitCategory),
+  index("idx_narrative_traits_type").on(table.traitType),
+  index("idx_narrative_traits_potency").on(table.potencyLevel),
+  index("idx_narrative_traits_mastery").on(table.masteryLevel),
+  index("idx_narrative_traits_canonicity").on(table.canonicity),
+  index("idx_narrative_traits_market_relevance").on(table.marketRelevance),
+]);
+
+// Entity Aliases - Handle name variations and cross-universe mappings
+export const entityAliases = pgTable("entity_aliases", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Entity association
+  canonicalEntityId: varchar("canonical_entity_id").notNull().references(() => narrativeEntities.id),
+  // Alias information
+  aliasName: text("alias_name").notNull(),
+  aliasType: text("alias_type").notNull(), // 'real_name', 'codename', 'nickname', 'title', 'secret_identity', 'civilian_identity', 'alternate_universe', 'translation', 'misspelling'
+  // Usage context
+  usageContext: text("usage_context"), // 'primary', 'secondary', 'historical', 'alternate_universe', 'fan_name', 'media_adaptation'
+  universe: text("universe"), // Specific universe where this alias applies
+  timeline: text("timeline"), // Timeline/era when this alias was used
+  media: text("media"), // 'comics', 'movies', 'tv', 'games', 'novels'
+  // Popularity and recognition
+  popularityScore: decimal("popularity_score", { precision: 3, scale: 2 }), // 0-1 how well-known this alias is
+  officialStatus: boolean("official_status").default(false), // Whether this is an official name
+  currentlyInUse: boolean("currently_in_use").default(true), // Whether this alias is currently used
+  // Linguistic and cultural data
+  language: text("language").default("en"), // Language of the alias
+  culturalContext: text("cultural_context"), // Cultural significance of the name
+  pronunciation: text("pronunciation"), // Phonetic pronunciation guide
+  etymology: text("etymology"), // Origin and meaning of the name
+  // Cross-reference data
+  sourceEntity: varchar("source_entity"), // Original entity this alias came from (for cross-universe variants)
+  alternateUniverseId: text("alternate_universe_id"), // Earth-616, Earth-2, etc.
+  characterVariation: text("character_variation"), // 'main', 'ultimate', 'noir', 'zombie', 'female', 'evil'
+  // Source tracking
+  sourceIssues: text("source_issues").array(), // Where this alias first appeared or was used
+  sourceMedia: text("source_media").array(), // Non-comic media where alias was used
+  introducedBy: text("introduced_by").array(), // Creators who introduced this alias
+  firstUsageDate: text("first_usage_date"),
+  lastUsageDate: text("last_usage_date"),
+  // Search and matching
+  searchPriority: integer("search_priority").default(0), // Priority for search results (higher = shown first)
+  exactMatchWeight: decimal("exact_match_weight", { precision: 3, scale: 2 }).default("1.00"), // Weight for exact matches
+  fuzzyMatchWeight: decimal("fuzzy_match_weight", { precision: 3, scale: 2 }).default("0.80"), // Weight for fuzzy matches
+  // Data quality
+  verificationLevel: text("verification_level").default("unverified"), // 'verified', 'likely', 'unverified', 'disputed'
+  confidenceScore: decimal("confidence_score", { precision: 3, scale: 2 }).default("1.00"), // Confidence in this alias mapping
+  qualityFlags: text("quality_flags").array(), // 'official', 'fan_created', 'disputed', 'outdated'
+  // Metadata
+  notes: text("notes"), // Additional information about this alias
+  tags: text("tags").array(), // Searchable tags
+  // Vector embeddings for name similarity and matching
+  aliasEmbedding: vector("alias_embedding", { dimensions: 1536 }),
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  lastVerifiedAt: timestamp("last_verified_at"),
+}, (table) => [
+  index("idx_entity_aliases_canonical_id").on(table.canonicalEntityId),
+  index("idx_entity_aliases_name").on(table.aliasName),
+  index("idx_entity_aliases_type").on(table.aliasType),
+  index("idx_entity_aliases_usage_context").on(table.usageContext),
+  index("idx_entity_aliases_universe").on(table.universe),
+  index("idx_entity_aliases_popularity").on(table.popularityScore),
+  index("idx_entity_aliases_official").on(table.officialStatus),
+  index("idx_entity_aliases_current").on(table.currentlyInUse),
+  index("idx_entity_aliases_search_priority").on(table.searchPriority),
+  // Unique constraint to prevent duplicate aliases for same entity
+  index("idx_entity_aliases_unique").on(table.canonicalEntityId, table.aliasName, table.universe),
+]);
+
+// ============================================================================
+// RELATIONSHIP TABLES - Entity Interactions and Media Performance
+// ============================================================================
+
+// Entity Interactions - Battle outcomes, team affiliations, rivalries
+export const entityInteractions = pgTable("entity_interactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Entity participants
+  primaryEntityId: varchar("primary_entity_id").notNull().references(() => narrativeEntities.id),
+  secondaryEntityId: varchar("secondary_entity_id").references(() => narrativeEntities.id), // Null for environmental or solo interactions
+  // Interaction classification
+  interactionType: text("interaction_type").notNull(), // 'battle', 'team_up', 'romance', 'mentorship', 'rivalry', 'family', 'alliance', 'betrayal'
+  interactionSubtype: text("interaction_subtype"), // 'one_on_one', 'team_battle', 'tournament', 'war', 'temporary_team', 'long_term_team'
+  relationshipType: text("relationship_type"), // 'allies', 'enemies', 'neutral', 'romantic', 'family', 'mentor_student', 'rivals'
+  // Outcome and results
+  outcome: text("outcome"), // 'primary_wins', 'secondary_wins', 'draw', 'mutual_victory', 'mutual_defeat', 'interrupted', 'ongoing'
+  outcomeConfidence: decimal("outcome_confidence", { precision: 3, scale: 2 }), // 0-1 confidence in outcome determination
+  primaryEntityResult: text("primary_entity_result"), // 'victory', 'defeat', 'draw', 'survival', 'sacrifice', 'growth'
+  secondaryEntityResult: text("secondary_entity_result"),
+  // Context and circumstances
+  environment: text("environment"), // 'urban', 'space', 'underwater', 'mystical_realm', 'laboratory', 'school'
+  timeOfDay: text("time_of_day"), // 'day', 'night', 'dawn', 'dusk'
+  weatherConditions: text("weather_conditions"), // 'clear', 'storm', 'rain', 'snow', 'extreme'
+  publicVisibility: text("public_visibility"), // 'public', 'secret', 'limited_witnesses', 'recorded'
+  // Power dynamics and analysis
+  powerDifferential: decimal("power_differential", { precision: 8, scale: 2 }), // -10 to +10 power advantage for primary entity
+  strategicAdvantage: text("strategic_advantage"), // Which entity had strategic advantages
+  preparationTime: text("preparation_time"), // 'none', 'minutes', 'hours', 'days', 'weeks'
+  homeFieldAdvantage: text("home_field_advantage"), // 'primary', 'secondary', 'neutral'
+  // Duration and intensity
+  duration: integer("duration_minutes"), // Duration in minutes
+  intensityLevel: integer("intensity_level"), // 1-10 scale of interaction intensity
+  collateralDamage: text("collateral_damage"), // 'none', 'minimal', 'moderate', 'extensive', 'catastrophic'
+  casualtyCount: integer("casualty_count"), // Number of casualties if applicable
+  // Moral and ethical dimensions
+  moralContext: text("moral_context"), // 'heroic', 'villainous', 'neutral', 'gray_area', 'misunderstanding'
+  ethicalImplications: text("ethical_implications").array(), // Ethical issues raised by this interaction
+  justification: text("justification"), // Reason for the interaction
+  // Media and canonicity
+  sourceIssue: text("source_issue"), // Comic issue where this happened
+  sourceMedia: text("source_media"), // Movies, TV shows, games where depicted
+  writerCredits: text("writer_credits").array(), // Writers who created this interaction
+  artistCredits: text("artist_credits").array(), // Artists who depicted this interaction
+  canonicity: text("canonicity").default("main"), // 'main', 'alternate', 'what_if', 'elseworld', 'adaptation'
+  continuityEra: text("continuity_era"), // Timeline era when this occurred
+  eventDate: text("event_date"), // In-universe date when this occurred
+  publicationDate: text("publication_date"), // Real-world publication date
+  // Consequences and aftermath
+  shortTermConsequences: text("short_term_consequences").array(), // Immediate results
+  longTermConsequences: text("long_term_consequences").array(), // Lasting effects
+  characterDevelopment: jsonb("character_development"), // How characters changed
+  relationshipChange: text("relationship_change"), // How relationship evolved
+  // Market and cultural impact
+  fanReaction: text("fan_reaction"), // 'positive', 'negative', 'mixed', 'controversial', 'ignored'
+  culturalSignificance: decimal("cultural_significance", { precision: 3, scale: 2 }), // 0-1 cultural importance
+  marketImpact: decimal("market_impact", { precision: 8, scale: 2 }), // Expected impact on asset prices
+  iconicStatus: boolean("iconic_status").default(false), // Whether this is considered iconic
+  // Data quality and verification
+  verificationLevel: text("verification_level").default("unverified"), // 'verified', 'likely', 'unverified', 'disputed'
+  dataCompleteness: decimal("data_completeness", { precision: 3, scale: 2 }), // 0-1 how complete the data is
+  sourceReliability: decimal("source_reliability", { precision: 3, scale: 2 }), // 0-1 reliability of sources
+  // Additional participants
+  additionalParticipants: text("additional_participants").array(), // Other entity IDs involved
+  teamAffiliations: text("team_affiliations").array(), // Teams involved in interaction
+  // Metadata
+  tags: text("tags").array(), // Searchable tags
+  keywords: text("keywords").array(), // Keywords for search
+  summary: text("summary"), // Brief description of the interaction
+  detailedDescription: text("detailed_description"), // Full description
+  // Vector embeddings for interaction similarity and clustering
+  interactionEmbedding: vector("interaction_embedding", { dimensions: 1536 }),
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  lastVerifiedAt: timestamp("last_verified_at"),
+}, (table) => [
+  index("idx_entity_interactions_primary").on(table.primaryEntityId),
+  index("idx_entity_interactions_secondary").on(table.secondaryEntityId),
+  index("idx_entity_interactions_type").on(table.interactionType),
+  index("idx_entity_interactions_outcome").on(table.outcome),
+  index("idx_entity_interactions_canonicity").on(table.canonicity),
+  index("idx_entity_interactions_significance").on(table.culturalSignificance),
+  index("idx_entity_interactions_market_impact").on(table.marketImpact),
+  index("idx_entity_interactions_iconic").on(table.iconicStatus),
+  index("idx_entity_interactions_publication_date").on(table.publicationDate),
+]);
+
+// Media Performance Metrics - Box office, ratings, cultural impact data
+export const mediaPerformanceMetrics = pgTable("media_performance_metrics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Media identification
+  mediaTitle: text("media_title").notNull(),
+  mediaType: text("media_type").notNull(), // 'movie', 'tv_series', 'tv_episode', 'animated_movie', 'animated_series', 'video_game', 'novel', 'graphic_novel'
+  releaseFormat: text("release_format"), // 'theatrical', 'streaming', 'tv', 'direct_video', 'digital', 'limited_release'
+  // Franchise and universe
+  franchise: text("franchise").notNull(), // 'MCU', 'DCEU', 'X-Men', 'Spider-Man', 'Batman'
+  universe: text("universe").notNull(), // 'marvel', 'dc', 'image', 'independent'
+  continuity: text("continuity"), // 'Earth-616', 'Earth-2', 'Ultimate', 'Cinematic'
+  // Featured entities
+  featuredEntities: text("featured_entities").array(), // Narrative entity IDs
+  mainCharacters: text("main_characters").array(), // Primary characters
+  supportingCharacters: text("supporting_characters").array(), // Supporting characters
+  villains: text("villains").array(), // Antagonists
+  teams: text("teams").array(), // Teams featured
+  // Release information
+  releaseDate: text("release_date"),
+  releaseYear: integer("release_year"),
+  releaseQuarter: integer("release_quarter"), // 1-4
+  releaseMonth: integer("release_month"), // 1-12
+  releaseTerritories: text("release_territories").array(), // Countries/regions
+  // Financial performance
+  productionBudget: decimal("production_budget", { precision: 15, scale: 2 }),
+  marketingBudget: decimal("marketing_budget", { precision: 15, scale: 2 }),
+  totalBudget: decimal("total_budget", { precision: 15, scale: 2 }),
+  // Box office data
+  openingWeekendGross: decimal("opening_weekend_gross", { precision: 15, scale: 2 }),
+  domesticGross: decimal("domestic_gross", { precision: 15, scale: 2 }),
+  internationalGross: decimal("international_gross", { precision: 15, scale: 2 }),
+  worldwideGross: decimal("worldwide_gross", { precision: 15, scale: 2 }),
+  // Adjusted financial metrics
+  inflationAdjustedBudget: decimal("inflation_adjusted_budget", { precision: 15, scale: 2 }),
+  inflationAdjustedGross: decimal("inflation_adjusted_gross", { precision: 15, scale: 2 }),
+  profitMargin: decimal("profit_margin", { precision: 8, scale: 2 }), // (Revenue - Cost) / Revenue * 100
+  returnOnInvestment: decimal("return_on_investment", { precision: 8, scale: 2 }), // (Revenue - Cost) / Cost * 100
+  // Performance ratios
+  grossToBudgetRatio: decimal("gross_to_budget_ratio", { precision: 8, scale: 2 }),
+  domesticPercentage: decimal("domestic_percentage", { precision: 8, scale: 2 }),
+  internationalPercentage: decimal("international_percentage", { precision: 8, scale: 2 }),
+  // Critical reception
+  metacriticScore: integer("metacritic_score"), // 0-100
+  rottenTomatoesScore: integer("rotten_tomatoes_score"), // 0-100 critics score
+  rottenTomatoesAudienceScore: integer("rotten_tomatoes_audience_score"), // 0-100 audience score
+  imdbRating: decimal("imdb_rating", { precision: 3, scale: 1 }), // 0-10 rating
+  imdbVotes: integer("imdb_votes"), // Number of votes
+  // Awards and recognition
+  majorAwardsWon: text("major_awards_won").array(), // Oscar, Emmy, etc.
+  majorAwardsNominated: text("major_awards_nominated").array(),
+  genreAwards: text("genre_awards").array(), // Saturn Awards, etc.
+  festivalAwards: text("festival_awards").array(), // Film festival awards
+  // Audience metrics
+  openingTheaterCount: integer("opening_theater_count"),
+  maxTheaterCount: integer("max_theater_count"),
+  weeksInTheaters: integer("weeks_in_theaters"),
+  attendanceEstimate: integer("attendance_estimate"), // Estimated total viewers
+  // Digital and streaming performance
+  streamingViewership: decimal("streaming_viewership", { precision: 15, scale: 0 }), // Total streams/views
+  digitalSales: decimal("digital_sales", { precision: 15, scale: 2 }), // Digital purchase revenue
+  physicalMediaSales: decimal("physical_media_sales", { precision: 15, scale: 2 }), // DVD/Blu-ray sales
+  merchandisingRevenue: decimal("merchandising_revenue", { precision: 15, scale: 2 }),
+  // Cultural impact metrics
+  socialMediaMentions: integer("social_media_mentions"), // Total social media mentions
+  socialMediaSentiment: decimal("social_media_sentiment", { precision: 3, scale: 2 }), // -1 to 1
+  culturalReach: decimal("cultural_reach", { precision: 8, scale: 2 }), // 0-100 cultural penetration score
+  memeCulture: boolean("meme_culture").default(false), // Whether it spawned significant memes
+  fanCommunitySize: integer("fan_community_size"), // Estimated fan community size
+  // Demographic appeal
+  primaryDemographic: text("primary_demographic"), // 'children', 'teens', 'young_adults', 'adults', 'all_ages'
+  genderAppeal: text("gender_appeal"), // 'male_skewing', 'female_skewing', 'gender_neutral'
+  ageRating: text("age_rating"), // 'G', 'PG', 'PG-13', 'R', 'TV-Y', 'TV-14', etc.
+  // Market impact on related assets
+  assetPriceImpact: jsonb("asset_price_impact"), // How this media affected related asset prices
+  marketEventTrigger: boolean("market_event_trigger").default(false), // Whether this triggered a market event
+  tradingVolumeIncrease: decimal("trading_volume_increase", { precision: 8, scale: 2 }), // % increase in related asset trading
+  // Production details
+  director: text("director").array(),
+  producers: text("producers").array(),
+  writers: text("writers").array(),
+  studio: text("studio"),
+  distributor: text("distributor"),
+  productionCompanies: text("production_companies").array(),
+  // Technical specifications
+  runtime: integer("runtime_minutes"),
+  format: text("format"), // 'live_action', 'animation', 'mixed'
+  technologyUsed: text("technology_used").array(), // 'IMAX', '3D', 'CGI', 'motion_capture'
+  filmingLocations: text("filming_locations").array(),
+  // Sequel and franchise data
+  isSequel: boolean("is_sequel").default(false),
+  isReboot: boolean("is_reboot").default(false),
+  isSpinoff: boolean("is_spinoff").default(false),
+  franchisePosition: integer("franchise_position"), // Position in franchise chronology
+  predecessorId: varchar("predecessor_id").references(() => mediaPerformanceMetrics.id),
+  successorId: varchar("successor_id").references(() => mediaPerformanceMetrics.id),
+  // Data quality and sources
+  dataCompleteness: decimal("data_completeness", { precision: 3, scale: 2 }), // 0-1 completeness score
+  sourceReliability: decimal("source_reliability", { precision: 3, scale: 2 }), // 0-1 source reliability
+  dataSources: text("data_sources").array(), // Where data came from
+  lastDataUpdate: timestamp("last_data_update"),
+  // External references
+  imdbId: text("imdb_id"),
+  tmdbId: text("tmdb_id"), // The Movie Database ID
+  rottenTomatoesId: text("rotten_tomatoes_id"),
+  metacriticId: text("metacritic_id"),
+  externalUrls: text("external_urls").array(),
+  // Vector embeddings for content similarity and recommendations
+  contentEmbedding: vector("content_embedding", { dimensions: 1536 }),
+  performanceEmbedding: vector("performance_embedding", { dimensions: 1536 }), // Performance pattern vector
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  lastVerifiedAt: timestamp("last_verified_at"),
+}, (table) => [
+  index("idx_media_performance_media_type").on(table.mediaType),
+  index("idx_media_performance_franchise").on(table.franchise),
+  index("idx_media_performance_universe").on(table.universe),
+  index("idx_media_performance_release_year").on(table.releaseYear),
+  index("idx_media_performance_worldwide_gross").on(table.worldwideGross),
+  index("idx_media_performance_roi").on(table.returnOnInvestment),
+  index("idx_media_performance_critical_score").on(table.metacriticScore),
+  index("idx_media_performance_cultural_reach").on(table.culturalReach),
+  index("idx_media_performance_franchise_position").on(table.franchisePosition),
+]);
+
+// ============================================================================
+// INGESTION CONTROL TABLES - Job Management and Error Tracking
+// ============================================================================
+
+// Ingestion Jobs - Track batch processing jobs with status and progress
+export const ingestionJobs = pgTable("ingestion_jobs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Job identification
+  jobName: text("job_name").notNull(),
+  jobType: text("job_type").notNull(), // 'csv_import', 'api_sync', 'manual_entry', 'bulk_update', 'data_migration'
+  batchId: text("batch_id"), // Identifier for grouping related jobs
+  // Job configuration
+  datasetType: text("dataset_type").notNull(), // 'characters', 'comics', 'battles', 'movies', 'reviews'
+  sourceType: text("source_type").notNull(), // 'csv_file', 'api', 'manual', 'database'
+  processingMode: text("processing_mode").default("standard"), // 'standard', 'fast', 'thorough', 'validation_only'
+  // Input specifications
+  inputFiles: text("input_files").array(), // File IDs or paths
+  inputParameters: jsonb("input_parameters"), // Job-specific parameters
+  validationRules: jsonb("validation_rules"), // Data validation configuration
+  normalizationRules: jsonb("normalization_rules"), // Data normalization configuration
+  deduplicationStrategy: text("deduplication_strategy").default("strict"), // 'strict', 'fuzzy', 'merge', 'skip'
+  // Processing settings
+  batchSize: integer("batch_size").default(1000), // Records processed per batch
+  maxRetries: integer("max_retries").default(3),
+  timeoutMinutes: integer("timeout_minutes").default(60),
+  priorityLevel: integer("priority_level").default(5), // 1-10 processing priority
+  // Resource allocation
+  maxConcurrency: integer("max_concurrency").default(1), // Max parallel workers
+  memoryLimit: integer("memory_limit_mb").default(1024), // Memory limit in MB
+  cpuLimit: decimal("cpu_limit", { precision: 3, scale: 2 }).default("1.00"), // CPU cores allocated
+  // Status tracking
+  status: text("status").default("queued"), // 'queued', 'running', 'paused', 'completed', 'failed', 'cancelled'
+  progress: decimal("progress", { precision: 5, scale: 2 }).default("0.00"), // 0-100%
+  currentStage: text("current_stage"), // 'validation', 'processing', 'normalization', 'storage'
+  stageProgress: decimal("stage_progress", { precision: 5, scale: 2 }).default("0.00"), // Progress within current stage
+  // Metrics
+  totalRecords: integer("total_records").default(0),
+  processedRecords: integer("processed_records").default(0),
+  successfulRecords: integer("successful_records").default(0),
+  failedRecords: integer("failed_records").default(0),
+  skippedRecords: integer("skipped_records").default(0),
+  duplicateRecords: integer("duplicate_records").default(0),
+  // Performance metrics
+  recordsPerSecond: decimal("records_per_second", { precision: 8, scale: 2 }),
+  averageProcessingTime: decimal("average_processing_time", { precision: 8, scale: 4 }), // Seconds per record
+  peakMemoryUsage: integer("peak_memory_usage_mb"),
+  totalCpuTime: decimal("total_cpu_time", { precision: 10, scale: 3 }), // CPU seconds used
+  // Error tracking
+  errorCount: integer("error_count").default(0),
+  warningCount: integer("warning_count").default(0),
+  lastErrorMessage: text("last_error_message"),
+  errorCategories: jsonb("error_categories"), // Categorized error counts
+  errorSampleSize: integer("error_sample_size").default(10), // How many error examples to keep
+  // Quality metrics
+  dataQualityScore: decimal("data_quality_score", { precision: 3, scale: 2 }), // 0-1 overall quality
+  deduplicationEfficiency: decimal("deduplication_efficiency", { precision: 3, scale: 2 }), // 0-1 dedup success
+  normalizationAccuracy: decimal("normalization_accuracy", { precision: 3, scale: 2 }), // 0-1 normalization success
+  validationPassRate: decimal("validation_pass_rate", { precision: 3, scale: 2 }), // 0-1 validation success
+  // User and system info
+  createdBy: varchar("created_by").references(() => users.id),
+  assignedWorker: text("assigned_worker"), // Worker node or process handling the job
+  environmentInfo: jsonb("environment_info"), // System info where job runs
+  // Dependencies
+  dependsOnJobs: text("depends_on_jobs").array(), // Job IDs this job depends on
+  prerequisiteConditions: jsonb("prerequisite_conditions"), // Conditions that must be met
+  // Output specifications
+  outputFormat: text("output_format").default("database"), // 'database', 'csv', 'json', 'api'
+  outputLocation: text("output_location"), // Where results are stored
+  retentionPolicy: text("retention_policy").default("standard"), // 'temporary', 'standard', 'long_term', 'permanent'
+  // Notifications
+  notificationSettings: jsonb("notification_settings"), // When and how to notify
+  notificationsSent: text("notifications_sent").array(), // Track sent notifications
+  // Metadata
+  description: text("description"),
+  tags: text("tags").array(),
+  metadata: jsonb("metadata"), // Additional job-specific data
+  configurationSnapshot: jsonb("configuration_snapshot"), // System config at time of job creation
+  // Timestamps
+  queuedAt: timestamp("queued_at").defaultNow(),
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  lastHeartbeat: timestamp("last_heartbeat"), // Last activity from processing worker
+  estimatedCompletionTime: timestamp("estimated_completion_time"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_ingestion_jobs_status").on(table.status),
+  index("idx_ingestion_jobs_type").on(table.jobType),
+  index("idx_ingestion_jobs_dataset_type").on(table.datasetType),
+  index("idx_ingestion_jobs_batch_id").on(table.batchId),
+  index("idx_ingestion_jobs_priority").on(table.priorityLevel),
+  index("idx_ingestion_jobs_created_by").on(table.createdBy),
+  index("idx_ingestion_jobs_queued_at").on(table.queuedAt),
+  index("idx_ingestion_jobs_started_at").on(table.startedAt),
+  index("idx_ingestion_jobs_progress").on(table.progress),
+  index("idx_ingestion_jobs_last_heartbeat").on(table.lastHeartbeat),
+]);
+
+// Ingestion Runs - Individual execution records with timestamps and results
+export const ingestionRuns = pgTable("ingestion_runs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Job association
+  jobId: varchar("job_id").notNull().references(() => ingestionJobs.id),
+  runNumber: integer("run_number").notNull(), // Sequential run number for this job
+  // Run identification
+  runType: text("run_type").default("standard"), // 'standard', 'retry', 'partial', 'recovery', 'test'
+  triggeredBy: text("triggered_by").default("system"), // 'system', 'user', 'scheduler', 'api', 'webhook'
+  triggerUserId: varchar("trigger_user_id").references(() => users.id),
+  parentRunId: varchar("parent_run_id").references(() => ingestionRuns.id), // For retry runs
+  // Execution environment
+  workerId: text("worker_id"), // Unique identifier of processing worker
+  workerHost: text("worker_host"), // Hostname of processing machine
+  workerVersion: text("worker_version"), // Version of processing software
+  processId: integer("process_id"), // OS process ID
+  threadId: text("thread_id"), // Thread identifier if multithreaded
+  // Resource usage
+  allocatedMemoryMb: integer("allocated_memory_mb"),
+  peakMemoryUsageMb: integer("peak_memory_usage_mb"),
+  averageMemoryUsageMb: integer("average_memory_usage_mb"),
+  allocatedCpuCores: decimal("allocated_cpu_cores", { precision: 3, scale: 2 }),
+  totalCpuTime: decimal("total_cpu_time", { precision: 10, scale: 3 }), // CPU seconds
+  wallClockTime: decimal("wall_clock_time", { precision: 10, scale: 3 }), // Elapsed seconds
+  diskSpaceUsedMb: integer("disk_space_used_mb"),
+  networkBytesTransferred: bigint("network_bytes_transferred", { mode: "bigint" }),
+  // Processing scope
+  recordsInScope: integer("records_in_scope"), // Total records this run should process
+  startingOffset: integer("starting_offset").default(0), // Starting position in dataset
+  endingOffset: integer("ending_offset"), // Ending position in dataset
+  batchSize: integer("batch_size"), // Records per batch
+  batchesProcessed: integer("batches_processed").default(0),
+  // Processing results
+  recordsProcessed: integer("records_processed").default(0),
+  recordsSuccessful: integer("records_successful").default(0),
+  recordsFailed: integer("records_failed").default(0),
+  recordsSkipped: integer("records_skipped").default(0),
+  recordsDuplicate: integer("records_duplicate").default(0),
+  entitiesCreated: integer("entities_created").default(0),
+  entitiesUpdated: integer("entities_updated").default(0),
+  entitiesMerged: integer("entities_merged").default(0),
+  aliasesCreated: integer("aliases_created").default(0),
+  traitsCreated: integer("traits_created").default(0),
+  interactionsCreated: integer("interactions_created").default(0),
+  // Performance metrics
+  recordsPerSecond: decimal("records_per_second", { precision: 8, scale: 2 }),
+  averageRecordProcessingTime: decimal("average_record_processing_time", { precision: 8, scale: 4 }), // Seconds
+  minRecordProcessingTime: decimal("min_record_processing_time", { precision: 8, scale: 4 }),
+  maxRecordProcessingTime: decimal("max_record_processing_time", { precision: 8, scale: 4 }),
+  throughputMbPerSecond: decimal("throughput_mb_per_second", { precision: 8, scale: 2 }),
+  // Error and warning summary
+  errorCount: integer("error_count").default(0),
+  warningCount: integer("warning_count").default(0),
+  criticalErrorCount: integer("critical_error_count").default(0),
+  errorRate: decimal("error_rate", { precision: 8, scale: 4 }), // Errors per record
+  primaryErrorType: text("primary_error_type"), // Most common error type
+  primaryErrorMessage: text("primary_error_message"), // Most common error message
+  // Status and completion
+  status: text("status").default("running"), // 'running', 'completed', 'failed', 'interrupted', 'killed'
+  exitCode: integer("exit_code"), // Process exit code
+  exitReason: text("exit_reason"), // Human readable exit reason
+  wasInterrupted: boolean("was_interrupted").default(false),
+  wasRetried: boolean("was_retried").default(false),
+  retryCount: integer("retry_count").default(0),
+  // Quality assessment
+  dataQualityScore: decimal("data_quality_score", { precision: 3, scale: 2 }), // 0-1 overall quality
+  successRate: decimal("success_rate", { precision: 8, scale: 4 }), // Successful records / total records
+  deduplicationAccuracy: decimal("deduplication_accuracy", { precision: 3, scale: 2 }),
+  normalizationAccuracy: decimal("normalization_accuracy", { precision: 3, scale: 2 }),
+  // Configuration snapshot
+  configurationUsed: jsonb("configuration_used"), // Configuration at time of run
+  parametersUsed: jsonb("parameters_used"), // Parameters passed to this run
+  environmentVariables: jsonb("environment_variables"), // Relevant env vars
+  // Checkpointing and recovery
+  lastCheckpoint: jsonb("last_checkpoint"), // State for recovery
+  checkpointInterval: integer("checkpoint_interval_records").default(1000),
+  checkpointsCreated: integer("checkpoints_created").default(0),
+  recoveredFromCheckpoint: boolean("recovered_from_checkpoint").default(false),
+  recoveryCheckpointId: text("recovery_checkpoint_id"),
+  // Output and artifacts
+  outputSummary: jsonb("output_summary"), // Summary of what was produced
+  logFileLocation: text("log_file_location"), // Where detailed logs are stored
+  artifactLocations: text("artifact_locations").array(), // Generated files, reports, etc.
+  // Notifications and reporting
+  notificationsSent: text("notifications_sent").array(),
+  reportsGenerated: text("reports_generated").array(),
+  // Timestamps
+  startedAt: timestamp("started_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+  lastHeartbeat: timestamp("last_heartbeat"),
+  lastCheckpointAt: timestamp("last_checkpoint_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_ingestion_runs_job_id").on(table.jobId),
+  index("idx_ingestion_runs_run_number").on(table.runNumber),
+  index("idx_ingestion_runs_status").on(table.status),
+  index("idx_ingestion_runs_started_at").on(table.startedAt),
+  index("idx_ingestion_runs_worker_id").on(table.workerId),
+  index("idx_ingestion_runs_success_rate").on(table.successRate),
+  index("idx_ingestion_runs_records_per_second").on(table.recordsPerSecond),
+  index("idx_ingestion_runs_error_count").on(table.errorCount),
+  index("idx_ingestion_runs_parent_run").on(table.parentRunId),
+  // Unique constraint to prevent duplicate run numbers for same job
+  index("idx_ingestion_runs_unique").on(table.jobId, table.runNumber),
+]);
+
+// Ingestion Errors - Error tracking for failed records with retry logic
+export const ingestionErrors = pgTable("ingestion_errors", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Association with jobs and runs
+  jobId: varchar("job_id").notNull().references(() => ingestionJobs.id),
+  runId: varchar("run_id").references(() => ingestionRuns.id),
+  stagingRecordId: varchar("staging_record_id").references(() => stagingRecords.id),
+  // Error identification
+  errorCode: text("error_code"), // Standardized error code
+  errorType: text("error_type").notNull(), // 'validation', 'processing', 'database', 'network', 'format', 'business_logic'
+  errorCategory: text("error_category").notNull(), // 'critical', 'major', 'minor', 'warning', 'info'
+  errorSeverity: integer("error_severity").notNull(), // 1-10 severity scale
+  // Error details
+  errorMessage: text("error_message").notNull(),
+  detailedDescription: text("detailed_description"),
+  technicalDetails: jsonb("technical_details"), // Stack traces, debug info
+  errorContext: jsonb("error_context"), // Context where error occurred
+  // Record information
+  recordData: jsonb("record_data"), // The problematic record data
+  recordIdentifier: text("record_identifier"), // Unique identifier for the record
+  recordLineNumber: integer("record_line_number"), // Line in source file
+  recordHash: text("record_hash"), // Hash of record for deduplication
+  fieldName: text("field_name"), // Specific field that caused error
+  fieldValue: text("field_value"), // Value that caused error
+  expectedFormat: text("expected_format"), // What format was expected
+  actualFormat: text("actual_format"), // What format was received
+  // Processing stage information
+  processingStage: text("processing_stage"), // 'parsing', 'validation', 'normalization', 'entity_creation', 'relationship_mapping'
+  processingStep: text("processing_step"), // Specific step within stage
+  validationRule: text("validation_rule"), // Which validation rule failed
+  transformationRule: text("transformation_rule"), // Which transformation failed
+  // Error resolution
+  isResolvable: boolean("is_resolvable").default(true), // Whether this error can be fixed
+  resolutionStrategy: text("resolution_strategy"), // 'retry', 'skip', 'manual_fix', 'rule_update', 'data_correction'
+  suggestedFix: text("suggested_fix"), // Suggested resolution
+  automatedFixAttempted: boolean("automated_fix_attempted").default(false),
+  automatedFixSucceeded: boolean("automated_fix_succeeded").default(false),
+  manualReviewRequired: boolean("manual_review_required").default(false),
+  // Retry logic
+  retryable: boolean("retryable").default(true),
+  retryCount: integer("retry_count").default(0),
+  maxRetries: integer("max_retries").default(3),
+  nextRetryAt: timestamp("next_retry_at"),
+  retryBackoffMultiplier: decimal("retry_backoff_multiplier", { precision: 3, scale: 2 }).default("2.00"),
+  lastRetryAt: timestamp("last_retry_at"),
+  retryHistory: jsonb("retry_history"), // History of retry attempts
+  // Resolution tracking
+  status: text("status").default("unresolved"), // 'unresolved', 'investigating', 'fixing', 'resolved', 'ignored', 'escalated'
+  resolvedAt: timestamp("resolved_at"),
+  resolvedBy: varchar("resolved_by").references(() => users.id),
+  resolutionMethod: text("resolution_method"), // How the error was resolved
+  resolutionNotes: text("resolution_notes"),
+  resolutionChanges: jsonb("resolution_changes"), // What changes were made to resolve
+  // Impact assessment
+  impactLevel: text("impact_level"), // 'none', 'low', 'medium', 'high', 'critical'
+  affectedEntities: text("affected_entities").array(), // Entity IDs that might be affected
+  downstreamImpact: text("downstream_impact"), // Description of downstream effects
+  businessImpact: text("business_impact"), // Business consequences
+  // Pattern recognition
+  errorPattern: text("error_pattern"), // Pattern this error fits
+  isKnownIssue: boolean("is_known_issue").default(false),
+  knowledgeBaseArticle: text("knowledge_base_article"), // Link to KB article
+  relatedErrors: text("related_errors").array(), // IDs of related error records
+  // Notification and escalation
+  notificationsSent: text("notifications_sent").array(),
+  escalationLevel: integer("escalation_level").default(0), // 0=none, 1=team_lead, 2=manager, 3=director
+  escalatedAt: timestamp("escalated_at"),
+  escalatedTo: varchar("escalated_to").references(() => users.id),
+  alertsTriggered: text("alerts_triggered").array(),
+  // Analytics and reporting
+  errorFrequency: decimal("error_frequency", { precision: 8, scale: 4 }), // How often this error occurs
+  firstOccurrence: timestamp("first_occurrence"),
+  lastOccurrence: timestamp("last_occurrence"),
+  occurrenceCount: integer("occurrence_count").default(1),
+  trendDirection: text("trend_direction"), // 'increasing', 'decreasing', 'stable'
+  // Metadata
+  tags: text("tags").array(),
+  customProperties: jsonb("custom_properties"), // Extensible properties
+  attachments: text("attachments").array(), // File attachments with error details
+  // System information
+  systemInfo: jsonb("system_info"), // System state when error occurred
+  environmentInfo: jsonb("environment_info"), // Environment details
+  configurationInfo: jsonb("configuration_info"), // Configuration at time of error
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  acknowledgedAt: timestamp("acknowledged_at"),
+}, (table) => [
+  index("idx_ingestion_errors_job_id").on(table.jobId),
+  index("idx_ingestion_errors_run_id").on(table.runId),
+  index("idx_ingestion_errors_staging_record").on(table.stagingRecordId),
+  index("idx_ingestion_errors_type").on(table.errorType),
+  index("idx_ingestion_errors_category").on(table.errorCategory),
+  index("idx_ingestion_errors_severity").on(table.errorSeverity),
+  index("idx_ingestion_errors_status").on(table.status),
+  index("idx_ingestion_errors_retryable").on(table.retryable),
+  index("idx_ingestion_errors_next_retry").on(table.nextRetryAt),
+  index("idx_ingestion_errors_resolved_at").on(table.resolvedAt),
+  index("idx_ingestion_errors_escalation_level").on(table.escalationLevel),
+  index("idx_ingestion_errors_impact_level").on(table.impactLevel),
+  index("idx_ingestion_errors_occurrence_count").on(table.occurrenceCount),
+  index("idx_ingestion_errors_record_hash").on(table.recordHash),
+]);
+
+// ============================================================================
+// VISUAL STORYTELLING TABLES - Narrative Timelines and Story Beats
+// ============================================================================
+
+// Narrative Timelines - Story arcs and events tied to trading houses
+export const narrativeTimelines = pgTable("narrative_timelines", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Timeline identification
+  timelineName: text("timeline_name").notNull(),
+  timelineType: text("timeline_type").notNull(), // 'character_arc', 'team_story', 'event_series', 'crossover', 'universe_history'
+  scope: text("scope").notNull(), // 'character', 'team', 'universe', 'multiverse', 'crossover'
+  universe: text("universe").notNull(), // 'marvel', 'dc', 'image', 'crossover'
+  continuity: text("continuity"), // 'main', 'ultimate', 'earth_2', 'elseworld'
+  // Timeline structure
+  startDate: text("start_date"), // In-universe start date
+  endDate: text("end_date"), // In-universe end date (null for ongoing)
+  timelineStatus: text("timeline_status").default("active"), // 'active', 'completed', 'retconned', 'alternate'
+  timelineEra: text("timeline_era"), // 'golden_age', 'silver_age', 'bronze_age', 'modern_age'
+  chronologicalOrder: integer("chronological_order"), // Order relative to other timelines
+  // Core participants
+  primaryEntities: text("primary_entities").array(), // Main narrative entity IDs
+  secondaryEntities: text("secondary_entities").array(), // Supporting entity IDs
+  featuredTeams: text("featured_teams").array(), // Teams involved
+  majorVillains: text("major_villains").array(), // Primary antagonists
+  keyCreators: text("key_creators").array(), // Writers and artists who shaped this timeline
+  // Trading house associations
+  associatedHouses: text("associated_houses").array(), // 'heroes', 'wisdom', 'power', 'mystery', 'elements', 'time', 'spirit'
+  primaryHouse: text("primary_house"), // Main house this timeline appeals to
+  houseRelevanceScore: decimal("house_relevance_score", { precision: 3, scale: 2 }), // 0-1 relevance to houses
+  tradingEducationValue: decimal("trading_education_value", { precision: 3, scale: 2 }), // 0-1 educational value for traders
+  // Market impact potential
+  marketInfluence: decimal("market_influence", { precision: 3, scale: 2 }), // 0-1 potential to affect asset prices
+  volatilityPotential: decimal("volatility_potential", { precision: 3, scale: 2 }), // 0-1 potential to create price volatility
+  speculativeValue: decimal("speculative_value", { precision: 3, scale: 2 }), // 0-1 value for speculation
+  longTermImpact: decimal("long_term_impact", { precision: 3, scale: 2 }), // 0-1 lasting effect on character values
+  // Narrative structure
+  totalStoryBeats: integer("total_story_beats").default(0),
+  completedStoryBeats: integer("completed_story_beats").default(0),
+  criticalStoryBeats: integer("critical_story_beats").default(0), // How many beats are market-critical
+  plotComplexity: decimal("plot_complexity", { precision: 3, scale: 2 }), // 0-1 complexity score
+  characterDevelopmentDepth: decimal("character_development_depth", { precision: 3, scale: 2 }), // 0-1 development depth
+  // Themes and motifs
+  primaryThemes: text("primary_themes").array(), // 'redemption', 'power_corruption', 'sacrifice', 'identity'
+  moralAlignment: text("moral_alignment"), // 'heroic', 'dark', 'gray', 'villainous', 'neutral'
+  emotionalTone: text("emotional_tone"), // 'hopeful', 'tragic', 'action', 'mystery', 'horror', 'comedy'
+  narrativeGenre: text("narrative_genre").array(), // 'superhero', 'sci_fi', 'fantasy', 'mystery', 'horror'
+  // Cultural and social context
+  culturalSignificance: decimal("cultural_significance", { precision: 3, scale: 2 }), // 0-1 cultural importance
+  socialCommentary: text("social_commentary").array(), // Social issues addressed
+  historicalContext: text("historical_context"), // Real-world events that influenced this timeline
+  // Publication information
+  firstPublicationDate: text("first_publication_date"),
+  lastPublicationDate: text("last_publication_date"),
+  publicationStatus: text("publication_status").default("ongoing"), // 'ongoing', 'completed', 'cancelled', 'hiatus'
+  publishedIssueCount: integer("published_issue_count").default(0),
+  plannedIssueCount: integer("planned_issue_count"),
+  // Media adaptations
+  adaptedToMedia: text("adapted_to_media").array(), // 'movies', 'tv', 'games', 'novels'
+  adaptationQuality: decimal("adaptation_quality", { precision: 3, scale: 2 }), // 0-1 quality of adaptations
+  adaptationFidelity: decimal("adaptation_fidelity", { precision: 3, scale: 2 }), // 0-1 faithfulness to source
+  crossMediaImpact: decimal("cross_media_impact", { precision: 3, scale: 2 }), // 0-1 impact on other media
+  // Fan engagement and community
+  fanEngagementLevel: decimal("fan_engagement_level", { precision: 3, scale: 2 }), // 0-1 fan community engagement
+  controversyLevel: decimal("controversy_level", { precision: 3, scale: 2 }), // 0-1 how controversial the timeline is
+  criticalReception: decimal("critical_reception", { precision: 3, scale: 2 }), // 0-1 critical acclaim
+  commercialSuccess: decimal("commercial_success", { precision: 3, scale: 2 }), // 0-1 commercial performance
+  // Educational and analytical value
+  characterStudyValue: decimal("character_study_value", { precision: 3, scale: 2 }), // 0-1 value for character analysis
+  plotAnalysisValue: decimal("plot_analysis_value", { precision: 3, scale: 2 }), // 0-1 value for plot analysis
+  thematicDepth: decimal("thematic_depth", { precision: 3, scale: 2 }), // 0-1 thematic complexity
+  marketLessonValue: decimal("market_lesson_value", { precision: 3, scale: 2 }), // 0-1 value for trading education
+  // Metadata and relationships
+  parentTimelines: text("parent_timelines").array(), // Timeline IDs this derives from
+  childTimelines: text("child_timelines").array(), // Timeline IDs that derive from this
+  crossoverTimelines: text("crossover_timelines").array(), // Timelines this crosses over with
+  relatedAssets: text("related_assets").array(), // Asset IDs affected by this timeline
+  // Content description
+  synopsis: text("synopsis"), // Brief summary
+  detailedDescription: text("detailed_description"), // Comprehensive description
+  keyPlotPoints: text("key_plot_points").array(), // Major plot developments
+  characterArcs: jsonb("character_arcs"), // Character development summaries
+  thematicAnalysis: text("thematic_analysis"), // Analysis of themes and meanings
+  // Visual and multimedia
+  keyImageUrls: text("key_image_urls").array(), // Important visual moments
+  iconicPanels: text("iconic_panels").array(), // URLs to iconic comic panels
+  coverGallery: text("cover_gallery").array(), // Cover images from this timeline
+  videoContent: text("video_content").array(), // Related video content
+  // Data quality and curation
+  curationStatus: text("curation_status").default("draft"), // 'draft', 'review', 'approved', 'featured'
+  curatedBy: varchar("curated_by").references(() => users.id),
+  qualityScore: decimal("quality_score", { precision: 3, scale: 2 }), // 0-1 overall quality assessment
+  completenessScore: decimal("completeness_score", { precision: 3, scale: 2 }), // 0-1 data completeness
+  accuracyScore: decimal("accuracy_score", { precision: 3, scale: 2 }), // 0-1 factual accuracy
+  // Vector embeddings for timeline similarity and recommendations
+  timelineEmbedding: vector("timeline_embedding", { dimensions: 1536 }),
+  themeEmbedding: vector("theme_embedding", { dimensions: 1536 }), // Thematic content vector
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  curatedAt: timestamp("curated_at"),
+  lastReviewedAt: timestamp("last_reviewed_at"),
+}, (table) => [
+  index("idx_narrative_timelines_type").on(table.timelineType),
+  index("idx_narrative_timelines_universe").on(table.universe),
+  index("idx_narrative_timelines_status").on(table.timelineStatus),
+  index("idx_narrative_timelines_primary_house").on(table.primaryHouse),
+  index("idx_narrative_timelines_market_influence").on(table.marketInfluence),
+  index("idx_narrative_timelines_cultural_significance").on(table.culturalSignificance),
+  index("idx_narrative_timelines_curation_status").on(table.curationStatus),
+  index("idx_narrative_timelines_quality_score").on(table.qualityScore),
+  index("idx_narrative_timelines_chronological_order").on(table.chronologicalOrder),
+]);
+
+// Story Beats - Key narrative moments that affect market sentiment
+export const storyBeats = pgTable("story_beats", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Timeline association
+  timelineId: varchar("timeline_id").notNull().references(() => narrativeTimelines.id),
+  // Beat identification
+  beatTitle: text("beat_title").notNull(),
+  beatType: text("beat_type").notNull(), // 'introduction', 'inciting_incident', 'rising_action', 'climax', 'falling_action', 'resolution', 'plot_twist', 'character_death', 'power_revelation'
+  beatCategory: text("beat_category").notNull(), // 'character_moment', 'action_sequence', 'emotional_moment', 'revelation', 'confrontation', 'transformation', 'sacrifice'
+  narrativeFunction: text("narrative_function"), // 'exposition', 'conflict', 'development', 'payoff', 'setup', 'callback'
+  // Position and timing
+  chronologicalOrder: integer("chronological_order").notNull(), // Order within timeline
+  relativePosition: decimal("relative_position", { precision: 5, scale: 4 }), // 0-1 position in timeline (0=start, 1=end)
+  storyAct: integer("story_act"), // 1, 2, 3, etc. (traditional story structure)
+  // Publication details
+  sourceIssue: text("source_issue"), // Comic issue where this beat occurs
+  sourceMedia: text("source_media"), // Movie, TV episode, etc.
+  pageNumber: integer("page_number"), // Page within issue
+  panelNumber: integer("panel_number"), // Panel within page
+  publicationDate: text("publication_date"),
+  writerCredits: text("writer_credits").array(),
+  artistCredits: text("artist_credits").array(),
+  // Participants and entities
+  primaryEntities: text("primary_entities").array(), // Main entities involved in this beat
+  secondaryEntities: text("secondary_entities").array(), // Supporting entities
+  entityRoles: jsonb("entity_roles"), // Specific roles each entity plays in this beat
+  relationships: jsonb("relationships"), // Relationships formed, broken, or changed
+  // Market impact assessment
+  marketRelevance: decimal("market_relevance", { precision: 3, scale: 2 }), // 0-1 relevance to trading
+  priceImpactPotential: decimal("price_impact_potential", { precision: 3, scale: 2 }), // 0-1 potential to affect prices
+  volatilityTrigger: boolean("volatility_trigger").default(false), // Whether this creates market volatility
+  speculationOpportunity: decimal("speculation_opportunity", { precision: 3, scale: 2 }), // 0-1 speculation potential
+  longTermValueImpact: decimal("long_term_value_impact", { precision: 3, scale: 2 }), // 0-1 lasting effect on values
+  affectedAssets: text("affected_assets").array(), // Asset IDs likely to be impacted
+  expectedPriceDirection: text("expected_price_direction"), // 'positive', 'negative', 'volatile', 'neutral'
+  impactMagnitude: decimal("impact_magnitude", { precision: 3, scale: 2 }), // 0-1 expected magnitude of impact
+  // Trading house relevance
+  houseResonance: jsonb("house_resonance"), // How much each house cares about this beat
+  primaryHouse: text("primary_house"), // House most interested in this beat
+  educationalValue: decimal("educational_value", { precision: 3, scale: 2 }), // 0-1 teaching value for traders
+  strategicInsight: text("strategic_insight"), // Trading insight this beat provides
+  // Emotional and thematic content
+  emotionalTone: text("emotional_tone"), // 'triumph', 'tragedy', 'suspense', 'horror', 'comedy', 'wonder'
+  emotionalIntensity: decimal("emotional_intensity", { precision: 3, scale: 2 }), // 0-1 emotional impact
+  thematicSignificance: text("thematic_significance").array(), // Themes this beat reinforces
+  symbolism: text("symbolism").array(), // Symbolic elements present
+  archetypes: text("archetypes").array(), // Character archetypes involved
+  // Character development impact
+  characterGrowth: jsonb("character_growth"), // How characters change in this beat
+  powerChanges: jsonb("power_changes"), // Power gains, losses, or revelations
+  relationshipChanges: jsonb("relationship_changes"), // Relationship developments
+  statusChanges: jsonb("status_changes"), // Status quo changes
+  // Plot significance
+  plotSignificance: decimal("plot_significance", { precision: 3, scale: 2 }), // 0-1 importance to overall plot
+  isClimax: boolean("is_climax").default(false), // Whether this is a climactic moment
+  isTurningPoint: boolean("is_turning_point").default(false), // Whether this changes everything
+  setsUpFuture: boolean("sets_up_future").default(false), // Whether this sets up future beats
+  paysOffSetup: boolean("pays_off_setup").default(false), // Whether this pays off previous setup
+  callbacks: text("callbacks").array(), // Previous beat IDs this references
+  setupForBeats: text("setup_for_beats").array(), // Future beat IDs this sets up
+  // Cultural and fan impact
+  iconicStatus: boolean("iconic_status").default(false), // Whether this is considered iconic
+  memesGenerated: boolean("memes_generated").default(false), // Whether this spawned memes
+  fanReaction: text("fan_reaction"), // 'loved', 'hated', 'controversial', 'mixed', 'ignored'
+  criticalReception: text("critical_reception"), // Critical response to this beat
+  culturalReference: boolean("cultural_reference").default(false), // Whether this became a cultural reference
+  // Content description
+  summary: text("summary").notNull(), // Brief description of what happens
+  detailedDescription: text("detailed_description"), // Comprehensive description
+  dialogue: text("dialogue").array(), // Key dialogue from this beat
+  visualDescription: text("visual_description"), // Description of visual elements
+  actionSequence: text("action_sequence"), // Description of action if applicable
+  // Stakes and consequences
+  stakesLevel: text("stakes_level"), // 'personal', 'local', 'global', 'universal', 'multiversal'
+  consequences: text("consequences").array(), // Immediate consequences of this beat
+  permanentChanges: text("permanent_changes").array(), // Permanent changes made
+  reversibleChanges: text("reversible_changes").array(), // Changes that could be undone
+  // Visual and multimedia references
+  imageUrls: text("image_urls").array(), // Images of this story beat
+  panelImages: text("panel_images").array(), // Specific comic panels
+  videoClips: text("video_clips").array(), // Video adaptations of this beat
+  audioReferences: text("audio_references").array(), // Audio drama or podcast references
+  // Quality and curation
+  beatQuality: decimal("beat_quality", { precision: 3, scale: 2 }), // 0-1 quality assessment
+  narrativeImportance: decimal("narrative_importance", { precision: 3, scale: 2 }), // 0-1 importance to story
+  executionQuality: decimal("execution_quality", { precision: 3, scale: 2 }), // 0-1 how well it was executed
+  originalityScore: decimal("originality_score", { precision: 3, scale: 2 }), // 0-1 how original this beat is
+  // Metadata
+  tags: text("tags").array(), // Searchable tags
+  keywords: text("keywords").array(), // Keywords for discovery
+  spoilerLevel: text("spoiler_level").default("minor"), // 'none', 'minor', 'major', 'critical'
+  contentWarnings: text("content_warnings").array(), // Content warnings if applicable
+  // Vector embeddings for beat similarity and clustering
+  beatEmbedding: vector("beat_embedding", { dimensions: 1536 }),
+  dialogueEmbedding: vector("dialogue_embedding", { dimensions: 1536 }), // Vector for dialogue content
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  curatedAt: timestamp("curated_at"),
+}, (table) => [
+  index("idx_story_beats_timeline_id").on(table.timelineId),
+  index("idx_story_beats_chronological_order").on(table.chronologicalOrder),
+  index("idx_story_beats_type").on(table.beatType),
+  index("idx_story_beats_category").on(table.beatCategory),
+  index("idx_story_beats_market_relevance").on(table.marketRelevance),
+  index("idx_story_beats_price_impact").on(table.priceImpactPotential),
+  index("idx_story_beats_volatility_trigger").on(table.volatilityTrigger),
+  index("idx_story_beats_primary_house").on(table.primaryHouse),
+  index("idx_story_beats_plot_significance").on(table.plotSignificance),
+  index("idx_story_beats_iconic_status").on(table.iconicStatus),
+  index("idx_story_beats_relative_position").on(table.relativePosition),
+  // Unique constraint to prevent duplicate beats at same position in timeline
+  index("idx_story_beats_unique_position").on(table.timelineId, table.chronologicalOrder),
+]);
+
+// ============================================================================
+// PHASE 2: INSERT SCHEMAS AND TYPESCRIPT TYPES
+// ============================================================================
+
+// Insert schemas for Phase 2 Staging Tables
+export const insertRawDatasetFileSchema = createInsertSchema(rawDatasetFiles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  uploadedAt: true,
+  processingStartedAt: true,
+  processingCompletedAt: true,
+});
+
+export const insertStagingRecordSchema = createInsertSchema(stagingRecords).omit({
+  id: true,
+  createdAt: true,
+  processedAt: true,
+  normalizedAt: true,
+});
+
+// Insert schemas for Phase 2 Canonical Entity Extensions
+export const insertNarrativeEntitySchema = createInsertSchema(narrativeEntities).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  lastVerifiedAt: true,
+});
+
+export const insertNarrativeTraitSchema = createInsertSchema(narrativeTraits).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  lastVerifiedAt: true,
+});
+
+export const insertEntityAliasSchema = createInsertSchema(entityAliases).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  lastVerifiedAt: true,
+});
+
+// Insert schemas for Phase 2 Relationship Tables
+export const insertEntityInteractionSchema = createInsertSchema(entityInteractions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  lastVerifiedAt: true,
+});
+
+export const insertMediaPerformanceMetricSchema = createInsertSchema(mediaPerformanceMetrics).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  lastVerifiedAt: true,
+  lastDataUpdate: true,
+});
+
+// Insert schemas for Phase 2 Ingestion Control Tables
+export const insertIngestionJobSchema = createInsertSchema(ingestionJobs).omit({
+  id: true,
+  queuedAt: true,
+  startedAt: true,
+  completedAt: true,
+  lastHeartbeat: true,
+  estimatedCompletionTime: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertIngestionRunSchema = createInsertSchema(ingestionRuns).omit({
+  id: true,
+  startedAt: true,
+  completedAt: true,
+  lastHeartbeat: true,
+  lastCheckpointAt: true,
+  createdAt: true,
+});
+
+export const insertIngestionErrorSchema = createInsertSchema(ingestionErrors).omit({
+  id: true,
+  nextRetryAt: true,
+  lastRetryAt: true,
+  resolvedAt: true,
+  escalatedAt: true,
+  firstOccurrence: true,
+  lastOccurrence: true,
+  createdAt: true,
+  updatedAt: true,
+  acknowledgedAt: true,
+});
+
+// Insert schemas for Phase 2 Visual Storytelling Tables
+export const insertNarrativeTimelineSchema = createInsertSchema(narrativeTimelines).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  curatedAt: true,
+  lastReviewedAt: true,
+});
+
+export const insertStoryBeatSchema = createInsertSchema(storyBeats).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  curatedAt: true,
+});
+
+// Export TypeScript types for Phase 2 Staging Tables
+export type RawDatasetFile = typeof rawDatasetFiles.$inferSelect;
+export type InsertRawDatasetFile = z.infer<typeof insertRawDatasetFileSchema>;
+
+export type StagingRecord = typeof stagingRecords.$inferSelect;
+export type InsertStagingRecord = z.infer<typeof insertStagingRecordSchema>;
+
+// Export TypeScript types for Phase 2 Canonical Entity Extensions
+export type NarrativeEntity = typeof narrativeEntities.$inferSelect;
+export type InsertNarrativeEntity = z.infer<typeof insertNarrativeEntitySchema>;
+
+export type NarrativeTrait = typeof narrativeTraits.$inferSelect;
+export type InsertNarrativeTrait = z.infer<typeof insertNarrativeTraitSchema>;
+
+export type EntityAlias = typeof entityAliases.$inferSelect;
+export type InsertEntityAlias = z.infer<typeof insertEntityAliasSchema>;
+
+// Export TypeScript types for Phase 2 Relationship Tables
+export type EntityInteraction = typeof entityInteractions.$inferSelect;
+export type InsertEntityInteraction = z.infer<typeof insertEntityInteractionSchema>;
+
+export type MediaPerformanceMetric = typeof mediaPerformanceMetrics.$inferSelect;
+export type InsertMediaPerformanceMetric = z.infer<typeof insertMediaPerformanceMetricSchema>;
+
+// Export TypeScript types for Phase 2 Ingestion Control Tables
+export type IngestionJob = typeof ingestionJobs.$inferSelect;
+export type InsertIngestionJob = z.infer<typeof insertIngestionJobSchema>;
+
+export type IngestionRun = typeof ingestionRuns.$inferSelect;
+export type InsertIngestionRun = z.infer<typeof insertIngestionRunSchema>;
+
+export type IngestionError = typeof ingestionErrors.$inferSelect;
+export type InsertIngestionError = z.infer<typeof insertIngestionErrorSchema>;
+
+// Export TypeScript types for Phase 2 Visual Storytelling Tables
+export type NarrativeTimeline = typeof narrativeTimelines.$inferSelect;
+export type InsertNarrativeTimeline = z.infer<typeof insertNarrativeTimelineSchema>;
+
+export type StoryBeat = typeof storyBeats.$inferSelect;
+export type InsertStoryBeat = z.infer<typeof insertStoryBeatSchema>;
