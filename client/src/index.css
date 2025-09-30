@@ -249,3 +249,41 @@
   animation-duration: 0s !important;
   animation-delay: 0s !important;
 }
+/* Landing page background animations - override global animation disable */
+@keyframes slowPan {
+  0% {
+    transform: scale(1.1) translateX(0);
+  }
+  50% {
+    transform: scale(1.15) translateX(-2%);
+  }
+  100% {
+    transform: scale(1.1) translateX(0);
+  }
+}
+
+@keyframes gridMove {
+  0% {
+    transform: translateX(0) translateY(0);
+  }
+  100% {
+    transform: translateX(50px) translateY(50px);
+  }
+}
+
+/* Allow animations only for landing page background */
+.landing-bg-animate {
+  animation-name: slowPan !important;
+  animation-duration: 30s !important;
+  animation-timing-function: ease-in-out !important;
+  animation-iteration-count: infinite !important;
+  animation-delay: 0s !important;
+}
+
+.landing-grid-animate {
+  animation-name: gridMove !important;
+  animation-duration: 20s !important;
+  animation-timing-function: linear !important;
+  animation-iteration-count: infinite !important;
+  animation-delay: 0s !important;
+}

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
+import darkCityImage from "@assets/stock_images/dark_rainy_city_stre_eb2ad3bc.jpg";
 
 export function LandingPage() {
   const [mounted, setMounted] = useState(false);
@@ -28,7 +29,32 @@ export function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
+      {/* Video-style background with animated image */}
+      <div className="absolute inset-0 z-0">
+        <div 
+          className="absolute inset-0 bg-cover bg-center landing-bg-animate"
+          style={{
+            backgroundImage: `url(${darkCityImage})`,
+            transform: 'scale(1.1)',
+          }}
+        />
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/80 to-black/90" />
+        
+        {/* Subtle animated grid overlay for trading floor effect */}
+        <div 
+          className="absolute inset-0 opacity-10 landing-grid-animate"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(74, 222, 128, 0.1) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(74, 222, 128, 0.1) 1px, transparent 1px)
+            `,
+            backgroundSize: '50px 50px',
+          }}
+        />
+      </div>
+
       {/* Minimal header with theme toggle */}
       <header className="absolute top-0 right-0 p-6 z-50">
         <Button
