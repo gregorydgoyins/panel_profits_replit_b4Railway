@@ -57,6 +57,8 @@ import DivineConnections from '@/pages/DivineConnections';
 
 // Sequential Art Trading Experience
 import SequentialTradingExperience from '@/pages/SequentialTradingExperience';
+// Market Action - Comic Book Battle Sequences
+import MarketActionPage from '@/pages/market-action';
 // Story-Driven Market Visualization
 import StoryDrivenMarketViz from '@/pages/StoryDrivenMarketViz';
 // Shadow Market - Dark Trading Interface
@@ -120,6 +122,7 @@ function Router() {
       <Route path="/trading" component={TradingPage} />
       <Route path="/terminal" component={TradingTerminalPage} />
       <Route path="/sequential-art" component={SequentialTradingExperience} />
+      <Route path="/market-action" component={MarketActionPage} />
       <Route path="/market-stories" component={StoryDrivenMarketViz} />
       <Route path="/shadow-market" component={ShadowMarket} />
       <Route path="/journal" component={Journal} />

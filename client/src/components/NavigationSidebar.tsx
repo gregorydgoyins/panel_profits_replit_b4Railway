@@ -4,7 +4,8 @@ import {
   Home, DollarSign, Newspaper, Briefcase, Brain, LineChart, Layers, 
   Users, Building, Zap, BookOpen, Calendar, Settings, HelpCircle,
   ChevronLeft, ChevronRight, Trophy, Camera, Heart, Crown, Shield,
-  Swords, Scroll, GraduationCap, Target, Sparkles, Gem, Workflow, PenTool
+  Swords, Scroll, GraduationCap, Target, Sparkles, Gem, Workflow, PenTool,
+  Swords as SwordsIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -35,6 +36,7 @@ export function NavigationSidebar() {
     if (location === '/trading') return 'order-desk';
     if (location === '/terminal') return 'terminal';
     if (location === '/sequential-art') return 'sequential-art';
+    if (location === '/market-action') return 'market-action';
     if (location === '/journal') return 'journal';
     if (location === '/characters') return 'characters';
     if (location === '/comics') return 'comics';
@@ -71,6 +73,7 @@ export function NavigationSidebar() {
     { id: 'order-desk', label: 'Order Desk', icon: DollarSign, path: '/trading', category: 'trading' },
     { id: 'terminal', label: 'Trading Terminal', icon: LineChart, path: '/terminal', category: 'trading', badge: 'PRO' },
     { id: 'sequential-art', label: 'Sequential Art', icon: BookOpen, path: '/sequential-art', category: 'trading', badge: 'NEW' },
+    { id: 'market-action', label: 'Market Action', icon: SwordsIcon, path: '/market-action', category: 'trading', badge: 'EPIC' },
     { id: 'characters', label: 'Characters', icon: Users, path: '/characters', category: 'trading' },
     { id: 'comics', label: 'Key Comics', icon: Layers, path: '/comics', category: 'trading' },
     { id: 'creators', label: 'Creators', icon: Sparkles, path: '/creators', category: 'trading' },
@@ -114,6 +117,7 @@ export function NavigationSidebar() {
       charting: 'text-pink-400 bg-pink-900/30 hover:bg-pink-600',
       'order-desk': 'text-green-400 bg-green-900/30 hover:bg-green-600',
       'sequential-art': 'text-amber-400 bg-amber-900/30 hover:bg-amber-600',
+      'market-action': 'text-red-500 bg-red-900/40 hover:bg-red-700',
       characters: 'text-purple-400 bg-purple-900/30 hover:bg-purple-600',
       comics: 'text-orange-400 bg-orange-900/30 hover:bg-orange-600',
       creators: 'text-yellow-400 bg-yellow-900/30 hover:bg-yellow-600',
