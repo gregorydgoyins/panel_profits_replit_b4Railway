@@ -22,6 +22,8 @@ import { MoralConsequenceDisplay } from '@/components/MoralConsequenceDisplay';
 import { VictimFeed } from '@/components/VictimFeed';
 import { VictimNotification, VictimData } from '@/components/VictimNotification';
 import { BloodMoneyCounter } from '@/components/BloodMoneyCounter';
+import { ShadowTraders } from '@/components/ShadowTraders';
+import { WarfarePanel } from '@/components/WarfarePanel';
 import { cn } from '@/lib/utils';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
@@ -56,7 +58,7 @@ export default function TradingPage() {
   const [orderType, setOrderType] = useState<'buy' | 'sell'>('buy');
   const [orderQuantity, setOrderQuantity] = useState('');
   const [orderPrice, setOrderPrice] = useState('');
-  const [activePanel, setActivePanel] = useState<'orders' | 'positions' | 'orderbook' | 'moral'>('orderbook');
+  const [activePanel, setActivePanel] = useState<'orders' | 'positions' | 'orderbook' | 'moral' | 'warfare'>('orderbook');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const chartRef = useRef<HighchartsReact.RefObject>(null);
   const [chartData, setChartData] = useState<{ ohlc: any[], volume: any[] }>({ ohlc: [], volume: [] });
@@ -508,7 +510,10 @@ export default function TradingPage() {
   };
 
   return (
-    <div className="fixed inset-0 bg-black overflow-hidden terminal-interface" data-testid="page-trading">
+    <div className="fixed inset-0 bg-black overflow-hidden terminal-interface relative" data-testid="page-trading">
+      {/* Shadow Traders drifting across the screen */}
+      <ShadowTraders />
+      
       {/* Victim notification */}
       {currentVictim && (
         <VictimNotification 
@@ -834,6 +839,18 @@ export default function TradingPage() {
               <Skull className="inline w-3 h-3 mr-1" />
               VICTIMS
             </button>
+            <button
+              className={cn(
+                "flex-1 py-2 text-xs font-mono uppercase transition-all",
+                activePanel === 'warfare' 
+                  ? "text-purple-500 border-b-2 border-purple-500 bg-purple-500/5" 
+                  : "text-purple-500/50 hover:text-purple-500/70"
+              )}
+              onClick={() => setActivePanel('warfare')}
+            >
+              <Swords className="inline w-3 h-3 mr-1" />
+              WARFARE
+            </button>
           </div>
 
           {/* Panel content */}
@@ -919,6 +936,12 @@ export default function TradingPage() {
             {activePanel === 'moral' && (
               <div className="h-full overflow-hidden">
                 <VictimFeed userId={user?.id} limit={20} />
+              </div>
+            )}
+            
+            {activePanel === 'warfare' && (
+              <div className="h-full overflow-hidden p-4">
+                <WarfarePanel />
               </div>
             )}
           </div>

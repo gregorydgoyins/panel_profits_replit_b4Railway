@@ -21,7 +21,7 @@ interface AuthenticatedWebSocket extends WebSocket {
 }
 
 interface NotificationMessage {
-  type: 'notification' | 'notification_read' | 'all_notifications_read' | 'connection_confirmed';
+  type: 'notification' | 'notification_read' | 'all_notifications_read' | 'connection_confirmed' | 'shadow_update' | 'trader_fallen' | 'position_stolen' | 'feeding_frenzy' | 'pong';
   data?: any;
   timestamp?: string;
 }
@@ -202,6 +202,50 @@ export class WebSocketNotificationService {
   sendAllNotificationsReadStatus(userId: string): boolean {
     return this.sendToClient(userId, {
       type: 'all_notifications_read',
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  /**
+   * Send shadow trader update
+   */
+  broadcastShadowUpdate(shadowData: any): void {
+    this.broadcastToAllUsers({
+      type: 'shadow_update',
+      data: shadowData,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  /**
+   * Notify when a trader falls
+   */
+  broadcastTraderFallen(fallData: any): void {
+    this.broadcastToAllUsers({
+      type: 'trader_fallen',
+      data: fallData,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  /**
+   * Notify when a position is stolen
+   */
+  broadcastPositionStolen(theftData: any): void {
+    this.broadcastToAllUsers({
+      type: 'position_stolen',
+      data: theftData,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  /**
+   * Notify feeding frenzy event
+   */
+  broadcastFeedingFrenzy(frenzyData: any): void {
+    this.broadcastToAllUsers({
+      type: 'feeding_frenzy',
+      data: frenzyData,
       timestamp: new Date().toISOString()
     });
   }

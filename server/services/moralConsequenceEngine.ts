@@ -132,6 +132,65 @@ export class MoralConsequenceEngine {
   }
 
   /**
+   * Process position theft and generate warfare corruption
+   */
+  async processPositionTheft(thiefId: string, victimId: string, positionValue: number): Promise<number> {
+    // Calculate base corruption for theft
+    const baseCorruption = 30;
+    
+    // Extra corruption for feeding on the weak
+    const cannibalismBonus = positionValue > 10000 ? 15 : 5;
+    
+    // Total corruption gain
+    const totalCorruption = baseCorruption + cannibalismBonus;
+    
+    // Update thief's moral standing
+    const userStanding = await storage.getMoralStanding(thiefId);
+    if (userStanding) {
+      // Parse string values to numbers for calculations
+      const currentCorruption = parseFloat(userStanding.corruptionLevel || '0');
+      const currentVictims = userStanding.totalVictims || 0;
+      const currentSoulWeight = parseFloat(userStanding.soulWeight || '0');
+      
+      const newCorruption = Math.min(100, currentCorruption + totalCorruption);
+      const newVictimCount = currentVictims + 1;
+      const newSoulWeightValue = Math.min(1000, currentSoulWeight + positionValue * 0.1);
+      
+      await storage.updateMoralStanding(thiefId, {
+        corruptionLevel: newCorruption.toString(),
+        totalVictims: newVictimCount,
+        soulWeight: this.getSoulWeight(newCorruption),
+        // Note: updatedAt is handled automatically by the database
+      });
+      
+      // Generate special victim for cannibalistic trade
+      await this.generateCannibalismVictim(thiefId, victimId, positionValue);
+    }
+    
+    return totalCorruption;
+  }
+  
+  /**
+   * Generate a special victim for cannibalistic position stealing
+   */
+  private async generateCannibalismVictim(thiefId: string, victimId: string, amount: number): Promise<void> {
+    const victim: InsertTradingVictim = {
+      userId: thiefId,
+      tradeId: `warfare-${thiefId}-${victimId}-${Date.now()}`, // Special ID for position theft
+      victimName: "A fellow trader",
+      victimStory: `Was consumed by stronger traders in the market. Lost everything and disappeared into the shadows.`,
+      lossAmount: amount.toString(),
+      impactLevel: 'catastrophic',
+      age: Math.floor(25 + Math.random() * 40),
+      occupation: "Day trader",
+      familySize: Math.floor(Math.random() * 4) + 1,
+      consequence: "They disappeared into the shadows, never to trade again"
+    };
+    
+    await storage.createTradingVictim(victim);
+  }
+
+  /**
    * Generate a victim for a profitable trade
    */
   async generateVictim(trade: Trade, profit: number): Promise<TradingVictim> {

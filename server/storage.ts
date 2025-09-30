@@ -74,7 +74,11 @@ import {
   type TradingVictim, type InsertTradingVictim,
   // Noir Journal System Types
   type JournalEntry, type InsertJournalEntry,
-  type PsychologicalProfile, type InsertPsychologicalProfile
+  type PsychologicalProfile, type InsertPsychologicalProfile,
+  // Social Warfare System Types
+  type ShadowTrader, type InsertShadowTrader,
+  type StolenPosition, type InsertStolenPosition,
+  type TraderWarfare, type InsertTraderWarfare
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -789,6 +793,31 @@ export interface IStorage {
   createPsychologicalProfile(profile: InsertPsychologicalProfile): Promise<PsychologicalProfile>;
   getPsychologicalProfile(userId: string): Promise<PsychologicalProfile | undefined>;
   updatePsychologicalProfile(userId: string, profile: Partial<InsertPsychologicalProfile>): Promise<PsychologicalProfile | undefined>;
+
+  // Social Warfare System operations
+  createShadowTrader(shadow: InsertShadowTrader): Promise<ShadowTrader>;
+  getShadowTrader(id: string): Promise<ShadowTrader | undefined>;
+  getShadowTraderByUserId(userId: string): Promise<ShadowTrader | undefined>;
+  getShadowTradersByStatus(status: string): Promise<ShadowTrader[]>;
+  getAllShadowTraders(): Promise<ShadowTrader[]>;
+  getAIShadowTraders(limit: number): Promise<ShadowTrader[]>;
+  updateShadowTrader(id: string, updates: Partial<InsertShadowTrader>): Promise<ShadowTrader | undefined>;
+  
+  createStolenPosition(stolenPosition: InsertStolenPosition): Promise<StolenPosition>;
+  getStolenPositionsByThief(thiefId: string): Promise<StolenPosition[]>;
+  getStolenPositionsByVictim(victimId: string): Promise<StolenPosition[]>;
+  
+  createTraderWarfare(warfare: InsertTraderWarfare): Promise<TraderWarfare>;
+  getTraderWarfareByAttacker(attackerId: string): Promise<TraderWarfare[]>;
+  getTraderWarfareByDefender(defenderId: string): Promise<TraderWarfare[]>;
+  getAllTraderWarfare(limit?: number): Promise<TraderWarfare[]>;
+
+  // Helper methods for warfare
+  getAllUsers(): Promise<User[]>;
+  getUserBalance(userId: string): Promise<Balance | undefined>;
+  getUserPositions(userId: string): Promise<Position[]>;
+  updatePosition(id: string, updates: Partial<InsertPosition>): Promise<Position | undefined>;
+  createTradingVictim(victim: InsertTradingVictim): Promise<TradingVictim>;
 }
 
 // Time-series buffer implementation with memory limits and proper chronological ordering

@@ -23,6 +23,7 @@ import tradingRoutes from "./routes/tradingRoutes.js";
 import { registerStoryMarketRoutes } from "./routes/storyMarketRoutes.js";
 import shadowRoutes from "./routes/shadowRoutes.js";
 import journalRoutes from "./routes/journalRoutes.js";
+import warfareRoutes from "./routes/warfareRoutes.js";
 import { marketSimulation, orderMatching } from "./marketSimulation.js";
 import { leaderboardService } from "./leaderboardService.js";
 import { priceStreamingService } from "./services/priceStreamingService.js";
@@ -1054,6 +1055,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Noir Journal Routes
   app.use("/api/journal", journalRoutes);
+  
+  // Social Warfare Routes - predatory trading mechanics
+  app.use(warfareRoutes);
 
   // Phase 1: Initialization Route
   app.post("/api/phase1/initialize", isAuthenticated, async (req, res) => {

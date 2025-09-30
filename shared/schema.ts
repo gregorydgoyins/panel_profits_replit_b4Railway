@@ -5790,3 +5790,111 @@ export type InsertJournalEntry = z.infer<typeof insertJournalEntrySchema>;
 
 export type PsychologicalProfile = typeof psychologicalProfiles.$inferSelect;
 export type InsertPsychologicalProfile = z.infer<typeof insertPsychologicalProfileSchema>;
+
+// SOCIAL WARFARE SYSTEM - Predatory trading where the weak are consumed by the strong
+
+// Shadow Traders - AI-controlled and real traders appearing as shadows
+export const shadowTraders = pgTable("shadow_traders", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id), // NULL for AI shadows
+  shadowName: text("shadow_name").notNull(), // "Shadow of Greed", "Fallen Spectre", etc.
+  
+  // Shadow characteristics
+  strength: decimal("strength", { precision: 10, scale: 2 }).default("100.00"), // Trading power
+  corruptionLevel: decimal("corruption_level", { precision: 5, scale: 2 }).default("0.00"),
+  portfolioValue: decimal("portfolio_value", { precision: 15, scale: 2 }).default("0.00"),
+  
+  // Status tracking
+  status: text("status").notNull().default("active"), // 'active', 'fallen', 'consumed', 'rising'
+  fallenAt: timestamp("fallen_at"), // When they fell below threshold
+  consumedBy: varchar("consumed_by").references(() => users.id), // Who consumed them
+  
+  // Visual characteristics
+  shadowColor: text("shadow_color").default("#000000"), // Hex color based on state
+  opacity: decimal("opacity", { precision: 3, scale: 2 }).default("0.80"), // Visual opacity
+  isAI: boolean("is_ai").default(false), // AI-controlled shadow
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_shadow_traders_status").on(table.status),
+  index("idx_shadow_traders_user").on(table.userId),
+]);
+
+// Stolen Positions - Records of vulture trades feeding on the fallen
+export const stolenPositions = pgTable("stolen_positions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  thiefId: varchar("thief_id").notNull().references(() => users.id),
+  victimId: varchar("victim_id").notNull().references(() => users.id),
+  positionId: varchar("position_id").notNull().references(() => positions.id),
+  
+  // Theft details
+  originalValue: decimal("original_value", { precision: 15, scale: 2 }).notNull(),
+  stolenValue: decimal("stolen_value", { precision: 15, scale: 2 }).notNull(), // 50% discount
+  discountRate: decimal("discount_rate", { precision: 5, scale: 2 }).default("50.00"),
+  
+  // Moral consequences
+  corruptionGained: decimal("corruption_gained", { precision: 5, scale: 2 }).default("30.00"),
+  victimHarm: decimal("victim_harm", { precision: 15, scale: 2 }).notNull(),
+  
+  // Metadata
+  stealMethod: text("steal_method").default("vulture"), // 'vulture', 'predator', 'scavenger'
+  stolenAt: timestamp("stolen_at").defaultNow(),
+}, (table) => [
+  index("idx_stolen_positions_thief").on(table.thiefId),
+  index("idx_stolen_positions_victim").on(table.victimId),
+  index("idx_stolen_positions_stolen_at").on(table.stolenAt),
+]);
+
+// Trader Warfare - Records of trader-vs-trader conflicts
+export const traderWarfare = pgTable("trader_warfare", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  attackerId: varchar("attacker_id").notNull().references(() => users.id),
+  defenderId: varchar("defender_id").notNull().references(() => users.id),
+  
+  // Warfare details
+  warfareType: text("warfare_type").notNull(), // 'steal', 'raid', 'cannibalize', 'hunt'
+  outcome: text("outcome").notNull(), // 'success', 'failed', 'partial', 'mutual_destruction'
+  
+  // Damage and rewards
+  attackerGain: decimal("attacker_gain", { precision: 15, scale: 2 }).default("0.00"),
+  defenderLoss: decimal("defender_loss", { precision: 15, scale: 2 }).default("0.00"),
+  collateralDamage: decimal("collateral_damage", { precision: 15, scale: 2 }).default("0.00"),
+  
+  // Brutality metrics
+  brutalityScore: decimal("brutality_score", { precision: 5, scale: 2 }).default("0.00"),
+  victimsCreated: integer("victims_created").default(0),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_trader_warfare_attacker").on(table.attackerId),
+  index("idx_trader_warfare_defender").on(table.defenderId),
+  index("idx_trader_warfare_created").on(table.createdAt),
+]);
+
+// Create insert schemas for Warfare System
+export const insertShadowTraderSchema = createInsertSchema(shadowTraders).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertStolenPositionSchema = createInsertSchema(stolenPositions).omit({
+  id: true,
+  stolenAt: true,
+});
+
+export const insertTraderWarfareSchema = createInsertSchema(traderWarfare).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Export TypeScript types for Warfare System
+export type ShadowTrader = typeof shadowTraders.$inferSelect;
+export type InsertShadowTrader = z.infer<typeof insertShadowTraderSchema>;
+
+export type StolenPosition = typeof stolenPositions.$inferSelect;
+export type InsertStolenPosition = z.infer<typeof insertStolenPositionSchema>;
+
+export type TraderWarfare = typeof traderWarfare.$inferSelect;
+export type InsertTraderWarfare = z.infer<typeof insertTraderWarfareSchema>;
