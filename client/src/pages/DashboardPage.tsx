@@ -19,6 +19,11 @@ import { TradingBalance } from '@/components/dashboard/TradingBalance';
 import { WatchlistManager } from '@/components/dashboard/WatchlistManager';
 import { MarketOverview } from '@/components/dashboard/MarketOverview';
 import { OptionsChainWidget } from '@/components/dashboard/OptionsChainWidget';
+import { ComicETFsWidget } from '@/components/dashboard/ComicETFsWidget';
+import { MarketMoversWidget } from '@/components/dashboard/MarketMoversWidget';
+import { FearGreedWidget } from '@/components/dashboard/FearGreedWidget';
+import { OracleProphecyWidget } from '@/components/dashboard/OracleProphecyWidget';
+import { HousePowerRankingsWidget } from '@/components/dashboard/HousePowerRankingsWidget';
 
 interface DashboardStats {
   portfolioValue: number;
@@ -353,6 +358,18 @@ export default function DashboardPage() {
         {/* Options Chain */}
         <div className="grid grid-cols-1 gap-6 mt-6">
           <OptionsChainWidget />
+        </div>
+
+        {/* Professional Trading Widgets Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <ComicETFsWidget />
+          <MarketMoversWidget />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+          <FearGreedWidget />
+          <OracleProphecyWidget />
+          <HousePowerRankingsWidget />
         </div>
 
         {/* Quick Actions Footer */}
