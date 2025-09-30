@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { ToastProvider } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useCorruption } from '@/hooks/useCorruption';
 import { NotificationSystemProvider } from '@/components/notifications/NotificationSystemProvider';
 import { HouseThemeProvider } from '@/contexts/HouseThemeContext';
 import { LandingPage } from '@/components/LandingPage';
@@ -175,6 +176,7 @@ export default function App() {
 
 function AuthenticatedLayout() {
   const { isAuthenticated, isLoading } = useAuth();
+  const { corruptionClass } = useCorruption();
 
   if (isLoading) {
     return (
@@ -196,7 +198,7 @@ function AuthenticatedLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className={`min-h-screen bg-background text-foreground ${corruptionClass}`}>
       <div className="flex h-screen">
         {/* Sidebar */}
         <div className="flex-shrink-0">

@@ -19,6 +19,43 @@ const placeOrderSchema = z.object({
 });
 
 /**
+ * POST /api/trading/order/market - Place a market order (simplified endpoint)
+ */
+router.post("/order/market", async (req: any, res: Response) => {
+  try {
+    // Check authentication
+    if (!req.user || !req.user.claims?.sub) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const { userId, portfolioId, assetId, side, quantity } = req.body;
+    
+    if (!userId || !assetId || !side || !quantity) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    
+    // Execute market order with moral consequences
+    const result = await tradingService.executeMarketOrder(
+      userId,
+      portfolioId || 'default',
+      assetId,
+      side,
+      quantity
+    );
+    
+    // Return trade result including any victim data
+    res.json(result);
+  } catch (error: any) {
+    console.error("Market order error:", error);
+    res.status(500).json({ 
+      error: error.message || "Failed to execute order",
+      trade: null,
+      victim: null
+    });
+  }
+});
+
+/**
  * POST /api/trading/order - Place a market or limit order
  */
 router.post("/order", async (req: any, res: Response) => {

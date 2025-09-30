@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertTriangle, User, DollarSign, Calendar } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
+import { useWebSocket } from '@/hooks/useWebSocket';
 
 interface TradingVictim {
   id: string;
@@ -25,22 +26,60 @@ interface VictimFeedProps {
 
 export function VictimFeed({ userId, limit = 10, autoRefresh = true }: VictimFeedProps) {
   const [newVictimAlert, setNewVictimAlert] = useState<string | null>(null);
-
-  // Fetch victims
-  const { data: victims = [], isLoading } = useQuery<TradingVictim[]>({
-    queryKey: ['/api/moral/victims', { limit }],
-    enabled: !!userId,
-    refetchInterval: autoRefresh ? 5000 : false, // Refresh every 5 seconds
+  const [recentVictims, setRecentVictims] = useState<TradingVictim[]>([]);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  
+  // Subscribe to WebSocket for real-time victim updates
+  const { isConnected } = useWebSocket({ 
+    subscribeTo: { 
+      victims: true 
+    } 
   });
 
-  // Show alert when new victim appears
+  // Fetch victims from API
+  const { data: apiVictims = [], isLoading } = useQuery<TradingVictim[]>({
+    queryKey: ['/api/moral/victims', { limit }],
+    enabled: !!userId,
+    refetchInterval: autoRefresh ? 30000 : false, // Refresh every 30 seconds
+  });
+  
+  // Combine API victims with real-time victims, remove duplicates
+  const victims = [...recentVictims, ...apiVictims]
+    .filter((v, i, arr) => arr.findIndex(item => item.id === v.id) === i)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, limit);
+
+  // Listen for WebSocket victim events
   useEffect(() => {
-    if (victims.length > 0 && !newVictimAlert) {
-      const latestVictim = victims[0];
-      setNewVictimAlert(latestVictim.id);
-      setTimeout(() => setNewVictimAlert(null), 3000);
-    }
-  }, [victims.length]);
+    const handleVictimUpdate = (event: CustomEvent) => {
+      const newVictim = event.detail as TradingVictim;
+      
+      setRecentVictims(prev => {
+        const updated = [newVictim, ...prev].slice(0, 100); // Keep last 100
+        return updated;
+      });
+      
+      // Show alert for new victim
+      setNewVictimAlert(newVictim.id);
+      
+      // Scroll to top to show new victim
+      if (scrollRef.current) {
+        scrollRef.current.scrollTop = 0;
+      }
+      
+      // Remove alert after animation
+      setTimeout(() => {
+        setNewVictimAlert(null);
+      }, 3000);
+    };
+    
+    // Listen for victim created events from WebSocket
+    window.addEventListener('ws:victim_created' as any, handleVictimUpdate as any);
+    
+    return () => {
+      window.removeEventListener('ws:victim_created' as any, handleVictimUpdate as any);
+    };
+  }, []);
 
   const getImpactColor = (level: string) => {
     switch (level) {
@@ -113,12 +152,15 @@ export function VictimFeed({ userId, limit = 10, autoRefresh = true }: VictimFee
         <span className="flex items-center gap-1">
           <AlertTriangle className="h-3 w-3" />
           VICTIM LOG
+          {isConnected && recentVictims.length > 0 && (
+            <div className="w-1 h-1 rounded-full bg-red-500 animate-pulse ml-1" />
+          )}
         </span>
         <span className="text-red-500/60">
           [{victims.length} AFFECTED]
         </span>
       </div>
-      <ScrollArea className="h-[calc(100%-30px)] terminal-scroll">
+      <ScrollArea className="h-[calc(100%-30px)] terminal-scroll" ref={scrollRef}>
         <div className="p-2 space-y-1">
             {victims.map((victim) => (
               <div
@@ -129,7 +171,8 @@ export function VictimFeed({ userId, limit = 10, autoRefresh = true }: VictimFee
                   victim.impactLevel === 'severe' ? "border-red-600/70 text-red-600/70" :
                   victim.impactLevel === 'moderate' ? "border-red-700/50 text-red-700/50" :
                   "border-red-800/30 text-red-800/30",
-                  newVictimAlert === victim.id && "animate-fade-in-shake bg-red-900/10"
+                  newVictimAlert === victim.id && "animate-fade-in-shake bg-red-900/20 border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.3)]",
+                  recentVictims.some(v => v.id === victim.id) && "border-red-600/70"
                 )}
                 data-testid={`victim-card-${victim.id}`}
               >

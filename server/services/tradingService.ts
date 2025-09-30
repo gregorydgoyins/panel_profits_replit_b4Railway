@@ -1,8 +1,9 @@
 import { storage } from "../storage";
+import { moralConsequenceEngine } from "./moralConsequenceEngine";
 import type { 
   User, Order, Trade, Position, Balance, Asset, Portfolio,
   InsertOrder, InsertTrade, InsertPosition, InsertBalance,
-  AssetCurrentPrice
+  AssetCurrentPrice, TradingVictim
 } from "@shared/schema";
 
 interface ExecuteOrderResult {
@@ -10,6 +11,8 @@ interface ExecuteOrderResult {
   trade?: Trade;
   position?: Position;
   balance?: Balance;
+  victim?: TradingVictim;
+  corruptionIncrease?: number;
   error?: string;
 }
 
@@ -125,11 +128,29 @@ export class TradingService {
       // Update balance
       const updatedBalance = await this.updateBalance(userId, portfolioId, trade);
 
+      // Generate victim and track corruption for profitable trades
+      let victim: TradingVictim | undefined;
+      let corruptionIncrease: number | undefined;
+      
+      if (trade.pnl && parseFloat(trade.pnl) > 0) {
+        const profit = parseFloat(trade.pnl);
+        
+        // Generate a victim for this profitable trade
+        victim = await moralConsequenceEngine.generateVictim(trade, profit);
+        
+        // Update user's corruption level
+        corruptionIncrease = await moralConsequenceEngine.calculateCorruption(userId, profit);
+        
+        console.log(`😈 Profitable trade generated victim: ${victim.victimName} - Corruption +${corruptionIncrease.toFixed(2)}`);
+      }
+
       return {
         success: true,
         trade,
         position,
-        balance: updatedBalance
+        balance: updatedBalance,
+        victim,
+        corruptionIncrease
       };
 
     } catch (error) {

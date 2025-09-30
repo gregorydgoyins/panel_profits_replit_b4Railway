@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { queryClient } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -7,19 +8,23 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   TrendingUp, TrendingDown, Activity, DollarSign, Clock, BarChart3, 
   Wallet, Target, AlertTriangle, RefreshCw, Eye, Terminal,
-  Crown, Swords, Trophy, Zap, Power, Skull, ArrowUp, ArrowDown
+  Crown, Swords, Trophy, Zap, Power, Skull, ArrowUp, ArrowDown,
+  Heart, Flame
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import { useCorruption, useBloodMoney } from '@/hooks/useCorruption';
 import { OrderHistory } from '@/components/trading/OrderHistory';
 import { OrderBook } from '@/components/trading/OrderBook';
 import { MoralConsequenceDisplay } from '@/components/MoralConsequenceDisplay';
 import { VictimFeed } from '@/components/VictimFeed';
+import { VictimNotification, VictimData } from '@/components/VictimNotification';
 import { BloodMoneyCounter } from '@/components/BloodMoneyCounter';
 import { cn } from '@/lib/utils';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
+import { apiRequest } from '@/lib/queryClient';
 
 interface TradingStats {
   availableBalance: number;
@@ -53,6 +58,13 @@ export default function TradingPage() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const chartRef = useRef<HighchartsReact.RefObject>(null);
   const [chartData, setChartData] = useState<{ ohlc: any[], volume: any[] }>({ ohlc: [], volume: [] });
+  const [currentVictim, setCurrentVictim] = useState<VictimData | null>(null);
+  const [showOrderConfirmation, setShowOrderConfirmation] = useState(false);
+  const [potentialVictimCount, setPotentialVictimCount] = useState(0);
+  
+  // Use corruption and blood money hooks
+  const { corruption, soulWeight, victimCount, corruptionClass } = useCorruption();
+  const { bloodMoney, showBloodDrip, formattedBloodMoney } = useBloodMoney();
   
   // Subscribe to WebSocket for selected asset
   const subscribedAssets = useMemo(() => 
@@ -129,18 +141,95 @@ export default function TradingPage() {
     return Math.min((used / limit) * 100, 100);
   };
 
+  // Order execution mutation
+  const executeOrderMutation = useMutation({
+    mutationFn: async ({ assetId, side, quantity }: { assetId: string; side: 'buy' | 'sell'; quantity: number }) => {
+      // Get user's portfolio (assume first one for simplicity)
+      const portfoliosRes = await fetch(`/api/portfolios/user/${user?.id}`);
+      const portfolios = await portfoliosRes.json();
+      const portfolioId = portfolios[0]?.id || 'default';
+      
+      return apiRequest('/api/trading/order/market', 'POST', {
+        userId: user?.id,
+        portfolioId,
+        assetId,
+        side,
+        quantity
+      });
+    },
+    onSuccess: (data) => {
+      // Check if trade generated a victim
+      if (data.victim) {
+        setCurrentVictim(data.victim);
+        // Show blood drip effect on profit
+        if (data.trade?.pnl && parseFloat(data.trade.pnl) > 0) {
+          console.log('💀 Another soul claimed by profit...');
+        }
+      }
+      
+      // Show success toast with moral weight
+      const profit = data.trade?.pnl ? parseFloat(data.trade.pnl) : 0;
+      if (profit > 0) {
+        toast({
+          title: 'PROFIT EXTRACTED',
+          description: `+${formatCurrency(profit)} at the cost of human suffering`,
+          className: 'bg-black border-red-600 text-red-600',
+        });
+      } else {
+        toast({
+          title: 'ORDER EXECUTED',
+          description: `${orderType.toUpperCase()} ${orderQuantity} ${selectedAsset?.symbol}`,
+          className: 'bg-black border-green-500 text-green-500',
+        });
+      }
+      
+      // Refresh data
+      queryClient.invalidateQueries({ queryKey: ['/api/orders/user'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/moral'] });
+      setOrderQuantity('');
+      setOrderPrice('');
+      setRefreshTrigger(prev => prev + 1);
+    },
+    onError: (error: any) => {
+      toast({
+        title: 'ORDER FAILED',
+        description: error.message || 'Failed to execute order',
+        className: 'bg-black border-red-500 text-red-500',
+      });
+    }
+  });
+  
   const handleOrderSubmit = async () => {
     if (!selectedAsset || !orderQuantity) return;
     
-    toast({
-      title: 'ORDER EXECUTED',
-      description: `${orderType.toUpperCase()} ${orderQuantity} ${selectedAsset.symbol}`,
-      className: 'bg-black border-green-500 text-green-500',
+    // Calculate potential victims for sell orders
+    if (orderType === 'sell') {
+      const orderValue = parseFloat(orderQuantity) * (realtimePrice?.price || 0);
+      const estimatedVictims = Math.floor(orderValue / 10000) + 1; // 1 victim per $10k
+      setPotentialVictimCount(estimatedVictims);
+      setShowOrderConfirmation(true);
+      return;
+    }
+    
+    // Execute order directly for buy orders
+    executeOrderMutation.mutate({
+      assetId: selectedAsset.id,
+      side: orderType,
+      quantity: parseFloat(orderQuantity)
+    });
+  };
+  
+  const confirmOrder = () => {
+    if (!selectedAsset || !orderQuantity) return;
+    
+    executeOrderMutation.mutate({
+      assetId: selectedAsset.id,
+      side: orderType,
+      quantity: parseFloat(orderQuantity)
     });
     
-    setOrderQuantity('');
-    setOrderPrice('');
-    setRefreshTrigger(prev => prev + 1);
+    setShowOrderConfirmation(false);
+    setPotentialVictimCount(0);
   };
 
   const isMarketOpen = () => {
@@ -396,6 +485,101 @@ export default function TradingPage() {
 
   return (
     <div className="fixed inset-0 bg-black overflow-hidden terminal-interface" data-testid="page-trading">
+      {/* Victim notification */}
+      {currentVictim && (
+        <VictimNotification 
+          victim={currentVictim}
+          onDismiss={() => setCurrentVictim(null)}
+        />
+      )}
+      
+      {/* Order confirmation dialog with potential victims warning */}
+      {showOrderConfirmation && (
+        <div className="fixed inset-0 bg-black/80 z-[10000] flex items-center justify-center p-4">
+          <div className="bg-black border-2 border-red-600 p-6 max-w-md animate-shake-once">
+            <div className="flex items-center gap-3 mb-4">
+              <Skull className="h-8 w-8 text-red-600 animate-pulse" />
+              <h3 className="text-xl font-bold text-red-600 font-mono">
+                MORAL CONSEQUENCE WARNING
+              </h3>
+            </div>
+            
+            <div className="space-y-4 mb-6">
+              <p className="text-red-400">
+                This trade will cause approximately{' '}
+                <span className="font-bold text-red-500 text-xl">
+                  {potentialVictimCount}
+                </span>{' '}
+                {potentialVictimCount === 1 ? 'family' : 'families'} to suffer financial losses.
+              </p>
+              
+              <div className="border-l-4 border-red-800 pl-4">
+                <p className="text-red-300 text-sm italic">
+                  "Every profit you make is someone else's loss. Someone's retirement fund. Someone's children's education. Someone's medical bills."
+                </p>
+              </div>
+              
+              <p className="text-red-400 font-mono text-sm">
+                Your corruption will increase by{' '}
+                <span className="text-red-500 font-bold">
+                  +{Math.min((parseFloat(orderQuantity) * (realtimePrice?.price || 0) / 10000) * 2, 10).toFixed(1)}
+                </span>{' '}
+                points.
+              </p>
+            </div>
+            
+            <div className="flex gap-4">
+              <Button
+                onClick={confirmOrder}
+                variant="destructive"
+                className="flex-1 bg-red-900 hover:bg-red-800 border-red-600"
+                disabled={executeOrderMutation.isPending}
+                data-testid="button-confirm-harm"
+              >
+                <Skull className="h-4 w-4 mr-2" />
+                PROCEED WITH HARM
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowOrderConfirmation(false);
+                  setPotentialVictimCount(0);
+                }}
+                variant="outline"
+                className="flex-1 border-green-600 text-green-500 hover:bg-green-900/20"
+                data-testid="button-cancel-order"
+              >
+                <Heart className="h-4 w-4 mr-2" />
+                SHOW MERCY
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Corruption meter */}
+      {corruption > 0 && (
+        <div className="fixed top-4 left-4 z-[9999] bg-black/90 border border-red-900 p-3 min-w-[200px]">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-red-500 font-mono text-xs uppercase">Corruption</span>
+            <span className="text-red-400 font-mono text-xs">{corruption.toFixed(1)}%</span>
+          </div>
+          <div className="w-full bg-black border border-red-900 h-2">
+            <div 
+              className="h-full bg-gradient-to-r from-red-900 to-red-600 transition-all duration-1000"
+              style={{ width: `${Math.min(corruption, 100)}%` }}
+            />
+          </div>
+          <div className="mt-2 text-red-400 font-mono text-xs uppercase text-center">
+            Soul: {soulWeight}
+          </div>
+          {victimCount > 0 && (
+            <div className="mt-1 text-red-300 font-mono text-xs text-center">
+              {victimCount} victims claimed
+            </div>
+          )}
+        </div>
+      )}
+      
       {/* Scan line effect */}
       <div className="pointer-events-none fixed inset-0 z-50">
         <div className="scanline" />
