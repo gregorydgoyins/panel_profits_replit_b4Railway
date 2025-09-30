@@ -6,7 +6,7 @@ import darkRainyCityImage2 from '@assets/stock_images/dark_rainy_city_stre_27981
 import darkRainyCityImage3 from '@assets/stock_images/dark_rainy_city_stre_eb2ad3bc.jpg';
 
 // Typewriter animation component
-function TypewriterText({ text, delay = 0, className = "" }: { text: string; delay?: number; className?: string }) {
+function TypewriterText({ text, delay = 0, className = "", style }: { text: string; delay?: number; className?: string; style?: React.CSSProperties }) {
   const [displayText, setDisplayText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
 
@@ -29,7 +29,7 @@ function TypewriterText({ text, delay = 0, className = "" }: { text: string; del
   }, [text, delay]);
 
   return (
-    <div className={className}>
+    <div className={className} style={style}>
       {displayText}
       {isTyping && displayText.length < text.length && (
         <span className="animate-pulse">|</span>
