@@ -5709,3 +5709,84 @@ export type InsertDarkPool = z.infer<typeof insertDarkPoolSchema>;
 
 export type ShadowOrderBook = typeof shadowOrderBook.$inferSelect;
 export type InsertShadowOrderBook = z.infer<typeof insertShadowOrderBookSchema>;
+
+// NOIR JOURNAL SYSTEM - Dark philosophical trading journal with AI analysis
+
+// Journal Entries - AI-generated noir commentary on trades and market actions
+export const journalEntries = pgTable("journal_entries", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  
+  // Entry classification
+  entryType: text("entry_type").notNull(), // 'trade', 'daily', 'victim', 'milestone', 'confession', 'analysis'
+  
+  // Content
+  content: text("content").notNull(), // The noir journal entry text
+  title: text("title"), // Optional title for the entry
+  
+  // Context
+  corruptionAtTime: decimal("corruption_at_time", { precision: 5, scale: 2 }), // Corruption level when written
+  relatedTradeId: varchar("related_trade_id").references(() => trades.id), // If related to specific trade
+  relatedVictimId: varchar("related_victim_id").references(() => tradingVictims.id), // If related to victim
+  
+  // Metadata
+  mood: text("mood"), // 'contemplative', 'dark', 'nihilistic', 'remorseful', 'cold'
+  intensity: integer("intensity").default(1), // 1-10 scale of darkness
+  wordCount: integer("word_count"),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_journal_entries_user").on(table.userId),
+  index("idx_journal_entries_type").on(table.entryType),
+  index("idx_journal_entries_created").on(table.createdAt),
+]);
+
+// Psychological Profiles - AI analysis of trader psychology over time
+export const psychologicalProfiles = pgTable("psychological_profiles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  
+  // Analysis
+  pattern: text("pattern").notNull(), // Identified psychological pattern
+  analysis: text("analysis").notNull(), // Detailed psychological analysis
+  
+  // Traits
+  dominantTraits: jsonb("dominant_traits"), // ['ruthless', 'calculating', 'empathetic', etc.]
+  moralAlignment: text("moral_alignment"), // 'descending', 'conflicted', 'embracing_darkness'
+  tradingStyle: text("trading_style"), // 'predatory', 'opportunistic', 'defensive'
+  
+  // Metrics
+  empathyScore: decimal("empathy_score", { precision: 5, scale: 2 }), // 0-100, decreases with corruption
+  ruthlessnessIndex: decimal("ruthlessness_index", { precision: 5, scale: 2 }), // 0-100, increases with profits
+  denialLevel: decimal("denial_level", { precision: 5, scale: 2 }), // 0-100, psychological defense mechanisms
+  
+  // Evolution tracking
+  previousProfile: text("previous_profile"), // How they've changed
+  turningPoints: jsonb("turning_points"), // Key trades that changed them
+  
+  // Timestamps
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_psychological_profiles_user").on(table.userId),
+]);
+
+// Create insert schemas for Journal System
+export const insertJournalEntrySchema = createInsertSchema(journalEntries).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertPsychologicalProfileSchema = createInsertSchema(psychologicalProfiles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Export TypeScript types for Journal System
+export type JournalEntry = typeof journalEntries.$inferSelect;
+export type InsertJournalEntry = z.infer<typeof insertJournalEntrySchema>;
+
+export type PsychologicalProfile = typeof psychologicalProfiles.$inferSelect;
+export type InsertPsychologicalProfile = z.infer<typeof insertPsychologicalProfileSchema>;

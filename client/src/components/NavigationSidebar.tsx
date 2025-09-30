@@ -4,7 +4,7 @@ import {
   Home, DollarSign, Newspaper, Briefcase, Brain, LineChart, Layers, 
   Users, Building, Zap, BookOpen, Calendar, Settings, HelpCircle,
   ChevronLeft, ChevronRight, Trophy, Camera, Heart, Crown, Shield,
-  Swords, Scroll, GraduationCap, Target, Sparkles, Gem, Workflow
+  Swords, Scroll, GraduationCap, Target, Sparkles, Gem, Workflow, PenTool
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -35,6 +35,7 @@ export function NavigationSidebar() {
     if (location === '/trading') return 'order-desk';
     if (location === '/terminal') return 'terminal';
     if (location === '/sequential-art') return 'sequential-art';
+    if (location === '/journal') return 'journal';
     if (location === '/characters') return 'characters';
     if (location === '/comics') return 'comics';
     if (location === '/creators') return 'creators';
@@ -79,6 +80,7 @@ export function NavigationSidebar() {
     { id: 'portfolio', label: 'Portfolio', icon: Briefcase, path: '/portfolio', category: 'portfolio' },
     { id: 'watchlist', label: 'Watchlist', icon: Zap, path: '/watchlist', category: 'portfolio' },
     { id: 'leaderboards', label: 'Leaderboards', icon: Trophy, path: '/leaderboards', category: 'portfolio', badge: 'NEW' },
+    { id: 'journal', label: 'Noir Journal', icon: PenTool, path: '/journal', category: 'portfolio', badge: 'DARK' },
     
     // Learning Module
     { id: 'sacred-library', label: 'Sacred Library', icon: Scroll, path: '/learning', category: 'learning', badge: 'NEW' },
@@ -119,6 +121,7 @@ export function NavigationSidebar() {
       portfolio: 'text-emerald-400 bg-emerald-900/30 hover:bg-emerald-600',
       watchlist: 'text-amber-400 bg-amber-900/30 hover:bg-amber-600',
       leaderboards: 'text-yellow-400 bg-yellow-900/30 hover:bg-yellow-600',
+      journal: 'text-red-600 bg-red-950/50 hover:bg-red-900',
       'sacred-library': 'text-indigo-400 bg-indigo-900/30 hover:bg-indigo-600',
       'divine-connections': 'text-violet-400 bg-violet-900/30 hover:bg-violet-600',
       houses: 'text-red-400 bg-red-900/30 hover:bg-red-600',

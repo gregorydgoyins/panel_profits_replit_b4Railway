@@ -22,6 +22,7 @@ import phase1Routes from "./phase1Routes.js";
 import tradingRoutes from "./routes/tradingRoutes.js";
 import { registerStoryMarketRoutes } from "./routes/storyMarketRoutes.js";
 import shadowRoutes from "./routes/shadowRoutes.js";
+import journalRoutes from "./routes/journalRoutes.js";
 import { marketSimulation, orderMatching } from "./marketSimulation.js";
 import { leaderboardService } from "./leaderboardService.js";
 import { priceStreamingService } from "./services/priceStreamingService.js";
@@ -1050,6 +1051,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Shadow Economy Routes (requires corruption > 30)
   app.use("/api/shadow", shadowRoutes);
+  
+  // Noir Journal Routes
+  app.use("/api/journal", journalRoutes);
 
   // Phase 1: Initialization Route
   app.post("/api/phase1/initialize", isAuthenticated, async (req, res) => {

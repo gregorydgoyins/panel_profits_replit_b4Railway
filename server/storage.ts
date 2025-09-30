@@ -71,7 +71,10 @@ import {
   type VariantCoverRegistry, type InsertVariantCoverRegistry,
   // Moral Consequence System Types
   type MoralStanding, type InsertMoralStanding,
-  type TradingVictim, type InsertTradingVictim
+  type TradingVictim, type InsertTradingVictim,
+  // Noir Journal System Types
+  type JournalEntry, type InsertJournalEntry,
+  type PsychologicalProfile, type InsertPsychologicalProfile
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -771,6 +774,21 @@ export interface IStorage {
   getMoralStanding(userId: string): Promise<MoralStanding | undefined>;
   createMoralStanding(moralStanding: InsertMoralStanding): Promise<MoralStanding>;
   updateMoralStanding(userId: string, updates: Partial<InsertMoralStanding>): Promise<MoralStanding | undefined>;
+
+  // Noir Journal System operations
+  createJournalEntry(entry: InsertJournalEntry): Promise<JournalEntry>;
+  getJournalEntries(userId: string, filters?: { 
+    entryType?: string; 
+    limit?: number; 
+    offset?: number;
+    fromDate?: Date;
+    toDate?: Date;
+  }): Promise<JournalEntry[]>;
+  getJournalEntry(id: string): Promise<JournalEntry | undefined>;
+  getLatestJournalEntry(userId: string, entryType?: string): Promise<JournalEntry | undefined>;
+  createPsychologicalProfile(profile: InsertPsychologicalProfile): Promise<PsychologicalProfile>;
+  getPsychologicalProfile(userId: string): Promise<PsychologicalProfile | undefined>;
+  updatePsychologicalProfile(userId: string, profile: Partial<InsertPsychologicalProfile>): Promise<PsychologicalProfile | undefined>;
 }
 
 // Time-series buffer implementation with memory limits and proper chronological ordering

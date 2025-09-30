@@ -1,5 +1,6 @@
 import { storage } from "../storage";
 import { moralConsequenceEngine } from "./moralConsequenceEngine";
+import { noirJournalService } from "./noirJournalService";
 import type { 
   User, Order, Trade, Position, Balance, Asset, Portfolio,
   InsertOrder, InsertTrade, InsertPosition, InsertBalance,
@@ -142,6 +143,29 @@ export class TradingService {
         corruptionIncrease = await moralConsequenceEngine.calculateCorruption(userId, profit);
         
         console.log(`😈 Profitable trade generated victim: ${victim.victimName} - Corruption +${corruptionIncrease.toFixed(2)}`);
+        
+        // Generate noir journal entry for this trade
+        try {
+          const moralStanding = await storage.getMoralStanding(userId);
+          if (moralStanding) {
+            const corruptionLevel = parseFloat(moralStanding.corruptionLevel);
+            await noirJournalService.generateNoirEntry({
+              trade,
+              victim,
+              corruptionLevel,
+              userId,
+            });
+            
+            // Check for corruption milestones (every 20%)
+            const previousMilestone = Math.floor((corruptionLevel - (corruptionIncrease || 0)) / 20) * 20;
+            const currentMilestone = Math.floor(corruptionLevel / 20) * 20;
+            if (currentMilestone > previousMilestone && currentMilestone > 0) {
+              await noirJournalService.writeCorruptionNarrative(userId, corruptionLevel, currentMilestone);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to generate journal entry:', error);
+        }
       }
 
       return {
