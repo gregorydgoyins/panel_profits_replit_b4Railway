@@ -10,6 +10,9 @@ import { NavigationSidebar } from '@/components/NavigationSidebar';
 import NotFound from '@/pages/not-found';
 
 // Essential pages only for Phase 0
+// Auth
+import AuthPage from '@/pages/auth';
+
 // Dashboard
 import DashboardPage from '@/pages/DashboardPage';
 
@@ -41,6 +44,7 @@ function Router() {
     return (
       <Switch>
         <Route path="/" component={LandingPage} />
+        <Route path="/auth" component={AuthPage} />
         <Route component={LandingPage} />
       </Switch>
     );

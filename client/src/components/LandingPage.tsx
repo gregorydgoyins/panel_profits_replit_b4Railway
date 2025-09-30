@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
+import { Link } from "wouter";
 
 export function LandingPage() {
   const [mounted, setMounted] = useState(false);
@@ -115,19 +116,17 @@ export function LandingPage() {
 
           {/* Entry button */}
           <div className="space-y-4">
-            <Button 
-              className="w-full h-12 text-base tracking-wider uppercase bg-white text-black hover:bg-gray-100 shadow-xl"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-              variant="default"
-              size="lg"
-              data-testid="button-begin-test"
-              onClick={() => {
-                // Phase 1: Will navigate to entry test
-                console.log("Begin entry test - to be implemented in Phase 1");
-              }}
-            >
-              Begin Entry Test
-            </Button>
+            <Link href="/auth">
+              <Button 
+                className="w-full h-12 text-base tracking-wider uppercase bg-white text-black hover:bg-gray-100 shadow-xl"
+                style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                variant="default"
+                size="lg"
+                data-testid="button-begin-test"
+              >
+                Begin Entry Test
+              </Button>
+            </Link>
 
             {/* Subtle divider */}
             <div className="relative my-8">
@@ -145,19 +144,17 @@ export function LandingPage() {
             </div>
 
             {/* Existing member login */}
-            <Button 
-              className="w-full h-12 text-base tracking-wider uppercase border-white/50 text-white hover:bg-white hover:text-black shadow-xl backdrop-blur-sm"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-              variant="outline"
-              size="lg"
-              data-testid="button-member-login"
-              onClick={() => {
-                // Phase 1: Will show login form
-                console.log("Member login - to be implemented in Phase 1");
-              }}
-            >
-              Member Login
-            </Button>
+            <Link href="/auth">
+              <Button 
+                className="w-full h-12 text-base tracking-wider uppercase border-white/50 text-white hover:bg-white hover:text-black shadow-xl backdrop-blur-sm"
+                style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                variant="outline"
+                size="lg"
+                data-testid="button-member-login"
+              >
+                Member Login
+              </Button>
+            </Link>
           </div>
 
           {/* Minimal footer info */}
