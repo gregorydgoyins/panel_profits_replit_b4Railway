@@ -92,9 +92,9 @@ export function LandingPage() {
         </Button>
       </header>
 
-      {/* Main content - centered login area with enhanced overlay */}
+      {/* Main content - centered login area with lighter overlay (reduced from 60% to 40%) */}
       <main className="flex-1 flex items-center justify-center px-6 relative z-20">
-        <div className="w-full max-w-md backdrop-blur-md bg-black/60 p-12 rounded-lg border border-white/10 shadow-2xl">
+        <div className="w-full max-w-md backdrop-blur-md bg-black/40 p-12 rounded-lg border border-white/10 shadow-2xl">
           {/* Logo and tagline with stronger text */}
           <div className="text-center mb-12">
             <h1 
@@ -136,7 +136,7 @@ export function LandingPage() {
               </div>
               <div className="relative flex justify-center text-xs">
                 <span 
-                  className="px-4 bg-black/60 text-gray-300 backdrop-blur-sm"
+                  className="px-4 bg-black/40 text-gray-300 backdrop-blur-sm"
                   style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                 >
                   Members
