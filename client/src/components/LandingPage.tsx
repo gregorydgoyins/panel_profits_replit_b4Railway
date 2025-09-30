@@ -5,6 +5,7 @@ import { Moon, Sun } from "lucide-react";
 export function LandingPage() {
   const [mounted, setMounted] = useState(false);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [videoSource, setVideoSource] = useState("/videos/daytime-video.mp4");
 
   useEffect(() => {
     setMounted(true);
@@ -14,6 +15,22 @@ export function LandingPage() {
       setTheme(savedTheme);
       document.documentElement.classList.toggle("light", savedTheme === "light");
     }
+    
+    // Set video based on time of day
+    const updateVideoByTime = () => {
+      const hour = new Date().getHours();
+      // Daytime: 6 AM to 6 PM (6-18), Nighttime: 6 PM to 6 AM
+      const isDaytime = hour >= 6 && hour < 18;
+      setVideoSource(isDaytime ? "/videos/daytime-video.mp4" : "/videos/nighttime-video.mp4");
+    };
+    
+    // Set initial video
+    updateVideoByTime();
+    
+    // Update video every minute to catch transitions
+    const interval = setInterval(updateVideoByTime, 60000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const toggleTheme = () => {
@@ -29,15 +46,16 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen bg-black flex flex-col relative overflow-hidden">
-      {/* Full-frame looping video background */}
+      {/* Full-frame looping video background - automatically switches between day/night */}
       <video
+        key={videoSource} // Force reload when source changes
         autoPlay
         loop
         muted
         playsInline
         className="absolute inset-0 w-full h-full object-cover z-0"
       >
-        <source src="/videos/background-video.mp4" type="video/mp4" />
+        <source src={videoSource} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
       
