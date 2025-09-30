@@ -1232,6 +1232,96 @@ export const karmicActionsLog = pgTable("karmic_actions_log", {
 // PANEL PROFITS: Seven Houses of Paneltown Trading System
 // Crime families controlling different comic asset sectors
 
+// ==========================================
+// Psychological Profiling Entry Test System
+// ==========================================
+
+// Test questions for psychological profiling
+export const testQuestions = pgTable("test_questions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  questionNumber: integer("question_number").notNull().unique(), // Order of presentation
+  category: text("category").notNull(), // 'risk_tolerance', 'moral_flexibility', 'leadership', 'loyalty_ambition', 'ends_means'
+  scenario: text("scenario").notNull(), // The moral/ethical scenario description
+  contextualSetup: text("contextual_setup"), // Additional context to make scenario more immersive
+  
+  // Options for the question (stored as JSONB for flexibility)
+  options: jsonb("options").notNull(), // Array of {id, text, psychologicalWeights}
+  
+  // Psychological dimensions this question evaluates
+  dimensions: jsonb("dimensions").notNull(), // {analytical: 0.8, aggressive: 0.2, strategic: 0.5, ...}
+  
+  // House alignment weights (how much each answer aligns with each house)
+  houseWeights: jsonb("house_weights").notNull(), // {solon: {...}, velos_thorne: {...}, ...}
+  
+  active: boolean("active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// User responses to test questions
+export const testResponses = pgTable("test_responses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  sessionId: varchar("session_id").notNull(), // Groups responses from a single test session
+  questionId: varchar("question_id").notNull().references(() => testQuestions.id),
+  selectedOptionId: text("selected_option_id").notNull(), // Which option they chose
+  responseTime: integer("response_time"), // Milliseconds to answer (can indicate thoughtfulness)
+  
+  // Calculated psychological scores from this response
+  dimensionScores: jsonb("dimension_scores"), // {analytical: 0.7, aggressive: 0.3, ...}
+  houseAffinities: jsonb("house_affinities"), // {solon: 0.6, velos_thorne: 0.2, ...}
+  
+  respondedAt: timestamp("responded_at").defaultNow(),
+});
+
+// Test results and house assignment
+export const testResults = pgTable("test_results", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id).unique(), // One result per user
+  sessionId: varchar("session_id").notNull().unique(), // Links to test session
+  
+  // Overall psychological profile
+  psychologicalProfile: jsonb("psychological_profile").notNull(), // Comprehensive profile data
+  
+  // Primary house assignment
+  assignedHouseId: text("assigned_house_id").notNull(), // Primary house match
+  primaryAffinity: decimal("primary_affinity", { precision: 5, scale: 2 }).notNull(), // Match percentage
+  
+  // Secondary and tertiary affinities
+  secondaryHouseId: text("secondary_house_id"),
+  secondaryAffinity: decimal("secondary_affinity", { precision: 5, scale: 2 }),
+  tertiaryHouseId: text("tertiary_house_id"),
+  tertiaryAffinity: decimal("tertiary_affinity", { precision: 5, scale: 2 }),
+  
+  // All house scores for transparency
+  allHouseScores: jsonb("all_house_scores").notNull(), // {solon: 0.75, velos_thorne: 0.45, ...}
+  
+  // Detailed dimension scores
+  dimensionBreakdown: jsonb("dimension_breakdown").notNull(), // All psychological dimensions scored
+  
+  // Test metadata
+  totalQuestions: integer("total_questions").notNull(),
+  completionTime: integer("completion_time"), // Total milliseconds
+  consistencyScore: decimal("consistency_score", { precision: 5, scale: 2 }), // How consistent responses were
+  
+  // Narrative explanation of assignment
+  assignmentRationale: text("assignment_rationale"), // AI-generated or template explanation
+  
+  completedAt: timestamp("completed_at").defaultNow(),
+});
+
+// Test sessions to track incomplete tests
+export const testSessions = pgTable("test_sessions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  sessionId: varchar("session_id").notNull().unique(),
+  currentQuestionNumber: integer("current_question_number").default(1),
+  status: text("status").notNull().default("in_progress"), // 'in_progress', 'completed', 'abandoned'
+  startedAt: timestamp("started_at").defaultNow(),
+  lastActivityAt: timestamp("last_activity_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+});
+
 // The Seven Houses - Main houses table
 export const sevenHouses = pgTable("seven_houses", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -6030,6 +6120,41 @@ export type InsertStolenPosition = z.infer<typeof insertStolenPositionSchema>;
 
 export type TraderWarfare = typeof traderWarfare.$inferSelect;
 export type InsertTraderWarfare = z.infer<typeof insertTraderWarfareSchema>;
+
+// Psychological Profiling Entry Test - Type exports
+export const insertTestQuestionSchema = createInsertSchema(testQuestions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertTestResponseSchema = createInsertSchema(testResponses).omit({
+  id: true,
+  respondedAt: true,
+});
+
+export const insertTestResultsSchema = createInsertSchema(testResults).omit({
+  id: true,
+  completedAt: true,
+});
+
+export const insertTestSessionsSchema = createInsertSchema(testSessions).omit({
+  id: true,
+  startedAt: true,
+  lastActivityAt: true,
+});
+
+export type TestQuestion = typeof testQuestions.$inferSelect;
+export type InsertTestQuestion = z.infer<typeof insertTestQuestionSchema>;
+
+export type TestResponse = typeof testResponses.$inferSelect;
+export type InsertTestResponse = z.infer<typeof insertTestResponseSchema>;
+
+export type TestResult = typeof testResults.$inferSelect;
+export type InsertTestResult = z.infer<typeof insertTestResultsSchema>;
+
+export type TestSession = typeof testSessions.$inferSelect;
+export type InsertTestSession = z.infer<typeof insertTestSessionsSchema>;
 
 // Seven Houses of Paneltown - Type exports
 export const insertSevenHousesSchema = createInsertSchema(sevenHouses).omit({
