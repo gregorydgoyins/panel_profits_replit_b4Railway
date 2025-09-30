@@ -1,45 +1,12 @@
-import { useState } from 'react';
-import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'wouter';
 
 export default function AuthPage() {
-  const [, navigate] = useLocation();
-  const { login } = useAuth();
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      // For testing purposes, use test credentials
-      await login(email || 'test@panelprofits.com', password || 'test123');
-      
-      toast({
-        title: "Welcome to Panel Profits",
-        description: "Authentication successful. Entering the trading floor...",
-      });
-      
-      // Navigate to dashboard after successful login
-      navigate('/dashboard');
-    } catch (error) {
-      toast({
-        title: "Authentication Failed",
-        description: error instanceof Error ? error.message : "Invalid credentials",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+  // Replit auth uses OIDC - redirect to login endpoint
+  const handleLogin = () => {
+    window.location.href = '/api/login';
   };
 
   return (
@@ -85,44 +52,20 @@ export default function AuthPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="bg-black/40 border-white/20 text-white placeholder:text-gray-500"
-                  data-testid="input-email"
-                />
-              </div>
-              <div className="space-y-2">
-                <Input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="bg-black/40 border-white/20 text-white placeholder:text-gray-500"
-                  data-testid="input-password"
-                />
-              </div>
-              
-              <div className="pt-4">
-                <Button 
-                  type="submit" 
-                  className="w-full bg-white text-black hover:bg-gray-100"
-                  disabled={isLoading}
-                  data-testid="button-login"
-                >
-                  {isLoading ? "Authenticating..." : "Enter Trading Floor"}
-                </Button>
-              </div>
+            <div className="space-y-4">
+              <Button 
+                onClick={handleLogin}
+                className="w-full bg-white text-black hover:bg-gray-100"
+                data-testid="button-login"
+              >
+                Sign In with Replit
+              </Button>
 
-              {/* Test credentials hint */}
+              {/* Information */}
               <div className="text-center text-xs text-gray-500 pt-2">
-                <p>For testing: Use any email/password or leave blank</p>
+                <p>Secure authentication via Replit OIDC</p>
               </div>
-            </form>
+            </div>
           </CardContent>
         </Card>
       </main>
