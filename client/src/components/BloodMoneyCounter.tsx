@@ -92,24 +92,23 @@ export function BloodMoneyCounter({ userId, className, compact = false }: BloodM
     return (
       <div 
         className={cn(
-          "flex items-center gap-2 px-3 py-1.5 rounded-md border",
-          "bg-red-900/10 border-red-900/30",
-          isIncreasing && "animate-pulse-red",
+          "flex items-center gap-2 px-2 py-1 font-mono text-xs",
+          isIncreasing && "text-red-400 animate-pulse",
+          !isIncreasing && "text-red-500/70",
           className
         )}
         data-testid="blood-money-counter-compact"
       >
-        <DollarSign className={cn(
-          "h-4 w-4",
-          isIncreasing ? "text-red-600 animate-bounce" : "text-red-800"
-        )} />
+        <span className="text-red-500/50">BLOOD$:</span>
         <span className={cn(
-          "font-mono font-bold",
-          isIncreasing ? "text-red-600" : "text-red-800"
+          "font-bold",
+          isIncreasing && "text-glow-red"
         )}>
           {formatCurrency(displayValue)}
         </span>
-        {bloodMoneyData && getSoulWeightIcon(bloodMoneyData.soulWeight)}
+        {bloodMoneyData && bloodMoneyData.soulWeight === 'damned' && (
+          <Skull className="h-3 w-3 text-red-900" />
+        )}
       </div>
     );
   }

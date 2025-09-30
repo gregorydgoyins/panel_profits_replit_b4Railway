@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, User, DollarSign, Calendar } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
@@ -95,100 +93,83 @@ export function VictimFeed({ userId, limit = 10, autoRefresh = true }: VictimFee
 
   if (isLoading) {
     return (
-      <Card className="animate-pulse" data-testid="victim-feed-loading">
-        <CardHeader>
-          <CardTitle>Loading victims...</CardTitle>
-        </CardHeader>
-      </Card>
+      <div className="bg-black p-4 font-mono text-xs text-red-500" data-testid="victim-feed-loading">
+        <div className="animate-pulse">LOADING VICTIM DATA...</div>
+      </div>
     );
   }
 
   if (victims.length === 0) {
     return (
-      <Card data-testid="victim-feed-empty">
-        <CardHeader>
-          <CardTitle className="text-muted-foreground">No victims... yet</CardTitle>
-        </CardHeader>
-      </Card>
+      <div className="bg-black p-4 font-mono text-xs text-red-500/40" data-testid="victim-feed-empty">
+        NO VICTIMS... YET
+      </div>
     );
   }
 
   return (
-    <Card className="border-red-900/20" data-testid="victim-feed">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-red-900">
-          <AlertTriangle className="h-5 w-5" />
-          Trading Victims
-          {victims.length > 0 && (
-            <Badge variant="destructive" className="ml-auto">
-              {victims.length} Lives Affected
-            </Badge>
-          )}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-0">
-        <ScrollArea className="h-[400px]">
-          <div className="space-y-3 p-4">
+    <div className="h-full bg-black font-mono text-xs" data-testid="victim-feed">
+      <div className="p-2 border-b border-red-900/30 text-red-500 flex items-center justify-between">
+        <span className="flex items-center gap-1">
+          <AlertTriangle className="h-3 w-3" />
+          VICTIM LOG
+        </span>
+        <span className="text-red-500/60">
+          [{victims.length} AFFECTED]
+        </span>
+      </div>
+      <ScrollArea className="h-[calc(100%-30px)] terminal-scroll">
+        <div className="p-2 space-y-1">
             {victims.map((victim) => (
               <div
                 key={victim.id}
                 className={cn(
-                  "p-4 rounded-lg border-2 transition-all duration-500",
-                  getImpactColor(victim.impactLevel),
-                  newVictimAlert === victim.id && "animate-fade-in-shake scale-105"
+                  "p-2 border-l-2 transition-all duration-300",
+                  victim.impactLevel === 'catastrophic' ? "border-red-500 text-red-500" :
+                  victim.impactLevel === 'severe' ? "border-red-600/70 text-red-600/70" :
+                  victim.impactLevel === 'moderate' ? "border-red-700/50 text-red-700/50" :
+                  "border-red-800/30 text-red-800/30",
+                  newVictimAlert === victim.id && "animate-fade-in-shake bg-red-900/10"
                 )}
                 data-testid={`victim-card-${victim.id}`}
               >
-                {/* Victim Header */}
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <div className="font-semibold">{victim.victimName}</div>
-                      {victim.occupation && victim.age && (
-                        <div className="text-xs text-muted-foreground">
-                          {victim.age} years old • {victim.occupation}
-                          {victim.familySize && victim.familySize > 0 && 
-                            ` • ${victim.familySize} dependents`}
-                        </div>
+                {/* Terminal log format */}
+                <div className="flex items-start gap-2">
+                  <span className="text-red-500/60">
+                    [{formatTimeAgo(victim.createdAt).toUpperCase()}]
+                  </span>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold">
+                        {victim.impactLevel.toUpperCase()}
+                      </span>
+                      <span>-</span>
+                      <span>{victim.victimName.toUpperCase()}</span>
+                      {victim.age && victim.occupation && (
+                        <span className="text-red-500/40">
+                          ({victim.age}YRS/{victim.occupation.toUpperCase()})
+                        </span>
                       )}
                     </div>
-                  </div>
-                  <Badge variant={getImpactBadgeVariant(victim.impactLevel)}>
-                    {victim.impactLevel}
-                  </Badge>
-                </div>
-
-                {/* Story */}
-                <div className="text-sm mb-3 text-foreground/90 italic">
-                  "{victim.victimStory}"
-                </div>
-
-                {/* Consequence */}
-                {victim.consequence && (
-                  <div className="text-xs text-red-600 font-medium mb-2 border-l-2 border-red-600 pl-2">
-                    {victim.consequence}
-                  </div>
-                )}
-
-                {/* Footer */}
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="h-3 w-3" />
-                    <span className="font-bold text-red-600">
-                      {formatCurrency(victim.lossAmount)} lost
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    <span>{formatTimeAgo(victim.createdAt)}</span>
+                    <div className="mt-1 text-red-500/60 pl-2">
+                      {'>'} {victim.victimStory}
+                    </div>
+                    {victim.consequence && (
+                      <div className="mt-1 text-red-400 pl-2">
+                        {'>>'} {victim.consequence}
+                      </div>
+                    )}
+                    <div className="mt-1 text-red-500/40 pl-2">
+                      LOSS: ${parseFloat(victim.lossAmount).toFixed(0)}
+                      {victim.familySize && victim.familySize > 0 && 
+                        ` | DEPENDENTS: ${victim.familySize}`}
+                    </div>
                   </div>
                 </div>
               </div>
             ))}
-          </div>
-        </ScrollArea>
-      </CardContent>
+        </div>
+      </ScrollArea>
 
       {/* CSS for animations */}
       <style dangerouslySetInnerHTML={{ __html: `
@@ -216,6 +197,6 @@ export function VictimFeed({ userId, limit = 10, autoRefresh = true }: VictimFee
           animation: fade-in-shake 0.5s ease-out;
         }
       ` }} />
-    </Card>
+    </div>
   );
 }

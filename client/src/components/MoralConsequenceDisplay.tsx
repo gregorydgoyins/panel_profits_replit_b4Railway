@@ -1,8 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Skull, Heart, DollarSign, AlertTriangle } from 'lucide-react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
@@ -121,78 +117,56 @@ export function MoralConsequenceDisplay({ userId }: { userId?: string }) {
         />
       )}
 
-      <Card 
+      <div
         className={cn(
-          "border-2 transition-all duration-500",
-          moralStanding.corruption > 50 && "border-red-900/50 shadow-red-900/20 shadow-xl",
+          "bg-black/95 border border-red-900/50 p-3 font-mono text-xs transition-all duration-500",
+          "shadow-[0_0_20px_rgba(139,0,0,0.3)] max-w-sm",
+          moralStanding.corruption > 50 && "border-red-500/70 shadow-[0_0_30px_rgba(255,0,0,0.4)]",
           moralStanding.corruption > 80 && "animate-pulse-slow",
           isShaking && "animate-shake",
           moralStanding.corruption > 70 && "crack-effect"
         )}
         data-testid="moral-consequence-display"
       >
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center justify-between">
-            <span className="flex items-center gap-2">
-              <Skull className={cn("h-5 w-5", getSoulWeightColor(moralStanding.soulWeight))} />
-              Moral Standing
+        {/* Corruption meter as thin progress bar */}
+        <div className="mb-2">
+          <div className="flex items-center justify-between mb-1">
+            <span className={cn("uppercase tracking-wider flex items-center gap-1", getSoulWeightColor(moralStanding.soulWeight))}>
+              <Skull className="h-3 w-3" />
+              {moralStanding.soulWeight}
             </span>
-            <Badge 
-              variant="destructive"
-              className={cn(
-                "text-xs",
-                getSoulWeightColor(moralStanding.soulWeight)
-              )}
-            >
-              {moralStanding.soulWeight.toUpperCase()}
-            </Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Corruption Meter */}
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Corruption Level</span>
-              <span className="font-bold text-red-600">
-                {moralStanding.corruption.toFixed(1)}%
-              </span>
-            </div>
-            <div className="relative">
-              <Progress 
-                value={moralStanding.corruption} 
-                className="h-3"
-              />
-              <div 
-                className={cn(
-                  "absolute inset-0 h-3 rounded-full transition-all duration-500",
-                  getCorruptionColor(moralStanding.corruption)
-                )}
-                style={{ width: `${moralStanding.corruption}%` }}
-              />
-              {moralStanding.corruption > 60 && (
-                <div className="absolute inset-0 h-3 rounded-full bg-gradient-to-r from-transparent via-red-900/30 to-transparent animate-pulse" />
-              )}
-            </div>
+            <span className="text-red-500">
+              {moralStanding.corruption.toFixed(1)}%
+            </span>
           </div>
+          <div className="h-1 bg-black border border-red-900/30">
+            <div 
+              className={cn(
+                "h-full transition-all duration-500",
+                getCorruptionColor(moralStanding.corruption)
+              )}
+              style={{ 
+                width: `${moralStanding.corruption}%`,
+                boxShadow: `0 0 10px currentColor`
+              }}
+            />
+          </div>
+        </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 gap-3 text-sm">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-red-600" />
-              <div>
-                <div className="text-muted-foreground">Victims</div>
-                <div className="font-bold text-red-600">{moralStanding.victimCount}</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-red-600" />
-              <div>
-                <div className="text-muted-foreground">Blood Money</div>
-                <div className="font-bold text-red-600">
-                  {formatCurrency(moralStanding.bloodMoney)}
-                </div>
-              </div>
-            </div>
+        <div className="space-y-1 text-red-500/80">
+          {/* Terminal-style statistics */}
+          <div className="flex items-center justify-between">
+            <span className="uppercase">VICTIMS</span>
+            <span className="text-red-500 font-bold">
+              {moralStanding.victimCount.toString().padStart(4, '0')}
+            </span>
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <span className="uppercase">BLOOD $</span>
+            <span className="text-red-500 font-bold">
+              {moralStanding.bloodMoney.toFixed(0)}
+            </span>
           </div>
 
           {/* Warning messages based on corruption level */}
@@ -208,19 +182,23 @@ export function MoralConsequenceDisplay({ userId }: { userId?: string }) {
 
           {/* Confession Button */}
           {moralStanding.canConfess && (
-            <Button
+            <button
               onClick={() => confess()}
               disabled={isConfessing}
-              variant="outline"
-              className="w-full border-red-900 hover:bg-red-900/10 text-red-900"
+              className={cn(
+                "w-full mt-1 py-1 px-2 uppercase text-xs font-bold transition-all",
+                "bg-red-900/20 border border-red-500 text-red-500",
+                "hover:bg-red-900/40 hover:shadow-[0_0_20px_rgba(255,0,0,0.5)]",
+                "disabled:opacity-50 disabled:cursor-not-allowed",
+                moralStanding.corruption > 70 && "animate-pulse"
+              )}
               data-testid="button-confess"
             >
-              <Heart className="h-4 w-4 mr-2" />
-              {isConfessing ? 'Confessing...' : 'Confess Sins (10% of Blood Money)'}
-            </Button>
+              {isConfessing ? "PROCESSING..." : "[CONFESS]"}
+            </button>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* CSS for special effects */}
       <style dangerouslySetInnerHTML={{ __html: `
