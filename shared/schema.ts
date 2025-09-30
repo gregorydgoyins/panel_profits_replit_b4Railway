@@ -5576,3 +5576,136 @@ export type InsertGradingCertification = z.infer<typeof insertGradingCertificati
 
 export type MarketComparable = typeof marketComparables.$inferSelect;
 export type InsertMarketComparable = z.infer<typeof insertMarketComparableSchema>;
+
+// =============================================
+// SHADOW ECONOMY SYSTEM
+// =============================================
+
+// Shadow Trades - Track all shadow market transactions
+export const shadowTrades = pgTable("shadow_trades", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  assetId: varchar("asset_id").notNull().references(() => assets.id),
+  
+  // Price Information
+  shadowPrice: decimal("shadow_price", { precision: 10, scale: 2 }).notNull(),
+  realPrice: decimal("real_price", { precision: 10, scale: 2 }).notNull(),
+  priceDivergence: decimal("price_divergence", { precision: 8, scale: 2 }).notNull(), // Percentage
+  
+  // Trade Details
+  quantity: integer("quantity").notNull(),
+  side: text("side").notNull(), // 'buy' or 'sell'
+  orderType: text("order_type").notNull(), // 'predatory', 'vampire', 'ghost'
+  profitLoss: decimal("profit_loss", { precision: 15, scale: 2 }).notNull(),
+  
+  // Corruption Impact
+  corruptionGained: integer("corruption_gained").notNull(),
+  victimId: varchar("victim_id").references(() => users.id), // If applicable
+  victimLoss: decimal("victim_loss", { precision: 15, scale: 2 }),
+  
+  // Status
+  status: text("status").notNull().default("pending"), // 'pending', 'executed', 'cancelled'
+  executedAt: timestamp("executed_at").notNull(),
+  
+  // Metadata
+  metadata: jsonb("metadata"), // Additional trade-specific data
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_shadow_trades_user").on(table.userId),
+  index("idx_shadow_trades_asset").on(table.assetId),
+  index("idx_shadow_trades_executed").on(table.executedAt),
+]);
+
+// Dark Pools - Hidden liquidity pools for shadow market
+export const darkPools = pgTable("dark_pools", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  assetId: varchar("asset_id").notNull().references(() => assets.id),
+  
+  // Liquidity Information
+  shadowLiquidity: decimal("shadow_liquidity", { precision: 15, scale: 2 }).notNull(),
+  hiddenOrders: integer("hidden_orders").default(0),
+  averageSpread: decimal("average_spread", { precision: 8, scale: 4 }),
+  
+  // Access Control
+  accessLevel: integer("access_level").notNull().default(30), // Minimum corruption to access
+  participantCount: integer("participant_count").default(0),
+  
+  // Pool Characteristics
+  poolType: text("pool_type").default("standard"), // 'standard', 'predatory', 'vampire'
+  volatility: decimal("volatility", { precision: 8, scale: 2 }),
+  bloodInWater: boolean("blood_in_water").default(false), // Recent losses detected
+  lastBloodTime: timestamp("last_blood_time"),
+  
+  // Statistics
+  totalVolume24h: decimal("total_volume_24h", { precision: 15, scale: 2 }).default("0.00"),
+  totalTrades24h: integer("total_trades_24h").default(0),
+  largestTrade: decimal("largest_trade", { precision: 15, scale: 2 }),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_dark_pools_asset").on(table.assetId),
+  index("idx_dark_pools_access").on(table.accessLevel),
+]);
+
+// Shadow Order Book - Hidden orders only visible to corrupt traders
+export const shadowOrderBook = pgTable("shadow_order_book", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  assetId: varchar("asset_id").notNull().references(() => assets.id),
+  
+  // Order Details
+  orderType: text("order_type").notNull(), // 'ghost', 'trap', 'vampire'
+  side: text("side").notNull(), // 'buy' or 'sell'
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  quantity: integer("quantity").notNull(),
+  filled: integer("filled").default(0),
+  
+  // Visibility
+  visibilityLevel: integer("visibility_level").notNull(), // Corruption required to see
+  isHidden: boolean("is_hidden").default(true),
+  revealAt: timestamp("reveal_at"), // When order becomes visible
+  
+  // Targeting
+  targetUserId: varchar("target_user_id").references(() => users.id), // For predatory orders
+  targetPrice: decimal("target_price", { precision: 10, scale: 2 }), // Stop loss hunting
+  
+  // Status
+  status: text("status").notNull().default("pending"), // 'pending', 'partial', 'filled', 'cancelled'
+  expiresAt: timestamp("expires_at"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_shadow_order_book_user").on(table.userId),
+  index("idx_shadow_order_book_asset").on(table.assetId),
+  index("idx_shadow_order_book_status").on(table.status),
+]);
+
+// Create insert schemas for Shadow Economy
+export const insertShadowTradeSchema = createInsertSchema(shadowTrades).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertDarkPoolSchema = createInsertSchema(darkPools).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertShadowOrderBookSchema = createInsertSchema(shadowOrderBook).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Export TypeScript types for Shadow Economy
+export type ShadowTrade = typeof shadowTrades.$inferSelect;
+export type InsertShadowTrade = z.infer<typeof insertShadowTradeSchema>;
+
+export type DarkPool = typeof darkPools.$inferSelect;
+export type InsertDarkPool = z.infer<typeof insertDarkPoolSchema>;
+
+export type ShadowOrderBook = typeof shadowOrderBook.$inferSelect;
+export type InsertShadowOrderBook = z.infer<typeof insertShadowOrderBookSchema>;

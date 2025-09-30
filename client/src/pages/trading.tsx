@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
+import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -9,7 +10,7 @@ import {
   TrendingUp, TrendingDown, Activity, DollarSign, Clock, BarChart3, 
   Wallet, Target, AlertTriangle, RefreshCw, Eye, Terminal,
   Crown, Swords, Trophy, Zap, Power, Skull, ArrowUp, ArrowDown,
-  Heart, Flame
+  Heart, Flame, Ghost
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -50,6 +51,7 @@ interface Asset {
 export default function TradingPage() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
   const [orderType, setOrderType] = useState<'buy' | 'sell'>('buy');
   const [orderQuantity, setOrderQuantity] = useState('');
@@ -61,10 +63,32 @@ export default function TradingPage() {
   const [currentVictim, setCurrentVictim] = useState<VictimData | null>(null);
   const [showOrderConfirmation, setShowOrderConfirmation] = useState(false);
   const [potentialVictimCount, setPotentialVictimCount] = useState(0);
+  const [showGlitchPrice, setShowGlitchPrice] = useState(false);
+  const [shadowPriceHint, setShadowPriceHint] = useState<number | null>(null);
   
   // Use corruption and blood money hooks
   const { corruption, soulWeight, victimCount, corruptionClass } = useCorruption();
   const { bloodMoney, showBloodDrip, formattedBloodMoney } = useBloodMoney();
+  
+  // Show glitch effects for corrupt users
+  useEffect(() => {
+    if (corruption > 30 && selectedAsset) {
+      const glitchInterval = setInterval(() => {
+        setShowGlitchPrice(true);
+        // Calculate shadow price hint (simplified)
+        const realPrice = selectedAsset.currentPrice || 100;
+        const divergence = 1 - (0.95 - (corruption - 30) * 0.015);
+        setShadowPriceHint(realPrice * divergence);
+        
+        setTimeout(() => {
+          setShowGlitchPrice(false);
+          setShadowPriceHint(null);
+        }, 200 + Math.random() * 300);
+      }, 5000 + Math.random() * 10000);
+      
+      return () => clearInterval(glitchInterval);
+    }
+  }, [corruption, selectedAsset]);
   
   // Subscribe to WebSocket for selected asset
   const subscribedAssets = useMemo(() => 

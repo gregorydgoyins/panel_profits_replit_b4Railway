@@ -59,6 +59,8 @@ import DivineConnections from '@/pages/DivineConnections';
 import SequentialTradingExperience from '@/pages/SequentialTradingExperience';
 // Story-Driven Market Visualization
 import StoryDrivenMarketViz from '@/pages/StoryDrivenMarketViz';
+// Shadow Market - Dark Trading Interface
+import ShadowMarket from '@/pages/ShadowMarket';
 
 // WebSocket service for real-time data
 import { webSocketService } from '@/services/websocketService';
@@ -114,6 +116,7 @@ function Router() {
       <Route path="/terminal" component={TradingTerminalPage} />
       <Route path="/sequential-art" component={SequentialTradingExperience} />
       <Route path="/market-stories" component={StoryDrivenMarketViz} />
+      <Route path="/shadow-market" component={ShadowMarket} />
       <Route path="/characters" component={CharactersPage} />
       <Route path="/comics" component={ComicsPage} />
       <Route path="/creators" component={CreatorsPage} />
