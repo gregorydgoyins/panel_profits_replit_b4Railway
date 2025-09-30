@@ -113,6 +113,59 @@ export const userDecisions = pgTable("user_decisions", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Knowledge Test Results - Disguised as "Market Mastery Challenge"
+export const knowledgeTestResults = pgTable("knowledge_test_results", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  
+  // Visible performance metrics (what user sees)
+  profitScore: decimal("profit_score", { precision: 6, scale: 2 }).notNull(), // "Trading optimization" score
+  performanceRating: text("performance_rating").notNull(), // 'exceptional', 'strong', 'developing', 'needs_improvement'
+  displayedFeedback: text("displayed_feedback").notNull(), // Misleading feedback about trading prowess
+  
+  // Hidden knowledge assessment (actual purpose)
+  knowledgeScore: decimal("knowledge_score", { precision: 6, scale: 2 }).notNull(), // 0-100 actual financial literacy
+  tier: text("tier").notNull(), // 'novice', 'associate', 'trader', 'specialist', 'master'
+  weakAreas: text("weak_areas").array(), // Knowledge gaps identified
+  strengths: text("strengths").array(), // Areas of competence
+  
+  // Trading floor access control
+  tradingFloorAccess: boolean("trading_floor_access").default(false), // Can they trade?
+  accessLevel: text("access_level").default("restricted"), // 'restricted', 'basic', 'standard', 'advanced', 'unlimited'
+  restrictionReason: text("restriction_reason"), // Why access is limited
+  
+  // Test metadata
+  completedAt: timestamp("completed_at").defaultNow(),
+  timeSpent: integer("time_spent"), // Seconds to complete
+  questionsAnswered: integer("questions_answered").notNull(),
+  retakeAllowedAt: timestamp("retake_allowed_at"), // When they can retry
+  attemptNumber: integer("attempt_number").default(1),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Knowledge Test Responses - Individual question tracking
+export const knowledgeTestResponses = pgTable("knowledge_test_responses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  resultId: varchar("result_id").notNull().references(() => knowledgeTestResults.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  
+  // Question and response
+  scenarioId: text("scenario_id").notNull(), // Which scenario from knowledgeTestScenarios
+  choiceId: text("choice_id").notNull(), // Which option they selected
+  
+  // Scoring
+  knowledgeScore: decimal("knowledge_score", { precision: 6, scale: 2 }).notNull(), // 0-100 for this question
+  profitScore: decimal("profit_score", { precision: 6, scale: 2 }).notNull(), // Fake visible score
+  
+  // Analysis
+  responseTime: integer("response_time"), // Milliseconds to answer
+  isCorrect: boolean("is_correct").notNull(), // Based on knowledge score threshold
+  knowledgeAreas: text("knowledge_areas").array(), // What this tested
+  
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Asset types: characters, comics, creators, publishers
 export const assets = pgTable("assets", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -450,6 +503,18 @@ export const insertOrderSchema = createInsertSchema(orders).omit({
 });
 
 export const insertMarketEventSchema = createInsertSchema(marketEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Knowledge Test insert schemas
+export const insertKnowledgeTestResultSchema = createInsertSchema(knowledgeTestResults).omit({
+  id: true,
+  createdAt: true,
+  completedAt: true,
+});
+
+export const insertKnowledgeTestResponseSchema = createInsertSchema(knowledgeTestResponses).omit({
   id: true,
   createdAt: true,
 });
