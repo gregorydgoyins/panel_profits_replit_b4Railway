@@ -18,6 +18,7 @@ import { PortfolioHoldings } from '@/components/dashboard/PortfolioHoldings';
 import { TradingBalance } from '@/components/dashboard/TradingBalance';
 import { WatchlistManager } from '@/components/dashboard/WatchlistManager';
 import { MarketOverview } from '@/components/dashboard/MarketOverview';
+import { OptionsChainWidget } from '@/components/dashboard/OptionsChainWidget';
 
 interface DashboardStats {
   portfolioValue: number;
@@ -347,6 +348,11 @@ export default function DashboardPage() {
         {/* Bottom Row - Watchlist */}
         <div className="grid grid-cols-1 gap-6">
           <WatchlistManager />
+        </div>
+
+        {/* Options Chain */}
+        <div className="grid grid-cols-1 gap-6 mt-6">
+          <OptionsChainWidget />
         </div>
 
         {/* Quick Actions Footer */}
