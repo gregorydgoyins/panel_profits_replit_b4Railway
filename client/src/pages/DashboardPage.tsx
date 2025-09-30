@@ -212,7 +212,7 @@ export default function DashboardPage() {
                   Welcome back, {getDisplayName()}
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  Trading Dashboard • {new Date().toLocaleDateString('en-US', { 
+                  Panel Profits • {new Date().toLocaleDateString('en-US', { 
                     weekday: 'long', 
                     year: 'numeric', 
                     month: 'long', 
