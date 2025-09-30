@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
-import darkCityImage from "@assets/stock_images/dark_rainy_city_stre_eb2ad3bc.jpg";
+import darkCityImage from "@/assets/images/dark_rainy_city_stre_eb2ad3bc.jpg";
 
 export function LandingPage() {
   const [mounted, setMounted] = useState(false);
