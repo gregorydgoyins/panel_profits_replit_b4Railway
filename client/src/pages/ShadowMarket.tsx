@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'wouter';
+import { useLocation } from 'wouter';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -44,7 +44,7 @@ interface ShadowOrderType {
 }
 
 export default function ShadowMarket() {
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { corruption, soulWeight, corruptionClass } = useCorruption();
   const [selectedAsset, setSelectedAsset] = useState<string | null>(null);
@@ -63,9 +63,9 @@ export default function ShadowMarket() {
         description: "Your corruption is insufficient. The shadows reject you.",
         variant: "destructive"
       });
-      navigate('/trading');
+      setLocation('/trading');
     }
-  }, [corruption, navigate, toast]);
+  }, [corruption, setLocation, toast]);
 
   // Glitch effect based on corruption
   useEffect(() => {
