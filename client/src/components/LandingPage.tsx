@@ -465,7 +465,7 @@ export function LandingPage() {
                     <Button 
                       size="lg" 
                       className="bg-red-900/50 border-2 border-red-500 text-white hover:bg-red-800/70 hover:border-red-400 backdrop-blur-sm px-12 py-8 text-xl font-bold tracking-widest transition-all duration-500 transform hover:scale-105"
-                      onClick={() => window.location.href = "/trading"}
+                      onClick={() => window.location.href = "/api/login"}
                       data-testid="button-enter-sequential"
                       style={{
                         textShadow: "0 0 20px rgba(255,0,0,0.5)",

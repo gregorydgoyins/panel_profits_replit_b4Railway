@@ -103,7 +103,10 @@ function Router() {
   return (
     <Switch>
       {isLoading || !isAuthenticated ? (
-        <Route path="/" component={LandingPage} />
+        <>
+          <Route path="/" component={LandingPage} />
+          <Route path="/trading" component={LandingPage} />
+        </>
       ) : (
         <>
           <Route path="/" component={DashboardPage} />
