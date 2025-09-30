@@ -1,49 +1,108 @@
-import { useState, useEffect, useRef, useMemo, useCallback, memo, lazy, Suspense } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
-import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { 
   TrendingUp, TrendingDown, Activity, DollarSign, Clock, BarChart3, 
   Wallet, Target, AlertTriangle, RefreshCw, Eye, Terminal,
-  Crown, Swords, Trophy, Zap, Power, Skull, ArrowUp, ArrowDown,
-  Heart, Flame, Ghost, Briefcase, Droplets, Shield, BookOpen,
-  Palette, Globe, Filter
+  Skull, ArrowUp, ArrowDown, Ghost, Briefcase, Droplets, Shield, BookOpen,
+  Palette, Globe, Cigarette, MapPin, FileText, Users, Zap,
+  Phone, Coffee, Newspaper, Radio, Building
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useOptimizedWebSocket } from '@/hooks/useOptimizedWebSocket';
-import { useCorruption, useBloodMoney } from '@/hooks/useCorruption';
-import { OrderHistory } from '@/components/trading/OrderHistory';
-import { OrderBook } from '@/components/trading/OrderBook';
-import { VictimNotification, VictimData } from '@/components/VictimNotification';
-import { BloodMoneyCounter } from '@/components/BloodMoneyCounter';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { apiRequest } from '@/lib/queryClient';
 
-// Lazy load heavy components for better performance
-const MoralConsequenceDisplay = lazy(() => import('@/components/MoralConsequenceDisplay').then(module => ({ default: module.MoralConsequenceDisplay })));
-const VictimFeed = lazy(() => import('@/components/VictimFeed').then(module => ({ default: module.VictimFeed })));
-const ShadowTraders = lazy(() => import('@/components/ShadowTraders').then(module => ({ default: module.ShadowTraders })));
-const WarfarePanel = lazy(() => import('@/components/WarfarePanel').then(module => ({ default: module.WarfarePanel })));
-
-interface TradingStats {
-  availableBalance: number;
-  dayTradingUsed: number;
-  dayTradingLimit: number;
-  totalPortfolioValue: number;
-  totalTrades: number;
-  profitToday: number;
-  pendingOrders: number;
-}
+// Seven Houses configuration with noir themes
+const SEVEN_HOUSES = [
+  { 
+    id: 'sequential-securities', 
+    name: 'Sequential Securities', 
+    icon: Building, 
+    color: '#FFEB3B', // Neon yellow
+    theme: 'corporate-towers',
+    boss: 'The Publisher',
+    territory: 'Publishing District',
+    soundEffect: 'BANG!',
+    atmosphere: 'Neon-lit skyscrapers, rain-slicked streets'
+  },
+  { 
+    id: 'ink-blood', 
+    name: 'Ink & Blood Syndicate', 
+    icon: Droplets, 
+    color: '#9C27B0', // Purple
+    theme: 'smoke-shadows',
+    boss: 'The Shadow',
+    territory: 'Villain\'s Alley',
+    soundEffect: 'SLASH!',
+    atmosphere: 'Purple smoke, dark alleys, danger'
+  },
+  { 
+    id: 'heroic-trust', 
+    name: 'The Heroic Trust', 
+    icon: Shield, 
+    color: '#2196F3', // Blue
+    theme: 'police-lights',
+    boss: 'The Commissioner',
+    territory: 'Hero Heights',
+    soundEffect: 'POW!',
+    atmosphere: 'Blue police lights, justice prevails'
+  },
+  { 
+    id: 'narrative-capital', 
+    name: 'Narrative Capital', 
+    icon: BookOpen, 
+    color: '#4CAF50', // Green
+    theme: 'typewriter-keys',
+    boss: 'The Writer',
+    territory: 'Writer\'s Block',
+    soundEffect: 'CLICK!',
+    atmosphere: 'Green glow of old typewriters'
+  },
+  { 
+    id: 'visual-holdings', 
+    name: 'Visual Holdings', 
+    icon: Palette, 
+    color: '#FF9800', // Orange
+    theme: 'artist-brushes',
+    boss: 'The Artist',
+    territory: 'Canvas Corner',
+    soundEffect: 'SPLASH!',
+    atmosphere: 'Orange paint splatters, creative chaos'
+  },
+  { 
+    id: 'vigilante-exchange', 
+    name: 'The Vigilante Exchange', 
+    icon: Eye, 
+    color: '#607D8B', // Gray
+    theme: 'alley-shadows',
+    boss: 'The Watcher',
+    territory: 'Back Alley Exchange',
+    soundEffect: 'THWACK!',
+    atmosphere: 'Gray shadows, watching from darkness'
+  },
+  { 
+    id: 'crossover-consortium', 
+    name: 'Crossover Consortium', 
+    icon: Globe, 
+    color: '#E91E63', // Pink
+    theme: 'dimensional-rifts',
+    boss: 'The Broker',
+    territory: 'Reality Nexus',
+    soundEffect: 'BOOM!',
+    atmosphere: 'Pink rifts, dimensions colliding'
+  },
+];
 
 interface Asset {
   id: string;
@@ -54,253 +113,551 @@ interface Asset {
   dayChange?: number;
   dayChangePercent?: number;
   volume?: number;
+  house?: string;
 }
 
-// Memoized stat display component
-const StatDisplay = memo(({ 
-  label, 
-  value, 
-  icon: Icon, 
-  trend, 
-  variant = 'default' 
-}: {
-  label: string;
-  value: string;
-  icon: any;
-  trend?: 'up' | 'down' | null;
-  variant?: 'default' | 'success' | 'danger' | 'warning';
-}) => {
-  const colorClass = variant === 'success' ? 'text-green-400' :
-                     variant === 'danger' ? 'text-red-500' :
-                     variant === 'warning' ? 'text-yellow-500' :
-                     'text-gray-400';
-  
-  return (
-    <div className="flex items-center gap-2 p-2 bg-black/50 rounded border border-white/10">
-      <Icon className={cn("h-4 w-4", colorClass)} />
-      <div className="flex-1">
-        <div className="text-xs text-gray-500">{label}</div>
-        <div className={cn("font-mono text-sm", colorClass)}>
-          {value}
-          {trend && (
-            trend === 'up' ? 
-              <ArrowUp className="inline h-3 w-3 ml-1 text-green-400" /> :
-              <ArrowDown className="inline h-3 w-3 ml-1 text-red-400" />
-          )}
-        </div>
-      </div>
-    </div>
-  );
-});
-StatDisplay.displayName = 'StatDisplay';
+// Comic sound effect component
+const ComicSoundEffect = ({ effect, color = '#FF0000' }: { effect: string; color?: string }) => (
+  <motion.div
+    initial={{ scale: 0, rotate: -15 }}
+    animate={{ scale: 1.5, rotate: 0 }}
+    exit={{ scale: 0, opacity: 0 }}
+    transition={{ type: "spring", stiffness: 300 }}
+    className="absolute z-50 pointer-events-none"
+    style={{
+      color,
+      textShadow: '3px 3px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000',
+      fontFamily: 'Impact, sans-serif',
+      fontSize: '3rem',
+      fontWeight: 'bold',
+      transform: 'rotate(-5deg)'
+    }}
+  >
+    {effect}
+  </motion.div>
+);
 
-// Memoized asset list item
-const AssetListItem = memo(({ 
+// Newspaper headline ticker
+const NewsHeadline = ({ headline }: { headline: string }) => (
+  <motion.div
+    initial={{ x: '100vw' }}
+    animate={{ x: '-100vw' }}
+    transition={{ duration: 20, ease: "linear" }}
+    className="absolute top-2 whitespace-nowrap"
+    style={{
+      fontFamily: 'Georgia, serif',
+      fontSize: '1.2rem',
+      textTransform: 'uppercase',
+      background: 'linear-gradient(90deg, transparent, rgba(0,0,0,0.8) 20%, rgba(0,0,0,0.8) 80%, transparent)',
+      padding: '0.5rem 2rem',
+    }}
+  >
+    📰 BREAKING: {headline}
+  </motion.div>
+);
+
+// Case file component for assets
+const CaseFile = memo(({ 
   asset, 
   isSelected, 
-  onSelect,
-  realTimePrice 
-}: {
-  asset: Asset;
-  isSelected: boolean;
+  onSelect, 
+  realTimePrice,
+  house 
+}: { 
+  asset: Asset; 
+  isSelected: boolean; 
   onSelect: (asset: Asset) => void;
   realTimePrice?: { price: number; flash: 'up' | 'down' | null } | null;
+  house?: typeof SEVEN_HOUSES[0];
 }) => {
-  const handleClick = useCallback(() => {
-    onSelect(asset);
-  }, [asset, onSelect]);
-  
+  const handleClick = useCallback(() => onSelect(asset), [asset, onSelect]);
   const displayPrice = realTimePrice?.price || asset.currentPrice || 0;
-  const flashClass = realTimePrice?.flash === 'up' ? 'price-flash-up' :
-                     realTimePrice?.flash === 'down' ? 'price-flash-down' : '';
+  const isProfit = asset.dayChangePercent && asset.dayChangePercent > 0;
   
   return (
-    <div
+    <motion.div
+      whileHover={{ scale: 1.02, x: 10 }}
+      whileTap={{ scale: 0.98 }}
       onClick={handleClick}
       className={cn(
-        "p-3 cursor-pointer transition-all transform-gpu will-change-transform",
-        "hover:bg-white/5 hover:translate-x-1",
-        "border-l-2",
-        isSelected ? "bg-red-900/20 border-red-500" : "border-transparent",
-        "group"
+        "relative p-3 cursor-pointer transition-all",
+        "bg-gradient-to-br from-yellow-900/20 to-yellow-800/10",
+        "border-2 border-yellow-700/50",
+        isSelected && "border-red-500 shadow-lg shadow-red-500/30",
+        "group overflow-hidden"
       )}
-      data-testid={`asset-item-${asset.id}`}
+      style={{
+        clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%)',
+        background: isSelected 
+          ? `linear-gradient(135deg, ${house?.color}20, transparent)`
+          : 'linear-gradient(135deg, #1a1a1a, #0a0a0a)',
+      }}
+      data-testid={`asset-case-${asset.id}`}
     >
-      <div className="flex justify-between items-center">
-        <div>
-          <div className="font-semibold text-white group-hover:text-red-400 transition-colors">
-            {asset.symbol}
-          </div>
-          <div className="text-xs text-gray-500 truncate max-w-[150px]">
-            {asset.name}
-          </div>
+      {/* Paper clip */}
+      <div className="absolute top-1 right-2 text-gray-600 text-2xl">📎</div>
+      
+      {/* Stamp effect */}
+      <div className="absolute top-2 left-2 opacity-30 transform rotate-12">
+        <div className="text-xs font-bold text-red-600 border-2 border-red-600 px-1">
+          {asset.type?.toUpperCase() || 'CLASSIFIED'}
         </div>
-        <div className="text-right">
-          <div className={cn("font-mono text-sm", flashClass)}>
-            ${displayPrice.toFixed(2)}
-          </div>
-          {asset.dayChangePercent && (
+      </div>
+      
+      {/* Case file content */}
+      <div className="relative z-10">
+        <div className="font-mono text-yellow-200 text-sm mb-1">
+          CASE #{asset.symbol}
+        </div>
+        <div className="text-xs text-gray-400 mb-2 truncate">
+          {asset.name}
+        </div>
+        
+        {/* Price with blood splatter or cash effect */}
+        <div className="flex items-center justify-between">
+          <div className="relative">
             <div className={cn(
-              "text-xs",
-              asset.dayChangePercent > 0 ? "text-green-400" : "text-red-400"
+              "font-mono text-lg",
+              realTimePrice?.flash === 'up' ? 'text-green-400' : 
+              realTimePrice?.flash === 'down' ? 'text-red-400' : 
+              'text-white'
             )}>
-              {asset.dayChangePercent > 0 ? "+" : ""}{asset.dayChangePercent.toFixed(2)}%
+              ${displayPrice.toFixed(2)}
             </div>
-          )}
+            {isProfit !== undefined && (
+              <div className="absolute -right-8 top-0">
+                {isProfit ? (
+                  <span className="text-green-400 text-2xl">💵</span>
+                ) : (
+                  <span className="text-red-600 text-xl">🩸</span>
+                )}
+              </div>
+            )}
+          </div>
+          
+          <div className={cn(
+            "text-xs font-bold",
+            isProfit ? "text-green-400" : "text-red-400"
+          )}>
+            {asset.dayChangePercent ? 
+              `${asset.dayChangePercent > 0 ? '+' : ''}${asset.dayChangePercent.toFixed(1)}%` : 
+              'PENDING'
+            }
+          </div>
         </div>
+        
+        {/* Volume as crowd silhouettes */}
+        {asset.volume && (
+          <div className="mt-2 flex items-center gap-1 opacity-50">
+            {[...Array(Math.min(5, Math.floor(asset.volume / 10000)))].map((_, i) => (
+              <Users key={i} className="h-3 w-3" />
+            ))}
+            <span className="text-xs ml-1">{(asset.volume / 1000).toFixed(0)}K</span>
+          </div>
+        )}
+      </div>
+      
+      {/* Coffee stain effect */}
+      <div className="absolute bottom-0 right-0 w-12 h-12 rounded-full bg-brown-800/20 blur-lg" />
+    </motion.div>
+  );
+});
+CaseFile.displayName = 'CaseFile';
+
+// Crime scene investigation board for chart
+const CrimeSceneChart = ({ 
+  chartData, 
+  selectedAsset,
+  house
+}: { 
+  chartData: any; 
+  selectedAsset: Asset | null;
+  house?: typeof SEVEN_HOUSES[0];
+}) => {
+  const chartOptions = useMemo(() => ({
+    chart: {
+      backgroundColor: 'transparent',
+      style: { fontFamily: 'Courier New, monospace' },
+      animation: true,
+    },
+    title: {
+      text: `EVIDENCE: ${selectedAsset?.symbol || 'NO CASE SELECTED'}`,
+      style: { color: '#FFD700', fontSize: '18px', fontWeight: 'bold' }
+    },
+    plotOptions: {
+      series: {
+        animation: true,
+      },
+      line: {
+        color: house?.color || '#FF0000',
+        lineWidth: 2,
+        marker: {
+          enabled: true,
+          radius: 3,
+          fillColor: '#FF0000',
+          lineColor: '#000',
+          lineWidth: 1,
+        }
+      }
+    },
+    xAxis: {
+      type: 'datetime',
+      labels: { style: { color: '#888' } },
+      gridLineColor: '#333',
+      gridLineDashStyle: 'Dash',
+    },
+    yAxis: {
+      labels: { style: { color: '#888' } },
+      gridLineColor: '#333',
+      gridLineDashStyle: 'Dash',
+      title: { text: 'PRICE ($)', style: { color: '#888' } }
+    },
+    series: [{
+      type: 'line',
+      name: 'Investigation Timeline',
+      data: chartData.prices || [],
+      zones: [{
+        value: chartData.averagePrice || 100,
+        color: '#00FF00'
+      }, {
+        color: '#FF0000'
+      }]
+    }],
+    credits: { enabled: false },
+    legend: { enabled: false }
+  }), [chartData, selectedAsset, house]);
+  
+  return (
+    <div className="relative h-full bg-gradient-to-br from-gray-900 to-black p-4 border-8 border-gray-800">
+      {/* Cork board texture */}
+      <div className="absolute inset-0 opacity-10"
+        style={{
+          backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(139,69,19,0.1) 10px, rgba(139,69,19,0.1) 20px)'
+        }}
+      />
+      
+      {/* Red string connections */}
+      <svg className="absolute inset-0 pointer-events-none opacity-30">
+        <line x1="10%" y1="20%" x2="40%" y2="60%" stroke="red" strokeWidth="2" />
+        <line x1="60%" y1="30%" x2="90%" y2="70%" stroke="red" strokeWidth="2" />
+        <line x1="30%" y1="80%" x2="70%" y2="40%" stroke="red" strokeWidth="2" />
+      </svg>
+      
+      {/* Push pins */}
+      <div className="absolute top-4 left-4 text-2xl">📌</div>
+      <div className="absolute top-4 right-4 text-2xl">📌</div>
+      <div className="absolute bottom-4 left-4 text-2xl">📌</div>
+      <div className="absolute bottom-4 right-4 text-2xl">📌</div>
+      
+      {/* Chart */}
+      <div className="relative z-10 h-full">
+        <HighchartsReact
+          highcharts={Highcharts}
+          options={chartOptions}
+        />
+      </div>
+      
+      {/* Evidence tags */}
+      {selectedAsset && (
+        <>
+          <div className="absolute top-12 left-12 bg-yellow-200 text-black p-2 transform rotate-3 text-xs font-bold">
+            EVIDENCE #{Math.floor(Math.random() * 9999)}
+          </div>
+          <div className="absolute bottom-12 right-12 bg-white text-black p-2 transform -rotate-2 text-xs">
+            CLASSIFIED
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+// Alley order book
+const AlleyOrderBook = ({ orderBook, house }: { orderBook: any; house?: typeof SEVEN_HOUSES[0] }) => {
+  return (
+    <div className="h-full bg-gradient-to-b from-gray-900 to-black p-4 relative overflow-hidden">
+      {/* Brick wall texture */}
+      <div className="absolute inset-0 opacity-20"
+        style={{
+          backgroundImage: `
+            repeating-linear-gradient(0deg, #333 0px, #333 2px, transparent 2px, transparent 10px),
+            repeating-linear-gradient(90deg, #333 0px, #333 2px, transparent 2px, transparent 20px)
+          `
+        }}
+      />
+      
+      {/* Alley atmosphere */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
+      
+      <h3 className="text-sm font-bold text-yellow-400 mb-4 relative z-10">
+        BACK ALLEY DEALS
+      </h3>
+      
+      <div className="space-y-2 relative z-10">
+        {/* Buy orders - shadowy figures offering */}
+        <div>
+          <div className="text-xs text-green-400 mb-2 font-bold">BUYERS IN THE SHADOWS</div>
+          <div className="space-y-1">
+            {orderBook?.bids?.slice(0, 5).map((bid: any, i: number) => (
+              <div key={`bid-${i}`} className="flex items-center justify-between p-2 bg-green-900/20 border-l-2 border-green-400">
+                <div className="flex items-center gap-2">
+                  <div className="text-gray-600">🕴️</div>
+                  <span className="text-xs text-gray-400">Figure #{i + 1}</span>
+                </div>
+                <div className="text-right">
+                  <div className="text-green-400 font-mono text-sm">${bid.price}</div>
+                  <div className="text-xs text-gray-500">{bid.quantity} units</div>
+                </div>
+              </div>
+            )) || (
+              <div className="text-xs text-gray-500 italic p-2">No buyers lurking...</div>
+            )}
+          </div>
+        </div>
+        
+        {/* Sell orders - shadowy figures selling */}
+        <div>
+          <div className="text-xs text-red-400 mb-2 font-bold">SELLERS IN THE MIST</div>
+          <div className="space-y-1">
+            {orderBook?.asks?.slice(0, 5).map((ask: any, i: number) => (
+              <div key={`ask-${i}`} className="flex items-center justify-between p-2 bg-red-900/20 border-l-2 border-red-400">
+                <div className="flex items-center gap-2">
+                  <div className="text-gray-600">🕵️</div>
+                  <span className="text-xs text-gray-400">Shadow #{i + 1}</span>
+                </div>
+                <div className="text-right">
+                  <div className="text-red-400 font-mono text-sm">${ask.price}</div>
+                  <div className="text-xs text-gray-500">{ask.quantity} units</div>
+                </div>
+              </div>
+            )) || (
+              <div className="text-xs text-gray-500 italic p-2">No sellers around...</div>
+            )}
+          </div>
+        </div>
+      </div>
+      
+      {/* Street lamp glow */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-300/10 rounded-full blur-3xl" />
+    </div>
+  );
+};
+
+// Briefcase exchange order panel
+const BriefcaseExchange = ({ 
+  selectedAsset,
+  orderType,
+  setOrderType,
+  orderQuantity,
+  setOrderQuantity,
+  orderPrice,
+  setOrderPrice,
+  onSubmit,
+  house
+}: any) => {
+  const [showEffect, setShowEffect] = useState<string | null>(null);
+  
+  const handleSubmit = () => {
+    setShowEffect(orderType === 'buy' ? 'DEAL!' : 'BETRAY!');
+    setTimeout(() => setShowEffect(null), 1000);
+    onSubmit();
+  };
+  
+  return (
+    <div className="relative p-6 bg-gradient-to-br from-gray-900 to-black border-t-4 border-yellow-600/50">
+      {/* Briefcase background */}
+      <div className="absolute inset-0 opacity-10 flex items-center justify-center">
+        <Briefcase className="h-32 w-32" />
+      </div>
+      
+      {/* Sound effect */}
+      <AnimatePresence>
+        {showEffect && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
+            <ComicSoundEffect effect={showEffect} color={orderType === 'buy' ? '#00FF00' : '#FF0000'} />
+          </div>
+        )}
+      </AnimatePresence>
+      
+      <div className="relative z-10">
+        <h3 className="text-lg font-bold text-yellow-400 mb-4">
+          THE EXCHANGE
+        </h3>
+        
+        {/* Job type selector */}
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <Button
+            onClick={() => setOrderType('buy')}
+            className={cn(
+              "relative overflow-hidden transition-all",
+              orderType === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-800 hover:bg-gray-700'
+            )}
+            data-testid="button-buy-deal"
+          >
+            <span className="relative z-10 font-bold text-lg">
+              💚 DEAL
+            </span>
+            {orderType === 'buy' && (
+              <motion.div
+                animate={{ opacity: [0.3, 0.6, 0.3] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="absolute inset-0 bg-green-400"
+                style={{ 
+                  boxShadow: '0 0 30px rgba(0,255,0,0.8)',
+                  filter: 'blur(10px)'
+                }}
+              />
+            )}
+          </Button>
+          
+          <Button
+            onClick={() => setOrderType('sell')}
+            className={cn(
+              "relative overflow-hidden transition-all",
+              orderType === 'sell' ? 'bg-red-600 hover:bg-red-700' : 'bg-gray-800 hover:bg-gray-700'
+            )}
+            data-testid="button-sell-betray"
+          >
+            <span className="relative z-10 font-bold text-lg">
+              🔴 BETRAY
+            </span>
+            {orderType === 'sell' && (
+              <motion.div
+                animate={{ opacity: [0.3, 0.6, 0.3] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="absolute inset-0 bg-red-400"
+                style={{
+                  boxShadow: '0 0 30px rgba(255,0,0,0.8)',
+                  filter: 'blur(10px)'
+                }}
+              />
+            )}
+          </Button>
+        </div>
+        
+        {/* Order details */}
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block text-xs text-gray-400 mb-1">
+              CONTRACT SIZE
+            </label>
+            <Input
+              type="number"
+              value={orderQuantity}
+              onChange={(e) => setOrderQuantity(e.target.value)}
+              placeholder="0"
+              className="bg-black/50 border-yellow-600/50 text-white"
+              data-testid="input-quantity"
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-400 mb-1">
+              PRICE PER UNIT
+            </label>
+            <Input
+              type="number"
+              value={orderPrice}
+              onChange={(e) => setOrderPrice(e.target.value)}
+              placeholder="0.00"
+              className="bg-black/50 border-yellow-600/50 text-white"
+              data-testid="input-price"
+            />
+          </div>
+        </div>
+        
+        {/* Execute button */}
+        <Button
+          onClick={handleSubmit}
+          disabled={!selectedAsset || !orderQuantity || !orderPrice}
+          className={cn(
+            "w-full h-12 font-bold text-lg transition-all",
+            "bg-gradient-to-r from-yellow-600 to-orange-600",
+            "hover:from-yellow-500 hover:to-orange-500",
+            "disabled:opacity-50 disabled:cursor-not-allowed"
+          )}
+          data-testid="button-execute-trade"
+        >
+          <Briefcase className="mr-2 h-5 w-5" />
+          EXECUTE THE {orderType === 'buy' ? 'DEAL' : 'BETRAYAL'}
+        </Button>
       </div>
     </div>
   );
-});
-AssetListItem.displayName = 'AssetListItem';
+};
 
-// Seven Houses configuration
-const SEVEN_HOUSES = [
-  { id: 'all', name: 'All Houses', icon: Globe, color: '#6B7280' },
-  { id: 'sequential-securities', name: 'Sequential Securities', icon: Briefcase, color: '#DC2626' },
-  { id: 'ink-blood', name: 'Ink & Blood', icon: Droplets, color: '#7C3AED' },
-  { id: 'heroic-trust', name: 'Heroic Trust', icon: Shield, color: '#2563EB' },
-  { id: 'narrative-capital', name: 'Narrative Capital', icon: BookOpen, color: '#059669' },
-  { id: 'visual-holdings', name: 'Visual Holdings', icon: Palette, color: '#EA580C' },
-  { id: 'vigilante-exchange', name: 'Vigilante Exchange', icon: Eye, color: '#64748B' },
-  { id: 'crossover-consortium', name: 'Crossover Consortium', icon: Globe, color: '#BE185D' },
-];
-
-export default function OptimizedTradingPage() {
+// Main trading page component
+export default function NoirTradingPage() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [, setLocation] = useLocation();
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+  const [selectedHouse, setSelectedHouse] = useState<typeof SEVEN_HOUSES[0]>(SEVEN_HOUSES[0]);
   const [orderType, setOrderType] = useState<'buy' | 'sell'>('buy');
   const [orderQuantity, setOrderQuantity] = useState('');
   const [orderPrice, setOrderPrice] = useState('');
-  const [activePanel, setActivePanel] = useState<'orders' | 'positions' | 'orderbook' | 'moral' | 'warfare'>('orderbook');
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const chartRef = useRef<HighchartsReact.RefObject>(null);
-  const [chartData, setChartData] = useState<{ ohlc: any[], volume: any[] }>({ ohlc: [], volume: [] });
-  const [currentVictim, setCurrentVictim] = useState<VictimData | null>(null);
-  const [showOrderConfirmation, setShowOrderConfirmation] = useState(false);
-  const [potentialVictimCount, setPotentialVictimCount] = useState(0);
-  const [showGlitchPrice, setShowGlitchPrice] = useState(false);
-  const [shadowPriceHint, setShadowPriceHint] = useState<number | null>(null);
-  const [selectedHouse, setSelectedHouse] = useState<string>('all'); // House filter
-  const [showSoundEffect, setShowSoundEffect] = useState<string | null>(null); // Comic sound effects
+  const [headlines, setHeadlines] = useState<string[]>([]);
+  const [showRain, setShowRain] = useState(true);
+  const [showSmoke, setShowSmoke] = useState(true);
   
-  // Use corruption and blood money hooks
-  const { corruption, soulWeight, victimCount, corruptionClass } = useCorruption();
-  const { bloodMoney, showBloodDrip, formattedBloodMoney } = useBloodMoney();
-  
-  // Show glitch effects for corrupt users (throttled)
-  useEffect(() => {
-    if (corruption > 30 && selectedAsset) {
-      const glitchInterval = setInterval(() => {
-        setShowGlitchPrice(true);
-        // Calculate shadow price hint (simplified)
-        const realPrice = selectedAsset.currentPrice || 100;
-        const divergence = 1 - (0.95 - (corruption - 30) * 0.015);
-        setShadowPriceHint(realPrice * divergence);
-        
-        setTimeout(() => {
-          setShowGlitchPrice(false);
-          setShadowPriceHint(null);
-        }, 200 + Math.random() * 300);
-      }, 10000 + Math.random() * 20000); // Increased interval for performance
-      
-      return () => clearInterval(glitchInterval);
-    }
-  }, [corruption, selectedAsset]);
-  
-  // Subscribe to WebSocket for selected asset with optimizations
-  const subscribedAssets = useMemo(() => 
-    selectedAsset ? [selectedAsset.id] : [],
-    [selectedAsset]
-  );
-  
+  // WebSocket connection
   const { 
-    priceUpdates, 
-    orderBooks, 
-    marketPulse,
     getRealTimePrice,
     getOrderBook,
-    isConnected,
-    lastUpdateTime,
-    isMobile
+    isConnected
   } = useOptimizedWebSocket({ 
     subscribeTo: { 
-      assets: subscribedAssets 
-    },
-    throttleMs: isMobile ? 200 : 100, // Slower updates on mobile
-    enableBatching: true,
-    maxBufferSize: isMobile ? 5 : 10 // Smaller buffer on mobile
+      assets: selectedAsset ? [selectedAsset.id] : []
+    }
   });
-
-  // Fetch user data for trading limits and balance
-  const { data: userData, isLoading: userLoading } = useQuery({
-    queryKey: ['/api/auth/user'],
-    enabled: !!user,
-    refetchInterval: 60000, // Reduced frequency from 30s to 60s
-    staleTime: 30000, // Consider data fresh for 30s
-  });
-
-  // Fetch user portfolios for portfolio value
-  const { data: userPortfolios, isLoading: portfoliosLoading } = useQuery({
-    queryKey: ['/api/portfolios/user', user?.id],
-    enabled: !!user?.id,
-    refetchInterval: 60000, // Reduced frequency
-    staleTime: 30000,
-  });
-
-  // Fetch user orders for trading stats
-  const { data: userOrders, isLoading: ordersLoading } = useQuery({
-    queryKey: ['/api/orders/user', user?.id],
-    enabled: !!user?.id,
-    refetchInterval: 30000, // Keep more frequent for orders
-    staleTime: 15000,
-  });
-
-  // Calculate trading statistics (memoized)
-  const tradingStats: TradingStats = useMemo(() => ({
-    availableBalance: userData?.virtualTradingBalance ? parseFloat(userData.virtualTradingBalance as string) : 100000,
-    dayTradingUsed: userData?.dailyTradingUsed ? parseFloat(userData.dailyTradingUsed as string) : 0,
-    dayTradingLimit: userData?.dailyTradingLimit ? parseFloat(userData.dailyTradingLimit as string) : 10000,
-    totalPortfolioValue: userPortfolios && Array.isArray(userPortfolios) ? userPortfolios.reduce((total: number, portfolio: any) => {
-      return total + (portfolio.totalValue ? parseFloat(portfolio.totalValue) : 0);
-    }, 0) : 0,
-    totalTrades: userOrders && Array.isArray(userOrders) ? userOrders.filter((order: any) => order.status === 'filled').length : 0,
-    profitToday: 0, // Calculate from orders if needed
-    pendingOrders: userOrders && Array.isArray(userOrders) ? userOrders.filter((order: any) => order.status === 'pending').length : 0,
-  }), [userData, userPortfolios, userOrders]);
-
-  // Fetch available assets with pagination for performance
+  
+  // Fetch assets
   const { data: assetsData, isLoading: assetsLoading } = useQuery({
-    queryKey: ['/api/assets', { limit: 50, offset: 0 }], // Limit to 50 assets initially
-    staleTime: 60000, // Consider fresh for 1 minute
-    gcTime: 300000, // Cache for 5 minutes
+    queryKey: ['/api/assets'],
+    staleTime: 60000,
   });
-
+  
   const assets: Asset[] = useMemo(() => 
     Array.isArray(assetsData) ? assetsData : [],
     [assetsData]
   );
-
-  // Memoized callbacks
+  
+  // Random headlines generator
+  useEffect(() => {
+    const headlineTemplates = [
+      "HERO PORTFOLIO UP 200% - CITIZENS REJOICE",
+      "VILLAIN STOCKS CRASH - JUSTICE PREVAILS",
+      "MYSTERIOUS TRADER MAKES MILLION DOLLAR MOVE",
+      "CROSSOVER EVENT SENDS MARKETS SOARING",
+      "INK & BLOOD SYNDICATE UNDER INVESTIGATION",
+      "SEQUENTIAL SECURITIES ANNOUNCES MERGER",
+      "THE MASTERMIND STRIKES AGAIN - MARKETS TREMBLE",
+      "VIGILANTE EXCHANGE SEES RECORD VOLUME",
+    ];
+    
+    const interval = setInterval(() => {
+      const randomHeadline = headlineTemplates[Math.floor(Math.random() * headlineTemplates.length)];
+      setHeadlines(prev => [...prev, randomHeadline].slice(-3));
+    }, 15000);
+    
+    return () => clearInterval(interval);
+  }, []);
+  
   const handleAssetSelect = useCallback((asset: Asset) => {
     setSelectedAsset(asset);
     setOrderPrice(asset.currentPrice?.toString() || '');
   }, []);
-
+  
   const handleOrderSubmit = useCallback(async () => {
     if (!selectedAsset || !orderQuantity || !orderPrice) {
       toast({
-        title: "Invalid Order",
-        description: "Please fill in all order details",
+        title: "DEAL REJECTED",
+        description: "The briefcase is empty. Fill in all details.",
         variant: "destructive",
       });
       return;
     }
-
+    
     try {
-      const response = await apiRequest('/api/orders', {
+      await apiRequest('/api/orders', {
         method: 'POST',
         body: JSON.stringify({
           assetId: selectedAsset.id,
@@ -310,402 +667,235 @@ export default function OptimizedTradingPage() {
           userId: user?.id,
         }),
       });
-
+      
       toast({
-        title: "Order Placed",
-        description: `${orderType.toUpperCase()} order for ${orderQuantity} ${selectedAsset.symbol} @ $${orderPrice}`,
+        title: orderType === 'buy' ? "💚 DEAL MADE!" : "🔴 BETRAYAL COMPLETE!",
+        description: `${orderQuantity} units of ${selectedAsset.symbol} @ $${orderPrice}`,
       });
-
-      // Reset form
+      
       setOrderQuantity('');
       setOrderPrice('');
-      
-      // Invalidate queries
       queryClient.invalidateQueries({ queryKey: ['/api/orders/user', user?.id] });
-      queryClient.invalidateQueries({ queryKey: ['/api/portfolios/user', user?.id] });
     } catch (error) {
       toast({
-        title: "Order Failed",
-        description: error instanceof Error ? error.message : "Failed to place order",
+        title: "EXCHANGE FAILED",
+        description: "The deal went south. Try again.",
         variant: "destructive",
       });
     }
   }, [selectedAsset, orderQuantity, orderPrice, orderType, user?.id, toast]);
-
-  const handleRefresh = useCallback(() => {
-    setRefreshTrigger(prev => prev + 1);
-    queryClient.invalidateQueries();
-    toast({
-      title: "Refreshing Data",
-      description: "Market data updated",
-    });
-  }, [toast]);
-
-  // Optimized chart options with performance settings
-  const chartOptions = useMemo(() => ({
-    chart: {
-      backgroundColor: '#000000',
-      style: { fontFamily: 'Space Grotesk' },
-      animation: !isMobile, // Disable animations on mobile
-      renderTo: 'container',
-    },
-    boost: {
-      useGPUTranslations: true, // Enable GPU acceleration
-      usePreAllocated: true,
-    },
-    plotOptions: {
-      series: {
-        animation: !isMobile,
-        turboThreshold: 1000, // Optimize for large datasets
-        boostThreshold: 100,
-      },
-      candlestick: {
-        lineColor: '#DC143C',
-        upLineColor: '#00FF00',
-        color: '#DC143C',
-        upColor: '#00FF00',
-      }
-    },
-    xAxis: {
-      type: 'datetime',
-      labels: { style: { color: '#888' } },
-      gridLineColor: '#222',
-    },
-    yAxis: [{
-      labels: { style: { color: '#888' }, align: 'right' },
-      gridLineColor: '#222',
-      height: '60%',
-    }, {
-      labels: { style: { color: '#888' }, align: 'right' },
-      gridLineColor: '#222',
-      top: '65%',
-      height: '35%',
-      offset: 0,
-    }],
-    series: [{
-      type: 'candlestick',
-      name: selectedAsset?.symbol || 'Price',
-      data: chartData.ohlc.slice(-100), // Limit to last 100 points for performance
-      yAxis: 0,
-    }, {
-      type: 'column',
-      name: 'Volume',
-      data: chartData.volume.slice(-100), // Limit volume data too
-      yAxis: 1,
-      color: '#333',
-    }],
-    credits: { enabled: false },
-    navigator: { enabled: !isMobile }, // Disable navigator on mobile
-    scrollbar: { enabled: !isMobile },
-    rangeSelector: { enabled: !isMobile },
-  }), [chartData, selectedAsset, isMobile]);
-
-  // Fetch historical data for selected asset (throttled)
-  useEffect(() => {
-    if (!selectedAsset) return;
-
-    const fetchChartData = async () => {
-      try {
-        const response = await fetch(`/api/market/historical/${selectedAsset.id}?period=1d&interval=5m`);
-        const data = await response.json();
-        
-        if (data && data.prices) {
-          const ohlc = data.prices.map((p: any) => [
-            new Date(p.timestamp).getTime(),
-            p.open,
-            p.high,
-            p.low,
-            p.close
-          ]);
-          
-          const volume = data.prices.map((p: any) => [
-            new Date(p.timestamp).getTime(),
-            p.volume
-          ]);
-          
-          setChartData({ ohlc, volume });
-        }
-      } catch (error) {
-        console.error('Failed to fetch chart data:', error);
-      }
-    };
-
-    // Debounce chart data fetching
-    const timeoutId = setTimeout(fetchChartData, 500);
-    return () => clearTimeout(timeoutId);
-  }, [selectedAsset]);
-
+  
+  // Mock chart data for demo
+  const chartData = useMemo(() => ({
+    prices: selectedAsset ? 
+      [...Array(20)].map((_, i) => ({
+        x: Date.now() - (20 - i) * 3600000,
+        y: (selectedAsset.currentPrice || 100) * (0.9 + Math.random() * 0.2)
+      })) : [],
+    averagePrice: selectedAsset?.currentPrice || 100
+  }), [selectedAsset]);
+  
   return (
-    <div className="h-screen overflow-hidden bg-black text-white flex flex-col">
+    <div className="h-screen overflow-hidden bg-black text-white relative">
+      {/* Atmosphere Effects Layer */}
+      <div className="absolute inset-0 pointer-events-none z-40">
+        {/* Film grain */}
+        <div className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: 'url("data:image/svg+xml,%3Csvg width="100" height="100" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="turbulence" baseFrequency="0.9"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E")',
+            mixBlendMode: 'overlay'
+          }}
+        />
+        
+        {/* Rain effect */}
+        {showRain && (
+          <div className="absolute inset-0 opacity-30"
+            style={{
+              backgroundImage: 'linear-gradient(transparent 50%, rgba(255,255,255,0.1) 50%)',
+              backgroundSize: '1px 4px',
+              animation: 'rain 0.3s linear infinite',
+            }}
+          />
+        )}
+        
+        {/* Venetian blinds */}
+        <div className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 8px, rgba(0,0,0,0.3) 8px, rgba(0,0,0,0.3) 10px)',
+          }}
+        />
+        
+        {/* Smoke effect */}
+        {showSmoke && (
+          <motion.div
+            className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-600/20 to-transparent"
+            animate={{ opacity: [0.2, 0.4, 0.2] }}
+            transition={{ duration: 5, repeat: Infinity }}
+          />
+        )}
+      </div>
+      
+      {/* Headline Ticker */}
+      <div className="absolute top-0 left-0 right-0 h-12 bg-black/80 border-b border-yellow-600/50 overflow-hidden z-50">
+        <AnimatePresence>
+          {headlines.map((headline, i) => (
+            <NewsHeadline key={`${headline}-${i}`} headline={headline} />
+          ))}
+        </AnimatePresence>
+      </div>
+      
       {/* Header */}
-      <div className="border-b border-white/10 p-4 backdrop-blur-sm bg-black/50">
-        <div className="flex items-center justify-between">
+      <div className="relative z-30 bg-gradient-to-b from-black to-transparent p-4 pt-16 border-b border-yellow-600/30">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
-            <Terminal className="h-6 w-6 text-red-500" />
-            <h1 className="text-xl font-bold tracking-wider">TRADING TERMINAL</h1>
-            {isConnected ? (
-              <Badge variant="outline" className="text-green-400 border-green-400">
-                <Activity className="h-3 w-3 mr-1 animate-pulse" />
-                LIVE
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="text-red-400 border-red-400">
-                OFFLINE
-              </Badge>
-            )}
+            <h1 className="text-3xl font-black tracking-wider"
+              style={{
+                textShadow: '3px 3px 0 #FFD700, -2px -2px 0 #000',
+                fontFamily: 'Impact, sans-serif'
+              }}
+            >
+              PANELTOWN EXCHANGE
+            </h1>
+            <Badge 
+              variant="outline"
+              className={cn(
+                "border-2",
+                isConnected ? "border-green-400 text-green-400" : "border-red-400 text-red-400"
+              )}
+            >
+              {isConnected ? '📡 WIRE TAP ACTIVE' : '📵 OFFLINE'}
+            </Badge>
           </div>
           
-          <div className="flex items-center gap-2">
-            <BloodMoneyCounter />
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={handleRefresh}
-              className="hover-elevate"
-              data-testid="button-refresh"
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              onClick={() => setShowRain(!showRain)}
+              className="text-gray-400 hover:text-white"
+              data-testid="toggle-rain"
             >
-              <RefreshCw className="h-4 w-4" />
+              ☔
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setShowSmoke(!showSmoke)}
+              className="text-gray-400 hover:text-white"
+              data-testid="toggle-smoke"
+            >
+              <Cigarette className="h-4 w-4" />
             </Button>
           </div>
         </div>
         
-        {/* Trading Stats Bar */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 mt-4">
-          <StatDisplay 
-            label="Balance" 
-            value={`$${tradingStats.availableBalance.toLocaleString()}`}
-            icon={Wallet}
-            variant="default"
-          />
-          <StatDisplay 
-            label="Portfolio" 
-            value={`$${tradingStats.totalPortfolioValue.toLocaleString()}`}
-            icon={BarChart3}
-            variant={tradingStats.totalPortfolioValue > 100000 ? 'success' : 'default'}
-          />
-          <StatDisplay 
-            label="Day Trading" 
-            value={`$${tradingStats.dayTradingUsed.toLocaleString()} / $${tradingStats.dayTradingLimit.toLocaleString()}`}
-            icon={Target}
-            variant={tradingStats.dayTradingUsed > tradingStats.dayTradingLimit * 0.8 ? 'warning' : 'default'}
-          />
-          <StatDisplay 
-            label="Total Trades" 
-            value={tradingStats.totalTrades.toString()}
-            icon={Activity}
-            variant="default"
-          />
-          <StatDisplay 
-            label="Pending" 
-            value={tradingStats.pendingOrders.toString()}
-            icon={Clock}
-            variant={tradingStats.pendingOrders > 0 ? 'warning' : 'default'}
-          />
-          <StatDisplay 
-            label="Corruption" 
-            value={`${corruption}%`}
-            icon={Skull}
-            variant={corruption > 50 ? 'danger' : 'default'}
-          />
-          <StatDisplay 
-            label="Victims" 
-            value={victimCount.toString()}
-            icon={Ghost}
-            variant={victimCount > 0 ? 'danger' : 'default'}
-          />
+        {/* House selector */}
+        <div className="flex gap-2 flex-wrap">
+          {SEVEN_HOUSES.map(house => (
+            <Button
+              key={house.id}
+              variant={selectedHouse.id === house.id ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedHouse(house)}
+              className="transition-all"
+              style={{
+                borderColor: house.color,
+                color: selectedHouse.id === house.id ? '#000' : house.color,
+                backgroundColor: selectedHouse.id === house.id ? house.color : 'transparent',
+              }}
+              data-testid={`house-${house.id}`}
+            >
+              <house.icon className="h-4 w-4 mr-1" />
+              {house.name}
+            </Button>
+          ))}
         </div>
       </div>
-
-      {/* Main Trading Interface */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left Panel - Asset List */}
-        <div className="w-80 border-r border-white/10 flex flex-col bg-black/50">
-          <div className="p-4 border-b border-white/10">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
-              Assets
+      
+      {/* Main Layout - Comic Panels */}
+      <div className="flex h-[calc(100vh-180px)] relative z-20">
+        {/* Left Panel - Case Files */}
+        <div className="w-96 border-r-4 border-yellow-600/30 bg-gradient-to-br from-gray-900 to-black overflow-hidden">
+          <div className="p-4 bg-black/50 border-b border-yellow-600/30">
+            <h2 className="text-lg font-bold text-yellow-400 flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              CASE FILES
             </h2>
+            <p className="text-xs text-gray-400 mt-1">{selectedHouse.territory}</p>
           </div>
-          <ScrollArea className="flex-1">
-            {assetsLoading ? (
-              <div className="p-4 space-y-2">
-                {[...Array(5)].map((_, i) => (
-                  <Skeleton key={i} className="h-16 w-full" />
-                ))}
-              </div>
-            ) : (
-              <div className="divide-y divide-white/5">
-                {assets.map((asset) => (
-                  <AssetListItem
+          
+          <ScrollArea className="h-[calc(100%-80px)]">
+            <div className="p-4 space-y-3">
+              {assetsLoading ? (
+                [...Array(5)].map((_, i) => (
+                  <Skeleton key={i} className="h-24 w-full bg-gray-800" />
+                ))
+              ) : (
+                assets.map(asset => (
+                  <CaseFile
                     key={asset.id}
                     asset={asset}
                     isSelected={selectedAsset?.id === asset.id}
                     onSelect={handleAssetSelect}
                     realTimePrice={getRealTimePrice(asset.id)}
+                    house={selectedHouse}
                   />
-                ))}
-              </div>
-            )}
+                ))
+              )}
+            </div>
           </ScrollArea>
         </div>
-
-        {/* Center Panel - Chart and Order Entry */}
+        
+        {/* Center Panel - Crime Scene Chart */}
         <div className="flex-1 flex flex-col">
           {selectedAsset ? (
             <>
-              {/* Chart */}
-              <div className="flex-1 p-4 bg-black/30">
-                <HighchartsReact
-                  highcharts={Highcharts}
-                  options={chartOptions}
-                  ref={chartRef}
+              <div className="flex-1 p-4">
+                <CrimeSceneChart 
+                  chartData={chartData} 
+                  selectedAsset={selectedAsset}
+                  house={selectedHouse}
                 />
               </div>
               
-              {/* Order Entry */}
-              <div className="p-4 border-t border-white/10 bg-black/50">
-                <div className="flex gap-4 items-end">
-                  <div className="flex gap-2">
-                    <Button
-                      variant={orderType === 'buy' ? 'default' : 'outline'}
-                      onClick={() => setOrderType('buy')}
-                      className="hover-elevate"
-                      data-testid="button-order-buy"
-                    >
-                      BUY
-                    </Button>
-                    <Button
-                      variant={orderType === 'sell' ? 'default' : 'outline'}
-                      onClick={() => setOrderType('sell')}
-                      className="hover-elevate"
-                      data-testid="button-order-sell"
-                    >
-                      SELL
-                    </Button>
-                  </div>
-                  
-                  <div className="flex-1 flex gap-4">
-                    <div>
-                      <label className="text-xs text-gray-500 mb-1 block">Quantity</label>
-                      <Input
-                        type="number"
-                        value={orderQuantity}
-                        onChange={(e) => setOrderQuantity(e.target.value)}
-                        placeholder="0"
-                        className="w-32 bg-black border-white/20"
-                        data-testid="input-order-quantity"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="text-xs text-gray-500 mb-1 block">
-                        Price
-                        {showGlitchPrice && shadowPriceHint && (
-                          <span className="ml-2 text-purple-400 animate-pulse">
-                            (Shadow: ${shadowPriceHint.toFixed(2)})
-                          </span>
-                        )}
-                      </label>
-                      <Input
-                        type="number"
-                        value={orderPrice}
-                        onChange={(e) => setOrderPrice(e.target.value)}
-                        placeholder="0.00"
-                        className={cn(
-                          "w-32 bg-black border-white/20",
-                          showGlitchPrice && "animate-glitch text-purple-400"
-                        )}
-                        data-testid="input-order-price"
-                      />
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    onClick={handleOrderSubmit}
-                    className={cn(
-                      "hover-elevate",
-                      orderType === 'buy' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
-                    )}
-                    disabled={!orderQuantity || !orderPrice}
-                    data-testid="button-submit-order"
-                  >
-                    PLACE ORDER
-                  </Button>
-                </div>
-              </div>
+              {/* Bottom Panel - Briefcase Exchange */}
+              <BriefcaseExchange
+                selectedAsset={selectedAsset}
+                orderType={orderType}
+                setOrderType={setOrderType}
+                orderQuantity={orderQuantity}
+                setOrderQuantity={setOrderQuantity}
+                orderPrice={orderPrice}
+                setOrderPrice={setOrderPrice}
+                onSubmit={handleOrderSubmit}
+                house={selectedHouse}
+              />
             </>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-gray-500">
-              Select an asset to start trading
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <FileText className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-400 text-lg">SELECT A CASE TO INVESTIGATE</p>
+                <p className="text-gray-600 text-sm mt-2">Choose from the files on the left</p>
+              </div>
             </div>
           )}
         </div>
-
-        {/* Right Panel - Dynamic Content */}
-        <div className="w-96 border-l border-white/10 flex flex-col bg-black/50">
-          <div className="flex border-b border-white/10">
-            {(['orderbook', 'orders', 'moral', 'warfare'] as const).map((panel) => (
-              <button
-                key={panel}
-                onClick={() => setActivePanel(panel)}
-                className={cn(
-                  "flex-1 p-3 text-xs uppercase tracking-wider transition-all",
-                  "hover:bg-white/5",
-                  activePanel === panel ? "bg-red-900/20 text-red-400 border-b-2 border-red-500" : "text-gray-500"
-                )}
-                data-testid={`button-panel-${panel}`}
-              >
-                {panel}
-              </button>
-            ))}
-          </div>
-          
-          <div className="flex-1 overflow-hidden">
-            <Suspense fallback={
-              <div className="p-4 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
-              </div>
-            }>
-              {activePanel === 'orderbook' && selectedAsset && (
-                <OrderBook 
-                  assetId={selectedAsset.id}
-                  orderBook={getOrderBook(selectedAsset.id)}
-                />
-              )}
-              {activePanel === 'orders' && (
-                <OrderHistory userId={user?.id} limit={20} />
-              )}
-              {activePanel === 'moral' && (
-                <div className="flex flex-col h-full">
-                  <div className="flex-1 overflow-hidden">
-                    <MoralConsequenceDisplay />
-                  </div>
-                  <div className="h-1/3 border-t border-white/10 overflow-hidden">
-                    <VictimFeed userId={user?.id} limit={10} />
-                  </div>
-                </div>
-              )}
-              {activePanel === 'warfare' && (
-                <WarfarePanel />
-              )}
-            </Suspense>
-          </div>
+        
+        {/* Right Panel - Alley Order Book */}
+        <div className="w-80 border-l-4 border-yellow-600/30">
+          <AlleyOrderBook 
+            orderBook={selectedAsset ? getOrderBook(selectedAsset.id) : null}
+            house={selectedHouse}
+          />
         </div>
       </div>
-
-      {/* Victim Notification (absolute positioned) */}
-      {currentVictim && (
-        <VictimNotification 
-          victim={currentVictim}
-          onDismiss={() => setCurrentVictim(null)}
-        />
-      )}
       
-      {/* Shadow Traders Overlay (performance optimized) */}
-      {corruption > 30 && !isMobile && (
-        <Suspense fallback={null}>
-          <ShadowTraders />
-        </Suspense>
-      )}
+      {/* CSS for rain animation */}
+      <style jsx>{`
+        @keyframes rain {
+          0% { transform: translateY(-100%); }
+          100% { transform: translateY(100%); }
+        }
+      `}</style>
     </div>
   );
 }
