@@ -29,22 +29,32 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen bg-black flex flex-col relative overflow-hidden">
-      {/* Simple dark background with subtle gradient */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-950 to-black" />
-        
-        {/* Subtle grid overlay for trading floor effect */}
-        <div 
-          className="absolute inset-0 opacity-5"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(74, 222, 128, 0.05) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(74, 222, 128, 0.05) 1px, transparent 1px)
-            `,
-            backgroundSize: '50px 50px',
-          }}
-        />
-      </div>
+      {/* Full-frame looping video background */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover z-0"
+      >
+        <source src="/videos/night-city.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      
+      {/* Dark overlay for text readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-black/80 z-10" />
+      
+      {/* Subtle grid overlay for trading floor effect */}
+      <div 
+        className="absolute inset-0 opacity-5 z-10"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(74, 222, 128, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(74, 222, 128, 0.05) 1px, transparent 1px)
+          `,
+          backgroundSize: '50px 50px',
+        }}
+      />
 
       {/* Minimal header with theme toggle */}
       <header className="absolute top-0 right-0 p-6 z-50">
