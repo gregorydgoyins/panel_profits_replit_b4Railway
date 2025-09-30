@@ -1,0 +1,15 @@
+{
+  "betaModules": [
+    {
+      "name": "BIAN Doctrine",
+      "entry": "BIAN_Doctrine.md",
+      "status": "beta",
+      "trigger": "alignment == neutral && karma \u2248 0",
+      "devTools": [
+        "BIANShadowLog.json",
+        "BianAlertModal.tsx",
+        "BIANEventDiagnostics.ts"
+      ]
+    }
+  ]
+}
