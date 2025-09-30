@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,23 +11,15 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useWebSocket } from '@/hooks/useWebSocket';
 import { OrderHistory } from '@/components/trading/OrderHistory';
+import { OrderBook } from '@/components/trading/OrderBook';
 import { MoralConsequenceDisplay } from '@/components/MoralConsequenceDisplay';
 import { VictimFeed } from '@/components/VictimFeed';
 import { BloodMoneyCounter } from '@/components/BloodMoneyCounter';
 import { cn } from '@/lib/utils';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import HC_more from 'highcharts/highcharts-more';
-import HC_exporting from 'highcharts/modules/exporting';
-import HC_boost from 'highcharts/modules/boost';
-
-// Initialize Highcharts modules
-if (typeof Highcharts === 'object') {
-  HC_more(Highcharts);
-  HC_exporting(Highcharts);
-  HC_boost(Highcharts);
-}
 
 interface TradingStats {
   availableBalance: number;
@@ -57,9 +49,30 @@ export default function TradingPage() {
   const [orderType, setOrderType] = useState<'buy' | 'sell'>('buy');
   const [orderQuantity, setOrderQuantity] = useState('');
   const [orderPrice, setOrderPrice] = useState('');
-  const [activePanel, setActivePanel] = useState<'orders' | 'positions' | 'moral'>('orders');
+  const [activePanel, setActivePanel] = useState<'orders' | 'positions' | 'orderbook' | 'moral'>('orderbook');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const chartRef = useRef<HighchartsReact.RefObject>(null);
+  const [chartData, setChartData] = useState<{ ohlc: any[], volume: any[] }>({ ohlc: [], volume: [] });
+  
+  // Subscribe to WebSocket for selected asset
+  const subscribedAssets = useMemo(() => 
+    selectedAsset ? [selectedAsset.id] : [],
+    [selectedAsset]
+  );
+  
+  const { 
+    priceUpdates, 
+    orderBooks, 
+    marketPulse,
+    getRealTimePrice,
+    getOrderBook,
+    isConnected,
+    lastUpdateTime 
+  } = useWebSocket({ 
+    subscribeTo: { 
+      assets: subscribedAssets 
+    } 
+  });
 
   // Fetch user data for trading limits and balance
   const { data: userData, isLoading: userLoading } = useQuery({
@@ -145,29 +158,55 @@ export default function TradingPage() {
     },
   });
 
-  // Generate mock chart data for cinematic effect
-  const generateChartData = () => {
-    const data = [];
-    const volumeData = [];
-    const now = Date.now();
-    const basePrice = selectedAsset ? 100 : 50;
-    
-    for (let i = 100; i >= 0; i--) {
-      const time = now - i * 60 * 1000;
-      const open = basePrice + (Math.random() - 0.5) * 10;
-      const close = open + (Math.random() - 0.5) * 5;
-      const high = Math.max(open, close) + Math.random() * 3;
-      const low = Math.min(open, close) - Math.random() * 3;
-      const volume = Math.floor(Math.random() * 1000000) + 500000;
+  // Get real-time price for selected asset
+  const realtimePrice = selectedAsset ? getRealTimePrice(selectedAsset.id) : null;
+  const currentOrderBook = selectedAsset ? getOrderBook(selectedAsset.id) : null;
+  
+  // Update chart data with real-time prices
+  useEffect(() => {
+    if (selectedAsset && realtimePrice) {
+      const now = Date.now();
+      const price = realtimePrice.price;
       
-      data.push([time, open, high, low, close]);
-      volumeData.push([time, volume]);
+      setChartData(prevData => {
+        const newOhlc = [...prevData.ohlc];
+        const newVolume = [...prevData.volume];
+        
+        if (newOhlc.length === 0) {
+          // Initialize with first data point
+          newOhlc.push([now, price, price, price, price]);
+          newVolume.push([now, 1000]);
+        } else {
+          const lastCandle = newOhlc[newOhlc.length - 1];
+          const lastTime = lastCandle[0];
+          const timeDiff = now - lastTime;
+          
+          if (timeDiff < 60000) {
+            // Update current candle
+            lastCandle[2] = Math.max(lastCandle[2], price); // High
+            lastCandle[3] = Math.min(lastCandle[3], price); // Low
+            lastCandle[4] = price; // Close
+            
+            // Update volume
+            const lastVol = newVolume[newVolume.length - 1];
+            lastVol[1] += Math.floor(Math.random() * 100);
+          } else {
+            // Create new candle
+            newOhlc.push([now, price, price, price, price]);
+            newVolume.push([now, Math.floor(Math.random() * 1000) + 500]);
+            
+            // Keep only last 100 candles
+            if (newOhlc.length > 100) {
+              newOhlc.shift();
+              newVolume.shift();
+            }
+          }
+        }
+        
+        return { ohlc: newOhlc, volume: newVolume };
+      });
     }
-    
-    return { ohlc: data, volume: volumeData };
-  };
-
-  const chartData = generateChartData();
+  }, [selectedAsset, realtimePrice]);
 
   // Cinematic dark chart configuration
   const chartOptions: Highcharts.Options = {
@@ -385,9 +424,12 @@ export default function TradingPage() {
             TRADING TERMINAL v2.0.1
           </span>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <div className={cn(
+              "w-2 h-2 rounded-full",
+              isConnected ? "bg-green-500 animate-pulse" : "bg-red-500"
+            )} />
             <span className="text-green-500/60 text-xs font-mono">
-              {isMarketOpen() ? 'MARKET OPEN' : 'MARKET CLOSED'}
+              {isMarketOpen() ? 'MARKET OPEN' : 'MARKET CLOSED'} {isConnected && '• LIVE'}
             </span>
           </div>
         </div>
@@ -440,15 +482,35 @@ export default function TradingPage() {
               <div className="mt-3 p-2 border border-green-900/30">
                 <div className="flex justify-between items-center">
                   <span className="text-green-500 font-mono text-xs">PRICE</span>
-                  <span className="text-green-500 font-mono text-lg font-bold">
-                    ${(Math.random() * 200 + 50).toFixed(2)}
+                  <span className={cn(
+                    "font-mono text-lg font-bold transition-all duration-300",
+                    realtimePrice?.flash === 'up' ? "text-green-400" :
+                    realtimePrice?.flash === 'down' ? "text-red-400" : "text-green-500"
+                  )}>
+                    ${realtimePrice?.price?.toFixed(2) || '---'}
                   </span>
                 </div>
                 <div className="flex justify-between items-center mt-1">
                   <span className="text-green-500/60 font-mono text-xs">24H</span>
-                  <span className="text-red-500 font-mono text-xs">
-                    <ArrowDown className="inline w-3 h-3" /> -2.34%
-                  </span>
+                  {
+                  (() => {
+                    const priceUpdate = priceUpdates.get(selectedAsset.id);
+                    return priceUpdate ? (
+                      <span className={cn(
+                        "font-mono text-xs",
+                        priceUpdate.changePercent > 0 ? "text-green-500" : "text-red-500"
+                      )}>
+                        {priceUpdate.changePercent > 0 ? (
+                          <ArrowUp className="inline w-3 h-3" />
+                        ) : (
+                          <ArrowDown className="inline w-3 h-3" />
+                        )} {Math.abs(priceUpdate.changePercent).toFixed(2)}%
+                      </span>
+                    ) : (
+                      <span className="text-gray-500 font-mono text-xs">---</span>
+                    );
+                  })()
+                  }
                 </div>
               </div>
             )}
@@ -522,6 +584,17 @@ export default function TradingPage() {
             <button
               className={cn(
                 "flex-1 py-2 text-xs font-mono uppercase transition-all",
+                activePanel === 'orderbook' 
+                  ? "text-green-500 border-b-2 border-green-500 bg-green-500/5" 
+                  : "text-green-500/50 hover:text-green-500/70"
+              )}
+              onClick={() => setActivePanel('orderbook')}
+            >
+              BOOK
+            </button>
+            <button
+              className={cn(
+                "flex-1 py-2 text-xs font-mono uppercase transition-all",
                 activePanel === 'orders' 
                   ? "text-green-500 border-b-2 border-green-500 bg-green-500/5" 
                   : "text-green-500/50 hover:text-green-500/70"
@@ -557,6 +630,15 @@ export default function TradingPage() {
 
           {/* Panel content */}
           <div className="flex-1 overflow-hidden">
+            {activePanel === 'orderbook' && (
+              <ScrollArea className="h-full">
+                <OrderBook 
+                  orderBook={currentOrderBook} 
+                  symbol={selectedAsset?.symbol}
+                  className="border-0 rounded-none"
+                />
+              </ScrollArea>
+            )}
             {activePanel === 'orders' && (
               <ScrollArea className="h-full p-4">
                 <div className="space-y-2">

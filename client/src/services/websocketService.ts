@@ -13,6 +13,45 @@ interface MarketDataUpdate {
   timestamp: string;
 }
 
+interface PriceUpdate {
+  type: 'PRICE_UPDATE';
+  assetId: string;
+  symbol: string;
+  name: string;
+  price: number;
+  bid: number;
+  ask: number;
+  volume: number;
+  change: number;
+  changePercent: number;
+  high24h: number;
+  low24h: number;
+  timestamp: string;
+  trend: 'up' | 'down' | 'stable';
+  intensity: number;
+}
+
+interface OrderBookUpdate {
+  type: 'ORDERBOOK_UPDATE';
+  assetId: string;
+  symbol: string;
+  bids: Array<{ price: number; quantity: number; total: number }>;
+  asks: Array<{ price: number; quantity: number; total: number }>;
+  spread: number;
+  spreadPercent: number;
+  timestamp: string;
+}
+
+interface MarketPulse {
+  type: 'MARKET_PULSE';
+  totalAssets: number;
+  activeTraders: number;
+  volumePulse: number;
+  volatilityIndex: number;
+  sentiment: 'bullish' | 'bearish' | 'neutral';
+  timestamp: string;
+}
+
 interface PortfolioUpdate {
   portfolioId: string;
   totalValue: number;
@@ -42,7 +81,13 @@ type WebSocketMessage = {
 } | {
   type: 'market_status';
   data: { status: 'open' | 'closed'; timestamp: string };
-};
+} | {
+  type: 'market_overview' | 'market_update';
+  data: any;
+} | {
+  type: 'pong';
+  timestamp: number;
+} | PriceUpdate | OrderBookUpdate | MarketPulse;
 
 type WebSocketEventCallback = (data: any) => void;
 
@@ -135,6 +180,32 @@ class WebSocketService {
       case 'market_status':
         this.emit('marketStatus', message.data);
         break;
+      case 'PRICE_UPDATE':
+        this.emit('priceUpdate', message as PriceUpdate);
+        this.emit('marketData', {
+          assetId: message.assetId,
+          symbol: message.symbol,
+          currentPrice: message.price,
+          change: message.change,
+          changePercent: message.changePercent,
+          volume: message.volume,
+          timestamp: message.timestamp
+        });
+        break;
+      case 'ORDERBOOK_UPDATE':
+        this.emit('orderBookUpdate', message as OrderBookUpdate);
+        break;
+      case 'MARKET_PULSE':
+        this.emit('marketPulse', message as MarketPulse);
+        break;
+      case 'market_overview':
+      case 'market_update':
+        // Handle market overview/update messages from server
+        this.emit('marketOverview', message.data);
+        break;
+      case 'pong':
+        // Handle pong responses for keepalive
+        break;
       default:
         console.warn('🤷 Unknown WebSocket message type:', message);
     }
@@ -190,6 +261,19 @@ class WebSocketService {
         assetId: assetId
       }));
       console.log('📡 Subscribed to asset updates:', assetId);
+    }
+  }
+  
+  /**
+   * Subscribe to multiple assets at once
+   */
+  subscribeToAssets(assetIds: string[]): void {
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({
+        type: 'subscribe_assets',
+        assetIds: assetIds
+      }));
+      console.log(`📡 Subscribed to ${assetIds.length} assets`);
     }
   }
 
@@ -298,4 +382,4 @@ class WebSocketService {
 export const webSocketService = new WebSocketService();
 
 // Export types for use in components
-export type { MarketDataUpdate, PortfolioUpdate, MarketEventUpdate, WebSocketMessage };
+export type { MarketDataUpdate, PortfolioUpdate, MarketEventUpdate, WebSocketMessage, PriceUpdate, OrderBookUpdate, MarketPulse };

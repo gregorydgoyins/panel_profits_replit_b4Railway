@@ -23,6 +23,7 @@ import tradingRoutes from "./routes/tradingRoutes.js";
 import { registerStoryMarketRoutes } from "./routes/storyMarketRoutes.js";
 import { marketSimulation, orderMatching } from "./marketSimulation.js";
 import { leaderboardService } from "./leaderboardService.js";
+import { priceStreamingService } from "./services/priceStreamingService.js";
 import { 
   patchWebSocketWithSanitization, 
   safeWebSocketClose,
@@ -2140,6 +2141,10 @@ Respond with valid JSON in this exact format:
   // applyEmergencyWebSocketFix();
 
   const httpServer = createServer(app);
+  
+  // Start the price streaming service
+  await priceStreamingService.start();
+  console.log('💹 Price streaming service started');
 
   // Setup WebSocket for real-time market data with proper path filtering
   const wss = new WebSocketServer({ 
@@ -2163,6 +2168,9 @@ Respond with valid JSON in this exact format:
     patchWebSocketWithSanitization(ws);
     
     marketDataClients.add(ws);
+    
+    // Add client to price streaming service
+    priceStreamingService.addClient(ws);
     
     // Send initial market overview with comprehensive sanitization
     marketSimulation.getMarketOverview().then(overview => {
@@ -2194,6 +2202,7 @@ Respond with valid JSON in this exact format:
           if (typeof data.assetId === 'string' && data.assetId.length > 0) {
             ws.assetSubscriptions = ws.assetSubscriptions || new Set();
             ws.assetSubscriptions.add(data.assetId);
+            priceStreamingService.subscribeToAsset(ws, data.assetId);
             console.log(`📊 Client subscribed to asset: ${data.assetId}`);
           } else {
             console.warn('Invalid assetId in subscription request:', data.assetId);
@@ -2203,8 +2212,21 @@ Respond with valid JSON in this exact format:
         if (data.type === 'unsubscribe_asset') {
           if (typeof data.assetId === 'string') {
             ws.assetSubscriptions?.delete(data.assetId);
+            priceStreamingService.unsubscribeFromAsset(ws, data.assetId);
             console.log(`📊 Client unsubscribed from asset: ${data.assetId}`);
           }
+        }
+        
+        // Handle bulk subscriptions
+        if (data.type === 'subscribe_assets' && Array.isArray(data.assetIds)) {
+          for (const assetId of data.assetIds) {
+            if (typeof assetId === 'string' && assetId.length > 0) {
+              ws.assetSubscriptions = ws.assetSubscriptions || new Set();
+              ws.assetSubscriptions.add(assetId);
+              priceStreamingService.subscribeToAsset(ws, assetId);
+            }
+          }
+          console.log(`📊 Client subscribed to ${data.assetIds.length} assets`);
         }
         
         // Handle ping/pong for connection keepalive
@@ -2221,11 +2243,15 @@ Respond with valid JSON in this exact format:
     ws.on('close', (code, reason) => {
       console.log(`📡 WebSocket client disconnected (code: ${code}, reason: ${reason?.toString()})`);
       marketDataClients.delete(ws);
+      // Remove client from price streaming service
+      priceStreamingService.removeClient(ws);
     });
     
     ws.on('error', (error) => {
       console.error('WebSocket error:', error);
       marketDataClients.delete(ws);
+      // Remove client from price streaming service
+      priceStreamingService.removeClient(ws);
       // Use safe close for error conditions
       safeWebSocketClose(ws, WebSocketCloseCodes.INTERNAL_SERVER_ERROR, 'Connection error');
     });
