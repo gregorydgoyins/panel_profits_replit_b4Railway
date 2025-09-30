@@ -28,6 +28,7 @@ import warfareRoutes from "./routes/warfareRoutes.js";
 import { marketSimulation, orderMatching } from "./marketSimulation.js";
 import { leaderboardService } from "./leaderboardService.js";
 import { priceStreamingService } from "./services/priceStreamingService.js";
+import { narrativeEventService } from "./services/narrativeEventService.js";
 import { 
   patchWebSocketWithSanitization, 
   safeWebSocketClose,

@@ -82,7 +82,9 @@ import {
   // Seven Houses of Paneltown Types
   type SevenHouse, type InsertSevenHouse,
   type HousePowerRanking, type InsertHousePowerRanking,
-  type HouseMarketEvent, type InsertHouseMarketEvent
+  type HouseMarketEvent, type InsertHouseMarketEvent,
+  // Narrative Events System Types
+  type NarrativeEvent, type InsertNarrativeEvent
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -169,6 +171,17 @@ export interface IStorage {
   getMarketEvents(filters?: { isActive?: boolean; category?: string }): Promise<MarketEvent[]>;
   createMarketEvent(event: InsertMarketEvent): Promise<MarketEvent>;
   updateMarketEvent(id: string, event: Partial<InsertMarketEvent>): Promise<MarketEvent | undefined>;
+
+  // Narrative Events - Comic book plot events that affect prices
+  getNarrativeEvent(id: string): Promise<NarrativeEvent | undefined>;
+  getNarrativeEvents(filters?: { isActive?: boolean; eventType?: string; severity?: string; affectedHouse?: string; affectedAsset?: string }): Promise<NarrativeEvent[]>;
+  getActiveNarrativeEvents(): Promise<NarrativeEvent[]>;
+  createNarrativeEvent(event: InsertNarrativeEvent): Promise<NarrativeEvent>;
+  updateNarrativeEvent(id: string, event: Partial<InsertNarrativeEvent>): Promise<NarrativeEvent | undefined>;
+  deactivateNarrativeEvent(id: string): Promise<NarrativeEvent | undefined>;
+  deleteNarrativeEvent(id: string): Promise<boolean>;
+  getEventsByAsset(assetId: string): Promise<NarrativeEvent[]>;
+  getEventsByHouse(houseId: string): Promise<NarrativeEvent[]>;
 
   // Beat the AI Challenges
   getBeatTheAIChallenge(id: string): Promise<BeatTheAIChallenge | undefined>;

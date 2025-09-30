@@ -11,6 +11,8 @@
     "db:push": "drizzle-kit push"
   },
   "dependencies": {
+    "@fontsource/hind": "^5.2.8",
+    "@fontsource/space-grotesk": "^5.2.10",
     "@hookform/resolvers": "^3.10.0",
     "@jest/globals": "^30.2.0",
     "@jridgewell/trace-mapping": "^0.3.25",

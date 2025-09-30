@@ -1,12 +1,26 @@
 import { Button } from "@/components/ui/button";
-import { motion, AnimatePresence, useAnimation } from "framer-motion";
-import { useEffect, useState, useRef } from "react";
-import darkRainyCityImage1 from '@assets/stock_images/dark_rainy_city_stre_a2f53200.jpg';
-import darkRainyCityImage2 from '@assets/stock_images/dark_rainy_city_stre_279816f5.jpg';
-import darkRainyCityImage3 from '@assets/stock_images/dark_rainy_city_stre_eb2ad3bc.jpg';
+import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
 
-// Caption box component
-function CaptionBox({ text, delay = 0 }: { text: string; delay?: number }) {
+// Smoke/fog effect component
+function SmokeEffect({ position }: { position: { top?: string; bottom?: string; left?: string; right?: string } }) {
+  return (
+    <div 
+      className="absolute pointer-events-none"
+      style={{
+        ...position,
+        width: '200px',
+        height: '200px',
+        background: 'radial-gradient(circle, rgba(255,255,255,0.02) 0%, transparent 70%)',
+        filter: 'blur(30px)',
+        animation: 'smoke-drift 15s ease-in-out infinite'
+      }}
+    />
+  );
+}
+
+// Create noir visual elements using pure CSS
+function NeonSign({ text, delay = 0 }: { text: string; delay?: number }) {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -15,120 +29,175 @@ function CaptionBox({ text, delay = 0 }: { text: string; delay?: number }) {
   }, [delay]);
 
   if (!show) return null;
+
+  return (
+    <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30">
+      <div 
+        className="text-4xl font-black tracking-widest"
+        style={{
+          color: '#FFD700',
+          textShadow: `
+            0 0 10px #FFD700,
+            0 0 20px #FFD700,
+            0 0 30px #FFD700,
+            0 0 40px #FFA500,
+            0 0 70px #FFA500,
+            0 0 80px #FFA500,
+            0 0 100px #FFA500,
+            0 0 150px #FFA500
+          `,
+          animation: 'neon-flicker 2s ease-in-out infinite alternate'
+        }}
+      >
+        {text}
+      </div>
+    </div>
+  );
+}
+
+// Mastermind silhouette component
+function MastermindSilhouette({ position, size = "medium", delay = 0 }: {
+  position: { top?: string; bottom?: string; left?: string; right?: string };
+  size?: "small" | "medium" | "large";
+  delay?: number;
+}) {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setShow(true), delay);
+    return () => clearTimeout(timeout);
+  }, [delay]);
+
+  if (!show) return null;
+
+  const sizes = {
+    small: { width: '80px', height: '120px' },
+    medium: { width: '120px', height: '200px' },
+    large: { width: '180px', height: '280px' }
+  };
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
-      className="absolute z-30 bg-black border-2 border-white px-3 py-2 max-w-[250px]"
-      style={{
-        top: '10px',
-        left: '10px',
-        boxShadow: '4px 4px 0 rgba(0,0,0,0.8)'
-      }}
-    >
-      <div className="text-white text-xs font-mono uppercase leading-tight tracking-wider">
-        {text}
-      </div>
-    </motion.div>
-  );
-}
-
-// Speech bubble component
-function SpeechBubble({ text, position, delay = 0 }: { 
-  text: string; 
-  position: { top?: string; bottom?: string; left?: string; right?: string };
-  delay?: number 
-}) {
-  const [show, setShow] = useState(false);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => setShow(true), delay);
-    return () => clearTimeout(timeout);
-  }, [delay]);
-
-  if (!show) return null;
-
-  return (
-    <motion.div
-      initial={{ scale: 0, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ type: "spring", duration: 0.5 }}
-      className="absolute z-30"
+      transition={{ duration: 1 }}
+      className="absolute z-25"
       style={position}
     >
-      <div className="relative bg-white rounded-2xl px-4 py-2 shadow-2xl">
-        <div className="text-black text-sm font-bold uppercase">{text}</div>
-        <div className="absolute -bottom-2 left-4 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-white" />
+      <div className="relative">
+        {/* Body */}
+        <div 
+          style={{
+            ...sizes[size],
+            background: 'black',
+            clipPath: 'polygon(35% 0%, 65% 0%, 70% 30%, 65% 100%, 35% 100%, 30% 30%)',
+            filter: 'drop-shadow(0 0 20px rgba(139, 0, 0, 0.3))'
+          }}
+        />
+        {/* Fedora */}
+        <div 
+          className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-black"
+          style={{
+            width: `${parseInt(sizes[size].width) * 1.2}px`,
+            height: '20px',
+            clipPath: 'ellipse(50% 40% at 50% 50%)'
+          }}
+        />
       </div>
     </motion.div>
   );
 }
 
-// Sound effect component
-function SoundEffect({ text, position, delay = 0, size = "large" }: { 
-  text: string; 
-  position: { top?: string; bottom?: string; left?: string; right?: string };
-  delay?: number;
-  size?: "small" | "medium" | "large" | "huge";
-}) {
-  const [show, setShow] = useState(false);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => setShow(true), delay);
-    return () => clearTimeout(timeout);
-  }, [delay]);
-
-  if (!show) return null;
-
-  const sizeClasses = {
-    small: "text-2xl",
-    medium: "text-4xl",
-    large: "text-6xl",
-    huge: "text-8xl"
-  };
-
+// Venetian blind shadows
+function VenetianBlinds() {
   return (
-    <motion.div
-      initial={{ scale: 0, rotate: -15 }}
-      animate={{ scale: 1, rotate: 0 }}
-      transition={{ type: "spring", stiffness: 400 }}
-      className={`absolute z-35 font-black ${sizeClasses[size]}`}
+    <div 
+      className="absolute inset-0 pointer-events-none z-15"
       style={{
-        ...position,
-        color: '#fff',
-        textShadow: '3px 3px 0 #000, -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000',
-        transform: 'rotate(-5deg)',
-        fontFamily: 'Impact, sans-serif'
+        background: `repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 8px,
+          rgba(0, 0, 0, 0.7) 8px,
+          rgba(0, 0, 0, 0.7) 10px
+        )`
       }}
-    >
-      {text}
-    </motion.div>
+    />
   );
 }
 
-// Comic panel component with irregular sizing
+// Rain effect component with multiple layers
+function RainEffect({ intensity = 1, layer = 1 }: { intensity?: number; layer?: number }) {
+  return (
+    <div 
+      className="absolute inset-0 pointer-events-none"
+      style={{
+        background: `linear-gradient(180deg, transparent, rgba(255,255,255,${0.01 * intensity}))`,
+        backgroundSize: `${3 + layer}px ${100 + layer * 10}px`,
+        animation: `rain ${0.3 + layer * 0.1}s linear infinite`,
+        zIndex: 40 + layer
+      }}
+    />
+  );
+}
+
+// Wet street reflection
+function WetStreetReflection() {
+  return (
+    <div 
+      className="absolute bottom-0 left-0 right-0 h-1/3"
+      style={{
+        background: `linear-gradient(to top, 
+          rgba(0,0,0,0.8) 0%, 
+          rgba(0,0,0,0.4) 50%, 
+          transparent 100%)`,
+        transform: 'scaleY(-1)',
+        filter: 'blur(2px)',
+        opacity: 0.6
+      }}
+    />
+  );
+}
+
+// Blood drip effect
+function BloodDrip({ position }: { position: { left: string } }) {
+  return (
+    <motion.div
+      initial={{ height: 0 }}
+      animate={{ height: '200px' }}
+      transition={{ duration: 2, ease: "easeInOut" }}
+      className="absolute top-20"
+      style={{
+        ...position,
+        width: '4px',
+        background: `linear-gradient(to bottom, 
+          transparent 0%,
+          rgba(139, 0, 0, 0.4) 10%,
+          rgba(139, 0, 0, 0.8) 30%,
+          rgba(139, 0, 0, 1) 50%,
+          rgba(139, 0, 0, 0.8) 70%,
+          rgba(139, 0, 0, 0.4) 90%,
+          transparent 100%
+        )`,
+        filter: 'blur(1px)'
+      }}
+    />
+  );
+}
+
+// Comic panel component
 function ComicPanel({ 
   id,
   gridArea,
-  backgroundImage,
-  backgroundColor = 'bg-gray-900',
   children, 
   delay = 0,
-  kenBurnsType = 'zoomIn',
-  isRevealed,
-  onReveal
+  isRevealed
 }: { 
   id: number;
   gridArea: string;
-  backgroundImage?: string;
-  backgroundColor?: string;
   children: React.ReactNode;
   delay?: number;
-  kenBurnsType?: 'zoomIn' | 'zoomOut' | 'panLeft' | 'panRight' | 'panUp' | 'panDown';
   isRevealed: boolean;
-  onReveal?: () => void;
 }) {
   const [isActivated, setIsActivated] = useState(false);
 
@@ -136,52 +205,34 @@ function ComicPanel({
     if (isRevealed && !isActivated) {
       const timeout = setTimeout(() => {
         setIsActivated(true);
-        if (onReveal) onReveal();
       }, delay);
       return () => clearTimeout(timeout);
     }
-  }, [isRevealed, delay, isActivated, onReveal]);
+  }, [isRevealed, delay, isActivated]);
 
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ 
-        opacity: isActivated ? 1 : 0.3,
+        opacity: isActivated ? 1 : 0.2,
         scale: isActivated ? 1 : 0.9,
       }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`relative overflow-hidden border-8 border-black shadow-2xl ${isActivated ? 'z-20' : 'z-10'}`}
+      className={`relative overflow-hidden border-4 border-white bg-black ${isActivated ? 'z-20' : 'z-10'}`}
       style={{ 
         gridArea,
-        transform: isActivated ? 'scale(1)' : 'scale(0.95)',
-        transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
+        boxShadow: isActivated ? '10px 10px 0 rgba(0,0,0,1)' : '5px 5px 0 rgba(0,0,0,0.5)'
       }}
       data-testid={`comic-panel-${id}`}
     >
-      {/* Panel background */}
-      <div className={`absolute inset-0 ${backgroundColor}`}>
-        {backgroundImage && (
-          <div 
-            className={`absolute inset-0 ${isActivated ? `ken-burns-${kenBurnsType}` : ''}`}
-            style={{
-              backgroundImage: `url(${backgroundImage})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              filter: 'brightness(0.3) contrast(1.8) saturate(0)'
-            }}
-          />
-        )}
-        
-        {/* Crosshatch overlay */}
-        <div 
-          className="absolute inset-0 opacity-20 mix-blend-overlay"
-          style={{
-            backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px),
-                            repeating-linear-gradient(-45deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px)`
-          }}
-        />
-      </div>
-
+      {/* Film grain */}
+      <div 
+        className="absolute inset-0 opacity-10 mix-blend-overlay pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E")`
+        }}
+      />
+      
       {/* Panel content */}
       <div className="relative h-full">
         {children}
@@ -191,92 +242,53 @@ function ComicPanel({
 }
 
 export function LandingPage() {
-  const [showOverview, setShowOverview] = useState(true);
   const [panelsRevealed, setPanelsRevealed] = useState<boolean[]>(Array(9).fill(false));
   const [allPanelsRevealed, setAllPanelsRevealed] = useState(false);
 
-  // Start sequential reveal after overview
+  // Start sequential reveal
   useEffect(() => {
-    const overviewTimer = setTimeout(() => {
-      setShowOverview(false);
-      // Start revealing panels one by one
-      panelsRevealed.forEach((_, index) => {
-        setTimeout(() => {
-          setPanelsRevealed(prev => {
-            const newState = [...prev];
-            newState[index] = true;
-            return newState;
-          });
-        }, index * 300); // Stagger each panel by 300ms
-      });
-    }, 2000); // Show overview for 2 seconds
-
-    return () => clearTimeout(overviewTimer);
+    panelsRevealed.forEach((_, index) => {
+      setTimeout(() => {
+        setPanelsRevealed(prev => {
+          const newState = [...prev];
+          newState[index] = true;
+          return newState;
+        });
+      }, index * 400);
+    });
   }, []);
 
   // Check if all panels are revealed
   useEffect(() => {
     if (panelsRevealed.every(p => p)) {
-      setAllPanelsRevealed(true);
+      setTimeout(() => setAllPanelsRevealed(true), 500);
     }
   }, [panelsRevealed]);
 
-  // CSS animations
+  // Add CSS animations
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = `
-      @keyframes ken-burns-zoomIn {
-        0% { transform: scale(1); }
-        100% { transform: scale(1.2); }
+      @keyframes rain {
+        0% { transform: translateY(-100px); }
+        100% { transform: translateY(calc(100vh + 100px)); }
       }
       
-      @keyframes ken-burns-zoomOut {
-        0% { transform: scale(1.2); }
-        100% { transform: scale(1); }
+      @keyframes neon-flicker {
+        0%, 100% { opacity: 1; }
+        33% { opacity: 0.8; }
+        66% { opacity: 0.9; }
       }
       
-      @keyframes ken-burns-panLeft {
-        0% { transform: scale(1.15) translateX(5%); }
-        100% { transform: scale(1.15) translateX(-5%); }
+      @keyframes headlight-sweep {
+        0% { transform: translateX(-100%) rotate(-15deg); }
+        100% { transform: translateX(200%) rotate(-15deg); }
       }
       
-      @keyframes ken-burns-panRight {
-        0% { transform: scale(1.15) translateX(-5%); }
-        100% { transform: scale(1.15) translateX(5%); }
-      }
-      
-      @keyframes ken-burns-panUp {
-        0% { transform: scale(1.15) translateY(5%); }
-        100% { transform: scale(1.15) translateY(-5%); }
-      }
-      
-      @keyframes ken-burns-panDown {
-        0% { transform: scale(1.15) translateY(-5%); }
-        100% { transform: scale(1.15) translateY(5%); }
-      }
-      
-      .ken-burns-zoomIn {
-        animation: ken-burns-zoomIn 20s ease-in-out infinite alternate;
-      }
-      
-      .ken-burns-zoomOut {
-        animation: ken-burns-zoomOut 20s ease-in-out infinite alternate;
-      }
-      
-      .ken-burns-panLeft {
-        animation: ken-burns-panLeft 25s ease-in-out infinite alternate;
-      }
-      
-      .ken-burns-panRight {
-        animation: ken-burns-panRight 25s ease-in-out infinite alternate;
-      }
-      
-      .ken-burns-panUp {
-        animation: ken-burns-panUp 22s ease-in-out infinite alternate;
-      }
-      
-      .ken-burns-panDown {
-        animation: ken-burns-panDown 22s ease-in-out infinite alternate;
+      @keyframes smoke-drift {
+        0% { transform: translateX(0) translateY(0); opacity: 0.3; }
+        50% { transform: translateX(20px) translateY(-30px); opacity: 0.15; }
+        100% { transform: translateX(40px) translateY(-60px); opacity: 0; }
       }
       
       @keyframes ticker-scroll {
@@ -284,42 +296,14 @@ export function LandingPage() {
         100% { transform: translateX(-100%); }
       }
       
-      @keyframes float-left {
-        0% { transform: translateX(100vw) rotate(2deg); }
-        100% { transform: translateX(-100%) rotate(-2deg); }
+      @keyframes gun-flash {
+        0%, 100% { opacity: 0; }
+        50% { opacity: 1; }
       }
       
-      @keyframes float-right {
-        0% { transform: translateX(-100%) rotate(-2deg); }
-        100% { transform: translateX(100vw) rotate(2deg); }
-      }
-      
-      @keyframes rain {
-        0% { background-position: 0 0; }
-        100% { background-position: -10px 100px; }
-      }
-      
-      .rain-effect {
-        background-image: linear-gradient(180deg, 
-          transparent 0%, 
-          rgba(255,255,255,0.02) 50%, 
-          transparent 100%);
-        background-size: 3px 100px;
-        animation: rain 0.3s linear infinite;
-      }
-      
-      @keyframes streetlamp-glow {
-        0%, 100% { opacity: 0.4; }
-        50% { opacity: 0.7; }
-      }
-      
-      @keyframes shadow-pass {
-        0% { transform: translateX(-200%); }
-        100% { transform: translateX(200%); }
-      }
-      
-      .film-grain {
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+      @keyframes window-glow {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 0.6; }
       }
     `;
     document.head.appendChild(style);
@@ -331,309 +315,350 @@ export function LandingPage() {
   return (
     <div className="relative w-full h-screen bg-black overflow-hidden">
       
-      {/* Background Layer: Stock Tickers */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute top-10 left-0 right-0 h-8 overflow-hidden opacity-20">
-          <div className="whitespace-nowrap" style={{ animation: 'ticker-scroll 30s linear infinite' }}>
-            <span className="text-white text-xs font-mono mr-8">BATMAN -12.3%</span>
-            <span className="text-white text-xs font-mono mr-8">SPIDER +8.7%</span>
-            <span className="text-white text-xs font-mono mr-8">XMEN -3.2%</span>
-            <span className="text-white text-xs font-mono mr-8">SUPERMAN +15.1%</span>
-            <span className="text-white text-xs font-mono mr-8">JOKER +666%</span>
-            <span className="text-white text-xs font-mono mr-8">BATMAN -12.3%</span>
-            <span className="text-white text-xs font-mono mr-8">SPIDER +8.7%</span>
-          </div>
-        </div>
-        <div className="absolute bottom-10 left-0 right-0 h-8 overflow-hidden opacity-20">
-          <div className="whitespace-nowrap" style={{ animation: 'ticker-scroll 40s linear infinite reverse' }}>
-            <span className="text-white text-xs font-mono mr-8">FLASH -7.9%</span>
-            <span className="text-white text-xs font-mono mr-8">THOR +22.4%</span>
-            <span className="text-white text-xs font-mono mr-8">HULK -15.6%</span>
-            <span className="text-white text-xs font-mono mr-8">IRONMAN +9.3%</span>
-            <span className="text-white text-xs font-mono mr-8">FLASH -7.9%</span>
-            <span className="text-white text-xs font-mono mr-8">THOR +22.4%</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Middle Layer: Newspaper Headlines */}
-      <div className="absolute inset-0 z-1 pointer-events-none">
-        <div 
-          className="absolute top-32 text-gray-300 text-lg font-bold uppercase opacity-10 transform rotate-3"
-          style={{ animation: 'float-left 45s linear infinite' }}
-        >
-          SEQUENTIAL SECURITIES UNDER INVESTIGATION
-        </div>
-        <div 
-          className="absolute top-64 text-gray-300 text-md font-bold uppercase opacity-10 transform -rotate-2"
-          style={{ animation: 'float-right 50s linear infinite' }}
-        >
-          SEVEN HOUSES CONTROL 90% OF PANELTOWN
-        </div>
-        <div 
-          className="absolute bottom-32 text-gray-300 text-lg font-bold uppercase opacity-10 transform rotate-1"
-          style={{ animation: 'float-left 55s linear infinite' }}
-        >
-          MASTERMIND SPOTTED IN FINANCIAL DISTRICT
-        </div>
-      </div>
-
-      {/* Main Comic Panel Grid - Irregular Kirby Layout */}
+      {/* Multiple rain layers for depth */}
+      <RainEffect intensity={1} layer={1} />
+      <RainEffect intensity={0.5} layer={2} />
+      <RainEffect intensity={0.3} layer={3} />
+      
+      {/* Main Comic Grid */}
       <div 
-        className={`relative z-10 h-full p-4 transition-all duration-1000 ${showOverview ? 'scale-75 opacity-70' : 'scale-100 opacity-100'}`}
+        className="relative z-10 h-full p-4"
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(6, 1fr)',
           gridTemplateRows: 'repeat(6, 1fr)',
-          gap: '8px',
+          gap: '12px',
           gridTemplateAreas: `
-            "panel1 panel1 panel2 panel3 panel4 panel4"
-            "panel1 panel1 panel2 panel3 panel4 panel4"
-            "panel5 panel5 panel5 panel6 panel6 panel7"
-            "panel5 panel5 panel5 panel6 panel6 panel7"
-            "panel8 panel8 panel8 panel8 panel9 panel9"
-            "panel8 panel8 panel8 panel8 panel9 panel9"
+            "panel1 panel1 panel2 panel3 panel3 panel3"
+            "panel1 panel1 panel2 panel3 panel3 panel3"
+            "panel4 panel4 panel5 panel5 panel6 panel6"
+            "panel4 panel4 panel5 panel5 panel6 panel6"
+            "panel7 panel8 panel8 panel8 panel9 panel9"
+            "panel7 panel8 panel8 panel8 panel9 panel9"
           `
         }}
       >
         
-        {/* Panel 1: Large establishing shot (2x2) */}
-        <ComicPanel 
-          id={1} 
-          gridArea="panel1"
-          backgroundImage={darkRainyCityImage1} 
-          delay={0} 
-          kenBurnsType="zoomIn"
-          isRevealed={panelsRevealed[0]}
-        >
-          <CaptionBox 
-            text="Paneltown. Where the Seven Houses rule the market..." 
-            delay={300}
-          />
-          <div className="absolute inset-0 rain-effect opacity-40 pointer-events-none" />
-          {/* Streetlamp halo */}
-          <div 
-            className="absolute top-1/3 right-1/4 w-32 h-32 bg-yellow-500 rounded-full opacity-10 blur-3xl"
-            style={{ animation: 'streetlamp-glow 4s ease-in-out infinite' }}
-          />
-        </ComicPanel>
-
-        {/* Panel 2: Thin vertical strip - Mastermind's shadow */}
-        <ComicPanel 
-          id={2} 
-          gridArea="panel2"
-          backgroundColor="bg-gray-950" 
-          delay={300} 
-          kenBurnsType="panDown"
-          isRevealed={panelsRevealed[1]}
-        >
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-full h-3/4 bg-black" 
-              style={{
-                clipPath: 'polygon(30% 0%, 70% 0%, 60% 100%, 40% 100%)',
-                filter: 'blur(2px)'
-              }}
-            />
-          </div>
-          <CaptionBox text="Tonight..." delay={600} />
-        </ComicPanel>
-
-        {/* Panel 3: Thin vertical strip - Rain on glass */}
-        <ComicPanel 
-          id={3} 
-          gridArea="panel3"
-          backgroundColor="bg-gray-900" 
-          delay={600} 
-          kenBurnsType="panUp"
-          isRevealed={panelsRevealed[2]}
-        >
-          <div className="absolute inset-0 rain-effect opacity-60" />
-          <div className="absolute inset-0 flex items-end justify-center pb-4">
-            <div className="text-white text-xs font-mono opacity-50">DRIP</div>
-            <div className="text-white text-xs font-mono opacity-50 ml-2">DRIP</div>
-            <div className="text-white text-xs font-mono opacity-50 ml-2">DRIP</div>
-          </div>
-        </ComicPanel>
-
-        {/* Panel 4: Wide cinematic (2x2) - Sequential Securities building */}
-        <ComicPanel 
-          id={4} 
-          gridArea="panel4"
-          backgroundImage={darkRainyCityImage3} 
-          delay={900} 
-          kenBurnsType="panRight"
-          isRevealed={panelsRevealed[3]}
-        >
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <div className="text-yellow-400 text-3xl font-black tracking-wider opacity-80">
-              SEQUENTIAL
-            </div>
-            <div className="text-yellow-400 text-3xl font-black tracking-wider opacity-80">
-              SECURITIES
-            </div>
-          </div>
-          <CaptionBox text="One of the Seven Houses..." delay={1200} />
-          {/* Shadow passing */}
-          <div 
-            className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black to-transparent opacity-60"
-            style={{ animation: 'shadow-pass 15s linear infinite' }}
-          />
-        </ComicPanel>
-
-        {/* Panel 5: Wide action (3x2) - Street scene with multiple figures */}
-        <ComicPanel 
-          id={5} 
-          gridArea="panel5"
-          backgroundImage={darkRainyCityImage2} 
-          delay={1200} 
-          kenBurnsType="panLeft"
-          isRevealed={panelsRevealed[4]}
-        >
-          <SoundEffect text="SCREECH!" position={{ top: '20px', right: '40px' }} delay={1500} size="large" />
-          <div className="absolute bottom-8 left-8 flex gap-8">
-            {/* Car headlights */}
-            <div className="w-8 h-8 bg-yellow-400 rounded-full blur-2xl opacity-60" />
-            <div className="w-8 h-8 bg-yellow-400 rounded-full blur-2xl opacity-60" />
-          </div>
-          <CaptionBox text="The Mastermind arrives..." delay={1500} />
-        </ComicPanel>
-
-        {/* Panel 6: Medium square (2x2) - Guards */}
-        <ComicPanel 
-          id={6} 
-          gridArea="panel6"
-          backgroundColor="bg-gray-900" 
-          delay={1500} 
-          kenBurnsType="zoomOut"
-          isRevealed={panelsRevealed[5]}
-        >
-          <div className="absolute inset-0 flex items-center justify-around">
-            <div className="w-24 h-40 bg-black/80 rounded-t-2xl" />
-            <div className="w-24 h-40 bg-black/80 rounded-t-2xl" />
-          </div>
-          <SpeechBubble text="Stop right there" position={{ top: '30px', left: '20px' }} delay={1800} />
-          <SpeechBubble text="Not tonight" position={{ bottom: '40px', right: '20px' }} delay={2100} />
-        </ComicPanel>
-
-        {/* Panel 7: Thin vertical - Blood drip */}
-        <ComicPanel 
-          id={7} 
-          gridArea="panel7"
-          backgroundColor="bg-black" 
-          delay={1800} 
-          kenBurnsType="panDown"
-          isRevealed={panelsRevealed[6]}
-        >
-          <div className="absolute inset-0 flex items-center justify-center">
-            {/* Blood drip */}
-            <div className="w-4 h-full bg-gradient-to-b from-transparent via-red-900 to-red-600 opacity-80" />
-          </div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            <SoundEffect text="CRACK!" position={{}} delay={2100} size="medium" />
-          </div>
-        </ComicPanel>
-
-        {/* Panel 8: Large dramatic (4x2) - Mastermind at entrance */}
-        <ComicPanel 
-          id={8} 
-          gridArea="panel8"
-          backgroundImage={darkRainyCityImage1} 
-          delay={2100} 
-          kenBurnsType="zoomIn"
-          isRevealed={panelsRevealed[7]}
-        >
-          <div className="absolute inset-0 flex items-end justify-center">
-            <div className="relative mb-8">
-              {/* Mastermind silhouette */}
-              <div className="w-40 h-64 bg-black"
-                style={{
-                  clipPath: 'polygon(35% 0%, 65% 0%, 70% 30%, 65% 100%, 35% 100%, 30% 30%)',
-                  filter: 'drop-shadow(0 0 20px rgba(255, 0, 0, 0.3))'
-                }}
+        {/* Panel 1: Rain-slicked street with neon sign */}
+        <ComicPanel id={1} gridArea="panel1" delay={0} isRevealed={panelsRevealed[0]}>
+          <div className="relative h-full">
+            {/* Wet street background */}
+            <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-black" />
+            
+            {/* Neon sign reflection in puddles */}
+            <div className="absolute bottom-0 left-0 right-0 h-1/2">
+              <div 
+                className="absolute bottom-10 left-1/2 transform -translate-x-1/2 w-32 h-16 bg-yellow-500 blur-2xl opacity-30"
+                style={{ animation: 'neon-flicker 3s ease-in-out infinite' }}
               />
-              {/* Fedora */}
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-48 h-12 bg-black rounded-full" />
-            </div>
-          </div>
-          <CaptionBox text="He's got business with the House..." delay={2400} />
-          <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-red-900/20 to-transparent" />
-        </ComicPanel>
-
-        {/* Panel 9: Medium finale (2x2) - Enter button */}
-        <ComicPanel 
-          id={9} 
-          gridArea="panel9"
-          backgroundColor="bg-black" 
-          delay={2400} 
-          kenBurnsType="zoomOut"
-          isRevealed={panelsRevealed[8]}
-        >
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <div className="text-center mb-6">
-              <h1 className="text-4xl font-black text-white tracking-wider mb-1">
-                SEQUENTIAL
-              </h1>
-              <h1 className="text-4xl font-black text-yellow-400 tracking-wider">
-                SECURITIES
-              </h1>
             </div>
             
-            {allPanelsRevealed && (
+            {/* Neon sign */}
+            <NeonSign text="SEQUENTIAL" delay={500} />
+            <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2">
+              <div 
+                className="text-3xl tracking-widest"
+                style={{
+                  fontFamily: 'Space Grotesk, sans-serif',
+                  fontWeight: 900,
+                  color: '#FFD700',
+                  textShadow: '0 0 20px #FFD700, 0 0 40px #FFA500',
+                  animation: 'neon-flicker 2s ease-in-out infinite alternate 0.5s'
+                }}
+              >
+                SECURITIES
+              </div>
+            </div>
+            
+            {/* Add smoke/fog */}
+            <SmokeEffect position={{ bottom: '10px', left: '20px' }} />
+            <SmokeEffect position={{ bottom: '30px', right: '40px' }} />
+            
+            <WetStreetReflection />
+          </div>
+        </ComicPanel>
+
+        {/* Panel 2: Silhouette watching from window */}
+        <ComicPanel id={2} gridArea="panel2" delay={400} isRevealed={panelsRevealed[1]}>
+          <div className="relative h-full bg-gradient-to-b from-gray-800 to-black">
+            {/* Window frame */}
+            <div className="absolute inset-4 border-4 border-gray-700">
+              <VenetianBlinds />
+            </div>
+            
+            {/* Mastermind silhouette */}
+            <MastermindSilhouette 
+              position={{ bottom: '0', left: '50%', transform: 'translateX(-50%)' }}
+              size="medium"
+              delay={800}
+            />
+            
+            {/* City lights background */}
+            <div className="absolute inset-0">
+              {[...Array(5)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute bg-yellow-300"
+                  style={{
+                    width: '4px',
+                    height: '4px',
+                    left: `${20 + i * 15}%`,
+                    top: `${30 + i * 10}%`,
+                    boxShadow: '0 0 10px rgba(255, 255, 0, 0.5)',
+                    animation: `window-glow ${2 + i}s ease-in-out infinite`
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        </ComicPanel>
+
+        {/* Panel 3: Stock tickers, red numbers falling */}
+        <ComicPanel id={3} gridArea="panel3" delay={800} isRevealed={panelsRevealed[2]}>
+          <div className="relative h-full bg-black">
+            {/* Multiple ticker displays */}
+            <div className="absolute inset-0 flex flex-col justify-center p-4">
+              {['BATMAN -12.3%', 'SPIDER -8.7%', 'XMEN -15.2%', 'JOKER -666%'].map((ticker, i) => (
+                <motion.div
+                  key={ticker}
+                  initial={{ x: -100, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: 1.2 + i * 0.1 }}
+                  className="text-red-600 font-mono text-xl mb-2"
+                  style={{
+                    textShadow: '0 0 10px rgba(220, 20, 60, 0.8)'
+                  }}
+                >
+                  {ticker}
+                </motion.div>
+              ))}
+            </div>
+            
+            {/* Falling numbers effect */}
+            <div className="absolute inset-0 overflow-hidden">
+              {[...Array(10)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute text-red-600 font-mono text-sm"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    animation: `rain ${2 + Math.random() * 2}s linear infinite`,
+                    animationDelay: `${Math.random() * 2}s`
+                  }}
+                >
+                  -{Math.floor(Math.random() * 100)}%
+                </div>
+              ))}
+            </div>
+          </div>
+        </ComicPanel>
+
+        {/* Panel 4: Hands exchanging briefcase */}
+        <ComicPanel id={4} gridArea="panel4" delay={1200} isRevealed={panelsRevealed[3]}>
+          <div className="relative h-full bg-gradient-to-br from-gray-900 to-black">
+            {/* Hands silhouettes */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              {/* Left hand */}
+              <div 
+                className="absolute left-10 w-24 h-16 bg-black"
+                style={{
+                  clipPath: 'polygon(0 40%, 30% 20%, 60% 30%, 80% 20%, 100% 40%, 100% 100%, 0 100%)',
+                  transform: 'rotate(-10deg)'
+                }}
+              />
+              {/* Briefcase */}
+              <div className="w-32 h-20 bg-gray-800 border-2 border-gray-600 relative">
+                <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-16 h-4 bg-gray-700" />
+              </div>
+              {/* Right hand */}
+              <div 
+                className="absolute right-10 w-24 h-16 bg-black"
+                style={{
+                  clipPath: 'polygon(0 40%, 20% 20%, 40% 30%, 60% 20%, 100% 40%, 100% 100%, 0 100%)',
+                  transform: 'rotate(10deg) scaleX(-1)'
+                }}
+              />
+            </div>
+            
+            {/* Shadow/smoke effect */}
+            <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black via-gray-900 to-transparent opacity-80" />
+          </div>
+        </ComicPanel>
+
+        {/* Panel 5: Car speeding, headlights cutting through rain */}
+        <ComicPanel id={5} gridArea="panel5" delay={1600} isRevealed={panelsRevealed[4]}>
+          <div className="relative h-full bg-black overflow-hidden">
+            {/* Car silhouette */}
+            <div className="absolute bottom-10 left-0 w-48 h-20 bg-gray-900"
+              style={{
+                clipPath: 'polygon(10% 30%, 25% 0%, 90% 0%, 100% 50%, 100% 100%, 0% 100%, 0% 60%)'
+              }}
+            />
+            
+            {/* Headlight beams */}
+            <div className="absolute bottom-14 left-32">
+              <div 
+                className="absolute w-96 h-32 bg-gradient-to-r from-yellow-400 to-transparent opacity-60 blur-xl"
+                style={{
+                  clipPath: 'polygon(0 40%, 100% 20%, 100% 80%, 0 60%)',
+                  animation: 'headlight-sweep 3s ease-in-out infinite'
+                }}
+              />
+            </div>
+            
+            {/* Speed lines */}
+            <div className="absolute inset-0">
+              {[...Array(5)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute h-1 bg-white opacity-20 blur-sm"
+                  style={{
+                    width: `${30 + Math.random() * 40}%`,
+                    left: `${Math.random() * 50}%`,
+                    top: `${40 + i * 8}%`
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        </ComicPanel>
+
+        {/* Panel 6: Two figures facing off, guns drawn */}
+        <ComicPanel id={6} gridArea="panel6" delay={2000} isRevealed={panelsRevealed[5]}>
+          <div className="relative h-full bg-gradient-to-b from-gray-800 to-black">
+            {/* Left figure */}
+            <div className="absolute bottom-0 left-4 w-20 h-32 bg-black"
+              style={{
+                clipPath: 'polygon(30% 0%, 70% 0%, 80% 30%, 75% 100%, 25% 100%, 20% 30%)'
+              }}
+            />
+            {/* Left gun */}
+            <div className="absolute bottom-16 left-20 w-8 h-2 bg-gray-600" />
+            
+            {/* Right figure */}
+            <div className="absolute bottom-0 right-4 w-20 h-32 bg-black"
+              style={{
+                clipPath: 'polygon(30% 0%, 70% 0%, 80% 30%, 75% 100%, 25% 100%, 20% 30%)'
+              }}
+            />
+            {/* Right gun */}
+            <div className="absolute bottom-16 right-20 w-8 h-2 bg-gray-600" />
+            
+            {/* Muzzle flash */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 1, 0] }}
+              transition={{ duration: 0.2, delay: 2.5, repeat: 2, repeatDelay: 0.5 }}
+              className="absolute bottom-16 left-28 w-8 h-8 bg-yellow-400 rounded-full blur-xl"
+            />
+          </div>
+        </ComicPanel>
+
+        {/* Panel 7: Blood dripping down window */}
+        <ComicPanel id={7} gridArea="panel7" delay={2400} isRevealed={panelsRevealed[6]}>
+          <div className="relative h-full bg-gray-900">
+            {/* Window pane */}
+            <div className="absolute inset-2 border-4 border-gray-700 bg-gray-800" />
+            
+            {/* Blood drips */}
+            <BloodDrip position={{ left: '30%' }} />
+            <BloodDrip position={{ left: '50%' }} />
+            <BloodDrip position={{ left: '70%' }} />
+            
+            {/* Rain on window */}
+            <div className="absolute inset-0 opacity-30">
+              <RainEffect intensity={2} layer={1} />
+            </div>
+          </div>
+        </ComicPanel>
+
+        {/* Panel 8: Mastermind entering Sequential Securities */}
+        <ComicPanel id={8} gridArea="panel8" delay={2800} isRevealed={panelsRevealed[7]}>
+          <div className="relative h-full bg-gradient-to-b from-black to-gray-900">
+            {/* Building entrance */}
+            <div className="absolute inset-0">
+              {/* Doorway */}
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-32 h-48 bg-gray-800 border-4 border-gray-600">
+                {/* Door panels */}
+                <div className="absolute inset-2 bg-black" />
+              </div>
+              
+              {/* Mastermind entering */}
+              <MastermindSilhouette 
+                position={{ bottom: '0', left: '50%', transform: 'translateX(-50%)' }}
+                size="large"
+                delay={3000}
+              />
+              
+              {/* Sequential Securities sign above door */}
+              <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2">
+                <div 
+                  className="text-2xl font-black tracking-widest text-yellow-400"
+                  style={{
+                    textShadow: '0 0 20px #FFD700'
+                  }}
+                >
+                  SEQUENTIAL
+                </div>
+              </div>
+            </div>
+            
+            {/* Red glow from below */}
+            <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-red-900/30 to-transparent" />
+          </div>
+        </ComicPanel>
+
+        {/* Panel 9: ENTER button */}
+        <ComicPanel id={9} gridArea="panel9" delay={3200} isRevealed={panelsRevealed[8]}>
+          <div className="relative h-full bg-black flex items-center justify-center">
+            {/* Neon ENTER sign */}
+            <div className="text-center">
               <motion.div
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: "spring", delay: 0.5 }}
+                initial={{ scale: 0 }}
+                animate={{ scale: allPanelsRevealed ? 1 : 0 }}
+                transition={{ type: "spring", delay: 0.3 }}
               >
                 <Button 
                   size="lg" 
-                  className="bg-red-900 border-4 border-white text-white hover:bg-red-800 px-8 py-6 text-2xl font-black tracking-widest transform hover:scale-110 transition-all duration-300"
+                  className="bg-black border-4 border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black px-12 py-8 text-3xl font-black tracking-widest transition-all duration-300"
                   onClick={() => window.location.href = "/api/login"}
                   data-testid="button-enter-sequential"
                   style={{
-                    boxShadow: '6px 6px 0 rgba(0,0,0,1)',
-                    textShadow: '2px 2px 0 rgba(0,0,0,0.8)'
+                    boxShadow: `
+                      0 0 20px #FFD700,
+                      0 0 40px #FFD700,
+                      0 0 60px #FFA500,
+                      inset 0 0 20px rgba(255, 215, 0, 0.2)
+                    `,
+                    textShadow: '0 0 10px currentColor'
                   }}
                 >
                   ENTER
                 </Button>
               </motion.div>
-            )}
+              
+              {/* Door closing effect */}
+              {allPanelsRevealed && (
+                <motion.div
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ delay: 0.5, duration: 0.5 }}
+                  className="absolute inset-0 bg-black origin-left pointer-events-none"
+                />
+              )}
+            </div>
           </div>
-          <CaptionBox text="Welcome to the game." delay={2700} />
         </ComicPanel>
       </div>
 
-      {/* Rain overlay across all layers */}
-      <div className="absolute inset-0 z-40 pointer-events-none">
-        <div className="absolute inset-0 rain-effect opacity-30" />
-      </div>
-
-      {/* Streetlamp halos creating depth */}
-      <div className="absolute inset-0 z-5 pointer-events-none">
-        <div 
-          className="absolute top-20 left-20 w-64 h-64 bg-yellow-300 rounded-full opacity-5 blur-3xl"
-          style={{ animation: 'streetlamp-glow 5s ease-in-out infinite' }}
-        />
-        <div 
-          className="absolute bottom-20 right-20 w-48 h-48 bg-yellow-300 rounded-full opacity-5 blur-3xl"
-          style={{ animation: 'streetlamp-glow 7s ease-in-out infinite' }}
-        />
-        <div 
-          className="absolute top-1/2 left-1/3 w-56 h-56 bg-yellow-300 rounded-full opacity-3 blur-3xl"
-          style={{ animation: 'streetlamp-glow 6s ease-in-out infinite' }}
-        />
-      </div>
-
       {/* Film grain overlay */}
-      <div className="absolute inset-0 pointer-events-none z-50 opacity-60 mix-blend-overlay film-grain" />
-
-      {/* Shadow passing in parallax */}
-      <div className="absolute inset-0 z-3 pointer-events-none overflow-hidden">
-        <div 
-          className="absolute top-0 bottom-0 w-1/3 bg-gradient-to-r from-transparent via-black to-transparent opacity-20"
-          style={{ animation: 'shadow-pass 20s linear infinite' }}
-        />
-      </div>
+      <div 
+        className="absolute inset-0 z-50 pointer-events-none opacity-20"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.1'/%3E%3C/svg%3E")`,
+          mixBlendMode: 'overlay'
+        }}
+      />
     </div>
   );
 }

@@ -670,6 +670,54 @@ export type InsertFeaturedComic = z.infer<typeof insertFeaturedComicSchema>;
 export type ComicGradingPrediction = typeof comicGradingPredictions.$inferSelect;
 export type InsertComicGradingPrediction = z.infer<typeof insertComicGradingPredictionSchema>;
 
+// Narrative Events System - Comic book plot events that affect market prices
+export const narrativeEvents = pgTable("narrative_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  eventType: text("event_type").notNull(), // 'house_war', 'hero_falls', 'crossover_event', 'writer_scandal', 'movie_announcement', 'reboot', 'supply_shock'
+  
+  // Affected entities
+  affectedHouses: text("affected_houses").array(), // Array of house IDs
+  affectedAssets: text("affected_assets").array(), // Array of asset IDs
+  
+  // Impact and duration
+  impactPercentage: decimal("impact_percentage", { precision: 8, scale: 2 }).notNull(), // -100 to +100
+  duration: integer("duration").notNull(), // Duration in seconds
+  severity: text("severity").notNull().default("low"), // 'low', 'medium', 'high', 'catastrophic'
+  
+  // Visual and narrative elements
+  soundEffect: text("sound_effect"), // Comic book sound effect
+  visualStyle: text("visual_style"), // 'explosion', 'dramatic', 'subtle', 'catastrophic'
+  narrative: text("narrative"), // Extended story narrative
+  
+  // Timing and status
+  isActive: boolean("is_active").default(false),
+  startTime: timestamp("start_time"),
+  endTime: timestamp("end_time"),
+  
+  // Market conditions that triggered event
+  triggerCondition: text("trigger_condition"), // 'bull_market', 'bear_market', 'sideways', 'random'
+  marketContext: jsonb("market_context"), // Market stats when event triggered
+  
+  // Chain reactions and compound effects
+  parentEventId: varchar("parent_event_id"), // If this event was triggered by another
+  chainReactionProbability: decimal("chain_reaction_probability", { precision: 5, scale: 2 }).default("0.00"), // 0-100%
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Insert schema for narrative events
+export const insertNarrativeEventSchema = createInsertSchema(narrativeEvents).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type NarrativeEvent = typeof narrativeEvents.$inferSelect;
+export type InsertNarrativeEvent = z.infer<typeof insertNarrativeEventSchema>;
+
 // Phase 1 Trading Extensions
 
 // Phase 1 Market Events - Terminal Clock market chaos events
