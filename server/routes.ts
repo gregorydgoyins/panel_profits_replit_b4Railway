@@ -271,12 +271,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/knowledge-test/status', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
+      
+      // First check if user has completed Entry Test (has a House assigned)
+      const user = await storage.getUser(userId);
+      const hasCompletedEntryTest = !!user?.houseId;
+      
+      // If Entry Test not completed, they don't need Knowledge Test yet
+      if (!hasCompletedEntryTest) {
+        return res.json({
+          hasCompletedTest: false,
+          requiresTest: false // Entry Test must be done first
+        });
+      }
+      
+      // Check Knowledge Test completion
       const latestResult = await storage.getLatestKnowledgeTestResult(userId);
       
       if (!latestResult) {
         return res.json({
           hasCompletedTest: false,
-          requiresTest: true
+          requiresTest: true // Entry Test done, now needs Knowledge Test
         });
       }
       

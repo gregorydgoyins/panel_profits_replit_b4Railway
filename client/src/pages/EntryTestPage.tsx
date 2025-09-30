@@ -28,9 +28,9 @@ export default function EntryTestPage() {
   });
 
   useEffect(() => {
-    // If user already completed test, redirect to dashboard
+    // If user already completed test, redirect to knowledge test
     if (testStatus?.completed && !testCompleted) {
-      setLocation('/dashboard');
+      setLocation('/knowledge-test');
     }
   }, [testStatus, setLocation, testCompleted]);
 
@@ -40,7 +40,7 @@ export default function EntryTestPage() {
   };
 
   const handleContinueToDashboard = () => {
-    setLocation('/dashboard');
+    setLocation('/knowledge-test');
   };
 
   if (isLoading) {
@@ -140,7 +140,7 @@ export default function EntryTestPage() {
                 size="lg"
                 data-testid="button-continue-dashboard"
               >
-                Enter Trading Floor
+                Continue to Market Mastery Challenge
               </Button>
             </div>
           </CardContent>
