@@ -186,6 +186,13 @@ export class WebSocketNotificationService {
   }
 
   /**
+   * Send generic notification message to user
+   */
+  sendNotification(userId: string, message: NotificationMessage): boolean {
+    return this.sendToClient(userId, message);
+  }
+
+  /**
    * Send notification read status to user
    */
   sendNotificationReadStatus(userId: string, notificationId: string): boolean {

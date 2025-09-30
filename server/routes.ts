@@ -15,6 +15,7 @@ import collectorRoutes from "./routes/collectorRoutes.js";
 import { registerComicRoutes } from "./routes/comicRoutes";
 import { registerComicCoverRoutes } from "./routes/comicCoverRoutes.js";
 import { registerNotificationRoutes } from "./routes/notificationRoutes.js";
+import { wsNotificationService } from "./services/websocketNotificationService.js";
 import enhancedDataRoutes from "./routes/enhancedDataRoutes.js";
 import enhancedAiRoutes from "./routes/enhancedAiRoutes.js";
 import visualStorytellingRoutes from "./routes/visualStorytellingRoutes.js";
@@ -2551,6 +2552,11 @@ Respond with valid JSON in this exact format:
   
   // Store the broadcast function for use in market simulation
   (marketSimulation as any).broadcastUpdate = broadcastMarketUpdate;
+
+  // Initialize WebSocket notification service for real-time notifications
+  console.log('🔔 Initializing WebSocket notification service...');
+  wsNotificationService.initialize(httpServer, '/ws/notifications');
+  console.log('✅ WebSocket notification service initialized');
 
   return httpServer;
 }

@@ -8,6 +8,7 @@ import type {
 } from '@shared/schema.js';
 import { WebSocketServer, WebSocket as WSWebSocket } from 'ws';
 import { safeWebSocketClose, WebSocketCloseCodes } from '../utils/websocketSanitizer.js';
+import { wsNotificationService } from './websocketNotificationService.js';
 
 /**
  * Comprehensive Notification Service for Panel Profits
@@ -174,20 +175,16 @@ export class NotificationService {
    * Send WebSocket notification to connected user
    */
   private async sendWebSocketNotification(userId: string, notification: Notification): Promise<void> {
-    const ws = this.connectedClients.get(userId);
-    
-    if (ws && ws.readyState === ws.OPEN) {
-      try {
-        ws.send(JSON.stringify({
-          type: 'notification',
-          data: notification
-        }));
-        console.log(`📤 WebSocket notification sent to user ${userId}`);
-      } catch (error) {
-        console.error(`Error sending WebSocket notification to user ${userId}:`, error);
-      }
-    } else {
-      console.log(`User ${userId} not connected to WebSocket for notification`);
+    // Use the dedicated WebSocket notification service
+    try {
+      wsNotificationService.sendNotification(userId, {
+        type: 'notification',
+        data: notification,
+        timestamp: new Date().toISOString()
+      });
+      console.log(`📤 WebSocket notification sent to user ${userId}`);
+    } catch (error) {
+      console.error(`Error sending WebSocket notification to user ${userId}:`, error);
     }
   }
 
