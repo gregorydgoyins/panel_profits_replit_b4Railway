@@ -24,6 +24,9 @@ import { MarketMoversWidget } from '@/components/dashboard/MarketMoversWidget';
 import { FearGreedWidget } from '@/components/dashboard/FearGreedWidget';
 import { OracleProphecyWidget } from '@/components/dashboard/OracleProphecyWidget';
 import { HousePowerRankingsWidget } from '@/components/dashboard/HousePowerRankingsWidget';
+import { PortfolioRiskMetricsWidget } from '@/components/dashboard/PortfolioRiskMetricsWidget';
+import { VolatilitySurfaceWidget } from '@/components/dashboard/VolatilitySurfaceWidget';
+import { CorrelationMatrixWidget } from '@/components/dashboard/CorrelationMatrixWidget';
 
 interface DashboardStats {
   portfolioValue: number;
@@ -370,6 +373,16 @@ export default function DashboardPage() {
           <FearGreedWidget />
           <OracleProphecyWidget />
           <HousePowerRankingsWidget />
+        </div>
+
+        {/* Advanced Analytics Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <PortfolioRiskMetricsWidget />
+          <VolatilitySurfaceWidget />
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 mt-6">
+          <CorrelationMatrixWidget />
         </div>
 
         {/* Quick Actions Footer */}
