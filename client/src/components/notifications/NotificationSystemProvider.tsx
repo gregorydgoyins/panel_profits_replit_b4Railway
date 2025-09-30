@@ -99,15 +99,17 @@ export function NotificationSystemProvider({ children }: NotificationSystemProvi
       }
     };
 
-    const ws = initializeNotificationWebSocket();
+    // TEMPORARILY DISABLED: WebSocket notifications causing connection errors
+    // Will re-enable after fixing server-side WebSocket handler
+    // const ws = initializeNotificationWebSocket();
     
     // Cleanup on unmount
     return () => {
-      if (ws instanceof Promise) {
-        ws.then(socket => socket?.close());
-      } else if (notificationWs) {
-        notificationWs.close(1000, 'Component unmounting');
-      }
+      // if (ws instanceof Promise) {
+      //   ws.then(socket => socket?.close());
+      // } else if (notificationWs) {
+      //   notificationWs.close(1000, 'Component unmounting');
+      // }
     };
   }, []);
 
