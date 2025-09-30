@@ -60,6 +60,59 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Hidden Alignment Tracking for Entry Test & Ongoing Behavior
+export const alignmentScores = pgTable("alignment_scores", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  
+  // Core alignment axes (normalized -100 to +100)
+  ruthlessnessScore: decimal("ruthlessness_score", { precision: 6, scale: 2 }).default("0.00"), // -100 (Empathetic) to +100 (Ruthless)
+  individualismScore: decimal("individualism_score", { precision: 6, scale: 2 }).default("0.00"), // -100 (Collective) to +100 (Individual)
+  lawfulnessScore: decimal("lawfulness_score", { precision: 6, scale: 2 }).default("0.00"), // -100 (Chaotic) to +100 (Lawful)  
+  greedScore: decimal("greed_score", { precision: 6, scale: 2 }).default("0.00"), // -100 (Restraint) to +100 (Greed)
+  
+  // Confidence multipliers (how consistent are their behaviors)
+  ruthlessnessConfidence: decimal("ruthlessness_confidence", { precision: 4, scale: 2 }).default("1.00"),
+  individualismConfidence: decimal("individualism_confidence", { precision: 4, scale: 2 }).default("1.00"),
+  lawfulnessConfidence: decimal("lawfulness_confidence", { precision: 4, scale: 2 }).default("1.00"),
+  greedConfidence: decimal("greed_confidence", { precision: 4, scale: 2 }).default("1.00"),
+  
+  // House assignment result
+  assignedHouseId: varchar("assigned_house_id"),
+  assignmentScore: decimal("assignment_score", { precision: 8, scale: 2 }), // Strength of match to house
+  secondaryHouseId: varchar("secondary_house_id"), // Runner-up for close calls
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// User Decision Tracking (for Entry Test and ongoing monitoring)
+export const userDecisions = pgTable("user_decisions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  
+  // Decision context
+  decisionType: text("decision_type").notNull(), // 'entry_test', 'trading', 'social', 'market_event'
+  scenarioId: text("scenario_id"), // Which scenario/situation
+  choiceId: text("choice_id"), // Which option they selected
+  
+  // Hidden alignment impact (not shown to user)
+  ruthlessnessImpact: decimal("ruthlessness_impact", { precision: 5, scale: 2 }).default("0.00"),
+  individualismImpact: decimal("individualism_impact", { precision: 5, scale: 2 }).default("0.00"),
+  lawfulnessImpact: decimal("lawfulness_impact", { precision: 5, scale: 2 }).default("0.00"),
+  greedImpact: decimal("greed_impact", { precision: 5, scale: 2 }).default("0.00"),
+  
+  // What the user sees (disguised as performance metrics)
+  displayedScore: integer("displayed_score"), // Fake "skill" score shown to user
+  displayedFeedback: text("displayed_feedback"), // Misleading feedback about trading acumen
+  
+  // Metadata
+  responseTime: integer("response_time"), // Milliseconds to decide (reveals impulsivity)
+  contextData: jsonb("context_data"), // Additional data about the decision
+  
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Asset types: characters, comics, creators, publishers
 export const assets = pgTable("assets", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -6120,6 +6173,15 @@ export type InsertStolenPosition = z.infer<typeof insertStolenPositionSchema>;
 
 export type TraderWarfare = typeof traderWarfare.$inferSelect;
 export type InsertTraderWarfare = z.infer<typeof insertTraderWarfareSchema>;
+
+// Alignment tracking schemas for hidden psychological profiling
+export const insertAlignmentScoreSchema = createInsertSchema(alignmentScores).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertAlignmentScore = z.infer<typeof insertAlignmentScoreSchema>;
+export type AlignmentScore = typeof alignmentScores.$inferSelect;
+
+export const insertUserDecisionSchema = createInsertSchema(userDecisions).omit({ id: true, createdAt: true });
+export type InsertUserDecision = z.infer<typeof insertUserDecisionSchema>;
+export type UserDecision = typeof userDecisions.$inferSelect;
 
 // Psychological Profiling Entry Test - Type exports
 export const insertTestQuestionSchema = createInsertSchema(testQuestions).omit({

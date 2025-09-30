@@ -28,7 +28,9 @@ import {
   userHouseProgression, tradingToolUnlocks, comicCollectionAchievements,
   collectionChallenges, userChallengeParticipation,
   // Moral Consequence System Tables
-  moralStandings, tradingVictims
+  moralStandings, tradingVictims,
+  // Entry Test Alignment System Tables
+  alignmentScores, userDecisions
 } from '@shared/schema.js';
 import type {
   User, InsertUser, UpsertUser, Asset, InsertAsset, MarketData, InsertMarketData,
@@ -75,7 +77,9 @@ import type {
   ComicCollectionAchievement, InsertComicCollectionAchievement, CollectionChallenge, InsertCollectionChallenge,
   UserChallengeParticipation, InsertUserChallengeParticipation,
   // Moral Consequence System Types
-  MoralStanding, InsertMoralStanding, TradingVictim, InsertTradingVictim
+  MoralStanding, InsertMoralStanding, TradingVictim, InsertTradingVictim,
+  // Entry Test Alignment System Types
+  AlignmentScore, InsertAlignmentScore, UserDecision, InsertUserDecision
 } from '@shared/schema.js';
 import type { IStorage } from './storage.js';
 
@@ -4660,6 +4664,118 @@ export class DatabaseStorage implements IStorage {
       .where(eq(moralStandings.userId, userId))
       .returning();
     return updated;
+  }
+  
+  // Alignment Score Methods for Entry Test
+  async getUserAlignmentScore(userId: string): Promise<AlignmentScore | undefined> {
+    const [score] = await db
+      .select()
+      .from(alignmentScores)
+      .where(eq(alignmentScores.userId, userId))
+      .limit(1);
+    return score;
+  }
+  
+  async createAlignmentScore(score: InsertAlignmentScore): Promise<AlignmentScore> {
+    const [newScore] = await db.insert(alignmentScores).values(score).returning();
+    return newScore;
+  }
+  
+  async updateAlignmentScore(userId: string, updates: Partial<InsertAlignmentScore>): Promise<AlignmentScore | undefined> {
+    const [updated] = await db
+      .update(alignmentScores)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(alignmentScores.userId, userId))
+      .returning();
+    return updated;
+  }
+  
+  // User Decision Methods for Entry Test
+  async recordUserDecision(decision: InsertUserDecision): Promise<UserDecision> {
+    const [newDecision] = await db.insert(userDecisions).values(decision).returning();
+    return newDecision;
+  }
+  
+  async getUserDecisions(userId: string, filters?: {
+    scenarioId?: string;
+    sessionId?: string;
+    limit?: number;
+  }): Promise<UserDecision[]> {
+    let query = db
+      .select()
+      .from(userDecisions)
+      .where(eq(userDecisions.userId, userId))
+      .$dynamic();
+      
+    if (filters?.scenarioId) {
+      query = query.where(eq(userDecisions.scenarioId, filters.scenarioId));
+    }
+    
+    if (filters?.sessionId) {
+      query = query.where(eq(userDecisions.sessionId, filters.sessionId));
+    }
+    
+    if (filters?.limit && filters.limit > 0) {
+      query = query.limit(filters.limit);
+    }
+    
+    const decisions = await query.orderBy(desc(userDecisions.timestamp));
+    return decisions;
+  }
+  
+  async calculateHouseAssignment(userId: string): Promise<{
+    primaryHouse: string;
+    secondaryHouse?: string;
+    alignmentProfile: {
+      ruthlessness: number;
+      individualism: number;
+      lawfulness: number;
+      greed: number;
+    };
+    confidence: number;
+  }> {
+    const alignmentScore = await this.getUserAlignmentScore(userId);
+    
+    if (!alignmentScore) {
+      // Default neutral alignment
+      return {
+        primaryHouse: 'equilibrium_trust',
+        secondaryHouse: 'catalyst_syndicate',
+        alignmentProfile: {
+          ruthlessness: 0,
+          individualism: 0,
+          lawfulness: 0,
+          greed: 0
+        },
+        confidence: 0.5
+      };
+    }
+    
+    const profile = {
+      ruthlessness: parseFloat(alignmentScore.ruthlessnessScore),
+      individualism: parseFloat(alignmentScore.individualismScore),
+      lawfulness: parseFloat(alignmentScore.lawfulnessScore),
+      greed: parseFloat(alignmentScore.greedScore)
+    };
+    
+    // Import the calculation function
+    const { calculateHouseAssignment } = await import('@shared/entryTestScenarios');
+    const assignment = calculateHouseAssignment(profile);
+    
+    // Calculate confidence based on how consistent their choices were
+    const avgConfidence = (
+      parseFloat(alignmentScore.ruthlessnessConfidence) +
+      parseFloat(alignmentScore.individualismConfidence) +
+      parseFloat(alignmentScore.lawfulnessConfidence) +
+      parseFloat(alignmentScore.greedConfidence)
+    ) / 4;
+    
+    return {
+      primaryHouse: assignment.primaryHouse,
+      secondaryHouse: assignment.secondaryHouse,
+      alignmentProfile: profile,
+      confidence: avgConfidence
+    };
   }
 }
 

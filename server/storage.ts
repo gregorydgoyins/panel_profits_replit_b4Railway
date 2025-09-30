@@ -84,7 +84,10 @@ import {
   type HousePowerRanking, type InsertHousePowerRanking,
   type HouseMarketEvent, type InsertHouseMarketEvent,
   // Narrative Events System Types
-  type NarrativeEvent, type InsertNarrativeEvent
+  type NarrativeEvent, type InsertNarrativeEvent,
+  // Hidden Alignment Tracking Types
+  type AlignmentScore, type InsertAlignmentScore,
+  type UserDecision, type InsertUserDecision
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -563,6 +566,37 @@ export interface IStorage {
     interventions: any[] 
   }>;
 
+  // Hidden Alignment Tracking Methods (for psychological profiling)
+  getUserAlignmentScore(userId: string): Promise<AlignmentScore | undefined>;
+  createAlignmentScore(score: InsertAlignmentScore): Promise<AlignmentScore>;
+  updateAlignmentScore(userId: string, adjustments: {
+    ruthlessnessDelta?: number;
+    individualismDelta?: number;
+    lawfulnessDelta?: number;
+    greedDelta?: number;
+  }): Promise<AlignmentScore | undefined>;
+  
+  // Record user decisions for hidden tracking
+  recordUserDecision(decision: InsertUserDecision): Promise<UserDecision>;
+  getUserDecisions(userId: string, filters?: { 
+    decisionType?: string; 
+    scenarioId?: string; 
+    limit?: number 
+  }): Promise<UserDecision[]>;
+  
+  // Calculate House assignment based on hidden alignment
+  calculateHouseAssignment(userId: string): Promise<{
+    primaryHouse: string;
+    secondaryHouse?: string;
+    alignmentProfile: {
+      ruthlessness: number;
+      individualism: number;
+      lawfulness: number;
+      greed: number;
+    };
+    confidence: number;
+  }>;
+
   // Learning System Analytics and Insights
   getHouseLearningStats(houseId: string): Promise<{
     totalPaths: number;
@@ -977,6 +1011,10 @@ export class MemStorage implements IStorage {
   private comicIssues: Map<string, ComicIssue>;
   private comicCreators: Map<string, ComicCreator>;
   private featuredComics: Map<string, FeaturedComic>;
+  
+  // Hidden alignment tracking storage
+  private alignmentScores: Map<string, AlignmentScore>; // keyed by userId
+  private userDecisions: Map<string, UserDecision[]>; // keyed by userId
 
   constructor() {
     this.users = new Map();
@@ -1001,6 +1039,10 @@ export class MemStorage implements IStorage {
     this.comicIssues = new Map();
     this.comicCreators = new Map();
     this.featuredComics = new Map();
+    
+    // Initialize alignment tracking maps
+    this.alignmentScores = new Map();
+    this.userDecisions = new Map();
   }
 
   // User methods
@@ -1019,6 +1061,8 @@ export class MemStorage implements IStorage {
     const id = randomUUID();
     const user: User = { 
       id,
+      username: insertUser.username ?? insertUser.email ?? "user_" + id.substring(0, 8), // Generate username from email or ID
+      password: insertUser.password ?? null,
       email: insertUser.email ?? null,
       firstName: insertUser.firstName ?? null,
       lastName: insertUser.lastName ?? null,
@@ -1032,6 +1076,25 @@ export class MemStorage implements IStorage {
       usedTradingCredits: insertUser.usedTradingCredits ?? 0,
       competitionWins: insertUser.competitionWins ?? 0,
       competitionRanking: insertUser.competitionRanking ?? null,
+      // Phase 1 Trading fields
+      virtualTradingBalance: insertUser.virtualTradingBalance ?? "100000.00",
+      dailyTradingLimit: insertUser.dailyTradingLimit ?? "10000.00",
+      dailyTradingUsed: insertUser.dailyTradingUsed ?? "0.00",
+      maxPositionSize: insertUser.maxPositionSize ?? "5000.00",
+      riskTolerance: insertUser.riskTolerance ?? "moderate",
+      tradingPermissions: insertUser.tradingPermissions ?? { canTrade: true, canUseMargin: false, canShort: false },
+      lastTradingActivity: insertUser.lastTradingActivity ?? null,
+      tradingStreakDays: insertUser.tradingStreakDays ?? 0,
+      totalTradingProfit: insertUser.totalTradingProfit ?? "0.00",
+      // Mythological Houses System
+      houseId: insertUser.houseId ?? null,
+      houseJoinedAt: insertUser.houseJoinedAt ?? null,
+      karma: insertUser.karma ?? 0,
+      // Karmic Alignment System
+      lawfulChaoticAlignment: insertUser.lawfulChaoticAlignment ?? "0.00",
+      goodEvilAlignment: insertUser.goodEvilAlignment ?? "0.00",
+      alignmentRevealed: insertUser.alignmentRevealed ?? false,
+      alignmentLastUpdated: insertUser.alignmentLastUpdated ?? new Date(),
       preferences: insertUser.preferences ?? null,
       createdAt: new Date(),
       updatedAt: new Date()
@@ -1045,6 +1108,8 @@ export class MemStorage implements IStorage {
     const existingUser = this.users.get(user.id!);
     const updatedUser: User = {
       id: user.id!,
+      username: user.username ?? existingUser?.username ?? user.email ?? "user_" + user.id!.substring(0, 8),
+      password: user.password ?? existingUser?.password ?? null,
       email: user.email ?? null,
       firstName: user.firstName ?? null,
       lastName: user.lastName ?? null,
@@ -1059,6 +1124,25 @@ export class MemStorage implements IStorage {
       usedTradingCredits: existingUser?.usedTradingCredits ?? 0,
       competitionWins: existingUser?.competitionWins ?? 0,
       competitionRanking: existingUser?.competitionRanking ?? null,
+      // Phase 1 Trading fields - preserve existing or use defaults
+      virtualTradingBalance: existingUser?.virtualTradingBalance ?? "100000.00",
+      dailyTradingLimit: existingUser?.dailyTradingLimit ?? "10000.00",
+      dailyTradingUsed: existingUser?.dailyTradingUsed ?? "0.00",
+      maxPositionSize: existingUser?.maxPositionSize ?? "5000.00",
+      riskTolerance: existingUser?.riskTolerance ?? "moderate",
+      tradingPermissions: existingUser?.tradingPermissions ?? { canTrade: true, canUseMargin: false, canShort: false },
+      lastTradingActivity: existingUser?.lastTradingActivity ?? null,
+      tradingStreakDays: existingUser?.tradingStreakDays ?? 0,
+      totalTradingProfit: existingUser?.totalTradingProfit ?? "0.00",
+      // Mythological Houses System - preserve existing
+      houseId: existingUser?.houseId ?? null,
+      houseJoinedAt: existingUser?.houseJoinedAt ?? null,
+      karma: existingUser?.karma ?? 0,
+      // Karmic Alignment System - preserve existing
+      lawfulChaoticAlignment: existingUser?.lawfulChaoticAlignment ?? "0.00",
+      goodEvilAlignment: existingUser?.goodEvilAlignment ?? "0.00",
+      alignmentRevealed: existingUser?.alignmentRevealed ?? false,
+      alignmentLastUpdated: existingUser?.alignmentLastUpdated ?? new Date(),
       preferences: existingUser?.preferences ?? null,
       createdAt: existingUser?.createdAt ?? new Date(),
       updatedAt: new Date()
@@ -3283,6 +3367,170 @@ export class MemStorage implements IStorage {
       preferredContentTypes: ['video', 'interactive'],
       strugglingAreas: [],
       strengthAreas: []
+    };
+  }
+  
+  // Hidden Alignment Tracking Methods
+  async getUserAlignmentScore(userId: string): Promise<AlignmentScore | undefined> {
+    return this.alignmentScores.get(userId);
+  }
+  
+  async createAlignmentScore(score: InsertAlignmentScore): Promise<AlignmentScore> {
+    const id = randomUUID();
+    const alignmentScore: AlignmentScore = {
+      id,
+      userId: score.userId,
+      ruthlessnessScore: score.ruthlessnessScore ?? "0.00",
+      individualismScore: score.individualismScore ?? "0.00",
+      lawfulnessScore: score.lawfulnessScore ?? "0.00",
+      greedScore: score.greedScore ?? "0.00",
+      ruthlessnessConfidence: score.ruthlessnessConfidence ?? "1.00",
+      individualismConfidence: score.individualismConfidence ?? "1.00",
+      lawfulnessConfidence: score.lawfulnessConfidence ?? "1.00",
+      greedConfidence: score.greedConfidence ?? "1.00",
+      assignedHouseId: score.assignedHouseId ?? null,
+      assignmentScore: score.assignmentScore ?? null,
+      secondaryHouseId: score.secondaryHouseId ?? null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.alignmentScores.set(score.userId, alignmentScore);
+    return alignmentScore;
+  }
+  
+  async updateAlignmentScore(userId: string, adjustments: {
+    ruthlessnessDelta?: number;
+    individualismDelta?: number;
+    lawfulnessDelta?: number;
+    greedDelta?: number;
+  }): Promise<AlignmentScore | undefined> {
+    const existing = this.alignmentScores.get(userId);
+    if (!existing) {
+      // Create new alignment score if none exists
+      const newScore = await this.createAlignmentScore({ userId });
+      return this.updateAlignmentScore(userId, adjustments);
+    }
+    
+    // Apply adjustments with soft caps at -100 to +100
+    const clamp = (value: number) => Math.max(-100, Math.min(100, value));
+    
+    existing.ruthlessnessScore = String(clamp(
+      parseFloat(existing.ruthlessnessScore) + (adjustments.ruthlessnessDelta ?? 0)
+    ));
+    existing.individualismScore = String(clamp(
+      parseFloat(existing.individualismScore) + (adjustments.individualismDelta ?? 0)
+    ));
+    existing.lawfulnessScore = String(clamp(
+      parseFloat(existing.lawfulnessScore) + (adjustments.lawfulnessDelta ?? 0)
+    ));
+    existing.greedScore = String(clamp(
+      parseFloat(existing.greedScore) + (adjustments.greedDelta ?? 0)
+    ));
+    
+    existing.updatedAt = new Date();
+    return existing;
+  }
+  
+  async recordUserDecision(decision: InsertUserDecision): Promise<UserDecision> {
+    const id = randomUUID();
+    const userDecision: UserDecision = {
+      id,
+      userId: decision.userId,
+      decisionType: decision.decisionType,
+      scenarioId: decision.scenarioId ?? null,
+      choiceId: decision.choiceId ?? null,
+      ruthlessnessImpact: decision.ruthlessnessImpact ?? "0.00",
+      individualismImpact: decision.individualismImpact ?? "0.00",
+      lawfulnessImpact: decision.lawfulnessImpact ?? "0.00",
+      greedImpact: decision.greedImpact ?? "0.00",
+      displayedScore: decision.displayedScore ?? null,
+      displayedFeedback: decision.displayedFeedback ?? null,
+      responseTime: decision.responseTime ?? null,
+      contextData: decision.contextData ?? null,
+      createdAt: new Date()
+    };
+    
+    const userDecisions = this.userDecisions.get(decision.userId) || [];
+    userDecisions.push(userDecision);
+    this.userDecisions.set(decision.userId, userDecisions);
+    
+    return userDecision;
+  }
+  
+  async getUserDecisions(userId: string, filters?: {
+    decisionType?: string;
+    scenarioId?: string;
+    limit?: number;
+  }): Promise<UserDecision[]> {
+    let decisions = this.userDecisions.get(userId) || [];
+    
+    if (filters?.decisionType) {
+      decisions = decisions.filter(d => d.decisionType === filters.decisionType);
+    }
+    
+    if (filters?.scenarioId) {
+      decisions = decisions.filter(d => d.scenarioId === filters.scenarioId);
+    }
+    
+    if (filters?.limit && filters.limit > 0) {
+      decisions = decisions.slice(0, filters.limit);
+    }
+    
+    return decisions;
+  }
+  
+  async calculateHouseAssignment(userId: string): Promise<{
+    primaryHouse: string;
+    secondaryHouse?: string;
+    alignmentProfile: {
+      ruthlessness: number;
+      individualism: number;
+      lawfulness: number;
+      greed: number;
+    };
+    confidence: number;
+  }> {
+    const alignmentScore = await this.getUserAlignmentScore(userId);
+    
+    if (!alignmentScore) {
+      // Default neutral alignment
+      return {
+        primaryHouse: 'equilibrium_trust',
+        secondaryHouse: 'catalyst_syndicate',
+        alignmentProfile: {
+          ruthlessness: 0,
+          individualism: 0,
+          lawfulness: 0,
+          greed: 0
+        },
+        confidence: 0.5
+      };
+    }
+    
+    const profile = {
+      ruthlessness: parseFloat(alignmentScore.ruthlessnessScore),
+      individualism: parseFloat(alignmentScore.individualismScore),
+      lawfulness: parseFloat(alignmentScore.lawfulnessScore),
+      greed: parseFloat(alignmentScore.greedScore)
+    };
+    
+    // Import the calculation function
+    const { calculateHouseAssignment } = await import('@shared/entryTestScenarios');
+    const assignment = calculateHouseAssignment(profile);
+    
+    // Calculate confidence based on how consistent their choices were
+    const avgConfidence = (
+      parseFloat(alignmentScore.ruthlessnessConfidence) +
+      parseFloat(alignmentScore.individualismConfidence) +
+      parseFloat(alignmentScore.lawfulnessConfidence) +
+      parseFloat(alignmentScore.greedConfidence)
+    ) / 4;
+    
+    return {
+      primaryHouse: assignment.primaryHouse,
+      secondaryHouse: assignment.secondaryHouse,
+      alignmentProfile: profile,
+      confidence: avgConfidence
     };
   }
 

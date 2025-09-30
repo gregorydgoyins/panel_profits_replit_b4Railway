@@ -7,11 +7,13 @@ import { NotificationSystemProvider } from '@/components/notifications/Notificat
 import { HouseThemeProvider } from '@/contexts/HouseThemeContext';
 import { LandingPage } from '@/components/LandingPage';
 import { NavigationSidebar } from '@/components/NavigationSidebar';
+import { EntryTestGuard } from '@/components/EntryTestGuard';
 import NotFound from '@/pages/not-found';
 
 // Essential pages only for Phase 0
 // Auth
 import AuthPage from '@/pages/auth';
+import EntryTestPage from '@/pages/EntryTestPage';
 
 // Dashboard
 import DashboardPage from '@/pages/DashboardPage';
@@ -55,6 +57,7 @@ function Router() {
     <Switch>
       <Route path="/" component={DashboardPage} />
       <Route path="/dashboard" component={DashboardPage} />
+      <Route path="/entry-test" component={EntryTestPage} />
       <Route path="/trading" component={TradingPage} />
       <Route path="/terminal" component={TradingTerminalPage} />
       <Route path="/portfolio" component={PortfolioPage} />
@@ -105,20 +108,22 @@ function AuthenticatedLayout() {
 
   // Authenticated layout with sidebar - desktop-first design
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="flex h-screen">
-        {/* Professional sidebar navigation */}
-        <div className="flex-shrink-0">
-          <NavigationSidebar />
-        </div>
-        
-        {/* Main content area - optimized for desktop */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <main className="flex-1 overflow-y-auto p-6">
-            <Router />
-          </main>
+    <EntryTestGuard>
+      <div className="min-h-screen bg-background text-foreground">
+        <div className="flex h-screen">
+          {/* Professional sidebar navigation */}
+          <div className="flex-shrink-0">
+            <NavigationSidebar />
+          </div>
+          
+          {/* Main content area - optimized for desktop */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <main className="flex-1 overflow-y-auto p-6">
+              <Router />
+            </main>
+          </div>
         </div>
       </div>
-    </div>
+    </EntryTestGuard>
   );
 }

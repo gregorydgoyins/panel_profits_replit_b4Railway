@@ -72,6 +72,113 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Entry Test Routes - Hidden Psychological Profiling
+  app.post('/api/entry-test/submit', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { responses } = req.body;
+      
+      if (!responses || !Array.isArray(responses)) {
+        return res.status(400).json({ error: "Invalid test responses" });
+      }
+      
+      // Import test scenarios and process responses
+      const { ENTRY_TEST_SCENARIOS } = await import('@shared/entryTestScenarios');
+      
+      // Initialize or get existing alignment score
+      let alignmentScore = await storage.getUserAlignmentScore(userId);
+      if (!alignmentScore) {
+        alignmentScore = await storage.createAlignmentScore({ userId });
+      }
+      
+      // Process each response and update alignment
+      let totalDisplayScore = 0;
+      const alignmentDeltas = {
+        ruthlessnessDelta: 0,
+        individualismDelta: 0,
+        lawfulnessDelta: 0,
+        greedDelta: 0
+      };
+      
+      for (const response of responses) {
+        const scenario = ENTRY_TEST_SCENARIOS.find(s => s.id === response.scenarioId);
+        if (!scenario) continue;
+        
+        const choice = scenario.choices.find(c => c.id === response.choiceId);
+        if (!choice) continue;
+        
+        // Record the decision (hidden tracking)
+        await storage.recordUserDecision({
+          userId,
+          decisionType: 'entry_test',
+          scenarioId: response.scenarioId,
+          choiceId: response.choiceId,
+          ruthlessnessImpact: String(choice.alignmentImpact.ruthlessness),
+          individualismImpact: String(choice.alignmentImpact.individualism),
+          lawfulnessImpact: String(choice.alignmentImpact.lawfulness),
+          greedImpact: String(choice.alignmentImpact.greed),
+          displayedScore: choice.displayedScore,
+          displayedFeedback: choice.displayedFeedback,
+          responseTime: response.responseTime,
+          contextData: { narrativeTags: choice.narrativeTags }
+        });
+        
+        // Accumulate alignment changes
+        alignmentDeltas.ruthlessnessDelta += choice.alignmentImpact.ruthlessness;
+        alignmentDeltas.individualismDelta += choice.alignmentImpact.individualism;
+        alignmentDeltas.lawfulnessDelta += choice.alignmentImpact.lawfulness;
+        alignmentDeltas.greedDelta += choice.alignmentImpact.greed;
+        
+        totalDisplayScore += choice.displayedScore;
+      }
+      
+      // Update alignment scores based on all responses
+      await storage.updateAlignmentScore(userId, alignmentDeltas);
+      
+      // Calculate House assignment based on final alignment
+      const houseAssignment = await storage.calculateHouseAssignment(userId);
+      
+      // Update user's House assignment
+      const user = await storage.getUser(userId);
+      if (user) {
+        await storage.updateUser(userId, {
+          houseId: houseAssignment.primaryHouse,
+          houseJoinedAt: new Date()
+        });
+      }
+      
+      // Return the assignment (but not the hidden alignment scores!)
+      res.json({
+        primaryHouse: houseAssignment.primaryHouse,
+        secondaryHouse: houseAssignment.secondaryHouse,
+        displayScore: Math.round(totalDisplayScore / responses.length),
+        testComplete: true
+      });
+      
+    } catch (error) {
+      console.error("Error processing entry test:", error);
+      res.status(500).json({ error: "Failed to process test results" });
+    }
+  });
+  
+  // Check if user has completed Entry Test
+  app.get('/api/entry-test/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      const alignmentScore = await storage.getUserAlignmentScore(userId);
+      
+      res.json({
+        completed: !!user?.houseId,
+        houseId: user?.houseId || null,
+        requiresTest: !user?.houseId
+      });
+    } catch (error) {
+      console.error("Error checking test status:", error);
+      res.status(500).json({ error: "Failed to check test status" });
+    }
+  });
+
   // Asset Management Routes
   app.get("/api/assets", async (req, res) => {
     try {
