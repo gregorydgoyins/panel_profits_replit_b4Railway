@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCorruption } from '@/hooks/useCorruption';
 import { NotificationSystemProvider } from '@/components/notifications/NotificationSystemProvider';
 import { HouseThemeProvider } from '@/contexts/HouseThemeContext';
-import { CinematicLanding } from '@/components/CinematicLanding';
+import { LandingPage } from '@/components/LandingPage';
 import { NavigationSidebar } from '@/components/NavigationSidebar';
 import { HeroBanner } from '@/components/HeroBanner';
 import { FeatureShowcase } from '@/components/FeatureShowcase';
@@ -103,7 +103,7 @@ function Router() {
   return (
     <Switch>
       {isLoading || !isAuthenticated ? (
-        <Route path="/" component={CinematicLanding} />
+        <Route path="/" component={LandingPage} />
       ) : (
         <>
           <Route path="/" component={DashboardPage} />

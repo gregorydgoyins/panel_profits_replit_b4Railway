@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { VideoBackground } from "@/components/VideoBackground";
 import { useEffect, useRef, useState } from "react";
 
 export function LandingPage() {
@@ -16,35 +15,35 @@ export function LandingPage() {
   const text5Opacity = useTransform(scrollY, [3300, 3600, 4200, 4500], [0, 1, 1, 0]);
   const text6Opacity = useTransform(scrollY, [4200, 4500, 5100], [0, 1, 1]);
   
-  // Video URLs for each section - using stock cinematic videos
+  // Dark noir backgrounds for each section
   const videoSections = [
     {
-      url: "https://cdn.pixabay.com/video/2024/08/24/228197_large.mp4",
+      background: "radial-gradient(ellipse at center, #0a0000 0%, #000000 100%)",
       title: "PANEL PROFITS",
       subtitle: ""
     },
     {
-      url: "https://cdn.pixabay.com/video/2023/08/31/178372-859001761_large.mp4",
+      background: "linear-gradient(180deg, #000000 0%, #1a0000 100%)",
       title: "Every Number Has A Shadow",
       subtitle: ""
     },
     {
-      url: "https://cdn.pixabay.com/video/2022/12/13/142923-781634322_large.mp4",
+      background: "radial-gradient(circle at 30% 50%, #0a0a0a 0%, #000000 100%)",
       title: "THE FLOOR",
       subtitle: "Where fortunes dissolve into void"
     },
     {
-      url: "https://cdn.pixabay.com/video/2024/06/17/217090_large.mp4",
+      background: "linear-gradient(45deg, #000000 0%, #0a0000 50%, #000000 100%)",
       title: "THE REFLECTION",
       subtitle: "What stares back isn't human anymore"
     },
     {
-      url: "https://cdn.pixabay.com/video/2023/10/29/187319-879218848_large.mp4",
+      background: "radial-gradient(ellipse at top, #050505 0%, #000000 100%)",
       title: "THE TERMINAL",
       subtitle: "Your final interface with mortality"
     },
     {
-      url: "https://cdn.pixabay.com/video/2024/01/27/198526_large.mp4",
+      background: "linear-gradient(to bottom, #000000 0%, #0a0000 100%)",
       title: "",
       subtitle: "Enter if you dare"
     }
@@ -91,24 +90,38 @@ export function LandingPage() {
       {/* Opening Scene - PANEL PROFITS */}
       <section 
         className="video-section relative h-screen w-full overflow-hidden"
-        style={{ scrollSnapAlign: "start" }}
+        style={{ 
+          scrollSnapAlign: "start",
+          background: videoSections[0].background
+        }}
         data-section="0"
       >
-        <VideoBackground 
-          videoUrl={videoSections[0].url}
-          overlay={true}
-          overlayOpacity={0.4}
-          minimalist={true}
+        {/* Dark vignette overlay */}
+        <div className="absolute inset-0 bg-black/30" 
+          style={{
+            boxShadow: "inset 0 0 200px rgba(0,0,0,0.9)"
+          }}
         />
+        
+        {/* Subtle film grain */}
+        <div className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E')"
+          }}
+        />
+        
         <motion.div 
-          className="absolute inset-0 flex items-center justify-center"
+          className="absolute inset-0 flex items-center justify-center z-10"
           style={{ opacity: text1Opacity }}
         >
           <motion.h1 
-            className="text-7xl md:text-9xl font-thin text-white tracking-widest mix-blend-difference"
+            className="text-7xl md:text-9xl font-thin text-gray-100 tracking-widest"
             initial={{ opacity: 0, letterSpacing: "0.5em" }}
             animate={{ opacity: 1, letterSpacing: "0.2em" }}
             transition={{ duration: 3, ease: "easeOut" }}
+            style={{
+              textShadow: "0 0 30px rgba(255, 0, 0, 0.2)"
+            }}
           >
             PANEL PROFITS
           </motion.h1>
@@ -118,24 +131,38 @@ export function LandingPage() {
       {/* The Descent - Every Number Has A Shadow */}
       <section 
         className="video-section relative h-screen w-full overflow-hidden"
-        style={{ scrollSnapAlign: "start" }}
+        style={{ 
+          scrollSnapAlign: "start",
+          background: videoSections[1].background
+        }}
         data-section="1"
       >
-        <VideoBackground 
-          videoUrl={videoSections[1].url}
-          overlay={true}
-          overlayOpacity={0.5}
-          minimalist={true}
+        {/* Dark vignette overlay */}
+        <div className="absolute inset-0 bg-black/30" 
+          style={{
+            boxShadow: "inset 0 0 200px rgba(0,0,0,0.9)"
+          }}
         />
+        
+        {/* Subtle film grain */}
+        <div className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E')"
+          }}
+        />
+        
         <motion.div 
-          className="absolute inset-0 flex items-end pb-32 pl-12"
+          className="absolute inset-0 flex items-end pb-32 pl-12 z-10"
           style={{ opacity: text2Opacity }}
         >
           <motion.p 
-            className="text-4xl md:text-6xl font-light text-white/80 mix-blend-exclusion max-w-3xl"
+            className="text-4xl md:text-6xl font-light text-gray-100 max-w-3xl"
             initial={{ y: 50, opacity: 0 }}
             whileInView={{ y: 0, opacity: 1 }}
             transition={{ duration: 1.5, ease: "easeOut" }}
+            style={{
+              textShadow: "0 0 30px rgba(255, 0, 0, 0.2)"
+            }}
           >
             Every Number Has A Shadow
           </motion.p>
@@ -145,17 +172,28 @@ export function LandingPage() {
       {/* The Floor - Trading chaos */}
       <section 
         className="video-section relative h-screen w-full overflow-hidden"
-        style={{ scrollSnapAlign: "start" }}
+        style={{ 
+          scrollSnapAlign: "start",
+          background: videoSections[2].background
+        }}
         data-section="2"
       >
-        <VideoBackground 
-          videoUrl={videoSections[2].url}
-          overlay={true}
-          overlayOpacity={0.6}
-          minimalist={true}
+        {/* Dark vignette overlay */}
+        <div className="absolute inset-0 bg-black/30" 
+          style={{
+            boxShadow: "inset 0 0 200px rgba(0,0,0,0.9)"
+          }}
         />
+        
+        {/* Subtle film grain */}
+        <div className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E')"
+          }}
+        />
+        
         <motion.div 
-          className="absolute inset-0"
+          className="absolute inset-0 z-10"
           style={{ opacity: text3Opacity }}
         >
           {/* Text appears at different positions like ghosts */}
@@ -165,7 +203,11 @@ export function LandingPage() {
             animate={{ opacity: [0, 0.7, 0] }}
             transition={{ duration: 4, delay: 0, repeat: Infinity, repeatDelay: 2 }}
           >
-            <h2 className="text-3xl font-light text-white/60 mix-blend-overlay">THE FLOOR</h2>
+            <h2 className="text-3xl font-light text-gray-100"
+              style={{
+                textShadow: "0 0 30px rgba(255, 0, 0, 0.2)"
+              }}
+            >THE FLOOR</h2>
           </motion.div>
           
           <motion.div 
@@ -174,7 +216,11 @@ export function LandingPage() {
             animate={{ opacity: [0, 0.5, 0] }}
             transition={{ duration: 3, delay: 2, repeat: Infinity, repeatDelay: 3 }}
           >
-            <p className="text-xl font-thin text-white/40 italic mix-blend-difference">
+            <p className="text-xl font-thin text-gray-100 italic"
+              style={{
+                textShadow: "0 0 20px rgba(255, 0, 0, 0.15)"
+              }}
+            >
               Where fortunes dissolve into void
             </p>
           </motion.div>
@@ -184,33 +230,50 @@ export function LandingPage() {
       {/* The Reflection - Mirror/glass effects */}
       <section 
         className="video-section relative h-screen w-full overflow-hidden"
-        style={{ scrollSnapAlign: "start" }}
+        style={{ 
+          scrollSnapAlign: "start",
+          background: videoSections[3].background
+        }}
         data-section="3"
       >
-        <VideoBackground 
-          videoUrl={videoSections[3].url}
-          overlay={true}
-          overlayOpacity={0.5}
-          minimalist={true}
+        {/* Dark vignette overlay */}
+        <div className="absolute inset-0 bg-black/30" 
+          style={{
+            boxShadow: "inset 0 0 200px rgba(0,0,0,0.9)"
+          }}
         />
+        
+        {/* Subtle film grain */}
+        <div className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E')"
+          }}
+        />
+        
         <motion.div 
-          className="absolute inset-0 flex items-center justify-end pr-16"
+          className="absolute inset-0 flex items-center justify-end pr-16 z-10"
           style={{ opacity: text4Opacity }}
         >
           <div className="text-right">
             <motion.h2 
-              className="text-5xl font-light text-white/70 mb-4 mix-blend-screen"
+              className="text-5xl font-light text-gray-100 mb-4"
               initial={{ x: 100, opacity: 0 }}
               whileInView={{ x: 0, opacity: 1 }}
               transition={{ duration: 2, ease: "easeOut" }}
+              style={{
+                textShadow: "0 0 30px rgba(255, 0, 0, 0.2)"
+              }}
             >
               THE REFLECTION
             </motion.h2>
             <motion.p 
-              className="text-xl font-thin text-white/50 max-w-md mix-blend-overlay"
+              className="text-xl font-thin text-gray-100 max-w-md"
               initial={{ x: 100, opacity: 0 }}
               whileInView={{ x: 0, opacity: 1 }}
               transition={{ duration: 2, delay: 0.3, ease: "easeOut" }}
+              style={{
+                textShadow: "0 0 20px rgba(255, 0, 0, 0.15)"
+              }}
             >
               What stares back isn't human anymore
             </motion.p>
@@ -218,20 +281,31 @@ export function LandingPage() {
         </motion.div>
       </section>
 
-      {/* The Terminal - Dark screens, glitching */}
+      {/* The Terminal - Dark screens */}
       <section 
         className="video-section relative h-screen w-full overflow-hidden"
-        style={{ scrollSnapAlign: "start" }}
+        style={{ 
+          scrollSnapAlign: "start",
+          background: videoSections[4].background
+        }}
         data-section="4"
       >
-        <VideoBackground 
-          videoUrl={videoSections[4].url}
-          overlay={true}
-          overlayOpacity={0.7}
-          minimalist={true}
+        {/* Dark vignette overlay */}
+        <div className="absolute inset-0 bg-black/30" 
+          style={{
+            boxShadow: "inset 0 0 200px rgba(0,0,0,0.9)"
+          }}
         />
+        
+        {/* Subtle film grain */}
+        <div className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E')"
+          }}
+        />
+        
         <motion.div 
-          className="absolute inset-0"
+          className="absolute inset-0 z-10"
           style={{ opacity: text5Opacity }}
         >
           <motion.div 
@@ -240,7 +314,11 @@ export function LandingPage() {
             animate={{ opacity: 1 }}
             transition={{ duration: 1 }}
           >
-            <h2 className="text-2xl font-mono text-green-400/60 mix-blend-screen glitch-text" data-text="THE TERMINAL">
+            <h2 className="text-2xl font-mono text-gray-100"
+              style={{
+                textShadow: "0 0 30px rgba(255, 0, 0, 0.2)"
+              }}
+            >
               THE TERMINAL
             </h2>
           </motion.div>
@@ -248,10 +326,14 @@ export function LandingPage() {
           <motion.div 
             className="absolute bottom-1/4 left-1/2 transform -translate-x-1/2"
             initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 1, 0.8, 1] }}
-            transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 1 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.5 }}
           >
-            <p className="text-lg font-mono text-red-500/50 mix-blend-multiply">
+            <p className="text-lg font-mono text-gray-100"
+              style={{
+                textShadow: "0 0 20px rgba(255, 0, 0, 0.15)"
+              }}
+            >
               Your final interface with mortality
             </p>
           </motion.div>
@@ -261,17 +343,28 @@ export function LandingPage() {
       {/* The Call - Final scene with CTA */}
       <section 
         className="video-section relative h-screen w-full overflow-hidden"
-        style={{ scrollSnapAlign: "start" }}
+        style={{ 
+          scrollSnapAlign: "start",
+          background: videoSections[5].background
+        }}
         data-section="5"
       >
-        <VideoBackground 
-          videoUrl={videoSections[5].url}
-          overlay={true}
-          overlayOpacity={0.8}
-          minimalist={true}
+        {/* Dark vignette overlay */}
+        <div className="absolute inset-0 bg-black/30" 
+          style={{
+            boxShadow: "inset 0 0 200px rgba(0,0,0,0.9)"
+          }}
         />
+        
+        {/* Subtle film grain */}
+        <div className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E')"
+          }}
+        />
+        
         <motion.div 
-          className="absolute inset-0 flex flex-col items-center justify-center"
+          className="absolute inset-0 flex flex-col items-center justify-center z-10"
           style={{ opacity: text6Opacity }}
         >
           <motion.div
@@ -281,10 +374,13 @@ export function LandingPage() {
             className="text-center"
           >
             <motion.p 
-              className="text-2xl md:text-3xl font-light text-white/60 mb-12 mix-blend-difference"
+              className="text-2xl md:text-3xl font-light text-gray-100 mb-12"
               initial={{ y: -20, opacity: 0 }}
               whileInView={{ y: 0, opacity: 1 }}
               transition={{ duration: 1.5, delay: 0.5 }}
+              style={{
+                textShadow: "0 0 30px rgba(255, 0, 0, 0.2)"
+              }}
             >
               Enter if you dare
             </motion.p>
@@ -299,8 +395,8 @@ export function LandingPage() {
               <Button 
                 size="lg" 
                 className="bg-transparent border border-white/30 text-white hover:bg-white/10 backdrop-blur-sm px-12 py-6 text-lg font-light tracking-widest transition-all duration-500"
-                onClick={() => window.location.href = "/api/login"}
-                data-testid="button-login"
+                onClick={() => window.location.href = "/trading"}
+                data-testid="button-enter-exchange"
               >
                 ENTER THE EXCHANGE
               </Button>
