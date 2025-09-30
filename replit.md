@@ -4,6 +4,15 @@
 
 Panel Profits is a dark, morally complex virtual trading platform that simulates the brutal reality of financial markets through comic book assets. Inspired by Watchmen's noir aesthetic and philosophical depth, users confront the human cost of capitalism while trading comic characters, issues, creators, and publishers. Every profit has a victim. Every trade accelerates our collective doom. The platform features a brutalist, noir-inspired UI that exposes the existential horror beneath wealth accumulation, targeting those who understand that in finance, nobody is truly a hero.
 
+## Recent Updates (September 30, 2025)
+
+### Two-Phase Assessment System Implemented
+- **Entry Test**: Psychological profiling disguised as trading competency test - 7 scenarios that secretly assess moral alignment with Seven Houses
+- **Knowledge Test**: Financial literacy assessment disguised as "Market Mastery Challenge" - tests actual understanding of market mechanics
+- **Sequential Guards**: Users must complete Entry Test to access Knowledge Test, then complete Knowledge Test to access trading floor
+- **Realistic Pricing**: Knowledge Test uses proper round lots ($5-500 per share, 100-share minimum) for authentic trading scenarios
+- **Database Schema**: Added alignment_scores table for tracking psychological profiles, knowledgeTestScores and knowledgeTestResponses for financial competency
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
