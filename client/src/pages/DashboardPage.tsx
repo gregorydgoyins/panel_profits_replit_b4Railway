@@ -27,6 +27,11 @@ import { HousePowerRankingsWidget } from '@/components/dashboard/HousePowerRanki
 import { PortfolioRiskMetricsWidget } from '@/components/dashboard/PortfolioRiskMetricsWidget';
 import { VolatilitySurfaceWidget } from '@/components/dashboard/VolatilitySurfaceWidget';
 import { CorrelationMatrixWidget } from '@/components/dashboard/CorrelationMatrixWidget';
+import { EconomicCalendarWidget } from '@/components/dashboard/EconomicCalendarWidget';
+import { SectorRotationWidget } from '@/components/dashboard/SectorRotationWidget';
+import { MarginUtilizationWidget } from '@/components/dashboard/MarginUtilizationWidget';
+import { LEAPSWidget } from '@/components/dashboard/LEAPSWidget';
+import { PublisherBondsWidget } from '@/components/dashboard/PublisherBondsWidget';
 
 interface DashboardStats {
   portfolioValue: number;
@@ -383,6 +388,18 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 gap-6 mt-6">
           <CorrelationMatrixWidget />
+        </div>
+
+        {/* Trading Tools Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <EconomicCalendarWidget />
+          <SectorRotationWidget />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+          <MarginUtilizationWidget />
+          <LEAPSWidget />
+          <PublisherBondsWidget />
         </div>
 
         {/* Quick Actions Footer */}
