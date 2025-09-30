@@ -103,18 +103,74 @@ export class DatabaseStorage implements IStorage {
 
   // (IMPORTANT) this user operation is mandatory for Replit Auth.
   async upsertUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
-    return user;
+    try {
+      // First try to find existing user by id
+      if (userData.id) {
+        const existingUser = await db.select().from(users).where(eq(users.id, userData.id)).limit(1);
+        if (existingUser[0]) {
+          // Update existing user
+          const [updated] = await db
+            .update(users)
+            .set({
+              ...userData,
+              updatedAt: new Date(),
+            })
+            .where(eq(users.id, userData.id))
+            .returning();
+          return updated;
+        }
+      }
+
+      // Check if username already exists
+      const existingByUsername = await db.select().from(users).where(eq(users.username, userData.username)).limit(1);
+      if (existingByUsername[0]) {
+        // Update existing user by username
+        const [updated] = await db
+          .update(users)
+          .set({
+            ...userData,
+            updatedAt: new Date(),
+          })
+          .where(eq(users.username, userData.username))
+          .returning();
+        return updated;
+      }
+
+      // Create new user if neither id nor username exists
+      const [newUser] = await db.insert(users).values(userData).returning();
+      return newUser;
+    } catch (error: any) {
+      // Handle duplicate key constraint violation
+      if (error?.code === '23505') {
+        // Duplicate key error - try to find and update the existing user
+        if (error.constraint === 'users_username_unique') {
+          // Username conflict - update by username
+          const [updated] = await db
+            .update(users)
+            .set({
+              ...userData,
+              updatedAt: new Date(),
+            })
+            .where(eq(users.username, userData.username))
+            .returning();
+          return updated;
+        } else if (error.constraint === 'users_email_unique' && userData.email) {
+          // Email conflict - update by email
+          const [updated] = await db
+            .update(users)
+            .set({
+              ...userData,
+              updatedAt: new Date(),
+            })
+            .where(eq(users.email, userData.email))
+            .returning();
+          return updated;
+        }
+      }
+      
+      console.error('Error upserting user:', error);
+      throw error;
+    }
   }
 
   async createUser(user: InsertUser): Promise<User> {
