@@ -32,6 +32,11 @@ import { SectorRotationWidget } from '@/components/dashboard/SectorRotationWidge
 import { MarginUtilizationWidget } from '@/components/dashboard/MarginUtilizationWidget';
 import { LEAPSWidget } from '@/components/dashboard/LEAPSWidget';
 import { PublisherBondsWidget } from '@/components/dashboard/PublisherBondsWidget';
+import { UnusualActivityWidget } from '@/components/dashboard/UnusualActivityWidget';
+import { DarkPoolWidget } from '@/components/dashboard/DarkPoolWidget';
+import { OrderBookWidget } from '@/components/dashboard/OrderBookWidget';
+import { AIRecommendationsWidget } from '@/components/dashboard/AIRecommendationsWidget';
+import { PortfolioGreeksWidget } from '@/components/dashboard/PortfolioGreeksWidget';
 
 interface DashboardStats {
   portfolioValue: number;
@@ -400,6 +405,18 @@ export default function DashboardPage() {
           <MarginUtilizationWidget />
           <LEAPSWidget />
           <PublisherBondsWidget />
+        </div>
+
+        {/* Advanced Trading Tools Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <UnusualActivityWidget />
+          <DarkPoolWidget />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+          <OrderBookWidget />
+          <AIRecommendationsWidget />
+          <PortfolioGreeksWidget />
         </div>
 
         {/* Quick Actions Footer */}
