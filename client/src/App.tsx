@@ -109,27 +109,35 @@ function AuthenticatedLayout() {
     );
   }
 
-  // Authenticated layout with sidebar - desktop-first design
-  // Nested guards: Entry Test → Knowledge Test → Main App
+  // Authenticated layout with progressive guards
+  // Entry Test → Knowledge Test → Main App (Dashboard)
   return (
     <EntryTestGuard>
-      <KnowledgeTestGuard>
-        <div className="min-h-screen bg-background text-foreground">
-          <div className="flex h-screen">
-            {/* Professional sidebar navigation */}
-            <div className="flex-shrink-0">
-              <NavigationSidebar />
+      <Switch>
+        {/* Knowledge Test page - accessible after Entry Test, before main app */}
+        <Route path="/knowledge-test" component={KnowledgeTestPage} />
+        
+        {/* All other routes require Knowledge Test completion */}
+        <Route>
+          <KnowledgeTestGuard>
+            <div className="min-h-screen bg-background text-foreground">
+              <div className="flex h-screen">
+                {/* Professional sidebar navigation */}
+                <div className="flex-shrink-0">
+                  <NavigationSidebar />
+                </div>
+                
+                {/* Main content area - optimized for desktop */}
+                <div className="flex-1 flex flex-col overflow-hidden">
+                  <main className="flex-1 overflow-y-auto p-6">
+                    <Router />
+                  </main>
+                </div>
+              </div>
             </div>
-            
-            {/* Main content area - optimized for desktop */}
-            <div className="flex-1 flex flex-col overflow-hidden">
-              <main className="flex-1 overflow-y-auto p-6">
-                <Router />
-              </main>
-            </div>
-          </div>
-        </div>
-      </KnowledgeTestGuard>
+          </KnowledgeTestGuard>
+        </Route>
+      </Switch>
     </EntryTestGuard>
   );
 }

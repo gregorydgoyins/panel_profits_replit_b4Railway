@@ -254,6 +254,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      // Create portfolio with score-based funding
+      // Check if user already has a portfolio
+      const existingPortfolios = await storage.getUserPortfolios(userId);
+      
+      if (existingPortfolios.length === 0) {
+        // Determine initial balance based on Knowledge Test score
+        let initialBalance = "10000.00"; // Failed: $10,000
+        const score = result.hiddenKnowledgeScore;
+        
+        if (score >= 90) {
+          initialBalance = "50000.00"; // 90-100%: $50,000
+        } else if (score >= 80) {
+          initialBalance = "35000.00"; // 80-90%: $35,000
+        } else if (score >= 70) {
+          initialBalance = "25000.00"; // 70-80%: $25,000
+        } else if (score >= 60) {
+          initialBalance = "15000.00"; // 60-70%: $15,000
+        }
+        
+        // Create default portfolio with score-based funding
+        await storage.createPortfolio({
+          userId,
+          name: "Primary Trading Account",
+          description: `Initial funding based on Market Mastery Challenge performance (${score}%)`,
+          cashBalance: initialBalance,
+          initialCashAllocation: initialBalance,
+          totalValue: initialBalance,
+          isDefault: true,
+          portfolioType: "default"
+        });
+      }
+      
       res.json({
         success: true,
         result: {
