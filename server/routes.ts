@@ -179,6 +179,124 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Knowledge Test Routes - Financial Literacy Assessment (disguised as "Market Mastery Challenge")
+  app.post('/api/knowledge-test/submit', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { responses, result } = req.body;
+      
+      if (!responses || !Array.isArray(responses) || !result) {
+        return res.status(400).json({ error: "Invalid test submission" });
+      }
+      
+      // Store the test result
+      const testResult = await storage.createKnowledgeTestResult({
+        userId,
+        profitScore: String(result.visibleScore),
+        performanceRating: result.visibleScore >= 80 ? 'exceptional' : 
+                          result.visibleScore >= 65 ? 'strong' : 
+                          result.visibleScore >= 50 ? 'developing' : 'needs_improvement',
+        displayedFeedback: `Your market optimization score: ${result.visibleScore}%. ${result.recommendation}`,
+        knowledgeScore: String(result.hiddenKnowledgeScore),
+        tier: result.tier,
+        weakAreas: result.weakAreas,
+        strengths: result.strengths,
+        tradingFloorAccess: result.hiddenKnowledgeScore >= 60,
+        accessLevel: result.tier === 'master' ? 'unlimited' :
+                    result.tier === 'specialist' ? 'advanced' :
+                    result.tier === 'trader' ? 'standard' :
+                    result.tier === 'associate' ? 'basic' : 'restricted',
+        restrictionReason: result.hiddenKnowledgeScore < 60 ? result.recommendation : null,
+        timeSpent: responses.reduce((acc: number, r: any) => acc + (r.responseTime || 0), 0),
+        questionsAnswered: responses.length,
+        retakeAllowedAt: result.hiddenKnowledgeScore < 60 ? 
+                        new Date(Date.now() + 24 * 60 * 60 * 1000) : null, // 24 hours for retake
+        attemptNumber: 1 // Would need to track this properly in real implementation
+      });
+      
+      // Store individual responses for analysis
+      for (const response of responses) {
+        const { KNOWLEDGE_TEST_SCENARIOS } = await import('@shared/knowledgeTestScenarios');
+        const scenario = KNOWLEDGE_TEST_SCENARIOS.find((s: any) => s.id === response.scenarioId);
+        if (!scenario) continue;
+        
+        const choice = scenario.choices.find((c: any) => c.id === response.choiceId);
+        if (!choice) continue;
+        
+        await storage.createKnowledgeTestResponse({
+          resultId: testResult.id,
+          userId,
+          scenarioId: response.scenarioId,
+          choiceId: response.choiceId,
+          knowledgeScore: String(choice.knowledgeScore),
+          profitScore: String(choice.profitScore),
+          responseTime: response.responseTime,
+          isCorrect: choice.knowledgeScore >= 70,
+          knowledgeAreas: scenario.requiredKnowledge
+        });
+      }
+      
+      // Update user's trading permissions based on test result
+      const user = await storage.getUser(userId);
+      if (user) {
+        const canTrade = result.hiddenKnowledgeScore >= 60;
+        const canUseMargin = result.tier === 'master' || result.tier === 'specialist';
+        const canShort = result.tier === 'master';
+        
+        await storage.updateUser(userId, {
+          tradingPermissions: {
+            canTrade,
+            canUseMargin,
+            canShort,
+            knowledgeTier: result.tier
+          }
+        });
+      }
+      
+      res.json({
+        success: true,
+        result: {
+          ...result,
+          testId: testResult.id
+        }
+      });
+      
+    } catch (error) {
+      console.error("Error processing knowledge test:", error);
+      res.status(500).json({ error: "Failed to process test results" });
+    }
+  });
+  
+  // Check Knowledge Test status
+  app.get('/api/knowledge-test/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const latestResult = await storage.getLatestKnowledgeTestResult(userId);
+      
+      if (!latestResult) {
+        return res.json({
+          hasCompletedTest: false,
+          requiresTest: true
+        });
+      }
+      
+      res.json({
+        hasCompletedTest: true,
+        lastAttempt: {
+          completedAt: latestResult.completedAt,
+          tier: latestResult.tier,
+          profitScore: parseFloat(latestResult.profitScore),
+          knowledgeScore: parseFloat(latestResult.knowledgeScore),
+          retakeAllowedAt: latestResult.retakeAllowedAt
+        }
+      });
+      
+    } catch (error) {
+      console.error("Error checking knowledge test status:", error);
+      res.status(500).json({ error: "Failed to check test status" });
+    }
+  });
+
   // Asset Management Routes
   app.get("/api/assets", async (req, res) => {
     try {

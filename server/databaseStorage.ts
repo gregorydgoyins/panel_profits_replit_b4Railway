@@ -30,7 +30,9 @@ import {
   // Moral Consequence System Tables
   moralStandings, tradingVictims,
   // Entry Test Alignment System Tables
-  alignmentScores, userDecisions
+  alignmentScores, userDecisions,
+  // Knowledge Test Tables
+  knowledgeTestResults, knowledgeTestResponses
 } from '@shared/schema.js';
 import type {
   User, InsertUser, UpsertUser, Asset, InsertAsset, MarketData, InsertMarketData,
@@ -4776,6 +4778,32 @@ export class DatabaseStorage implements IStorage {
       alignmentProfile: profile,
       confidence: avgConfidence
     };
+  }
+
+  // Knowledge Test Methods
+  async createKnowledgeTestResult(data: any): Promise<any> {
+    const result = await db.insert(knowledgeTestResults).values(data).returning();
+    return result[0];
+  }
+
+  async getLatestKnowledgeTestResult(userId: string): Promise<any> {
+    const result = await db.select()
+      .from(knowledgeTestResults)
+      .where(eq(knowledgeTestResults.userId, userId))
+      .orderBy(desc(knowledgeTestResults.completedAt))
+      .limit(1);
+    return result[0];
+  }
+
+  async createKnowledgeTestResponse(data: any): Promise<any> {
+    const result = await db.insert(knowledgeTestResponses).values(data).returning();
+    return result[0];
+  }
+
+  async getKnowledgeTestResponses(resultId: string): Promise<any[]> {
+    return await db.select()
+      .from(knowledgeTestResponses)
+      .where(eq(knowledgeTestResponses.resultId, resultId));
   }
 }
 
