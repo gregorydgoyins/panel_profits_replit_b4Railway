@@ -78,7 +78,11 @@ import {
   // Social Warfare System Types
   type ShadowTrader, type InsertShadowTrader,
   type StolenPosition, type InsertStolenPosition,
-  type TraderWarfare, type InsertTraderWarfare
+  type TraderWarfare, type InsertTraderWarfare,
+  // Seven Houses of Paneltown Types
+  type SevenHouse, type InsertSevenHouse,
+  type HousePowerRanking, type InsertHousePowerRanking,
+  type HouseMarketEvent, type InsertHouseMarketEvent
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -818,6 +822,36 @@ export interface IStorage {
   getUserPositions(userId: string): Promise<Position[]>;
   updatePosition(id: string, updates: Partial<InsertPosition>): Promise<Position | undefined>;
   createTradingVictim(victim: InsertTradingVictim): Promise<TradingVictim>;
+
+  // Seven Houses of Paneltown Operations
+  getSevenHouse(id: string): Promise<SevenHouse | undefined>;
+  getSevenHouseByName(name: string): Promise<SevenHouse | undefined>;
+  getAllSevenHouses(): Promise<SevenHouse[]>;
+  createSevenHouse(house: InsertSevenHouse): Promise<SevenHouse>;
+  updateSevenHouse(id: string, house: Partial<InsertSevenHouse>): Promise<SevenHouse | undefined>;
+  
+  // House Power Rankings
+  getLatestPowerRankings(): Promise<HousePowerRanking[]>;
+  getPowerRankingsByWeek(week: Date): Promise<HousePowerRanking[]>;
+  createPowerRanking(ranking: InsertHousePowerRanking): Promise<HousePowerRanking>;
+  updateHousePowerMetrics(houseId: string, metrics: {
+    marketCap?: string;
+    dailyVolume?: string;
+    powerLevel?: string;
+  }): Promise<SevenHouse | undefined>;
+  
+  // House Market Events
+  getHouseMarketEvents(filters?: {
+    houseId?: string;
+    eventType?: string;
+    limit?: number;
+  }): Promise<HouseMarketEvent[]>;
+  createHouseMarketEvent(event: InsertHouseMarketEvent): Promise<HouseMarketEvent>;
+  getRecentHouseEvents(limit?: number): Promise<HouseMarketEvent[]>;
+  
+  // House Asset Control
+  getAssetsByHouse(houseId: string): Promise<Asset[]>;
+  transferAssetControl(assetId: string, newHouseId: string): Promise<Asset | undefined>;
 }
 
 // Time-series buffer implementation with memory limits and proper chronological ordering

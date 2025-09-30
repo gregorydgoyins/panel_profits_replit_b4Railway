@@ -7,6 +7,7 @@ import comicDataRoutes from "./routes/comicData.js";
 import vectorRoutes from "./routes/vectorRoutes.js";
 import dataImportRoutes from "./routes/dataImportRoutes.js";
 import housesRoutes from "./routes/housesRoutes.js";
+import sevenHousesRoutes from "./routes/sevenHousesRoutes.js";
 import karmaRoutes from "./routes/karmaRoutes.js";
 import learningRoutes from "./routes/learningRoutes.js";
 import integrationsRoutes from "./routes/integrations.js";
@@ -1036,6 +1037,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Houses System Routes (Seven Mythological Houses)
   app.use("/api/houses", housesRoutes);
+  app.use(sevenHousesRoutes);
   app.use("/api/karma", karmaRoutes);
   
   // Sacred Learning System Routes (Mythological Education RPG)

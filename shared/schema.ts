@@ -69,6 +69,14 @@ export const assets = pgTable("assets", {
   description: text("description"),
   imageUrl: text("image_url"),
   metadata: jsonb("metadata"), // Additional asset-specific data
+  
+  // Seven Houses control
+  houseId: varchar("house_id").references(() => sevenHouses.id), // Which house controls this asset
+  houseInfluencePercent: decimal("house_influence_percent", { precision: 5, scale: 2 }).default("0.00"), // 0-100%
+  narrativeWeight: decimal("narrative_weight", { precision: 5, scale: 2 }).default("50.00"), // How story events affect price
+  controlledSince: timestamp("controlled_since"), // When house took control
+  previousHouseId: varchar("previous_house_id"), // Previous controller for history
+  
   // Vector embeddings for semantic search and recommendations
   metadataEmbedding: vector("metadata_embedding", { dimensions: 1536 }), // OpenAI ada-002 embedding dimensions
   createdAt: timestamp("created_at").defaultNow(),
@@ -1170,6 +1178,82 @@ export const karmicActionsLog = pgTable("karmic_actions_log", {
   // Visibility
   isVisibleToUser: boolean("is_visible_to_user").default(false), // Hidden until Reckoning
   revealedAt: timestamp("revealed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// PANEL PROFITS: Seven Houses of Paneltown Trading System
+// Crime families controlling different comic asset sectors
+
+// The Seven Houses - Main houses table
+export const sevenHouses = pgTable("seven_houses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull().unique(), // Sequential Securities, Ink & Blood Syndicate, etc.
+  description: text("description").notNull(),
+  specialization: text("specialization").notNull(), // Type of assets they control
+  color: text("color").notNull(), // Strategic accent color (hex) for noir aesthetic
+  symbol: text("symbol"), // Icon/emblem identifier (lucide icon name)
+  
+  // House power and reputation
+  reputationScore: decimal("reputation_score", { precision: 10, scale: 2 }).default("100.00"),
+  powerLevel: decimal("power_level", { precision: 10, scale: 2 }).default("100.00"),
+  marketCap: decimal("market_cap", { precision: 15, scale: 2 }).default("0.00"),
+  dailyVolume: decimal("daily_volume", { precision: 15, scale: 2 }).default("0.00"),
+  controlledAssetsCount: integer("controlled_assets_count").default(0),
+  
+  // House narrative elements
+  houseSlogan: text("house_slogan"),
+  headquartersLocation: text("headquarters_location"), // Location in Paneltown
+  rivalHouses: text("rival_houses").array(), // Array of house IDs they compete with
+  allianceHouses: text("alliance_houses").array(), // Temporary alliances
+  
+  // House leadership and members
+  bossName: text("boss_name"), // The head of the house
+  memberCount: integer("member_count").default(0),
+  lieutenants: text("lieutenants").array(), // Key members
+  
+  // Trading modifiers and bonuses
+  tradingBonusPercent: decimal("trading_bonus_percent", { precision: 8, scale: 2 }).default("0.00"),
+  specialPowerDescription: text("special_power_description"), // Unique house ability
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// House Power Rankings - Track dominance in the market
+export const housePowerRankings = pgTable("house_power_rankings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  houseId: varchar("house_id").notNull().references(() => sevenHouses.id),
+  week: timestamp("week").notNull(), // Weekly tracking
+  rankPosition: integer("rank_position").notNull(), // 1-7
+  powerScore: decimal("power_score", { precision: 10, scale: 2 }).notNull(),
+  weeklyVolume: decimal("weekly_volume", { precision: 15, scale: 2 }).notNull(),
+  weeklyProfit: decimal("weekly_profit", { precision: 15, scale: 2 }).notNull(),
+  marketSharePercent: decimal("market_share_percent", { precision: 5, scale: 2 }).notNull(),
+  territoryGains: integer("territory_gains").default(0), // Assets gained control of
+  territoryLosses: integer("territory_losses").default(0), // Assets lost control of
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// House Market Events - Crime family power struggles
+export const houseMarketEvents = pgTable("house_market_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  eventType: text("event_type").notNull(), // 'turf_war', 'hostile_takeover', 'alliance', 'betrayal'
+  triggerHouseId: varchar("trigger_house_id").references(() => sevenHouses.id),
+  targetHouseId: varchar("target_house_id").references(() => sevenHouses.id),
+  affectedAssetIds: text("affected_asset_ids").array(),
+  
+  // Event impact
+  powerShift: decimal("power_shift", { precision: 8, scale: 2 }), // Power transferred
+  marketImpact: jsonb("market_impact"), // Price changes, volume spikes
+  
+  // Narrative elements
+  eventTitle: text("event_title").notNull(), // Headline
+  eventNarrative: text("event_narrative"), // Comic-style story text
+  impactDescription: text("impact_description"),
+  soundEffect: text("sound_effect"), // "BOOM!", "CRASH!", "KA-CHING!"
+  comicPanelStyle: text("comic_panel_style"), // 'action', 'dramatic', 'noir'
+  
+  eventTimestamp: timestamp("event_timestamp").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -5898,3 +5982,30 @@ export type InsertStolenPosition = z.infer<typeof insertStolenPositionSchema>;
 
 export type TraderWarfare = typeof traderWarfare.$inferSelect;
 export type InsertTraderWarfare = z.infer<typeof insertTraderWarfareSchema>;
+
+// Seven Houses of Paneltown - Type exports
+export const insertSevenHousesSchema = createInsertSchema(sevenHouses).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertHousePowerRankingsSchema = createInsertSchema(housePowerRankings).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertHouseMarketEventsSchema = createInsertSchema(houseMarketEvents).omit({
+  id: true,
+  createdAt: true,
+  eventTimestamp: true,
+});
+
+export type SevenHouse = typeof sevenHouses.$inferSelect;
+export type InsertSevenHouse = z.infer<typeof insertSevenHousesSchema>;
+
+export type HousePowerRanking = typeof housePowerRankings.$inferSelect;
+export type InsertHousePowerRanking = z.infer<typeof insertHousePowerRankingsSchema>;
+
+export type HouseMarketEvent = typeof houseMarketEvents.$inferSelect;
+export type InsertHouseMarketEvent = z.infer<typeof insertHouseMarketEventsSchema>;

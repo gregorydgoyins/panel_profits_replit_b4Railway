@@ -11,7 +11,8 @@ import {
   TrendingUp, TrendingDown, Activity, DollarSign, Clock, BarChart3, 
   Wallet, Target, AlertTriangle, RefreshCw, Eye, Terminal,
   Crown, Swords, Trophy, Zap, Power, Skull, ArrowUp, ArrowDown,
-  Heart, Flame, Ghost
+  Heart, Flame, Ghost, Briefcase, Droplets, Shield, BookOpen,
+  Palette, Globe, Filter
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -22,6 +23,8 @@ import { OrderBook } from '@/components/trading/OrderBook';
 import { VictimNotification, VictimData } from '@/components/VictimNotification';
 import { BloodMoneyCounter } from '@/components/BloodMoneyCounter';
 import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { apiRequest } from '@/lib/queryClient';
@@ -151,6 +154,18 @@ const AssetListItem = memo(({
 });
 AssetListItem.displayName = 'AssetListItem';
 
+// Seven Houses configuration
+const SEVEN_HOUSES = [
+  { id: 'all', name: 'All Houses', icon: Globe, color: '#6B7280' },
+  { id: 'sequential-securities', name: 'Sequential Securities', icon: Briefcase, color: '#DC2626' },
+  { id: 'ink-blood', name: 'Ink & Blood', icon: Droplets, color: '#7C3AED' },
+  { id: 'heroic-trust', name: 'Heroic Trust', icon: Shield, color: '#2563EB' },
+  { id: 'narrative-capital', name: 'Narrative Capital', icon: BookOpen, color: '#059669' },
+  { id: 'visual-holdings', name: 'Visual Holdings', icon: Palette, color: '#EA580C' },
+  { id: 'vigilante-exchange', name: 'Vigilante Exchange', icon: Eye, color: '#64748B' },
+  { id: 'crossover-consortium', name: 'Crossover Consortium', icon: Globe, color: '#BE185D' },
+];
+
 export default function OptimizedTradingPage() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -168,6 +183,8 @@ export default function OptimizedTradingPage() {
   const [potentialVictimCount, setPotentialVictimCount] = useState(0);
   const [showGlitchPrice, setShowGlitchPrice] = useState(false);
   const [shadowPriceHint, setShadowPriceHint] = useState<number | null>(null);
+  const [selectedHouse, setSelectedHouse] = useState<string>('all'); // House filter
+  const [showSoundEffect, setShowSoundEffect] = useState<string | null>(null); // Comic sound effects
   
   // Use corruption and blood money hooks
   const { corruption, soulWeight, victimCount, corruptionClass } = useCorruption();
