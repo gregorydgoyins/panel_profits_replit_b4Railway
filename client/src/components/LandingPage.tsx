@@ -62,32 +62,32 @@ export function LandingPage() {
           variant="ghost"
           size="icon"
           onClick={toggleTheme}
-          className="h-10 w-10"
+          className="h-10 w-10 backdrop-blur-md bg-black/30 hover:bg-black/50"
           data-testid="button-theme-toggle"
         >
           {theme === "dark" ? (
-            <Sun className="h-5 w-5" />
+            <Sun className="h-5 w-5 text-white" />
           ) : (
-            <Moon className="h-5 w-5" />
+            <Moon className="h-5 w-5 text-white" />
           )}
           <span className="sr-only">Toggle theme</span>
         </Button>
       </header>
 
-      {/* Main content - centered login area */}
-      <main className="flex-1 flex items-center justify-center px-6">
-        <div className="w-full max-w-md">
-          {/* Logo and tagline */}
+      {/* Main content - centered login area with enhanced overlay */}
+      <main className="flex-1 flex items-center justify-center px-6 relative z-20">
+        <div className="w-full max-w-md backdrop-blur-md bg-black/60 p-12 rounded-lg border border-white/10 shadow-2xl">
+          {/* Logo and tagline with stronger text */}
           <div className="text-center mb-12">
             <h1 
-              className="text-5xl font-header font-semibold tracking-tight mb-4"
+              className="text-5xl font-header font-bold tracking-tight mb-4 text-white drop-shadow-2xl"
               style={{ fontFamily: 'Space Grotesk, sans-serif' }}
               data-testid="text-app-title"
             >
               PANEL PROFITS
             </h1>
             <p 
-              className="text-muted-foreground text-lg"
+              className="text-gray-200 text-lg"
               style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
               data-testid="text-app-tagline"
             >
@@ -98,7 +98,7 @@ export function LandingPage() {
           {/* Entry button */}
           <div className="space-y-4">
             <Button 
-              className="w-full h-12 text-base tracking-wider uppercase"
+              className="w-full h-12 text-base tracking-wider uppercase bg-white text-black hover:bg-gray-100 shadow-xl"
               style={{ fontFamily: 'Space Grotesk, sans-serif' }}
               variant="default"
               size="lg"
@@ -114,11 +114,11 @@ export function LandingPage() {
             {/* Subtle divider */}
             <div className="relative my-8">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border/50" />
+                <div className="w-full border-t border-white/20" />
               </div>
               <div className="relative flex justify-center text-xs">
                 <span 
-                  className="px-4 bg-background text-muted-foreground"
+                  className="px-4 bg-black/60 text-gray-300 backdrop-blur-sm"
                   style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                 >
                   Members
@@ -128,7 +128,7 @@ export function LandingPage() {
 
             {/* Existing member login */}
             <Button 
-              className="w-full h-12 text-base tracking-wider uppercase"
+              className="w-full h-12 text-base tracking-wider uppercase border-white/50 text-white hover:bg-white hover:text-black shadow-xl backdrop-blur-sm"
               style={{ fontFamily: 'Space Grotesk, sans-serif' }}
               variant="outline"
               size="lg"
@@ -145,13 +145,13 @@ export function LandingPage() {
           {/* Minimal footer info */}
           <div className="mt-16 text-center">
             <p 
-              className="text-xs text-muted-foreground"
+              className="text-xs text-gray-300"
               style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             >
               Professional Trading Platform
             </p>
             <p 
-              className="text-xs text-muted-foreground mt-1"
+              className="text-xs text-gray-300 mt-1"
               style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             >
               Desktop Experience Recommended • 1920x1080+
@@ -160,13 +160,6 @@ export function LandingPage() {
         </div>
       </main>
 
-      {/* Subtle gradient overlay for depth */}
-      <div 
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.4) 100%)'
-        }}
-      />
     </div>
   );
 }
