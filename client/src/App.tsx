@@ -104,14 +104,14 @@ function Router() {
 
   return (
     <Switch>
-      {isLoading || !isAuthenticated ? (
+      {false ? ( // Temporarily bypass auth to show interior screens
         <>
           <Route path="/" component={LandingPage} />
           <Route path="/trading" component={LandingPage} />
         </>
       ) : (
         <>
-          <Route path="/" component={DashboardPage} />
+          <Route path="/" component={LandingPage} />
       <Route path="/ai-studio" component={AIStudio} />
       <Route path="/beat-ai" component={BeatTheAI} />
       <Route path="/grading" component={ComicGrading} />
@@ -162,6 +162,7 @@ function Router() {
       <Route path="/houses" component={HouseSelection} />
       <Route path="/houses/dashboard" component={HouseDashboard} />
       <Route path="/houses/competition" component={HouseCompetition} />
+      <Route path="/seven-houses" component={HouseDashboard} />
       
           <Route component={NotFound} />
         </>
