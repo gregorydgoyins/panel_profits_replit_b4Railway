@@ -12,14 +12,14 @@ interface VideoBackgroundProps {
 
 export function VideoBackground({
   videoUrl = "https://cdn.pixabay.com/video/2024/08/24/228197_large.mp4",
-  fallbackImage = "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=3072&auto=format&fit=crop",
+  fallbackImage = "https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=3072&auto=format&fit=crop",
   overlay = true,
   overlayOpacity = 0.5,
   minimalist = false,
   children
 }: VideoBackgroundProps) {
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const [showFallback, setShowFallback] = useState(false);
+  const [showFallback, setShowFallback] = useState(true);
 
   const handleVideoError = () => {
     setShowFallback(true);
