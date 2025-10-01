@@ -38,7 +38,7 @@ import { OrderBookWidget } from '@/components/dashboard/OrderBookWidget';
 import { AIRecommendationsWidget } from '@/components/dashboard/AIRecommendationsWidget';
 import { PortfolioGreeksWidget } from '@/components/dashboard/PortfolioGreeksWidget';
 import { NewsTicker } from '@/components/dashboard/NewsTicker';
-import { StockTicker } from '@/components/StockTicker';
+import { StockTicker } from '@/components/dashboard/StockTicker';
 import { ComicCoverCardsWidget } from '@/components/dashboard/ComicCoverCardsWidget';
 import { ComicHeatMapWidget } from '@/components/dashboard/ComicHeatMapWidget';
 import { ComicSentimentWidget } from '@/components/dashboard/ComicSentimentWidget';

@@ -438,6 +438,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Market Data Routes (OHLC time-series)
+  app.get("/api/market-data/latest", async (req, res) => {
+    try {
+      const timeframe = req.query.timeframe as string || '1d';
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
+      
+      // Get all assets first
+      const assets = await storage.getAssets({});
+      const assetIds = assets.map(a => a.id).slice(0, limit);
+      
+      // Get latest market data for each asset
+      const marketDataPromises = assetIds.map(assetId => 
+        storage.getLatestMarketData(assetId, timeframe)
+      );
+      
+      const marketDataResults = await Promise.all(marketDataPromises);
+      
+      // Filter out nulls and add symbol from asset
+      const enrichedData = marketDataResults
+        .filter(data => data !== null)
+        .map((data, index) => {
+          const asset = assets.find(a => a.id === assetIds[index]);
+          return {
+            ...data,
+            symbol: asset?.symbol || 'UNKNOWN'
+          };
+        });
+      
+      res.json(enrichedData);
+    } catch (error) {
+      console.error("Failed to fetch latest market data:", error);
+      res.status(500).json({ error: "Failed to fetch market data" });
+    }
+  });
+
   app.get("/api/market-data/:assetId/latest", async (req, res) => {
     try {
       const timeframe = req.query.timeframe as string || '1d';
