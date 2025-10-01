@@ -2,6 +2,8 @@ interface ComicPrice {
   id: string;
   'product-name': string;
   'console-name': string;
+  'publisher-name'?: string;
+  'series-name'?: string;
   genre?: string;
   'release-date'?: string;
   'sales-volume'?: string;
@@ -145,7 +147,7 @@ class PriceChartingService {
     }
 
     // Return highest grade price available
-    return prices[0] / 100; // Convert from pennies to dollars
+    return prices[0] ? prices[0] / 100 : 0; // Convert from pennies to dollars
   }
 
   async getPriceForCharacter(characterName: string): Promise<number> {

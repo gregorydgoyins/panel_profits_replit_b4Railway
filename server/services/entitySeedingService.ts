@@ -1,5 +1,8 @@
 import { comicDataService } from './comicDataService';
 import { storage } from '../storage';
+import { priceChartingService } from './priceChartingService';
+import { readFileSync } from 'fs';
+import { parse } from 'csv-parse/sync';
 
 /**
  * Entity Mining & Seeding Service
@@ -338,6 +341,145 @@ class EntitySeedingService {
   }
 
   /**
+   * Seed comics from Kaggle character datasets + PriceCharting pricing
+   */
+  async seedComicsFromKaggle(): Promise<void> {
+    console.log('📚 Seeding comics from Kaggle character datasets...');
+    
+    try {
+      // Character to key series mapping
+      const characterSeries: Record<string, string[]> = {
+        'Spider-Man': ['Amazing Spider-Man', 'Spectacular Spider-Man', 'Web of Spider-Man'],
+        'Captain America': ['Captain America', 'Tales of Suspense'],
+        'Wolverine': ['Wolverine', 'X-Men', 'Uncanny X-Men'],
+        'Iron Man': ['Iron Man', 'Tales of Suspense', 'Invincible Iron Man'],
+        'Thor': ['Thor', 'Journey into Mystery', 'Mighty Thor'],
+        'Hulk': ['Incredible Hulk', 'Hulk'],
+        'Batman': ['Batman', 'Detective Comics'],
+        'Superman': ['Action Comics', 'Superman'],
+        'Wonder Woman': ['Wonder Woman'],
+        'Flash': ['Flash', 'The Flash'],
+        'Green Lantern': ['Green Lantern'],
+        'Aquaman': ['Aquaman'],
+        'X-Men': ['X-Men', 'Uncanny X-Men', 'New X-Men'],
+        'Avengers': ['Avengers'],
+        'Justice League': ['Justice League of America', 'Justice League'],
+        'Fantastic Four': ['Fantastic Four'],
+        'Deadpool': ['Deadpool'],
+        'Punisher': ['Punisher'],
+        'Daredevil': ['Daredevil'],
+        'Green Arrow': ['Green Arrow']
+      };
+
+      // Load Marvel characters CSV
+      const marvelCsvPath = './attached_assets/marvel-characters.csv';
+      const marvelData = readFileSync(marvelCsvPath, 'utf-8');
+      const marvelRecords = parse(marvelData, { columns: true }) as any[];
+      
+      // Load DC characters CSV  
+      const dcCsvPath = './attached_assets/dc-characters.csv';
+      const dcData = readFileSync(dcCsvPath, 'utf-8');
+      const dcRecords = parse(dcData, { columns: true }) as any[];
+
+      console.log(`   Found ${marvelRecords.length} Marvel characters, ${dcRecords.length} DC characters`);
+
+      // Get top characters by appearance count
+      const allCharacters = [...marvelRecords, ...dcRecords]
+        .filter(c => c.APPEARANCES && parseInt(c.APPEARANCES) > 500)
+        .sort((a, b) => parseInt(b.APPEARANCES) - parseInt(a.APPEARANCES))
+        .slice(0, 100); // Top 100 most popular
+
+      console.log(`   Processing top ${allCharacters.length} characters...`);
+
+      // Helper function to normalize character names
+      const normalizeCharName = (name: string): string => {
+        // Remove parentheses content and trim
+        const cleaned = name.split('(')[0].trim();
+        // Convert to Title Case
+        return cleaned.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+      };
+
+      // For each character, seed their key series
+      for (const character of allCharacters) {
+        const charName = normalizeCharName(character.name);
+        const series = characterSeries[charName] || [];
+        
+        if (series.length === 0) continue;
+
+        for (const seriesName of series) {
+          // Search PriceCharting for this series
+          const comicResults = await priceChartingService.searchComics(seriesName);
+          
+          if (comicResults.length === 0) {
+            console.log(`   ⚠️  No pricing data for: ${seriesName}`);
+            continue;
+          }
+
+          // Take top 5 most valuable issues from this series
+          const topIssues = comicResults
+            .slice(0, 5)
+            .filter(c => c['product-name']);
+
+          for (const comic of topIssues) {
+            const symbol = `${seriesName.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8)}.${comic.id.slice(0, 6)}`;
+            
+            // Check if exists
+            const existing = await storage.getAssetBySymbol(symbol);
+            if (existing) continue;
+
+            // Get best price (CGC graded preferred)
+            const price = priceChartingService.getBestPrice(comic);
+            if (price === 0) continue;
+
+            // Create comic asset
+            await storage.createAsset({
+              symbol,
+              name: comic['product-name'],
+              type: 'comic',
+              description: `${priceChartingService.extractSeriesName(comic['console-name'])} - Real market pricing`,
+              imageUrl: null,
+              metadata: {
+                series: priceChartingService.extractSeriesName(comic['console-name']),
+                publisher: comic['publisher-name'] || (seriesName.includes('Spider-Man') || seriesName.includes('X-Men') ? 'Marvel' : 'DC'),
+                releaseDate: comic['release-date'],
+                grading: {
+                  ungraded: comic['loose-price'] ? comic['loose-price'] / 100 : null,
+                  cgc40: comic['cib-price'] ? comic['cib-price'] / 100 : null,
+                  cgc60: comic['new-price'] ? comic['new-price'] / 100 : null,
+                  cgc80: comic['graded-price'] ? comic['graded-price'] / 100 : null,
+                  cgc92: comic['box-only-price'] ? comic['box-only-price'] / 100 : null,
+                  cgc98: comic['manual-only-price'] ? comic['manual-only-price'] / 100 : null,
+                  cgc100: comic['bgs-10-price'] ? comic['bgs-10-price'] / 100 : null,
+                }
+              }
+            });
+
+            // Create initial market data
+            await storage.createMarketData({
+              assetId: symbol,
+              timeframe: '1d',
+              periodStart: new Date(),
+              open: price.toString(),
+              high: (price * 1.05).toString(),
+              low: (price * 0.95).toString(),
+              close: price.toString(),
+              volume: Math.floor(100 + Math.random() * 500),
+              change: '0',
+              percentChange: '0'
+            });
+
+            console.log(`   ✅ Created: ${comic['product-name']} @ $${price}`);
+          }
+        }
+      }
+      
+      console.log('✅ Kaggle comic seeding complete!');
+    } catch (error) {
+      console.error('❌ Error seeding comics from Kaggle:', error);
+    }
+  }
+
+  /**
    * Run complete seeding process
    */
   async seedAllEntities(): Promise<void> {
@@ -348,6 +490,7 @@ class EntitySeedingService {
     await this.seedCharacters();
     await this.seedCreators();
     await this.seedFranchises();
+    await this.seedComicsFromKaggle(); // New comprehensive comic seeding
     
     console.log('\n✅ Entity mining complete! The mythology trading floor is ready.');
   }

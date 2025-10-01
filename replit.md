@@ -28,6 +28,8 @@ Preferred communication style: Simple, everyday language.
 - **Dashboard Widgets**: 19 professional-grade widgets for options/derivatives, market intelligence, advanced analytics, trading tools, and institutional flow, featuring a Bloomberg Terminal aesthetic with Watchmen noir styling.
 - **Two-Phase Assessment**: Entry Test (psychological profiling for moral alignment) and Knowledge Test (financial literacy assessment) as gatekeepers to the trading floor.
 - **Real Comic Pricing**: PriceCharting API integration provides authentic comic book pricing with full CGC grading support (Ungraded, CGC 4.0-4.5, 6.0-6.5, 8.0-8.5, 9.2, 9.8, 10.0). Grading critical for pricing accuracy—price differences range from 10x to 172x between ungraded and graded copies.
+- **Kaggle Data Integration**: FiveThirtyEight dataset with 23,272 comic characters (16K Marvel, 7K DC) provides comprehensive character metadata (appearances, alignment, debut year). Seeding service maps top 100 characters to key comic series and fetches real pricing from PriceCharting API.
+- **Entity Seeding System**: Comprehensive seeding service mines Comic Vine, Kaggle datasets, and PriceCharting to populate database with publishers, characters, creators, franchises, and comic assets with real market pricing.
 - **Database Schema**: Comprehensive schemas for users, assets, market data, portfolios, watchlists, orders, market events, certification pathways, subscriber incentives, easter eggs, and assessment scores.
 - **Design System**: Dark mode with indigo/purple gradients, green/red for trading, consistent styling via class-variance-authority, animations, and responsive design.
 
