@@ -37,6 +37,7 @@ import CertificationsPage from '@/pages/CertificationsPage';
 
 // Easter Eggs
 import EasterEggsPage from '@/pages/EasterEggsPage';
+import { useEasterEggNotifications } from '@/hooks/useEasterEggNotifications';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -95,6 +96,11 @@ export default function App() {
   );
 }
 
+function EasterEggMonitor() {
+  useEasterEggNotifications();
+  return null;
+}
+
 function AuthenticatedLayout() {
   const { isAuthenticated, isLoading } = useAuth();
 
@@ -128,6 +134,7 @@ function AuthenticatedLayout() {
         {/* All other routes require Knowledge Test completion */}
         <Route>
           <KnowledgeTestGuard>
+            <EasterEggMonitor />
             <div className="min-h-screen bg-background text-foreground">
               <div className="flex h-screen">
                 {/* Professional sidebar navigation */}
