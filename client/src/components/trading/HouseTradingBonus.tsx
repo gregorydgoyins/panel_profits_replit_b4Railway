@@ -96,9 +96,9 @@ export function HouseTradingBonus({
 
     if (bonuses.karmaMultiplier > 1) {
       applicable.push({
-        name: 'Karma Multiplier',
+        name: 'XP Multiplier',
         value: `${bonuses.karmaMultiplier}x`,
-        description: 'Karma gain multiplier from trades',
+        description: 'Experience gain multiplier from trades',
         icon: Star
       });
     }
@@ -192,7 +192,7 @@ export function HouseTradingBonus({
 
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Karma Progress</span>
+                <span className="text-muted-foreground">Experience Progress</span>
                 <span className="font-medium">{house.userKarma} / {(house.userRank + 1) * 1000}</span>
               </div>
               <Progress 
@@ -200,7 +200,7 @@ export function HouseTradingBonus({
                 className="h-2"
               />
               <div className="text-xs text-muted-foreground">
-                Next rank: {Math.max(0, (house.userRank + 1) * 1000 - house.userKarma)} karma needed
+                Next rank: {Math.max(0, (house.userRank + 1) * 1000 - house.userKarma)} experience needed
               </div>
             </div>
           </>

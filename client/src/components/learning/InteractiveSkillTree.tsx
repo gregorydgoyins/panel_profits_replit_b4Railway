@@ -417,7 +417,7 @@ export function InteractiveSkillTree({ houseId, onSkillSelect, compact = false }
                         </h3>
                         <p className="text-sm text-muted-foreground">{tier.description}</p>
                         <Badge variant="outline" className="mt-2">
-                          {tier.requiredKarma} Karma Required
+                          {tier.requiredKarma} Experience Required
                         </Badge>
                       </div>
                       
@@ -544,7 +544,7 @@ export function InteractiveSkillTree({ houseId, onSkillSelect, compact = false }
                       <h4 className="font-medium text-sm">Prerequisites:</h4>
                       <div className="text-sm space-y-1">
                         {selectedSkill.prerequisites.karma && (
-                          <div>Karma: {selectedSkill.prerequisites.karma}</div>
+                          <div>Experience: {selectedSkill.prerequisites.karma}</div>
                         )}
                         {selectedSkill.prerequisites.houseLevel && (
                           <div>House Level: {selectedSkill.prerequisites.houseLevel}</div>

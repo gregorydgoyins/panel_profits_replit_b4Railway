@@ -117,7 +117,7 @@ const LESSON_TYPE_CONFIGS = {
     description: 'Perform the ceremonial trading rituals of your house',
     primaryColor: 'from-red-500/20 to-orange-500/20',
     accentColor: 'border-red-500/30',
-    effects: ['Ritual flames', 'Sacred circles', 'Divine energy']
+    effects: ['Ritual flames', 'Sacred circles', 'Performance energy']
   }
 };
 
@@ -211,7 +211,7 @@ export function ImmersiveLessonInterface({ lessonId, onComplete, onNext }: Immer
       
       toast({
         title: "🎉 Sacred Lesson Mastered!",
-        description: `Gained ${data.experienceEarned} XP and ${data.karmaEarned} Karma`,
+        description: `Gained ${data.experienceEarned} XP and ${data.karmaEarned} Experience`,
       });
       
       queryClient.invalidateQueries({ queryKey: ['/api/learning/progress'] });
@@ -618,7 +618,7 @@ export function ImmersiveLessonInterface({ lessonId, onComplete, onNext }: Immer
             </div>
             <div>
               <div className="text-2xl font-bold text-accent">{lesson.karmaReward}</div>
-              <div className="text-sm text-muted-foreground">Karma Reward</div>
+              <div className="text-sm text-muted-foreground">Experience Reward</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-purple-400">{lesson.estimatedMinutes}</div>

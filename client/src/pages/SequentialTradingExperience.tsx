@@ -666,7 +666,7 @@ export default function SequentialTradingExperience() {
                       dialogue: [{
                         id: 'portfolio-dialogue',
                         speaker: 'narrator',
-                        text: `Behold the power of ${currentHouse}! Your assets shine with divine light.`,
+                        text: `Behold the power of ${currentHouse}! Your assets shine with market strength.`,
                         style: 'speech',
                         position: 'top-center',
                         timing: 0

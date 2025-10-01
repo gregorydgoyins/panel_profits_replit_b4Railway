@@ -289,7 +289,7 @@ export function LegendaryAchievementShrine({ selectedHouse }: LegendaryAchieveme
                             <div className="mt-3 flex items-center gap-2 flex-wrap">
                               <span className="text-xs text-amber-400 flex items-center space-x-1">
                                 <Sparkles className="w-3 h-3" />
-                                <span>Divine Boons:</span>
+                                <span>Performance Bonus:</span>
                               </span>
                               {achievement.rewards.map((reward, index) => (
                                 <Badge key={index} className="text-xs bg-gradient-to-r from-purple-600/30 to-blue-600/30 border-purple-500/50">
@@ -327,11 +327,11 @@ export function LegendaryAchievementShrine({ selectedHouse }: LegendaryAchieveme
                     <div className="text-4xl font-display font-bold text-orange-400 font-trading">
                       {divineStreak?.currentStreak || 0}
                     </div>
-                    <div className="text-sm text-slate-400">Divine Ascensions</div>
+                    <div className="text-sm text-slate-400">Trading Days</div>
                     {divineStreak?.bonusActive && (
                       <Badge className="mt-2 bg-gradient-to-r from-orange-600 to-red-600 border-orange-400/50 mystical-pulse">
                         <Zap className="h-3 w-3 mr-1" />
-                        Sacred Flame Burns!
+                        Performance Streak Active!
                       </Badge>
                     )}
                   </div>
@@ -353,7 +353,7 @@ export function LegendaryAchievementShrine({ selectedHouse }: LegendaryAchieveme
 
                   <div>
                     <div className="flex justify-between text-xs mb-2">
-                      <span className="text-slate-400">Next Sacred Milestone</span>
+                      <span className="text-slate-400">Next Milestone</span>
                       <span className="text-amber-400">{divineStreak?.nextMilestone || 10}</span>
                     </div>
                     <div className="w-full bg-orange-900/50 rounded-full h-2 overflow-hidden">
