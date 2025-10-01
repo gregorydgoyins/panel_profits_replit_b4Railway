@@ -56,6 +56,11 @@ import { ComicRecommendationsWidget } from '@/components/dashboard/ComicRecommen
 import { ComicRiskAssessmentWidget } from '@/components/dashboard/ComicRiskAssessmentWidget';
 import { ComicOfTheDayWidget } from '@/components/dashboard/ComicOfTheDayWidget';
 
+// Tracking Widgets - Publishers, Creators, Gadgets & Memorabilia
+import { PublisherPerformanceWidget } from '@/components/dashboard/PublisherPerformanceWidget';
+import { CreatorInfluenceWidget } from '@/components/dashboard/CreatorInfluenceWidget';
+import { GadgetsMemorabiliaWidget } from '@/components/dashboard/GadgetsMemorabiliaWidget';
+
 // Mosaic Layout System
 import { MosaicLayout, MosaicItem, MosaicSection } from '@/components/dashboard/MosaicLayout';
 
@@ -468,13 +473,26 @@ export default function DashboardPage() {
             <ComicRecommendationsWidget />
           </MosaicItem>
 
-          {/* Risk & Analysis */}
+          {/* Publisher & Creator Tracking Row */}
+          <MosaicItem span={2}>
+            <PublisherPerformanceWidget />
+          </MosaicItem>
+          <MosaicItem span={1}>
+            <CreatorInfluenceWidget />
+          </MosaicItem>
+
+          {/* Gadgets & Memorabilia Tracking */}
+          <MosaicItem span={1}>
+            <GadgetsMemorabiliaWidget />
+          </MosaicItem>
           <MosaicItem span={2}>
             <ComicRiskAssessmentWidget />
           </MosaicItem>
-          <MosaicItem span={1}>
+
+          {/* Portfolio Risk */}
+          <MosaicSection>
             <PortfolioRiskMetricsWidget />
-          </MosaicItem>
+          </MosaicSection>
 
           {/* Trade Blotter - Full Width */}
           <MosaicSection>
