@@ -2978,6 +2978,125 @@ export type ExamAttempt = typeof examAttempts.$inferSelect;
 export type InsertExamAttempt = z.infer<typeof insertExamAttemptSchema>;
 
 // ===========================
+// SUBSCRIBER COURSE INCENTIVES SYSTEM
+// ===========================
+
+// Subscriber Course Incentives - Track rewards for subscribers completing courses
+export const subscriberCourseIncentives = pgTable("subscriber_course_incentives", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  courseId: varchar("course_id").references(() => certificationCourses.id),
+  pathwayLevelId: varchar("pathway_level_id").references(() => careerPathwayLevels.id),
+  
+  // Incentive type and value
+  incentiveType: text("incentive_type").notNull(), // 'capital_bonus', 'fee_discount', 'xp_multiplier', 'early_access'
+  incentiveValue: decimal("incentive_value", { precision: 15, scale: 2 }).notNull(), // Dollar amount or percentage
+  
+  // Activation and expiry
+  status: text("status").notNull().default("pending"), // 'pending', 'active', 'expired', 'claimed'
+  activatedAt: timestamp("activated_at"),
+  expiresAt: timestamp("expires_at"),
+  
+  // Tracking
+  claimedAt: timestamp("claimed_at"),
+  isActive: boolean("is_active").default(true),
+  description: text("description"), // Human-readable description
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_subscriber_incentives_user").on(table.userId),
+  index("idx_subscriber_incentives_type").on(table.incentiveType),
+  index("idx_subscriber_incentives_status").on(table.status),
+  index("idx_subscriber_incentives_course").on(table.courseId),
+]);
+
+// Subscriber Active Benefits - Current active benefits for subscribers
+export const subscriberActiveBenefits = pgTable("subscriber_active_benefits", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  
+  // Capital bonuses
+  totalCapitalBonusEarned: decimal("total_capital_bonus_earned", { precision: 15, scale: 2 }).default("0.00"),
+  pendingCapitalBonus: decimal("pending_capital_bonus", { precision: 15, scale: 2 }).default("0.00"),
+  
+  // Trading fee discounts (percentage)
+  tradingFeeDiscount: decimal("trading_fee_discount", { precision: 5, scale: 2 }).default("0.00"), // 0-100%
+  feeDiscountExpiresAt: timestamp("fee_discount_expires_at"),
+  
+  // XP multipliers
+  xpMultiplier: decimal("xp_multiplier", { precision: 5, scale: 2 }).default("1.00"), // 1x to 3x
+  xpMultiplierExpiresAt: timestamp("xp_multiplier_expires_at"),
+  
+  // Early access flags
+  hasEarlyAccess: boolean("has_early_access").default(false),
+  earlyAccessFeatures: text("early_access_features").array(), // Array of feature flags
+  earlyAccessExpiresAt: timestamp("early_access_expires_at"),
+  
+  // Badge and tier display
+  certificationBadgeTier: text("certification_badge_tier"), // 'certified', 'master', 'legend'
+  displayBadge: boolean("display_badge").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_subscriber_benefits_user").on(table.userId),
+  index("idx_subscriber_benefits_badge").on(table.certificationBadgeTier),
+]);
+
+// Subscriber Incentive History - Audit trail of all incentives awarded
+export const subscriberIncentiveHistory = pgTable("subscriber_incentive_history", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  incentiveId: varchar("incentive_id").references(() => subscriberCourseIncentives.id),
+  
+  // Event details
+  eventType: text("event_type").notNull(), // 'awarded', 'claimed', 'expired', 'revoked'
+  incentiveType: text("incentive_type").notNull(),
+  incentiveValue: decimal("incentive_value", { precision: 15, scale: 2 }).notNull(),
+  
+  // Context
+  sourceType: text("source_type").notNull(), // 'course_completion', 'certification_earned', 'milestone', 'special_event'
+  sourceId: varchar("source_id"), // Reference to course, certification, etc.
+  description: text("description"),
+  metadata: jsonb("metadata"), // Additional context
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_incentive_history_user").on(table.userId),
+  index("idx_incentive_history_event").on(table.eventType),
+  index("idx_incentive_history_source").on(table.sourceType),
+]);
+
+// Insert schemas for subscriber incentive tables
+export const insertSubscriberCourseIncentiveSchema = createInsertSchema(subscriberCourseIncentives).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertSubscriberActiveBenefitsSchema = createInsertSchema(subscriberActiveBenefits).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertSubscriberIncentiveHistorySchema = createInsertSchema(subscriberIncentiveHistory).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Export types for subscriber incentive system
+export type SubscriberCourseIncentive = typeof subscriberCourseIncentives.$inferSelect;
+export type InsertSubscriberCourseIncentive = z.infer<typeof insertSubscriberCourseIncentiveSchema>;
+
+export type SubscriberActiveBenefits = typeof subscriberActiveBenefits.$inferSelect;
+export type InsertSubscriberActiveBenefits = z.infer<typeof insertSubscriberActiveBenefitsSchema>;
+
+export type SubscriberIncentiveHistory = typeof subscriberIncentiveHistory.$inferSelect;
+export type InsertSubscriberIncentiveHistory = z.infer<typeof insertSubscriberIncentiveHistorySchema>;
+
+// ===========================
 // ADVANCED MARKET INTELLIGENCE SYSTEM TABLES
 // ===========================
 

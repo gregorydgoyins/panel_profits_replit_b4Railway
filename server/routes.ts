@@ -55,11 +55,15 @@ import {
   insertOrderSchema,
   insertMarketEventSchema,
   insertComicGradingPredictionSchema,
+  users,
   careerPathwayLevels,
   certificationCourses,
   userCourseEnrollments,
   userPathwayProgress,
-  examAttempts
+  examAttempts,
+  subscriberCourseIncentives,
+  subscriberActiveBenefits,
+  subscriberIncentiveHistory
 } from "@shared/schema";
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
@@ -2805,6 +2809,146 @@ Respond with valid JSON in this exact format:
               totalCoursesCompleted: (pathwayProgress.totalCoursesCompleted || 0) + 1
             })
             .where(eq(userPathwayProgress.id, pathwayProgress.id));
+
+          // Award subscriber incentives for certification milestones
+          // Fetch full user record to get subscription tier
+          const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+          const isSubscriber = user && user.subscriptionTier !== 'free';
+          
+          if (isSubscriber) {
+            // Get pathway level info for calculating bonuses
+            const [pathwayLevel] = await db.select().from(careerPathwayLevels)
+              .where(eq(careerPathwayLevels.id, enrollment.pathwayLevelId))
+              .limit(1);
+
+            if (pathwayLevel) {
+              const bonuses: Array<{type: string, value: number, description: string}> = [];
+
+              // Award bonuses based on certification level
+              if (isMasterCertified && !pathwayProgress.isMasterCertified) {
+                // Master Certified (5/5 courses) - 150% salary bonus
+                const masterBonus = parseFloat(pathwayLevel.baseSalaryMax) * 1.5;
+                bonuses.push({
+                  type: 'capital_bonus',
+                  value: masterBonus,
+                  description: `Master Certification Bonus: ${pathwayLevel.name} (5/5 courses)`
+                });
+                bonuses.push({
+                  type: 'fee_discount',
+                  value: 50,
+                  description: 'Master Trader Fee Discount: 50% off trading fees'
+                });
+                bonuses.push({
+                  type: 'xp_multiplier',
+                  value: 3.0,
+                  description: 'Master XP Multiplier: 3x experience points'
+                });
+              } else if (isCertified && !pathwayProgress.isCertified) {
+                // Certified (3/5 courses) - 100% salary bonus
+                const certBonus = parseFloat(pathwayLevel.baseSalaryMax) * 1.0;
+                bonuses.push({
+                  type: 'capital_bonus',
+                  value: certBonus,
+                  description: `Certification Bonus: ${pathwayLevel.name} (3/5 courses)`
+                });
+                bonuses.push({
+                  type: 'fee_discount',
+                  value: 25,
+                  description: 'Certified Trader Fee Discount: 25% off trading fees'
+                });
+                bonuses.push({
+                  type: 'xp_multiplier',
+                  value: 1.5,
+                  description: 'Certified XP Multiplier: 1.5x experience points'
+                });
+              }
+
+              // Create incentive records and update active benefits
+              for (const bonus of bonuses) {
+                // Create incentive record
+                const [incentive] = await db.insert(subscriberCourseIncentives).values({
+                  userId,
+                  courseId,
+                  pathwayLevelId: enrollment.pathwayLevelId,
+                  incentiveType: bonus.type,
+                  incentiveValue: bonus.value.toString(),
+                  status: 'active',
+                  activatedAt: new Date(),
+                  description: bonus.description,
+                  isActive: true
+                }).returning();
+
+                // Create history record
+                await db.insert(subscriberIncentiveHistory).values({
+                  userId,
+                  incentiveId: incentive.id,
+                  eventType: 'awarded',
+                  incentiveType: bonus.type,
+                  incentiveValue: bonus.value.toString(),
+                  sourceType: 'certification_earned',
+                  sourceId: enrollment.pathwayLevelId,
+                  description: bonus.description
+                });
+              }
+
+              // Update user's active benefits
+              const [existingBenefits] = await db.select().from(subscriberActiveBenefits)
+                .where(eq(subscriberActiveBenefits.userId, userId))
+                .limit(1);
+
+              if (existingBenefits) {
+                // Update existing benefits
+                let updates: any = {};
+                
+                bonuses.forEach(bonus => {
+                  if (bonus.type === 'capital_bonus') {
+                    updates.totalCapitalBonusEarned = (parseFloat(existingBenefits.totalCapitalBonusEarned) + bonus.value).toString();
+                    updates.pendingCapitalBonus = (parseFloat(existingBenefits.pendingCapitalBonus) + bonus.value).toString();
+                  } else if (bonus.type === 'fee_discount') {
+                    updates.tradingFeeDiscount = Math.max(parseFloat(existingBenefits.tradingFeeDiscount), bonus.value).toString();
+                  } else if (bonus.type === 'xp_multiplier') {
+                    updates.xpMultiplier = Math.max(parseFloat(existingBenefits.xpMultiplier), bonus.value).toString();
+                  }
+                });
+
+                if (isMasterCertified) {
+                  updates.certificationBadgeTier = 'master';
+                } else if (isCertified) {
+                  updates.certificationBadgeTier = 'certified';
+                }
+
+                updates.updatedAt = new Date();
+
+                await db.update(subscriberActiveBenefits)
+                  .set(updates)
+                  .where(eq(subscriberActiveBenefits.userId, userId));
+              } else {
+                // Create new benefits record
+                const initialBenefits: any = {
+                  userId,
+                  totalCapitalBonusEarned: '0',
+                  pendingCapitalBonus: '0',
+                  tradingFeeDiscount: '0',
+                  xpMultiplier: '1.00',
+                  certificationBadgeTier: isMasterCertified ? 'master' : (isCertified ? 'certified' : null),
+                  displayBadge: true
+                };
+
+                bonuses.forEach(bonus => {
+                  if (bonus.type === 'capital_bonus') {
+                    initialBenefits.totalCapitalBonusEarned = bonus.value.toString();
+                    initialBenefits.pendingCapitalBonus = bonus.value.toString();
+                  } else if (bonus.type === 'fee_discount') {
+                    initialBenefits.tradingFeeDiscount = bonus.value.toString();
+                  } else if (bonus.type === 'xp_multiplier') {
+                    initialBenefits.xpMultiplier = bonus.value.toString();
+                  }
+                });
+
+                await db.insert(subscriberActiveBenefits).values(initialBenefits);
+              }
+            }
+          }
         }
       }
 

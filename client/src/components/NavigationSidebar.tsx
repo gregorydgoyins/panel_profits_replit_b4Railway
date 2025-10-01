@@ -115,16 +115,16 @@ export function NavigationSidebar() {
     { id: 'journal', label: 'Noir Journal', icon: PenTool, path: '/journal', category: 'portfolio', badge: 'DARK' },
     
     // Learning Module
-    { id: 'sacred-library', label: 'Sacred Library', icon: Scroll, path: '/learning', category: 'learning', badge: 'NEW' },
+    { id: 'sacred-library', label: 'Learning Center', icon: Scroll, path: '/learning', category: 'learning', badge: 'NEW' },
     { id: 'certifications', label: 'Certifications', icon: GraduationCap, path: '/certifications', category: 'learning', badge: 'NEW' },
     
     // Integration Management
-    { id: 'divine-connections', label: 'Divine Connections', icon: Sparkles, path: '/integrations', category: 'integrations', badge: 'NEW' },
+    { id: 'divine-connections', label: 'Integrations', icon: Sparkles, path: '/integrations', category: 'integrations', badge: 'NEW' },
     
-    // Houses
-    { id: 'houses', label: 'House Selection', icon: Crown, path: '/houses', category: 'houses' },
-    { id: 'house-dashboard', label: 'House Dashboard', icon: Shield, path: '/houses/dashboard', category: 'houses' },
-    { id: 'house-competition', label: 'House Competition', icon: Swords, path: '/houses/competition', category: 'houses', badge: 'NEW' },
+    // Firms
+    { id: 'houses', label: 'Firm Selection', icon: Crown, path: '/houses', category: 'houses' },
+    { id: 'house-dashboard', label: 'Firm Dashboard', icon: Shield, path: '/houses/dashboard', category: 'houses' },
+    { id: 'house-competition', label: 'Firm Competition', icon: Swords, path: '/houses/competition', category: 'houses', badge: 'NEW' },
     
     // Tools & Info
     { id: 'news', label: 'News', icon: Newspaper, path: '/news', category: 'tools' },
@@ -157,7 +157,7 @@ export function NavigationSidebar() {
       leaderboards: 'text-yellow-400 bg-yellow-900/30 hover:bg-yellow-600',
       journal: 'text-red-600 bg-red-950/50 hover:bg-red-900',
       'sacred-library': 'text-indigo-400 bg-indigo-900/30 hover:bg-indigo-600',
-      'divine-connections': 'text-violet-400 bg-violet-900/30 hover:bg-violet-600',
+      'divine-connections': 'text-cyan-400 bg-cyan-900/30 hover:bg-cyan-600',
       houses: 'text-red-400 bg-red-900/30 hover:bg-red-600',
       'house-dashboard': 'text-blue-400 bg-blue-900/30 hover:bg-blue-600',
       'house-competition': 'text-purple-400 bg-purple-900/30 hover:bg-purple-600'
@@ -344,10 +344,10 @@ export function NavigationSidebar() {
             </div>
           </div>
 
-          {/* Houses Section */}
+          {/* Firms Section */}
           <div>
             {!isCollapsed && (
-              <h3 className="text-xs font-medium text-muted-foreground uppercase mb-2">Houses</h3>
+              <h3 className="text-xs font-medium text-muted-foreground uppercase mb-2">Firms</h3>
             )}
             <div className="space-y-1">
               {getItemsByCategory('houses').map((item) => {

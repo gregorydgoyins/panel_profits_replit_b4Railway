@@ -19,66 +19,68 @@ export interface HouseTheme {
   iconName: string;
 }
 
+// Corporate firm names hide the mythology beneath
+// Internal mythology: heroes=Roman, wisdom=Greek, power=Egyptian, mystery=Norse, elements=Celtic, time=Slavic, spirit=Japanese
 export const MYTHOLOGICAL_HOUSES: Record<MythologicalHouse, HouseTheme> = {
   heroes: {
     id: 'heroes',
-    name: 'House of Heroes',
-    description: 'Masters of character options and futures',
-    mythology: 'Character Assets',
+    name: 'GM Financial',
+    description: 'Character options and futures specialists',
+    mythology: 'Roman (Mars/Luna/Vesta)', // Sun: Mars, Moon: Luna, Soother: Vesta
     primaryColor: 'house-heroes',
     accentColor: 'house-heroes-accent',
     iconName: 'shield',
   },
   wisdom: {
     id: 'wisdom',
-    name: 'House of Wisdom',
-    description: 'Scholars of creator bonds and intellectual property',
-    mythology: 'Creator Assets',
+    name: 'Velos Agency',
+    description: 'Creator bonds and intellectual property',
+    mythology: 'Greek (Apollo/Selene/Hestia)', // Sun: Apollo, Moon: Selene, Soother: Hestia
     primaryColor: 'house-wisdom',
     accentColor: 'house-wisdom-accent',
     iconName: 'book-open',
   },
   power: {
     id: 'power',
-    name: 'House of Power',
-    description: 'Rulers of publisher stocks and franchise NFTs',
-    mythology: 'Publisher Assets',
+    name: 'Horus Capital',
+    description: 'Publisher stocks and franchise assets',
+    mythology: 'Egyptian (Ra/Thoth/Isis)', // Sun: Ra, Moon: Thoth, Soother: Isis
     primaryColor: 'house-power',
     accentColor: 'house-power-accent',
     iconName: 'crown',
   },
   mystery: {
     id: 'mystery',
-    name: 'House of Mystery',
-    description: 'Seers of rare issue derivatives and speculation tokens',
-    mythology: 'Rare Assets',
+    name: 'Valkyrie Holdings',
+    description: 'Rare issue derivatives and speculation',
+    mythology: 'Norse (Sol/Mani/Frigg)', // Sun: Sol, Moon: Mani, Soother: Frigg
     primaryColor: 'house-mystery',
     accentColor: 'house-mystery-accent',
     iconName: 'zap',
   },
   elements: {
     id: 'elements',
-    name: 'House of Elements',
-    description: 'Wielders of cross-universe asset baskets',
-    mythology: 'Multi-Universe Assets',
+    name: 'Evergreen Partners',
+    description: 'Cross-universe diversified portfolios',
+    mythology: 'Celtic (Lugh/Arianrhod/Brigid)', // Sun: Lugh, Moon: Arianrhod, Soother: Brigid
     primaryColor: 'house-elements',
     accentColor: 'house-elements-accent',
     iconName: 'flame',
   },
   time: {
     id: 'time',
-    name: 'House of Time',
-    description: 'Guardians of historical price prediction markets',
-    mythology: 'Historical Assets',
+    name: 'Aurora Investments',
+    description: 'Historical price prediction markets',
+    mythology: 'Slavic (Dazbog/Myesyats/Mokosh)', // Sun: Dazbog, Moon: Myesyats, Soother: Mokosh
     primaryColor: 'house-time',
     accentColor: 'house-time-accent',
     iconName: 'clock',
   },
   spirit: {
     id: 'spirit',
-    name: 'House of Spirit',
-    description: 'Masters of community sentiment and social trading',
-    mythology: 'Social Assets',
+    name: 'Amaterasu Asset Management',
+    description: 'Community sentiment and social trading',
+    mythology: 'Japanese (Amaterasu/Tsukuyomi/Kannon)', // Sun: Amaterasu, Moon: Tsukuyomi, Soother: Kannon
     primaryColor: 'house-spirit',
     accentColor: 'house-spirit-accent',
     iconName: 'users',
