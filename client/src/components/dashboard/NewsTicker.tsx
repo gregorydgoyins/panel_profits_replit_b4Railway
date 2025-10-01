@@ -83,7 +83,7 @@ export function NewsTicker() {
       onMouseLeave={() => setIsPaused(false)}
       data-testid="news-ticker"
     >
-      <div className="flex items-center h-10">
+      <div className="flex items-center h-12">
         <div className="bg-primary px-4 h-full flex items-center font-semibold text-sm text-primary-foreground shrink-0">
           BREAKING NEWS
         </div>

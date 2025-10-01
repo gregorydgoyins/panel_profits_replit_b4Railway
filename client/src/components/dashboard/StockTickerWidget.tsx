@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 interface TickerAsset {
   symbol: string;
   name: string;
+  assetType: 'stock' | 'option' | 'bond' | 'comic';
   currentPrice: number;
   changePercent: number;
 }

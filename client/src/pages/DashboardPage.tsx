@@ -269,11 +269,11 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Stock Ticker - Live comic asset prices */}
-      <StockTickerWidget />
-
       {/* News Ticker */}
       <NewsTicker />
+
+      {/* Stock Ticker - Live asset prices directly under news ticker */}
+      <StockTickerWidget />
 
       {/* Dashboard Content */}
       <div className="max-w-7xl mx-auto px-6 py-6">

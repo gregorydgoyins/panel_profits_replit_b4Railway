@@ -6,6 +6,7 @@ export interface ComicAssetCard {
   id: string;
   symbol: string;
   name: string;
+  assetType: 'stock' | 'option' | 'bond' | 'comic';
   coverImageUrl: string | null;
   currentPrice: number;
   dayChange: number;
@@ -18,6 +19,14 @@ export interface ComicAssetCard {
   firstAppearance?: string;
   keyCreators?: string[];
   publisher?: string;
+  // Option-specific fields
+  optionType?: 'C' | 'P';
+  expirationMonth?: number;
+  expirationYear?: number;
+  // Bond-specific fields
+  bondMonth?: string;
+  bondYear?: number;
+  yieldRate?: number;
 }
 
 export interface ComicPriceHistory {
@@ -42,8 +51,40 @@ export interface ComicHeatMapData {
 
 export class ComicAssetService {
   
+  private formatTickerSymbol(
+    baseSymbol: string,
+    assetType: string,
+    metadata: any
+  ): string {
+    // Stock: 4-character symbol (e.g., SPDR)
+    if (assetType === 'character' || assetType === 'comic' || assetType === 'creator' || assetType === 'publisher') {
+      return baseSymbol.substring(0, 4).toUpperCase().padEnd(4, 'X');
+    }
+    
+    // Option: TICK.MM.YEAR C/P (e.g., SPDR.03.2025 C)
+    if (assetType === 'option' && metadata) {
+      const ticker = baseSymbol.substring(0, 4).toUpperCase().padEnd(4, 'X');
+      const month = (metadata.expirationMonth || 1).toString().padStart(2, '0');
+      const year = metadata.expirationYear || 2025;
+      const type = metadata.optionType || 'C';
+      return `${ticker}.${month}.${year} ${type}`;
+    }
+    
+    // Bond: TICK.MONTH.YEAR.YIELD (e.g., MRVL.MAR.2025.4.5)
+    if (assetType === 'bond' && metadata) {
+      const ticker = baseSymbol.substring(0, 4).toUpperCase().padEnd(4, 'X');
+      const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+      const month = metadata.bondMonth || monthNames[0];
+      const year = metadata.bondYear || 2025;
+      const yieldRate = metadata.yieldRate || 4.5;
+      return `${ticker}.${month}.${year}.${yieldRate}`;
+    }
+    
+    return baseSymbol.substring(0, 4).toUpperCase().padEnd(4, 'X');
+  }
+  
   async getTopComicAssets(limit: number = 20): Promise<ComicAssetCard[]> {
-    // Get top traded comic assets with complete data
+    // Get top traded assets (all types: stocks, options, bonds, comics)
     const assetData = await db
       .select({
         id: assets.id,
@@ -61,11 +102,10 @@ export class ComicAssetService {
       })
       .from(assets)
       .leftJoin(assetCurrentPrices, eq(assets.id, assetCurrentPrices.assetId))
-      .where(eq(assets.type, 'comic'))
       .orderBy(desc(assetCurrentPrices.volume))
       .limit(limit);
 
-    // Enrich with comic-specific data
+    // Enrich with asset data
     const enrichedAssets: ComicAssetCard[] = await Promise.all(
       assetData.map(async (asset) => {
         // Try to get comic issue details for cover and historical info
@@ -77,11 +117,20 @@ export class ComicAssetService {
 
         const comic = comicDetails[0];
         const metadata = asset.metadata as any || {};
+        
+        // Format symbol based on asset type
+        const formattedSymbol = this.formatTickerSymbol(asset.symbol, asset.type, metadata);
+        
+        // Determine asset type category
+        const assetType = (['option', 'bond'].includes(asset.type) 
+          ? asset.type 
+          : 'stock') as 'stock' | 'option' | 'bond' | 'comic';
 
         return {
           id: asset.id,
-          symbol: asset.symbol,
+          symbol: formattedSymbol,
           name: asset.name,
+          assetType,
           coverImageUrl: comic?.coverImageUrl || asset.imageUrl,
           currentPrice: parseFloat(asset.currentPrice || '0'),
           dayChange: parseFloat(asset.dayChange || '0'),
@@ -95,7 +144,15 @@ export class ComicAssetService {
           gradeCondition: comic?.gradeCondition || undefined,
           firstAppearance: metadata.firstAppearance,
           keyCreators: this.extractCreators(comic),
-          publisher: metadata.publisher || comic?.imprint
+          publisher: metadata.publisher || comic?.imprint,
+          // Option-specific
+          optionType: metadata.optionType as 'C' | 'P' | undefined,
+          expirationMonth: metadata.expirationMonth,
+          expirationYear: metadata.expirationYear,
+          // Bond-specific
+          bondMonth: metadata.bondMonth,
+          bondYear: metadata.bondYear,
+          yieldRate: metadata.yieldRate
         };
       })
     );
