@@ -38,6 +38,7 @@ import { OrderBookWidget } from '@/components/dashboard/OrderBookWidget';
 import { AIRecommendationsWidget } from '@/components/dashboard/AIRecommendationsWidget';
 import { PortfolioGreeksWidget } from '@/components/dashboard/PortfolioGreeksWidget';
 import { NewsTicker } from '@/components/dashboard/NewsTicker';
+import { StockTickerWidget } from '@/components/dashboard/StockTickerWidget';
 import { ComicCoverCardsWidget } from '@/components/dashboard/ComicCoverCardsWidget';
 
 interface DashboardStats {
@@ -265,6 +266,9 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Stock Ticker - Live comic asset prices */}
+      <StockTickerWidget />
 
       {/* News Ticker */}
       <NewsTicker />
