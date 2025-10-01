@@ -3097,6 +3097,147 @@ export type SubscriberIncentiveHistory = typeof subscriberIncentiveHistory.$infe
 export type InsertSubscriberIncentiveHistory = z.infer<typeof insertSubscriberIncentiveHistorySchema>;
 
 // ===========================
+// EASTER EGG SYSTEM - Hidden rewards for subscribers
+// ===========================
+
+// Easter Egg Definitions - Define all possible Easter eggs with triggers and rewards
+export const easterEggDefinitions = pgTable("easter_egg_definitions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  internalCode: text("internal_code").notNull().unique(), // e.g., 'SEVEN_DAY_STREAK'
+  description: text("description").notNull(),
+  discoveryHint: text("discovery_hint"), // Subtle hint shown to users
+  
+  // Trigger configuration
+  triggerType: text("trigger_type").notNull(), // 'consecutive_profitable_days', 'portfolio_milestone', 'achievement_chain', 'hidden_action', 'trading_pattern', 'total_volume'
+  triggerConditions: jsonb("trigger_conditions").notNull(), // e.g., { days: 7, profitThreshold: 0 } or { portfolioValue: 100000 }
+  requiresPreviousEggs: text("requires_previous_eggs").array(), // Array of egg IDs that must be unlocked first
+  
+  // Reward configuration
+  rewardType: text("reward_type").notNull(), // 'capital_bonus', 'secret_badge', 'exclusive_asset', 'fee_waiver', 'xp_boost', 'special_title'
+  rewardValue: text("reward_value").notNull(), // Amount or identifier
+  rewardDescription: text("reward_description").notNull(),
+  
+  // Gating and visibility
+  subscribersOnly: boolean("subscribers_only").default(true),
+  requiredSubscriptionTier: text("required_subscription_tier"), // 'basic', 'premium', 'elite' or null for any subscriber
+  isSecret: boolean("is_secret").default(true), // If true, not shown in collection until discovered
+  difficultyRating: integer("difficulty_rating").default(1), // 1-5 difficulty
+  
+  // Metadata
+  rarity: text("rarity").default("common"), // 'common', 'uncommon', 'rare', 'epic', 'legendary'
+  category: text("category"), // 'trading_mastery', 'portfolio_achievement', 'hidden_secrets', 'time_based', 'social'
+  iconUrl: text("icon_url"),
+  badgeColor: text("badge_color"),
+  flavorText: text("flavor_text"), // Lore/story text
+  
+  // Activity tracking
+  timesUnlocked: integer("times_unlocked").default(0),
+  isActive: boolean("is_active").default(true),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_easter_egg_trigger_type").on(table.triggerType),
+  index("idx_easter_egg_subscribers_only").on(table.subscribersOnly),
+  index("idx_easter_egg_active").on(table.isActive),
+]);
+
+// Easter Egg User Progress - Track user progress towards unlocking eggs
+export const easterEggUserProgress = pgTable("easter_egg_user_progress", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  eggId: varchar("egg_id").notNull().references(() => easterEggDefinitions.id),
+  
+  // Progress tracking
+  progressValue: decimal("progress_value", { precision: 15, scale: 2 }).default("0"), // Current progress (e.g., 3/7 days)
+  progressPercentage: decimal("progress_percentage", { precision: 5, scale: 2 }).default("0"), // 0-100%
+  progressData: jsonb("progress_data"), // Additional tracking data (dates, actions, etc.)
+  
+  // State
+  isUnlocked: boolean("is_unlocked").default(false),
+  unlockedAt: timestamp("unlocked_at"),
+  lastProgressUpdate: timestamp("last_progress_update").defaultNow(),
+  
+  // Streaks and chains
+  currentStreak: integer("current_streak").default(0),
+  longestStreak: integer("longest_streak").default(0),
+  streakBrokenAt: timestamp("streak_broken_at"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_egg_progress_user").on(table.userId),
+  index("idx_egg_progress_egg").on(table.eggId),
+  index("idx_egg_progress_unlocked").on(table.isUnlocked),
+  index("idx_egg_progress_user_egg").on(table.userId, table.eggId),
+]);
+
+// Easter Egg Unlocks - Records of unlocked eggs and claimed rewards
+export const easterEggUnlocks = pgTable("easter_egg_unlocks", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  eggId: varchar("egg_id").notNull().references(() => easterEggDefinitions.id),
+  progressId: varchar("progress_id").references(() => easterEggUserProgress.id),
+  
+  // Unlock details
+  unlockedAt: timestamp("unlocked_at").defaultNow(),
+  unlockMethod: text("unlock_method"), // How it was discovered
+  unlockContext: jsonb("unlock_context"), // Context data at time of unlock
+  
+  // Reward claim
+  rewardClaimed: boolean("reward_claimed").default(false),
+  rewardClaimedAt: timestamp("reward_claimed_at"),
+  rewardType: text("reward_type").notNull(),
+  rewardValue: text("reward_value").notNull(),
+  rewardApplied: boolean("reward_applied").default(false), // Whether reward has been applied to account
+  
+  // Social/display
+  isPublic: boolean("is_public").default(false), // Whether user wants to show this achievement
+  displayOnProfile: boolean("display_on_profile").default(true),
+  
+  // Notification
+  notificationSent: boolean("notification_sent").default(false),
+  notificationSeenAt: timestamp("notification_seen_at"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_egg_unlocks_user").on(table.userId),
+  index("idx_egg_unlocks_egg").on(table.eggId),
+  index("idx_egg_unlocks_claimed").on(table.rewardClaimed),
+  index("idx_egg_unlocks_public").on(table.isPublic),
+]);
+
+// Insert schemas for Easter egg tables
+export const insertEasterEggDefinitionSchema = createInsertSchema(easterEggDefinitions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  timesUnlocked: true,
+});
+
+export const insertEasterEggUserProgressSchema = createInsertSchema(easterEggUserProgress).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertEasterEggUnlockSchema = createInsertSchema(easterEggUnlocks).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Export types for Easter egg system
+export type EasterEggDefinition = typeof easterEggDefinitions.$inferSelect;
+export type InsertEasterEggDefinition = z.infer<typeof insertEasterEggDefinitionSchema>;
+
+export type EasterEggUserProgress = typeof easterEggUserProgress.$inferSelect;
+export type InsertEasterEggUserProgress = z.infer<typeof insertEasterEggUserProgressSchema>;
+
+export type EasterEggUnlock = typeof easterEggUnlocks.$inferSelect;
+export type InsertEasterEggUnlock = z.infer<typeof insertEasterEggUnlockSchema>;
+
+// ===========================
 // ADVANCED MARKET INTELLIGENCE SYSTEM TABLES
 // ===========================
 
