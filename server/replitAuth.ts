@@ -138,6 +138,23 @@ export async function setupAuth(app: Express) {
       );
     });
   });
+
+  // POST logout route for frontend logout button
+  app.post("/api/auth/logout", (req, res) => {
+    req.logout((err) => {
+      if (err) {
+        return res.status(500).json({ error: "Logout failed" });
+      }
+      // Destroy the session
+      req.session.destroy((err) => {
+        if (err) {
+          return res.status(500).json({ error: "Session destruction failed" });
+        }
+        res.clearCookie('connect.sid'); // Clear the session cookie
+        res.json({ success: true, message: "Logged out successfully" });
+      });
+    });
+  });
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
