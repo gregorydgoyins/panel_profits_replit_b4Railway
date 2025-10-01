@@ -183,7 +183,7 @@ router.get("/positions", async (req: any, res: Response) => {
       // Calculate current P&L
       if (currentPrice) {
         const price = parseFloat(currentPrice.currentPrice);
-        const pnl = positionService.calculatePnL(position, price);
+        const pnl = tradingService.calculatePnL(position, price);
         
         enrichedPositions.push({
           ...position,

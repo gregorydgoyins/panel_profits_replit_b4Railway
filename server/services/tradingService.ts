@@ -102,8 +102,7 @@ export class TradingService {
         status: 'filled',
         filledQuantity: quantity.toString(),
         averageFillPrice: price.toString(),
-        fees: (totalValue * 0.001).toString(),
-        filledAt: new Date()
+        fees: (totalValue * 0.001).toString()
       };
 
       const createdOrder = await storage.createOrder(order);
@@ -147,7 +146,7 @@ export class TradingService {
         // Generate noir journal entry for this trade
         try {
           const moralStanding = await storage.getMoralStanding(userId);
-          if (moralStanding) {
+          if (moralStanding && moralStanding.corruptionLevel) {
             const corruptionLevel = parseFloat(moralStanding.corruptionLevel);
             await noirJournalService.generateNoirEntry({
               trade,
