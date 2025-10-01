@@ -4009,47 +4009,6 @@ export const shortPositions = pgTable("short_positions", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// NPC/AI Trading System
-export const npcTraders = pgTable("npc_traders", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  traderName: text("trader_name").notNull(),
-  traderType: text("trader_type").notNull(), // 'whale', 'momentum', 'contrarian', 'arbitrage', 'market_maker'
-  firmId: varchar("firm_id").references(() => tradingFirms.id),
-  // Behavioral Characteristics
-  tradingPersonality: jsonb("trading_personality"), // Risk tolerance, preferred strategies, etc.
-  preferredAssets: text("preferred_assets").array(), // Asset types or specific assets
-  avoidedAssets: text("avoided_assets").array(),
-  tradingStyle: text("trading_style").notNull(), // 'aggressive', 'conservative', 'systematic'
-  // Capital & Capacity
-  availableCapital: decimal("available_capital", { precision: 15, scale: 2 }).notNull(),
-  maxPositionSize: decimal("max_position_size", { precision: 15, scale: 2 }),
-  maxDailyVolume: decimal("max_daily_volume", { precision: 15, scale: 2 }),
-  leveragePreference: decimal("leverage_preference", { precision: 8, scale: 2 }).default("1.00"),
-  // AI Behavior Parameters
-  aggressiveness: decimal("aggressiveness", { precision: 8, scale: 2 }).default("50.00"), // 0-100 scale
-  intelligence: decimal("intelligence", { precision: 8, scale: 2 }).default("50.00"), // 0-100 scale
-  emotionality: decimal("emotionality", { precision: 8, scale: 2 }).default("50.00"), // 0-100 scale
-  adaptability: decimal("adaptability", { precision: 8, scale: 2 }).default("50.00"), // 0-100 scale
-  // Trading Frequency
-  tradesPerDay: integer("trades_per_day").default(10),
-  minTimeBetweenTrades: integer("min_time_between_trades_minutes").default(15),
-  // Performance Tracking
-  totalTrades: integer("total_trades").default(0),
-  winRate: decimal("win_rate", { precision: 8, scale: 2 }),
-  avgTradeReturn: decimal("avg_trade_return", { precision: 8, scale: 4 }),
-  totalPnL: decimal("total_pnl", { precision: 15, scale: 2 }).default("0.00"),
-  sharpeRatio: decimal("sharpe_ratio", { precision: 8, scale: 4 }),
-  maxDrawdown: decimal("max_drawdown", { precision: 8, scale: 2 }),
-  // Status and Control
-  isActive: boolean("is_active").default(true),
-  lastTradeTime: timestamp("last_trade_time"),
-  nextTradeTime: timestamp("next_trade_time"),
-  pausedUntil: timestamp("paused_until"), // Temporary pause
-  influenceOnMarket: decimal("influence_on_market", { precision: 8, scale: 4 }).default("0.0001"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
 // Information Tier System
 export const informationTiers = pgTable("information_tiers", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -4160,12 +4119,6 @@ export const insertShortPositionSchema = createInsertSchema(shortPositions).omit
   updatedAt: true,
 });
 
-export const insertNpcTraderSchema = createInsertSchema(npcTraders).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
 export const insertInformationTierSchema = createInsertSchema(informationTiers).omit({
   id: true,
   createdAt: true,
@@ -4199,9 +4152,6 @@ export type InsertMarginAccount = z.infer<typeof insertMarginAccountSchema>;
 
 export type ShortPosition = typeof shortPositions.$inferSelect;
 export type InsertShortPosition = z.infer<typeof insertShortPositionSchema>;
-
-export type NpcTrader = typeof npcTraders.$inferSelect;
-export type InsertNpcTrader = z.infer<typeof insertNpcTraderSchema>;
 
 export type InformationTier = typeof informationTiers.$inferSelect;
 export type InsertInformationTier = z.infer<typeof insertInformationTierSchema>;
@@ -6701,6 +6651,111 @@ export type InsertStolenPosition = z.infer<typeof insertStolenPositionSchema>;
 
 export type TraderWarfare = typeof traderWarfare.$inferSelect;
 export type InsertTraderWarfare = z.infer<typeof insertTraderWarfareSchema>;
+
+// ==================== NPC Autonomous Traders System ====================
+// 1000 autonomous traders with diverse personalities and behaviors
+
+// NPC Traders - Core identity and attributes
+export const npcTraders = pgTable("npc_traders", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull().unique(),
+  personalityArchetype: text("personality_archetype").notNull(), // 'whale', 'day_trader', 'value_investor', 'momentum_chaser', 'contrarian', 'swing_trader', 'dividend_hunter', 'options_gambler', 'index_hugger', 'panic_seller'
+  riskTolerance: decimal("risk_tolerance", { precision: 5, scale: 2 }).notNull(), // 0-100
+  skillLevel: integer("skill_level").notNull(), // 1-10
+  startingCapital: decimal("starting_capital", { precision: 15, scale: 2 }).notNull(),
+  currentCapital: decimal("current_capital", { precision: 15, scale: 2 }).notNull(),
+  totalTrades: integer("total_trades").default(0),
+  winRate: decimal("win_rate", { precision: 5, scale: 2 }).default("0.00"), // Percentage of profitable trades
+  createdAt: timestamp("created_at").defaultNow(),
+  isActive: boolean("is_active").default(true),
+});
+
+// NPC Trader Strategies - Trading strategy preferences
+export const npcTraderStrategies = pgTable("npc_trader_strategies", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  traderId: varchar("trader_id").notNull().references(() => npcTraders.id),
+  preferredAssets: text("preferred_assets").array(), // Asset IDs they favor
+  holdingPeriodDays: integer("holding_period_days").notNull(), // Typical hold time
+  positionSizingStrategy: text("position_sizing_strategy").notNull(), // 'fixed', 'percentage', 'kelly_criterion'
+  maxPositionSize: decimal("max_position_size", { precision: 5, scale: 2 }).notNull(), // Max % of capital per position
+  stopLossPercent: decimal("stop_loss_percent", { precision: 5, scale: 2 }), // Automatic loss cut-off
+  takeProfitPercent: decimal("take_profit_percent", { precision: 5, scale: 2 }), // Automatic gain target
+});
+
+// NPC Trader Psychology - Behavioral triggers and emotions
+export const npcTraderPsychology = pgTable("npc_trader_psychology", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  traderId: varchar("trader_id").notNull().references(() => npcTraders.id),
+  panicThreshold: decimal("panic_threshold", { precision: 5, scale: 2 }).notNull(), // Price drop % that triggers sell
+  greedThreshold: decimal("greed_threshold", { precision: 5, scale: 2 }).notNull(), // Gain % that triggers buy
+  fomoSusceptibility: integer("fomo_susceptibility").notNull(), // 1-10, tendency to chase trends
+  confidenceBias: integer("confidence_bias").notNull(), // 1-10, overconfidence level
+  lossCutSpeed: text("loss_cut_speed").notNull(), // 'instant', 'slow', 'never'
+  newsReaction: text("news_reaction").notNull(), // 'ignore', 'consider', 'emotional'
+});
+
+// NPC Trader Positions - Current holdings
+export const npcTraderPositions = pgTable("npc_trader_positions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  traderId: varchar("trader_id").notNull().references(() => npcTraders.id),
+  assetId: varchar("asset_id").notNull().references(() => assets.id),
+  quantity: integer("quantity").notNull(), // Shares held
+  entryPrice: decimal("entry_price", { precision: 10, scale: 2 }).notNull(), // Avg purchase price
+  entryDate: timestamp("entry_date").notNull(), // When position opened
+  unrealizedPnl: decimal("unrealized_pnl", { precision: 10, scale: 2 }).default("0.00"), // Current profit/loss
+  targetExitPrice: decimal("target_exit_price", { precision: 10, scale: 2 }), // Planned sell price (nullable)
+});
+
+// NPC Trader Activity Log - Trading history
+export const npcTraderActivityLog = pgTable("npc_trader_activity_log", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  traderId: varchar("trader_id").notNull().references(() => npcTraders.id),
+  action: text("action").notNull(), // 'buy', 'sell', 'hold', 'analyze'
+  assetId: varchar("asset_id").references(() => assets.id), // Nullable for non-trade actions
+  quantity: integer("quantity"), // Nullable for non-trade actions
+  price: decimal("price", { precision: 10, scale: 2 }), // Nullable for non-trade actions
+  reasoning: text("reasoning"), // Why they made this decision
+  timestamp: timestamp("timestamp").defaultNow(),
+});
+
+// Create insert schemas for NPC Traders
+export const insertNpcTraderSchema = createInsertSchema(npcTraders).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertNpcTraderStrategySchema = createInsertSchema(npcTraderStrategies).omit({
+  id: true,
+});
+
+export const insertNpcTraderPsychologySchema = createInsertSchema(npcTraderPsychology).omit({
+  id: true,
+});
+
+export const insertNpcTraderPositionSchema = createInsertSchema(npcTraderPositions).omit({
+  id: true,
+});
+
+export const insertNpcTraderActivityLogSchema = createInsertSchema(npcTraderActivityLog).omit({
+  id: true,
+  timestamp: true,
+});
+
+// Export TypeScript types for NPC Traders
+export type NpcTrader = typeof npcTraders.$inferSelect;
+export type InsertNpcTrader = z.infer<typeof insertNpcTraderSchema>;
+
+export type NpcTraderStrategy = typeof npcTraderStrategies.$inferSelect;
+export type InsertNpcTraderStrategy = z.infer<typeof insertNpcTraderStrategySchema>;
+
+export type NpcTraderPsychology = typeof npcTraderPsychology.$inferSelect;
+export type InsertNpcTraderPsychology = z.infer<typeof insertNpcTraderPsychologySchema>;
+
+export type NpcTraderPosition = typeof npcTraderPositions.$inferSelect;
+export type InsertNpcTraderPosition = z.infer<typeof insertNpcTraderPositionSchema>;
+
+export type NpcTraderActivityLog = typeof npcTraderActivityLog.$inferSelect;
+export type InsertNpcTraderActivityLog = z.infer<typeof insertNpcTraderActivityLogSchema>;
 
 // Alignment tracking schemas for hidden psychological profiling
 export const insertAlignmentScoreSchema = createInsertSchema(alignmentScores).omit({ id: true, createdAt: true, updatedAt: true });
