@@ -3,6 +3,7 @@ import type { IStorage } from './storage';
 import { VisualStorytellingService } from './services/visualStorytellingService';
 import { NarrativeTradingMetricsService } from './services/narrativeTradingMetricsService';
 import { KarmicAlignmentService } from './services/karmicAlignmentService';
+import { NarrativeMarketIntegration } from './services/narrativeMarketIntegration';
 
 /**
  * Phase 2 Scheduled Services Architecture
@@ -19,6 +20,7 @@ export class Phase2ScheduledServices {
   private visualStorytelling: VisualStorytellingService;
   private narrativeMetrics: NarrativeTradingMetricsService;
   private karmicAlignment: KarmicAlignmentService;
+  private narrativeMarket: NarrativeMarketIntegration;
 
   // Service intervals (in milliseconds)
   private readonly config = {
@@ -34,6 +36,7 @@ export class Phase2ScheduledServices {
     this.visualStorytelling = new VisualStorytellingService();
     this.narrativeMetrics = new NarrativeTradingMetricsService();
     this.karmicAlignment = new KarmicAlignmentService();
+    this.narrativeMarket = new NarrativeMarketIntegration();
   }
 
   /**
@@ -215,9 +218,34 @@ export class Phase2ScheduledServices {
     try {
       console.log('🎭 Applying story impacts to market...');
       
-      // Phase 2 story impact functionality
-      // Will apply narrative-driven market sentiment changes
-      console.log('⚠️ Story impact feature pending service method implementation');
+      // Get recent active story beats (last 24 hours)
+      const recentStoryBeats = await this.storage.getRecentStoryBeats?.(24) || [];
+      
+      if (recentStoryBeats.length === 0) {
+        console.log('📭 No active story beats to process');
+        return;
+      }
+      
+      console.log(`🎬 Processing ${recentStoryBeats.length} story beats for market impact...`);
+      
+      let impactsApplied = 0;
+      
+      // Process each story beat through narrative market integration
+      for (const storyBeat of recentStoryBeats) {
+        try {
+          // Process story beat to generate market events
+          await this.narrativeMarket.processStoryBeat(storyBeat);
+          impactsApplied++;
+          
+          console.log(`✨ Applied market impact from story beat: "${storyBeat.beatTitle}"`);
+        } catch (error) {
+          console.error(`Failed to apply story beat "${storyBeat.beatTitle}":`, error);
+        }
+      }
+      
+      if (impactsApplied > 0) {
+        console.log(`✅ Successfully applied ${impactsApplied} story impacts to market`);
+      }
       
     } catch (error) {
       console.error('Error applying story impacts:', error);

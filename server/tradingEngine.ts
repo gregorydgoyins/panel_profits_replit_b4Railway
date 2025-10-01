@@ -595,7 +595,7 @@ export class NpcTradingEngine {
               if (!npcPortfolio) {
                 const portfolioData = {
                   userId: trader.id,
-                  name: `${trader.name} Portfolio`,
+                  name: `${trader.traderName} Portfolio`,
                   totalValue: trader.availableCapital,
                   cashBalance: trader.availableCapital,
                   initialCashAllocation: trader.availableCapital
@@ -626,7 +626,7 @@ export class NpcTradingEngine {
               results.ordersCreated++;
               results.totalVolume += parseFloat(orderData.quantity) * currentPrice;
               
-              console.log(`🤖 ${trader.name} (${trader.traderType}) placed ${decision.action} order for ${orderData.quantity} ${data.asset.symbol} at $${currentPrice.toFixed(2)}`);
+              console.log(`🤖 ${trader.traderName} (${trader.traderType}) placed ${decision.action} order for ${orderData.quantity} ${data.asset.symbol} at $${currentPrice.toFixed(2)}`);
               
               // Update trader's last trade time
               await storage.updateNpcTrader(trader.id, {
@@ -638,7 +638,7 @@ export class NpcTradingEngine {
           }
           
         } catch (error) {
-          const errorMsg = `Failed to process trader ${trader.name}: ${error}`;
+          const errorMsg = `Failed to process trader ${trader.traderName}: ${error}`;
           console.error(errorMsg);
           results.errors.push(errorMsg);
         }

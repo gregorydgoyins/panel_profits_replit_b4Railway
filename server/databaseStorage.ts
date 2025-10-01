@@ -3894,7 +3894,7 @@ export class DatabaseStorage implements IStorage {
   async getAllNpcTraders(): Promise<NpcTrader[]> {
     return await db.select().from(npcTraders)
       .where(eq(npcTraders.isActive, true))
-      .orderBy(desc(npcTraders.currentCapital));
+      .orderBy(desc(npcTraders.availableCapital));
   }
 
   async getNewsArticles(filters?: { category?: string; assetId?: string; limit?: number }): Promise<NewsArticle[]> {

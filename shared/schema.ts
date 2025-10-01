@@ -6784,16 +6784,36 @@ export type InsertTraderWarfare = z.infer<typeof insertTraderWarfareSchema>;
 // NPC Traders - Core identity and attributes
 export const npcTraders = pgTable("npc_traders", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: text("name").notNull().unique(),
-  personalityArchetype: text("personality_archetype").notNull(), // 'whale', 'day_trader', 'value_investor', 'momentum_chaser', 'contrarian', 'swing_trader', 'dividend_hunter', 'options_gambler', 'index_hugger', 'panic_seller'
-  riskTolerance: decimal("risk_tolerance", { precision: 5, scale: 2 }).notNull(), // 0-100
-  skillLevel: integer("skill_level").notNull(), // 1-10
-  startingCapital: decimal("starting_capital", { precision: 15, scale: 2 }).notNull(),
-  currentCapital: decimal("current_capital", { precision: 15, scale: 2 }).notNull(),
+  traderName: text("trader_name").notNull(),
+  traderType: text("trader_type").notNull(),
+  firmId: varchar("firm_id"),
+  tradingPersonality: jsonb("trading_personality"),
+  preferredAssets: text("preferred_assets").array(),
+  avoidedAssets: text("avoided_assets").array(),
+  tradingStyle: text("trading_style"),
+  availableCapital: decimal("available_capital", { precision: 15, scale: 2 }).notNull(),
+  maxPositionSize: decimal("max_position_size", { precision: 15, scale: 2 }),
+  maxDailyVolume: decimal("max_daily_volume", { precision: 15, scale: 2 }),
+  leveragePreference: decimal("leverage_preference", { precision: 5, scale: 2 }),
+  aggressiveness: decimal("aggressiveness", { precision: 5, scale: 2 }),
+  intelligence: decimal("intelligence", { precision: 5, scale: 2 }),
+  emotionality: decimal("emotionality", { precision: 5, scale: 2 }),
+  adaptability: decimal("adaptability", { precision: 5, scale: 2 }),
+  tradesPerDay: integer("trades_per_day"),
+  minTimeBetweenTradesMinutes: integer("min_time_between_trades_minutes"),
   totalTrades: integer("total_trades").default(0),
-  winRate: decimal("win_rate", { precision: 5, scale: 2 }).default("0.00"), // Percentage of profitable trades
-  createdAt: timestamp("created_at").defaultNow(),
+  winRate: decimal("win_rate", { precision: 5, scale: 2 }).default("0.00"),
+  avgTradeReturn: decimal("avg_trade_return", { precision: 10, scale: 4 }),
+  totalPnL: decimal("total_pnl", { precision: 15, scale: 2 }),
+  sharpeRatio: decimal("sharpe_ratio", { precision: 10, scale: 4 }),
+  maxDrawdown: decimal("max_drawdown", { precision: 10, scale: 4 }),
   isActive: boolean("is_active").default(true),
+  lastTradeTime: timestamp("last_trade_time"),
+  nextTradeTime: timestamp("next_trade_time"),
+  pausedUntil: timestamp("paused_until"),
+  influenceOnMarket: decimal("influence_on_market", { precision: 5, scale: 2 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // NPC Trader Strategies - Trading strategy preferences
@@ -6848,6 +6868,7 @@ export const npcTraderActivityLog = pgTable("npc_trader_activity_log", {
 export const insertNpcTraderSchema = createInsertSchema(npcTraders).omit({
   id: true,
   createdAt: true,
+  updatedAt: true,
 });
 
 export const insertNpcTraderStrategySchema = createInsertSchema(npcTraderStrategies).omit({
