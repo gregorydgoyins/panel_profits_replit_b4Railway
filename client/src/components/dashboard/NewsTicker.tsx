@@ -120,15 +120,15 @@ export function NewsTicker() {
       <style>{`
         @keyframes ticker {
           0% {
-            transform: translateX(0);
+            transform: translateX(100%);
           }
           100% {
-            transform: translateX(-50%);
+            transform: translateX(-100%);
           }
         }
         
         .animate-ticker {
-          animation: ticker 60s linear infinite;
+          animation: ticker 40s linear infinite;
         }
         
         .pause-animation {
