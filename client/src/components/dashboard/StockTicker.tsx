@@ -94,7 +94,7 @@ export function StockTicker() {
         }
         
         .animate-stock-ticker {
-          animation: stock-ticker 60s linear infinite;
+          animation: stock-ticker 180s linear infinite;
         }
         
         .pause-stock-animation {

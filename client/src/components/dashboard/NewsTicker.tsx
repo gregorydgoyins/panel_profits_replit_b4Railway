@@ -45,7 +45,7 @@ export function NewsTicker() {
       data-testid="news-ticker"
     >
       <div className="flex items-center h-12">
-        <div className="bg-primary px-4 h-full flex items-center font-semibold text-sm text-primary-foreground shrink-0">
+        <div className="bg-primary px-4 h-full flex items-center font-mono text-xs text-primary-foreground shrink-0">
           BREAKING NEWS
         </div>
         
@@ -62,7 +62,7 @@ export function NewsTicker() {
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm whitespace-nowrap hover:underline transition-colors text-foreground hover:text-primary"
+                className="flex items-center gap-2 text-xs font-mono whitespace-nowrap hover:underline transition-colors text-foreground hover:text-primary"
                 data-testid={`news-item-${item.id}`}
               >
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary" />
@@ -86,7 +86,7 @@ export function NewsTicker() {
         }
         
         .animate-ticker {
-          animation: ticker 60s linear infinite;
+          animation: ticker 180s linear infinite;
         }
         
         .pause-animation {
