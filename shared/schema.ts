@@ -2775,6 +2775,209 @@ export type LearningAnalytics = typeof learningAnalytics.$inferSelect;
 export type InsertLearningAnalytics = z.infer<typeof insertLearningAnalyticsSchema>;
 
 // ===========================
+// CAREER PATHWAY CERTIFICATION SYSTEM
+// ===========================
+
+// Career Pathway Levels - Define the certification tiers for each pathway
+export const careerPathwayLevels = pgTable("career_pathway_levels", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  pathway: text("pathway").notNull(), // 'associate', 'family_office', 'hedge_fund', 'agency'
+  level: text("level").notNull(), // 'associate', 'tier1', 'tier2', 'tier3', 'tier4'
+  name: text("name").notNull(), // 'Associate', 'Family Office Steward', 'Hedge Fund Analyst', etc.
+  description: text("description").notNull(),
+  displayOrder: integer("display_order").notNull(), // Sequence in pathway
+  // Unlocks and rewards
+  tradingFeatureUnlocks: jsonb("trading_feature_unlocks"), // Features unlocked at this level
+  baseSalaryMax: decimal("base_salary_max", { precision: 15, scale: 2 }).notNull(), // Maximum salary for this level
+  certificationBonus: decimal("certification_bonus_percent", { precision: 5, scale: 2 }).default("100.00"), // 100% for 3/5, 150% for 5/5
+  masterBonus: decimal("master_bonus_percent", { precision: 5, scale: 2 }).default("150.00"),
+  prerequisiteLevel: varchar("prerequisite_level"), // Previous level required
+  // Metadata
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_career_pathway_pathway").on(table.pathway),
+  index("idx_career_pathway_level").on(table.level),
+  index("idx_career_pathway_order").on(table.displayOrder),
+]);
+
+// Certification Courses - 5 courses per certification level
+export const certificationCourses = pgTable("certification_courses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  pathwayLevelId: varchar("pathway_level_id").notNull().references(() => careerPathwayLevels.id),
+  courseNumber: integer("course_number").notNull(), // 1-5
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  difficulty: text("difficulty").notNull(), // 'easy', 'intermediate', 'advanced', 'master'
+  estimatedDuration: integer("estimated_duration_hours").default(2),
+  // Course content
+  modules: jsonb("modules").notNull(), // Course curriculum and materials
+  learningObjectives: text("learning_objectives").array(),
+  prerequisites: text("prerequisites").array(),
+  // Exam configuration
+  examQuestions: jsonb("exam_questions").notNull(), // Exam scenarios and questions
+  passingScore: integer("passing_score").default(70), // Percentage to pass
+  maxAttempts: integer("max_attempts").default(3), // Free attempts before penalty
+  retryPenaltyAmount: decimal("retry_penalty_amount", { precision: 10, scale: 2 }), // 4th attempt fee
+  // Trading feature unlocks
+  featureUnlocks: jsonb("feature_unlocks"), // Specific features this course unlocks
+  tradingPermissions: jsonb("trading_permissions"), // Permissions granted
+  // Metadata
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_cert_courses_pathway_level").on(table.pathwayLevelId),
+  index("idx_cert_courses_number").on(table.courseNumber),
+  index("idx_cert_courses_difficulty").on(table.difficulty),
+]);
+
+// User Course Enrollments - Track user progress in certification courses
+export const userCourseEnrollments = pgTable("user_course_enrollments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  courseId: varchar("course_id").notNull().references(() => certificationCourses.id),
+  pathwayLevelId: varchar("pathway_level_id").notNull().references(() => careerPathwayLevels.id),
+  // Progress tracking
+  status: text("status").notNull().default("enrolled"), // 'enrolled', 'in_progress', 'completed', 'failed'
+  progressPercent: decimal("progress_percent", { precision: 5, scale: 2 }).default("0.00"),
+  currentModule: integer("current_module").default(1),
+  completedModules: integer("completed_modules").array().default(sql`ARRAY[]::integer[]`),
+  timeSpent: integer("time_spent_minutes").default(0),
+  // Exam attempts
+  examAttempts: integer("exam_attempts").default(0),
+  bestScore: decimal("best_score", { precision: 5, scale: 2 }),
+  lastAttemptScore: decimal("last_attempt_score", { precision: 5, scale: 2 }),
+  passed: boolean("passed").default(false),
+  passedAt: timestamp("passed_at"),
+  // Penalty tracking
+  penaltyCharges: decimal("penalty_charges", { precision: 10, scale: 2 }).default("0.00"),
+  penaltyAttempts: integer("penalty_attempts").default(0), // Attempts beyond free limit
+  // Metadata
+  enrolledAt: timestamp("enrolled_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_user_enrollments_user").on(table.userId),
+  index("idx_user_enrollments_course").on(table.courseId),
+  index("idx_user_enrollments_pathway").on(table.pathwayLevelId),
+  index("idx_user_enrollments_status").on(table.status),
+]);
+
+// User Pathway Progress - Overall certification pathway progress
+export const userPathwayProgress = pgTable("user_pathway_progress", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  pathway: text("pathway").notNull(), // 'associate', 'family_office', 'hedge_fund', 'agency'
+  currentLevelId: varchar("current_level_id").references(() => careerPathwayLevels.id),
+  // Certification status
+  coursesPassed: integer("courses_passed").default(0), // Total courses passed at current level
+  isCertified: boolean("is_certified").default(false), // 3/5 courses passed
+  isMasterCertified: boolean("is_master_certified").default(false), // 5/5 courses passed
+  // Hidden salary bonuses (revealed after certification)
+  certificationBonusRevealed: boolean("certification_bonus_revealed").default(false),
+  certificationBonusAmount: decimal("certification_bonus_amount", { precision: 15, scale: 2 }),
+  masterBonusRevealed: boolean("master_bonus_revealed").default(false),
+  masterBonusAmount: decimal("master_bonus_amount", { precision: 15, scale: 2 }),
+  // Current salary
+  currentSalaryMax: decimal("current_salary_max", { precision: 15, scale: 2 }),
+  // Progression tracking
+  totalCoursesCompleted: integer("total_courses_completed").default(0),
+  totalExamAttempts: integer("total_exam_attempts").default(0),
+  totalPenaltiesCharged: decimal("total_penalties_charged", { precision: 10, scale: 2 }).default("0.00"),
+  pathwayStartedAt: timestamp("pathway_started_at").defaultNow(),
+  lastLevelCompletedAt: timestamp("last_level_completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_user_pathway_user").on(table.userId),
+  index("idx_user_pathway_pathway").on(table.pathway),
+  index("idx_user_pathway_level").on(table.currentLevelId),
+  index("idx_user_pathway_certified").on(table.isCertified),
+  index("idx_user_pathway_master").on(table.isMasterCertified),
+]);
+
+// Exam Attempts - Individual exam attempt records
+export const examAttempts = pgTable("exam_attempts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  courseId: varchar("course_id").notNull().references(() => certificationCourses.id),
+  enrollmentId: varchar("enrollment_id").notNull().references(() => userCourseEnrollments.id),
+  // Attempt details
+  attemptNumber: integer("attempt_number").notNull(),
+  isPenaltyAttempt: boolean("is_penalty_attempt").default(false),
+  penaltyCharged: decimal("penalty_charged", { precision: 10, scale: 2 }),
+  // Exam results
+  score: decimal("score", { precision: 5, scale: 2 }).notNull(),
+  passed: boolean("passed").notNull(),
+  totalQuestions: integer("total_questions").notNull(),
+  correctAnswers: integer("correct_answers").notNull(),
+  // Exam data
+  responses: jsonb("responses").notNull(), // User's answers
+  timeSpent: integer("time_spent_seconds"),
+  // Feedback
+  feedback: text("feedback"), // Auto-generated feedback
+  areasForImprovement: text("areas_for_improvement").array(),
+  // Metadata
+  attemptedAt: timestamp("attempted_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_exam_attempts_user").on(table.userId),
+  index("idx_exam_attempts_course").on(table.courseId),
+  index("idx_exam_attempts_enrollment").on(table.enrollmentId),
+  index("idx_exam_attempts_passed").on(table.passed),
+  index("idx_exam_attempts_penalty").on(table.isPenaltyAttempt),
+]);
+
+// Insert schemas for career pathway tables
+export const insertCareerPathwayLevelSchema = createInsertSchema(careerPathwayLevels).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertCertificationCourseSchema = createInsertSchema(certificationCourses).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserCourseEnrollmentSchema = createInsertSchema(userCourseEnrollments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserPathwayProgressSchema = createInsertSchema(userPathwayProgress).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertExamAttemptSchema = createInsertSchema(examAttempts).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Export types for career pathway system
+export type CareerPathwayLevel = typeof careerPathwayLevels.$inferSelect;
+export type InsertCareerPathwayLevel = z.infer<typeof insertCareerPathwayLevelSchema>;
+
+export type CertificationCourse = typeof certificationCourses.$inferSelect;
+export type InsertCertificationCourse = z.infer<typeof insertCertificationCourseSchema>;
+
+export type UserCourseEnrollment = typeof userCourseEnrollments.$inferSelect;
+export type InsertUserCourseEnrollment = z.infer<typeof insertUserCourseEnrollmentSchema>;
+
+export type UserPathwayProgress = typeof userPathwayProgress.$inferSelect;
+export type InsertUserPathwayProgress = z.infer<typeof insertUserPathwayProgressSchema>;
+
+export type ExamAttempt = typeof examAttempts.$inferSelect;
+export type InsertExamAttempt = z.infer<typeof insertExamAttemptSchema>;
+
+// ===========================
 // ADVANCED MARKET INTELLIGENCE SYSTEM TABLES
 // ===========================
 

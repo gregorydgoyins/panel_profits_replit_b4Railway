@@ -32,6 +32,9 @@ import LeaderboardPage from '@/pages/LeaderboardPage';
 // Settings
 import SettingsPage from '@/pages/settings';
 
+// Certifications
+import CertificationsPage from '@/pages/CertificationsPage';
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -66,6 +69,7 @@ function Router() {
       <Route path="/portfolio" component={PortfolioPage} />
       <Route path="/watchlist" component={WatchlistPage} />
       <Route path="/leaderboard" component={LeaderboardPage} />
+      <Route path="/certifications" component={CertificationsPage} />
       <Route path="/settings" component={SettingsPage} />
       <Route component={NotFound} />
     </Switch>

@@ -4808,3 +4808,4 @@ export class DatabaseStorage implements IStorage {
 }
 
 export const databaseStorage = new DatabaseStorage();
+export { db };

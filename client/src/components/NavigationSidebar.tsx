@@ -47,6 +47,7 @@ export function NavigationSidebar() {
     if (location === '/leaderboards') return 'leaderboards';
     if (location === '/learning') return 'sacred-library';
     if (location.startsWith('/learning/')) return 'sacred-library';
+    if (location === '/certifications' || location.startsWith('/certifications/')) return 'certifications';
     if (location === '/houses') return 'houses';
     if (location === '/houses/dashboard') return 'house-dashboard';
     if (location === '/houses/competition') return 'house-competition';
@@ -87,6 +88,7 @@ export function NavigationSidebar() {
     
     // Learning Module
     { id: 'sacred-library', label: 'Sacred Library', icon: Scroll, path: '/learning', category: 'learning', badge: 'NEW' },
+    { id: 'certifications', label: 'Certifications', icon: GraduationCap, path: '/certifications', category: 'learning', badge: 'NEW' },
     
     // Integration Management
     { id: 'divine-connections', label: 'Divine Connections', icon: Sparkles, path: '/integrations', category: 'integrations', badge: 'NEW' },

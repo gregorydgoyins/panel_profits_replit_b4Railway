@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { db } from "./databaseStorage";
 import { WebSocketServer } from 'ws';
 import comicDataRoutes from "./routes/comicData.js";
 import vectorRoutes from "./routes/vectorRoutes.js";
@@ -53,9 +54,15 @@ import {
   insertWatchlistAssetSchema,
   insertOrderSchema,
   insertMarketEventSchema,
-  insertComicGradingPredictionSchema
+  insertComicGradingPredictionSchema,
+  careerPathwayLevels,
+  certificationCourses,
+  userCourseEnrollments,
+  userPathwayProgress,
+  examAttempts
 } from "@shared/schema";
 import { z } from "zod";
+import { eq, and } from "drizzle-orm";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup Replit Auth middleware
@@ -2584,6 +2591,191 @@ Respond with valid JSON in this exact format:
   
   // Store the broadcast function for use in market simulation
   (marketSimulation as any).broadcastUpdate = broadcastMarketUpdate;
+
+  // ================================
+  // CAREER PATHWAY CERTIFICATION ROUTES
+  // ================================
+
+  // Get all career pathway levels
+  app.get('/api/certifications/pathways', isAuthenticated, async (req: any, res) => {
+    try {
+      const pathways = await db.select().from(careerPathwayLevels).where(eq(careerPathwayLevels.isActive, true)).orderBy(careerPathwayLevels.displayOrder);
+      res.json(pathways);
+    } catch (error) {
+      console.error('Error fetching certification pathways:', error);
+      res.status(500).json({ error: 'Failed to fetch certification pathways' });
+    }
+  });
+
+  // Get user's certification progress across all pathways
+  app.get('/api/certifications/progress', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user!.id;
+      const progress = await db.select().from(userPathwayProgress).where(eq(userPathwayProgress.userId, userId));
+      res.json(progress);
+    } catch (error) {
+      console.error('Error fetching user certification progress:', error);
+      res.status(500).json({ error: 'Failed to fetch certification progress' });
+    }
+  });
+
+  // Get courses for a specific pathway level
+  app.get('/api/certifications/courses/:pathwayLevelId', isAuthenticated, async (req: any, res) => {
+    try {
+      const { pathwayLevelId } = req.params;
+      const courses = await db.select().from(certificationCourses)
+        .where(and(
+          eq(certificationCourses.pathwayLevelId, pathwayLevelId),
+          eq(certificationCourses.isActive, true)
+        ))
+        .orderBy(certificationCourses.courseNumber);
+      res.json(courses);
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+      res.status(500).json({ error: 'Failed to fetch courses' });
+    }
+  });
+
+  // Get user's enrollment for a specific pathway level
+  app.get('/api/certifications/enrollments/:pathwayLevelId', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user!.id;
+      const { pathwayLevelId } = req.params;
+      const enrollments = await db.select().from(userCourseEnrollments)
+        .where(and(
+          eq(userCourseEnrollments.userId, userId),
+          eq(userCourseEnrollments.pathwayLevelId, pathwayLevelId)
+        ));
+      res.json(enrollments);
+    } catch (error) {
+      console.error('Error fetching enrollments:', error);
+      res.status(500).json({ error: 'Failed to fetch enrollments' });
+    }
+  });
+
+  // Enroll in a course
+  app.post('/api/certifications/enroll', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user!.id;
+      const { courseId, pathwayLevelId } = req.body;
+
+      // Check if already enrolled
+      const existing = await db.select().from(userCourseEnrollments)
+        .where(and(
+          eq(userCourseEnrollments.userId, userId),
+          eq(userCourseEnrollments.courseId, courseId)
+        ))
+        .limit(1);
+
+      if (existing.length > 0) {
+        return res.status(400).json({ error: 'Already enrolled in this course' });
+      }
+
+      // Create enrollment
+      const [enrollment] = await db.insert(userCourseEnrollments).values({
+        userId,
+        courseId,
+        pathwayLevelId,
+        status: 'enrolled'
+      }).returning();
+
+      res.json(enrollment);
+    } catch (error) {
+      console.error('Error enrolling in course:', error);
+      res.status(500).json({ error: 'Failed to enroll in course' });
+    }
+  });
+
+  // Submit exam attempt
+  app.post('/api/certifications/exam', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user!.id;
+      const { courseId, enrollmentId, responses } = req.body;
+
+      // Get course and enrollment data
+      const [course] = await db.select().from(certificationCourses).where(eq(certificationCourses.id, courseId)).limit(1);
+      const [enrollment] = await db.select().from(userCourseEnrollments).where(eq(userCourseEnrollments.id, enrollmentId)).limit(1);
+
+      if (!course || !enrollment) {
+        return res.status(404).json({ error: 'Course or enrollment not found' });
+      }
+
+      // Calculate score
+      const examQuestions = course.examQuestions as any[];
+      let correctAnswers = 0;
+      examQuestions.forEach((q: any, index: number) => {
+        if (responses[index] === q.correct) {
+          correctAnswers++;
+        }
+      });
+
+      const score = (correctAnswers / examQuestions.length) * 100;
+      const passed = score >= (course.passingScore || 70);
+      const attemptNumber = enrollment.examAttempts + 1;
+      const isPenaltyAttempt = attemptNumber > (course.maxAttempts || 3);
+      const penaltyCharged = isPenaltyAttempt ? parseFloat(course.retryPenaltyAmount || '0') : 0;
+
+      // Create exam attempt
+      const [attempt] = await db.insert(examAttempts).values({
+        userId,
+        courseId,
+        enrollmentId,
+        attemptNumber,
+        isPenaltyAttempt,
+        penaltyCharged: penaltyCharged.toString(),
+        score: score.toString(),
+        passed,
+        totalQuestions: examQuestions.length,
+        correctAnswers,
+        responses: JSON.stringify(responses)
+      }).returning();
+
+      // Update enrollment
+      await db.update(userCourseEnrollments)
+        .set({
+          examAttempts: attemptNumber,
+          lastAttemptScore: score.toString(),
+          bestScore: enrollment.bestScore ? Math.max(parseFloat(enrollment.bestScore), score).toString() : score.toString(),
+          passed: passed || enrollment.passed,
+          passedAt: passed ? new Date() : enrollment.passedAt,
+          penaltyCharges: (parseFloat(enrollment.penaltyCharges || '0') + penaltyCharged).toString(),
+          penaltyAttempts: isPenaltyAttempt ? (enrollment.penaltyAttempts || 0) + 1 : enrollment.penaltyAttempts,
+          status: passed ? 'completed' : 'in_progress',
+          completedAt: passed ? new Date() : enrollment.completedAt
+        })
+        .where(eq(userCourseEnrollments.id, enrollmentId));
+
+      // If passed, update pathway progress
+      if (passed && !enrollment.passed) {
+        const [pathwayProgress] = await db.select().from(userPathwayProgress)
+          .where(and(
+            eq(userPathwayProgress.userId, userId),
+            eq(userPathwayProgress.currentLevelId, enrollment.pathwayLevelId)
+          ))
+          .limit(1);
+
+        if (pathwayProgress) {
+          const newCoursesPassed = (pathwayProgress.coursesPassed || 0) + 1;
+          const isCertified = newCoursesPassed >= 3;
+          const isMasterCertified = newCoursesPassed >= 5;
+
+          await db.update(userPathwayProgress)
+            .set({
+              coursesPassed: newCoursesPassed,
+              isCertified,
+              isMasterCertified,
+              totalCoursesCompleted: (pathwayProgress.totalCoursesCompleted || 0) + 1
+            })
+            .where(eq(userPathwayProgress.id, pathwayProgress.id));
+        }
+      }
+
+      res.json({ attempt, passed, score, penaltyCharged });
+    } catch (error) {
+      console.error('Error submitting exam:', error);
+      res.status(500).json({ error: 'Failed to submit exam' });
+    }
+  });
 
   // Initialize WebSocket notification service for real-time notifications
   console.log('🔔 Initializing WebSocket notification service...');
