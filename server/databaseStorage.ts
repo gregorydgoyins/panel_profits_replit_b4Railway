@@ -4215,7 +4215,7 @@ export class DatabaseStorage implements IStorage {
   async getAllMarginAccounts(): Promise<MarginAccount[]> {
     return await db.select().from(marginAccounts)
       .where(eq(marginAccounts.isActive, true))
-      .orderBy(desc(marginAccounts.accountValue));
+      .orderBy(desc(marginAccounts.marginEquity));
   }
 
   // =============================================================================

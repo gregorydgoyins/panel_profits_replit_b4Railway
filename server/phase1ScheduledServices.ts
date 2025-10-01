@@ -61,8 +61,8 @@ export class Phase1ScheduledServices {
     // Options Chain Live Updates
     this.startOptionsChainUpdates();
     
-    // NPC Trading Automation - temporarily disabled due to schema migration
-    // this.startNpcTradingAutomation();
+    // NPC Trading Automation  
+    this.startNpcTradingAutomation();
     
     // Margin Maintenance Cycle
     this.startMarginMaintenanceCycle();
