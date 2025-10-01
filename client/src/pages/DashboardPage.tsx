@@ -38,11 +38,63 @@ import { OrderBookWidget } from '@/components/dashboard/OrderBookWidget';
 import { AIRecommendationsWidget } from '@/components/dashboard/AIRecommendationsWidget';
 import { PortfolioGreeksWidget } from '@/components/dashboard/PortfolioGreeksWidget';
 import { NewsTicker } from '@/components/dashboard/NewsTicker';
-import { StockTickerWidget } from '@/components/dashboard/StockTickerWidget';
+import { StockTicker } from '@/components/StockTicker';
 import { ComicCoverCardsWidget } from '@/components/dashboard/ComicCoverCardsWidget';
 import { ComicHeatMapWidget } from '@/components/dashboard/ComicHeatMapWidget';
 import { ComicSentimentWidget } from '@/components/dashboard/ComicSentimentWidget';
 import { WorldClocksWidget } from '@/components/dashboard/WorldClocksWidget';
+
+interface UserData {
+  id: string;
+  username: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  profileImageUrl?: string;
+  availableCash?: number;
+}
+
+interface Portfolio {
+  id: string;
+  userId: string;
+  name: string;
+  description?: string;
+  totalValue?: string;
+  dayChange?: string;
+  dayChangePercent?: string;
+  cashBalance?: string;
+  holdings?: Holding[];
+}
+
+interface Holding {
+  id: string;
+  portfolioId: string;
+  assetId: string;
+  quantity: number;
+  currentValue?: string;
+  averageCost?: string;
+}
+
+interface Watchlist {
+  id: string;
+  userId: string;
+  name: string;
+  assets?: WatchlistAsset[];
+}
+
+interface WatchlistAsset {
+  id: string;
+  watchlistId: string;
+  assetId: string;
+}
+
+interface Order {
+  id: string;
+  userId: string;
+  status: string;
+  type: string;
+  totalValue?: string;
+}
 
 interface DashboardStats {
   portfolioValue: number;
@@ -60,22 +112,22 @@ export default function DashboardPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Real API calls for dashboard data
-  const { data: userData, isLoading: isUserLoading } = useQuery({ 
+  const { data: userData, isLoading: isUserLoading } = useQuery<UserData>({ 
     queryKey: ['/api/auth/user'],
     refetchInterval: 300000 // Refetch every 5 minutes
   });
   
-  const { data: portfolios, isLoading: isPortfoliosLoading } = useQuery({ 
+  const { data: portfolios, isLoading: isPortfoliosLoading } = useQuery<Portfolio[]>({ 
     queryKey: ['/api/portfolios'],
     refetchInterval: 30000 // Refetch every 30 seconds
   });
   
-  const { data: watchlists, isLoading: isWatchlistsLoading } = useQuery({ 
+  const { data: watchlists, isLoading: isWatchlistsLoading } = useQuery<Watchlist[]>({ 
     queryKey: ['/api/watchlists'],
     refetchInterval: 60000 // Refetch every minute
   });
   
-  const { data: orders } = useQuery({ 
+  const { data: orders } = useQuery<Order[]>({ 
     queryKey: ['/api/orders/user', userData?.id],
     enabled: !!userData?.id,
     refetchInterval: 30000
@@ -274,7 +326,7 @@ export default function DashboardPage() {
       <NewsTicker />
 
       {/* Stock Ticker - Live asset prices directly under news ticker */}
-      <StockTickerWidget />
+      <StockTicker />
 
       {/* Dashboard Content */}
       <div className="max-w-7xl mx-auto px-6 py-6">
