@@ -230,7 +230,7 @@ export class ComicAssetService {
     if (comic.penciler && comic.penciler !== 'Unknown') creators.push(comic.penciler);
     if (comic.coverArtist && comic.coverArtist !== 'Unknown') creators.push(comic.coverArtist);
     
-    return [...new Set(creators)]; // Remove duplicates
+    return Array.from(new Set(creators)); // Remove duplicates
   }
 
   private getHeatMapColor(changePercent: number): string {
