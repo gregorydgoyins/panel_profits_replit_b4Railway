@@ -154,8 +154,8 @@ export function LandingPage() {
               </div>
             </div>
 
-            {/* Existing member login */}
-            <Link href="/auth">
+            {/* Existing member login - smart session check */}
+            <a href="/api/auth/closers">
               <Button 
                 className="w-full h-12 text-base tracking-wider uppercase border-white/50 text-white hover:bg-white hover:text-black backdrop-blur-sm font-bold"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
@@ -165,7 +165,7 @@ export function LandingPage() {
               >
                 Closers Only
               </Button>
-            </Link>
+            </a>
           </div>
 
           {/* Minimal footer info */}

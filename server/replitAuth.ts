@@ -155,6 +155,19 @@ export async function setupAuth(app: Express) {
       });
     });
   });
+
+  // Smart "Closers Only" login - checks for existing session first
+  app.get("/api/auth/closers", (req, res) => {
+    // Check if user already has an active session
+    if (req.isAuthenticated()) {
+      // Session exists - skip OAuth, go straight to dashboard
+      return res.redirect("/dashboard");
+    }
+    
+    // No session - save intended destination and trigger OAuth flow
+    req.session.returnTo = "/dashboard";
+    return res.redirect("/api/login");
+  });
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
