@@ -48,6 +48,17 @@ import { TradeBlotterWidget } from '@/components/dashboard/TradeBlotterWidget';
 import { WatchlistPanelWidget } from '@/components/dashboard/WatchlistPanelWidget';
 import { CashFlowStatementWidget } from '@/components/dashboard/CashFlowStatementWidget';
 
+// New Comic Widgets - Added for comic-focused trading experience
+import { ComicCoverWidget } from '@/components/dashboard/ComicCoverWidget';
+import { ComicHistoryWidget } from '@/components/dashboard/ComicHistoryWidget';
+import { ComicTriviaWidget } from '@/components/dashboard/ComicTriviaWidget';
+import { ComicRecommendationsWidget } from '@/components/dashboard/ComicRecommendationsWidget';
+import { ComicRiskAssessmentWidget } from '@/components/dashboard/ComicRiskAssessmentWidget';
+import { ComicOfTheDayWidget } from '@/components/dashboard/ComicOfTheDayWidget';
+
+// Mosaic Layout System
+import { MosaicLayout, MosaicItem, MosaicSection } from '@/components/dashboard/MosaicLayout';
+
 interface UserData {
   id: string;
   username: string;
@@ -410,108 +421,153 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* Comic Cover Cards - Visual Trading Experience */}
-        <div className="mb-6">
-          <ComicCoverCardsWidget />
-        </div>
+        {/* MOSAIC LAYOUT - All Widgets Fit Together Like Puzzle Pieces with NO GAPS */}
+        <MosaicLayout>
+          {/* Comic of the Day - Featured spotlight (full width) */}
+          <MosaicSection className="mb-0">
+            <ComicOfTheDayWidget />
+          </MosaicSection>
 
-        {/* Main Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          {/* Left Column - Portfolio */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Portfolio Overview */}
+          {/* Comic Covers Row - Visual Trading */}
+          <MosaicSection className="mb-0">
+            <ComicCoverWidget />
+          </MosaicSection>
+
+          {/* Portfolio & Trading - Main Section */}
+          <MosaicItem span={2}>
             <PortfolioOverview />
-            
-            {/* Position Monitor - Real-time P&L tracking */}
-            <PositionMonitorWidget />
-            
-            {/* Portfolio Holdings */}
-            <PortfolioHoldings />
-          </div>
-
-          {/* Right Column - Side Widgets */}
-          <div className="space-y-6">
-            {/* Trading Balance */}
+          </MosaicItem>
+          <MosaicItem span={1}>
             <TradingBalance />
-            
-            {/* Watchlist Panel - Compact quick-access monitoring */}
+          </MosaicItem>
+
+          {/* Position Monitor - Real-time tracking */}
+          <MosaicItem span={2}>
+            <PositionMonitorWidget />
+          </MosaicItem>
+          <MosaicItem span={1}>
             <WatchlistPanelWidget />
-            
-            {/* Market Overview */}
+          </MosaicItem>
+
+          {/* Holdings & Market Overview */}
+          <MosaicItem span={2}>
+            <PortfolioHoldings />
+          </MosaicItem>
+          <MosaicItem span={1}>
             <MarketOverview />
-          </div>
-        </div>
+          </MosaicItem>
 
-        {/* Trade Blotter - Historical trade log */}
-        <div className="grid grid-cols-1 gap-6 mb-6">
-          <TradeBlotterWidget />
-        </div>
+          {/* Comic Content Widgets Row */}
+          <MosaicItem span={1}>
+            <ComicHistoryWidget />
+          </MosaicItem>
+          <MosaicItem span={1}>
+            <ComicTriviaWidget />
+          </MosaicItem>
+          <MosaicItem span={1}>
+            <ComicRecommendationsWidget />
+          </MosaicItem>
 
-        {/* Income & Watchlist Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Cash Flow Statement - Dividend/income tracking */}
-          <CashFlowStatementWidget />
-          
-          {/* Full Watchlist Manager */}
-          <WatchlistManager />
-        </div>
+          {/* Risk & Analysis */}
+          <MosaicItem span={2}>
+            <ComicRiskAssessmentWidget />
+          </MosaicItem>
+          <MosaicItem span={1}>
+            <PortfolioRiskMetricsWidget />
+          </MosaicItem>
 
-        {/* Options Chain */}
-        <div className="grid grid-cols-1 gap-6 mt-6">
-          <OptionsChainWidget />
-        </div>
+          {/* Trade Blotter - Full Width */}
+          <MosaicSection>
+            <TradeBlotterWidget />
+          </MosaicSection>
 
-        {/* Professional Trading Widgets Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          <ComicETFsWidget />
-          <MarketMoversWidget />
-        </div>
+          {/* Income & Watchlist */}
+          <MosaicItem span={1}>
+            <CashFlowStatementWidget />
+          </MosaicItem>
+          <MosaicItem span={2}>
+            <WatchlistManager />
+          </MosaicItem>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          <ComicSentimentWidget />
-          <FearGreedWidget />
-        </div>
+          {/* Options & Derivatives */}
+          <MosaicSection>
+            <OptionsChainWidget />
+          </MosaicSection>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          <OracleProphecyWidget />
-          <HousePowerRankingsWidget />
-        </div>
+          {/* Market Intelligence Row */}
+          <MosaicItem span={1}>
+            <ComicETFsWidget />
+          </MosaicItem>
+          <MosaicItem span={1}>
+            <MarketMoversWidget />
+          </MosaicItem>
+          <MosaicItem span={1}>
+            <ComicSentimentWidget />
+          </MosaicItem>
 
-        {/* Advanced Analytics Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          <PortfolioRiskMetricsWidget />
-          <VolatilitySurfaceWidget />
-        </div>
+          {/* Market Dynamics */}
+          <MosaicItem span={1}>
+            <FearGreedWidget />
+          </MosaicItem>
+          <MosaicItem span={1}>
+            <OracleProphecyWidget />
+          </MosaicItem>
+          <MosaicItem span={1}>
+            <HousePowerRankingsWidget />
+          </MosaicItem>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          <CorrelationMatrixWidget />
-          <ComicHeatMapWidget />
-        </div>
+          {/* Advanced Analytics */}
+          <MosaicItem span={1}>
+            <VolatilitySurfaceWidget />
+          </MosaicItem>
+          <MosaicItem span={1}>
+            <CorrelationMatrixWidget />
+          </MosaicItem>
+          <MosaicItem span={1}>
+            <ComicHeatMapWidget />
+          </MosaicItem>
 
-        {/* Trading Tools Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-          <EconomicCalendarWidget />
-          <SectorRotationWidget />
-          <WorldClocksWidget />
-        </div>
+          {/* Trading Tools */}
+          <MosaicItem span={1}>
+            <EconomicCalendarWidget />
+          </MosaicItem>
+          <MosaicItem span={1}>
+            <SectorRotationWidget />
+          </MosaicItem>
+          <MosaicItem span={1}>
+            <WorldClocksWidget />
+          </MosaicItem>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-          <MarginUtilizationWidget />
-          <LEAPSWidget />
-          <PublisherBondsWidget />
-        </div>
+          {/* Advanced Trading Instruments */}
+          <MosaicItem span={1}>
+            <MarginUtilizationWidget />
+          </MosaicItem>
+          <MosaicItem span={1}>
+            <LEAPSWidget />
+          </MosaicItem>
+          <MosaicItem span={1}>
+            <PublisherBondsWidget />
+          </MosaicItem>
 
-        {/* Advanced Trading Tools Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          <UnusualActivityWidget />
-          <DarkPoolWidget />
-        </div>
+          {/* Advanced Trading Tools */}
+          <MosaicItem span={1}>
+            <UnusualActivityWidget />
+          </MosaicItem>
+          <MosaicItem span={1}>
+            <DarkPoolWidget />
+          </MosaicItem>
+          <MosaicItem span={1}>
+            <OrderBookWidget />
+          </MosaicItem>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-          <OrderBookWidget />
-          <AIRecommendationsWidget />
-          <PortfolioGreeksWidget />
-        </div>
+          {/* AI & Portfolio Tools */}
+          <MosaicItem span={1}>
+            <AIRecommendationsWidget />
+          </MosaicItem>
+          <MosaicItem span={2}>
+            <PortfolioGreeksWidget />
+          </MosaicItem>
+        </MosaicLayout>
 
         {/* Quick Actions Footer */}
         <div className="mt-8 border-t pt-6">
