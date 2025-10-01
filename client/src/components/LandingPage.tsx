@@ -17,12 +17,35 @@ export function LandingPage() {
       document.documentElement.classList.toggle("light", savedTheme === "light");
     }
     
-    // Set video based on time of day
+    // Set video based on NY market hours (3 x 8-hour windows)
     const updateVideoByTime = () => {
-      const hour = new Date().getHours();
-      // Daytime: 6 AM to 6 PM (6-18), Nighttime: 6 PM to 6 AM
-      const isDaytime = hour >= 6 && hour < 18;
-      setVideoSource(isDaytime ? "/videos/daytime-video.mp4" : "/videos/nighttime-video.mp4");
+      // Get current time in NY (Eastern Time)
+      const nyTime = new Date().toLocaleString("en-US", { 
+        timeZone: "America/New_York",
+        hour12: false,
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+      
+      const [hourStr, minuteStr] = nyTime.split(':');
+      const hour = parseInt(hourStr);
+      const minute = parseInt(minuteStr);
+      const totalMinutes = hour * 60 + minute;
+      
+      // Market Open: 9:30 AM - 5:30 PM ET (570 - 1050 minutes)
+      // After Hours: 5:30 PM - 1:30 AM ET (1050 - 1530 minutes, wrapping to 0 - 90)
+      // Market Closed: 1:30 AM - 9:30 AM ET (90 - 570 minutes)
+      
+      if (totalMinutes >= 570 && totalMinutes < 1050) {
+        // Market Open (9:30 AM - 5:30 PM)
+        setVideoSource("/videos/daytime-video.mp4");
+      } else if (totalMinutes >= 1050 || totalMinutes < 90) {
+        // After Hours (5:30 PM - 1:30 AM)
+        setVideoSource("/videos/afterhours-video.mp4");
+      } else {
+        // Market Closed (1:30 AM - 9:30 AM)
+        setVideoSource("/videos/nighttime-video.mp4");
+      }
     };
     
     // Set initial video
