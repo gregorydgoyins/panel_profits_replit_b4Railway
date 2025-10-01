@@ -329,8 +329,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       
-      // First check if user has completed Entry Test (has a House assigned)
+      // Check if user is a returning "Closer" with portfolio or trading history
       const user = await storage.getUser(userId);
+      const userPortfolios = await storage.getUserPortfolios(userId);
+      const hasPortfolio = userPortfolios && userPortfolios.length > 0;
+      const hasTraded = user?.lastTradingActivity != null;
+      
+      // "Closers" (returning users) bypass both tests if they have portfolio or trading history
+      const isReturningUser = hasPortfolio || hasTraded || !!user?.houseId;
+      
+      if (isReturningUser) {
+        // Bypass knowledge test for returning users
+        return res.json({
+          hasCompletedTest: true, // Treat as completed for returning users
+          requiresTest: false
+        });
+      }
+      
+      // For new users: check if Entry Test is completed
       const hasCompletedEntryTest = !!user?.houseId;
       
       // If Entry Test not completed, they don't need Knowledge Test yet
@@ -341,7 +357,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Check Knowledge Test completion
+      // Check Knowledge Test completion for new users
       const latestResult = await storage.getLatestKnowledgeTestResult(userId);
       
       if (!latestResult) {
