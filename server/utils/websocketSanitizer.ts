@@ -168,61 +168,17 @@ function isPotentialCharacterId(value: any): boolean {
  * Sanitizes WebSocket message data to prevent character IDs from being misinterpreted
  * as close codes or causing protocol violations
  * 
+ * NOTE: Data sanitization is DISABLED by default as it was causing issues with numeric values
+ * like volume, price, etc. being incorrectly converted to strings. WebSocket close code 
+ * sanitization is sufficient to prevent protocol violations.
+ * 
  * @param data - The data object to sanitize
- * @returns Sanitized data object
+ * @returns The data object unchanged (sanitization disabled)
  */
 export function sanitizeWebSocketData(data: any): any {
-  if (!data || typeof data !== 'object') {
-    return data;
-  }
-  
-  // Deep clone to avoid modifying original
-  const sanitized = JSON.parse(JSON.stringify(data));
-  
-  // Recursively sanitize all properties
-  const sanitizeValue = (obj: any, key: string): void => {
-    const value = obj[key];
-    
-    // Aggressive character ID detection and sanitization
-    if (isPotentialCharacterId(value)) {
-      console.warn(`🧹 Sanitizing potential character ID in WebSocket data: ${key}=${value}`);
-      
-      if (typeof value === 'number') {
-        // Convert to a safe string format that can't be misinterpreted as a close code
-        obj[key] = `asset_${value}`;
-      } else if (typeof value === 'string') {
-        // Prefix to ensure it's not interpreted as a numeric close code
-        obj[key] = `ref_${value}`;
-      }
-    }
-    
-    // Special handling for known problematic fields
-    if (key === 'assetId' && typeof value === 'string' && /^\d+$/.test(value)) {
-      console.warn(`🚨 Found numeric asset ID - this should be a UUID: ${key}=${value}`);
-      obj[key] = `asset_${value}`;
-    }
-    
-    // Recursively process objects and arrays
-    if (typeof value === 'object' && value !== null) {
-      if (Array.isArray(value)) {
-        value.forEach((item, index) => {
-          if (typeof item === 'object' && item !== null) {
-            Object.keys(item).forEach(nestedKey => sanitizeValue(item, nestedKey));
-          } else if (isPotentialCharacterId(item)) {
-            console.warn(`🧹 Sanitizing character ID in array: ${key}[${index}]=${item}`);
-            value[index] = `item_${item}`;
-          }
-        });
-      } else {
-        Object.keys(value).forEach(nestedKey => sanitizeValue(value, nestedKey));
-      }
-    }
-  };
-  
-  // Sanitize all properties in the object
-  Object.keys(sanitized).forEach(key => sanitizeValue(sanitized, key));
-  
-  return sanitized;
+  // DISABLED: Data sanitization was overly aggressive and corrupting valid numeric data
+  // WebSocket close code sanitization (via patchWebSocketWithSanitization) is sufficient
+  return data;
 }
 
 /**

@@ -2509,28 +2509,39 @@ Respond with valid JSON in this exact format:
     
     marketDataClients.add(ws);
     
-    // Add client to price streaming service
-    priceStreamingService.addClient(ws);
+    // Add client to price streaming service - TEMPORARILY DISABLED TO DEBUG
+    //priceStreamingService.addClient(ws);
     
-    // Send initial market overview with comprehensive sanitization
-    marketSimulation.getMarketOverview().then(overview => {
-      try {
-        const message = {
-          type: 'market_overview',
-          data: overview,
-          timestamp: new Date().toISOString()
-        };
+    // DEBUGGING: Delay market overview send to see if connection stays open
+    setTimeout(() => {
+      console.log(`🔍 WebSocket state after 2s delay: ${ws.readyState} (1=OPEN, 2=CLOSING, 3=CLOSED)`);
+      
+      if (ws.readyState === 1) {
+        console.log('✅ Connection still open after 2s, adding to price streaming');
+        priceStreamingService.addClient(ws);
         
-        // Use sanitized send to prevent character IDs from causing protocol errors
-        safeWebSocketSend(ws, message);
-      } catch (error) {
-        console.error('Error sending initial market overview:', error);
-        safeWebSocketClose(ws, WebSocketCloseCodes.INTERNAL_SERVER_ERROR, 'Failed to send initial data');
+        marketSimulation.getMarketOverview().then(overview => {
+          if (ws.readyState !== 1) {
+            console.warn(`⚠️ WebSocket not in OPEN state (${ws.readyState}), skipping market overview send`);
+            return;
+          }
+          
+          const message = {
+            type: 'market_overview',
+            data: overview,
+            timestamp: new Date().toISOString()
+          };
+          
+          console.log(`📤 Sending initial market overview to client (${JSON.stringify(message).length} bytes)`);
+          safeWebSocketSend(ws, message);
+          console.log('✅ Market overview sent successfully');
+        }).catch(error => {
+          console.error('❌ Error getting market overview:', error);
+        });
+      } else {
+        console.warn('⚠️ Connection already closed after 2s delay');
       }
-    }).catch(error => {
-      console.error('Error getting market overview:', error);
-      safeWebSocketClose(ws, WebSocketCloseCodes.INTERNAL_SERVER_ERROR, 'Market data unavailable');
-    });
+    }, 2000);
     
     ws.on('message', (message) => {
       try {
