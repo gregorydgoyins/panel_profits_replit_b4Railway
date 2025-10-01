@@ -71,6 +71,7 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
+import { entitySeedingService } from "./services/entitySeedingService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup Replit Auth middleware
@@ -85,6 +86,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Entity Mining & Seeding - Mine comic book universe for tradable assets
+  app.post('/api/admin/seed-entities', async (req: any, res) => {
+    try {
+      console.log('🎭 Starting entity seeding from API request...');
+      
+      // Run seeding service asynchronously
+      entitySeedingService.seedAllEntities()
+        .then(() => {
+          console.log('✅ Entity seeding completed successfully');
+        })
+        .catch((error) => {
+          console.error('❌ Entity seeding failed:', error);
+        });
+      
+      // Return immediately so the request doesn't timeout
+      res.json({
+        success: true,
+        message: 'Entity seeding started. Check server logs for progress.'
+      });
+    } catch (error) {
+      console.error('Error starting entity seeding:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to start entity seeding' 
+      });
     }
   });
 
