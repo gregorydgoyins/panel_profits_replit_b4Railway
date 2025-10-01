@@ -5,7 +5,7 @@ import {
   Users, Building, Zap, BookOpen, Calendar, Settings, HelpCircle,
   ChevronLeft, ChevronRight, Trophy, Camera, Heart, Crown, Shield,
   Swords, Scroll, GraduationCap, Target, Sparkles, Gem, Workflow, PenTool,
-  Swords as SwordsIcon, LogOut
+  Swords as SwordsIcon, LogOut, Handshake
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -51,6 +51,7 @@ export function NavigationSidebar() {
     if (location.startsWith('/learning/')) return 'sacred-library';
     if (location === '/certifications' || location.startsWith('/certifications/')) return 'certifications';
     if (location === '/easter-eggs') return 'easter-eggs';
+    if (location === '/investment-clubs' || location.startsWith('/investment-clubs/')) return 'investment-clubs';
     if (location === '/houses') return 'houses';
     if (location === '/houses/dashboard') return 'house-dashboard';
     if (location === '/houses/competition') return 'house-competition';
@@ -112,6 +113,7 @@ export function NavigationSidebar() {
     // Portfolio
     { id: 'portfolio', label: 'Portfolio', icon: Briefcase, path: '/portfolio', category: 'portfolio' },
     { id: 'watchlist', label: 'Watchlist', icon: Zap, path: '/watchlist', category: 'portfolio' },
+    { id: 'investment-clubs', label: 'Investment Clubs', icon: Handshake, path: '/investment-clubs', category: 'portfolio', badge: 'PRO' },
     { id: 'leaderboards', label: 'Leaderboards', icon: Trophy, path: '/leaderboards', category: 'portfolio', badge: 'NEW' },
     { id: 'journal', label: 'Noir Journal', icon: PenTool, path: '/journal', category: 'portfolio', badge: 'DARK' },
     
@@ -156,6 +158,7 @@ export function NavigationSidebar() {
       publishers: 'text-blue-400 bg-blue-900/30 hover:bg-blue-600',
       portfolio: 'text-emerald-400 bg-emerald-900/30 hover:bg-emerald-600',
       watchlist: 'text-amber-400 bg-amber-900/30 hover:bg-amber-600',
+      'investment-clubs': 'text-teal-400 bg-teal-900/30 hover:bg-teal-600',
       leaderboards: 'text-yellow-400 bg-yellow-900/30 hover:bg-yellow-600',
       journal: 'text-red-600 bg-red-950/50 hover:bg-red-900',
       'sacred-library': 'text-indigo-400 bg-indigo-900/30 hover:bg-indigo-600',

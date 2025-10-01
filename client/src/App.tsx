@@ -39,6 +39,10 @@ import CertificationsPage from '@/pages/CertificationsPage';
 import EasterEggsPage from '@/pages/EasterEggsPage';
 import { useEasterEggNotifications } from '@/hooks/useEasterEggNotifications';
 
+// Investment Clubs
+import InvestmentClubsPage from '@/pages/InvestmentClubsPage';
+import InvestmentClubDetailPage from '@/pages/InvestmentClubDetailPage';
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -75,6 +79,8 @@ function Router() {
       <Route path="/leaderboard" component={LeaderboardPage} />
       <Route path="/certifications" component={CertificationsPage} />
       <Route path="/easter-eggs" component={EasterEggsPage} />
+      <Route path="/investment-clubs" component={InvestmentClubsPage} />
+      <Route path="/investment-clubs/:id" component={InvestmentClubDetailPage} />
       <Route path="/settings" component={SettingsPage} />
       <Route component={NotFound} />
     </Switch>
