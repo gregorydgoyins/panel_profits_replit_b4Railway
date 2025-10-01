@@ -42,6 +42,7 @@ import { StockTickerWidget } from '@/components/dashboard/StockTickerWidget';
 import { ComicCoverCardsWidget } from '@/components/dashboard/ComicCoverCardsWidget';
 import { ComicHeatMapWidget } from '@/components/dashboard/ComicHeatMapWidget';
 import { ComicSentimentWidget } from '@/components/dashboard/ComicSentimentWidget';
+import { WorldClocksWidget } from '@/components/dashboard/WorldClocksWidget';
 
 interface DashboardStats {
   portfolioValue: number;
@@ -417,9 +418,10 @@ export default function DashboardPage() {
         </div>
 
         {/* Trading Tools Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
           <EconomicCalendarWidget />
           <SectorRotationWidget />
+          <WorldClocksWidget />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
