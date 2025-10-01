@@ -106,16 +106,13 @@ export function LandingPage() {
           <div className="space-y-4">
             <Link href="/auth">
               <Button 
-                className="w-full h-12 text-base tracking-wider uppercase bg-white text-black hover:bg-gray-100"
+                className="w-full h-12 text-base tracking-wider uppercase bg-white text-black hover:bg-gray-100 font-bold"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
                 variant="default"
                 size="lg"
                 data-testid="button-begin-test"
               >
-                <div className="flex flex-col items-center gap-0.5">
-                  <span className="text-base font-bold">Help Wanted</span>
-                  <span className="text-xs font-normal">Closers Only</span>
-                </div>
+                Help Wanted • Closers Only
               </Button>
             </Link>
 
