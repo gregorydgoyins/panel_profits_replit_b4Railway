@@ -1,16 +1,89 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Globe } from 'lucide-react';
+import { Globe } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface MarketStatus {
   name: string;
   city: string;
   timezone: string;
-  status: 'open' | 'closed' | 'after-hours' | 'pre-market';
-  localTime: string;
+  status: 'open' | 'closed' | 'after-hours';
+  localTime: Date;
   openTime: string;
   closeTime: string;
+}
+
+// Analog Clock Component
+function AnalogClock({ time, status }: { time: Date; status: MarketStatus['status'] }) {
+  const hours = time.getHours() % 12;
+  const minutes = time.getMinutes();
+  const seconds = time.getSeconds();
+  
+  // Calculate angles for clock hands
+  const secondAngle = (seconds * 6) - 90; // 6 degrees per second
+  const minuteAngle = (minutes * 6 + seconds * 0.1) - 90; // 6 degrees per minute
+  const hourAngle = (hours * 30 + minutes * 0.5) - 90; // 30 degrees per hour
+  
+  const getStatusColor = () => {
+    switch (status) {
+      case 'open': return 'stroke-green-500';
+      case 'after-hours': return 'stroke-yellow-500';
+      case 'closed': return 'stroke-red-500';
+    }
+  };
+  
+  const getFaceColor = () => {
+    switch (status) {
+      case 'open': return 'bg-green-500/10 border-green-500/30';
+      case 'after-hours': return 'bg-yellow-500/10 border-yellow-500/30';
+      case 'closed': return 'bg-red-500/10 border-red-500/30';
+    }
+  };
+
+  return (
+    <div className={`relative w-24 h-24 rounded-full border-2 ${getFaceColor()} flex items-center justify-center`}>
+      <svg className="absolute w-full h-full" viewBox="0 0 100 100">
+        {/* Clock face dots for hours */}
+        {[...Array(12)].map((_, i) => {
+          const angle = (i * 30 - 90) * (Math.PI / 180);
+          const x = 50 + 38 * Math.cos(angle);
+          const y = 50 + 38 * Math.sin(angle);
+          return (
+            <circle
+              key={i}
+              cx={x}
+              cy={y}
+              r={i % 3 === 0 ? 2 : 1}
+              className="fill-muted-foreground"
+            />
+          );
+        })}
+        
+        {/* Hour hand */}
+        <line
+          x1="50"
+          y1="50"
+          x2={50 + 25 * Math.cos(hourAngle * Math.PI / 180)}
+          y2={50 + 25 * Math.sin(hourAngle * Math.PI / 180)}
+          className={`${getStatusColor()} stroke-[3]`}
+          strokeLinecap="round"
+        />
+        
+        {/* Minute hand */}
+        <line
+          x1="50"
+          y1="50"
+          x2={50 + 35 * Math.cos(minuteAngle * Math.PI / 180)}
+          y2={50 + 35 * Math.sin(minuteAngle * Math.PI / 180)}
+          className={`${getStatusColor()} stroke-[2]`}
+          strokeLinecap="round"
+        />
+        
+        {/* Center dot */}
+        <circle cx="50" cy="50" r="3" className={getStatusColor().replace('stroke', 'fill')} />
+      </svg>
+    </div>
+  );
 }
 
 export function WorldClocksWidget() {
@@ -20,9 +93,9 @@ export function WorldClocksWidget() {
     timezone: string,
     openHour: number,
     closeHour: number,
-    preMarketStart?: number,
+    hasAfterHours: boolean = false,
     afterHoursEnd?: number
-  ): 'open' | 'closed' | 'after-hours' | 'pre-market' => {
+  ): 'open' | 'closed' | 'after-hours' => {
     const now = new Date();
     const marketTime = new Date(now.toLocaleString('en-US', { timeZone: timezone }));
     const hour = marketTime.getHours();
@@ -31,44 +104,38 @@ export function WorldClocksWidget() {
     const openMinutes = openHour * 60;
     const closeMinutes = closeHour * 60;
 
-    // Check pre-market hours (if applicable)
-    if (preMarketStart && currentMinutes >= preMarketStart * 60 && currentMinutes < openMinutes) {
-      return 'pre-market';
+    // Check if it's a weekend
+    const dayOfWeek = marketTime.getDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      return 'closed';
     }
 
-    // Check after-hours trading (if applicable)
-    if (afterHoursEnd && currentMinutes >= closeMinutes && currentMinutes < afterHoursEnd * 60) {
+    // Check after-hours trading (only for NY)
+    if (hasAfterHours && afterHoursEnd && currentMinutes >= closeMinutes && currentMinutes < afterHoursEnd * 60) {
       return 'after-hours';
     }
 
     // Regular trading hours
     if (currentMinutes >= openMinutes && currentMinutes < closeMinutes) {
-      // Check if it's a weekend
-      const dayOfWeek = marketTime.getDay();
-      if (dayOfWeek === 0 || dayOfWeek === 6) {
-        return 'closed';
-      }
       return 'open';
     }
 
     return 'closed';
   };
 
-  const formatTime = (timezone: string): string => {
+  const getLocalTime = (timezone: string): Date => {
     const now = new Date();
-    return now.toLocaleString('en-US', {
-      timeZone: timezone,
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    });
+    const timeString = now.toLocaleString('en-US', { timeZone: timezone });
+    return new Date(timeString);
   };
 
   const updateMarkets = () => {
-    const nyseStatus = getMarketStatus('America/New_York', 9.5, 16, 4, 20); // 9:30 AM - 4:00 PM ET, pre-market 4 AM, after-hours 8 PM
-    const lseStatus = getMarketStatus('Europe/London', 8, 16.5); // 8:00 AM - 4:30 PM GMT
-    const tseStatus = getMarketStatus('Asia/Tokyo', 9, 15); // 9:00 AM - 3:00 PM JST
-    const hkexStatus = getMarketStatus('Asia/Hong_Kong', 9.5, 16); // 9:30 AM - 4:00 PM HKT
+    // NYSE has after-hours until 8pm
+    const nyseStatus = getMarketStatus('America/New_York', 9.5, 16, true, 20); // 9:30 AM - 4:00 PM, after-hours until 8 PM
+    const lseStatus = getMarketStatus('Europe/London', 8, 16.5); // No after-hours
+    const xetraStatus = getMarketStatus('Europe/Berlin', 9, 17.5); // No after-hours
+    const tseStatus = getMarketStatus('Asia/Tokyo', 9, 15); // No after-hours
+    const hkexStatus = getMarketStatus('Asia/Hong_Kong', 9.5, 16); // No after-hours
 
     setMarkets([
       {
@@ -76,7 +143,7 @@ export function WorldClocksWidget() {
         city: 'New York',
         timezone: 'America/New_York',
         status: nyseStatus,
-        localTime: formatTime('America/New_York'),
+        localTime: getLocalTime('America/New_York'),
         openTime: '9:30 AM',
         closeTime: '4:00 PM',
       },
@@ -85,16 +152,25 @@ export function WorldClocksWidget() {
         city: 'London',
         timezone: 'Europe/London',
         status: lseStatus,
-        localTime: formatTime('Europe/London'),
+        localTime: getLocalTime('Europe/London'),
         openTime: '8:00 AM',
         closeTime: '4:30 PM',
+      },
+      {
+        name: 'XETRA',
+        city: 'Frankfurt',
+        timezone: 'Europe/Berlin',
+        status: xetraStatus,
+        localTime: getLocalTime('Europe/Berlin'),
+        openTime: '9:00 AM',
+        closeTime: '5:30 PM',
       },
       {
         name: 'TSE',
         city: 'Tokyo',
         timezone: 'Asia/Tokyo',
         status: tseStatus,
-        localTime: formatTime('Asia/Tokyo'),
+        localTime: getLocalTime('Asia/Tokyo'),
         openTime: '9:00 AM',
         closeTime: '3:00 PM',
       },
@@ -103,7 +179,7 @@ export function WorldClocksWidget() {
         city: 'Hong Kong',
         timezone: 'Asia/Hong_Kong',
         status: hkexStatus,
-        localTime: formatTime('Asia/Hong_Kong'),
+        localTime: getLocalTime('Asia/Hong_Kong'),
         openTime: '9:30 AM',
         closeTime: '4:00 PM',
       },
@@ -112,7 +188,7 @@ export function WorldClocksWidget() {
 
   useEffect(() => {
     updateMarkets();
-    const interval = setInterval(updateMarkets, 60000); // Update every minute
+    const interval = setInterval(updateMarkets, 1000); // Update every second for smooth analog clocks
     return () => clearInterval(interval);
   }, []);
 
@@ -121,25 +197,15 @@ export function WorldClocksWidget() {
       case 'open':
         return <Badge variant="default" className="bg-green-500">Open</Badge>;
       case 'after-hours':
-        return <Badge variant="secondary">After Hours</Badge>;
-      case 'pre-market':
-        return <Badge variant="secondary">Pre-Market</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-500 text-black">After Hours</Badge>;
       case 'closed':
         return <Badge variant="destructive">Closed</Badge>;
     }
   };
 
-  const getStatusColor = (status: MarketStatus['status']) => {
-    switch (status) {
-      case 'open':
-        return 'text-green-500';
-      case 'after-hours':
-      case 'pre-market':
-        return 'text-yellow-500';
-      case 'closed':
-        return 'text-red-500';
-    }
-  };
+  // Split markets into 2 + 3 layout
+  const topRowMarkets = markets.slice(0, 2); // NYSE, LSE
+  const bottomRowMarkets = markets.slice(2); // XETRA, TSE, HKEx
 
   return (
     <Card data-testid="widget-world-clocks">
@@ -149,31 +215,63 @@ export function WorldClocksWidget() {
           Global Market Hours
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Real-time market status across major exchanges
+          Real-time analog clocks for major exchanges
         </p>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {markets.map((market) => (
+      <CardContent className="space-y-4">
+        {/* Top Row - 2 Clocks */}
+        <div className="grid grid-cols-2 gap-4">
+          {topRowMarkets.map((market) => (
             <div
               key={market.name}
-              className="flex items-center justify-between p-3 rounded-lg border border-border hover-elevate transition-all"
+              className="flex flex-col items-center gap-2 p-4 rounded-lg border border-border hover-elevate transition-all"
               data-testid={`market-${market.name.toLowerCase().replace(/\//g, '-')}`}
             >
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <Clock className={`w-4 h-4 ${getStatusColor(market.status)}`} />
-                  <span className="font-semibold">{market.name}</span>
+              <AnalogClock time={market.localTime} status={market.status} />
+              
+              <div className="text-center space-y-1">
+                <div className="font-semibold text-foreground">{market.name}</div>
+                <div className="text-xs text-muted-foreground">{market.city}</div>
+                <div className="text-sm font-mono text-muted-foreground">
+                  {market.localTime.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: true 
+                  })}
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  {market.city} • {market.openTime} - {market.closeTime}
+                <div className="text-xs text-muted-foreground">
+                  {market.openTime} - {market.closeTime}
                 </div>
-              </div>
-              <div className="flex flex-col items-end gap-1">
                 {getStatusBadge(market.status)}
-                <span className="text-sm font-mono text-muted-foreground">
-                  {market.localTime}
-                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom Row - 3 Clocks */}
+        <div className="grid grid-cols-3 gap-3">
+          {bottomRowMarkets.map((market) => (
+            <div
+              key={market.name}
+              className="flex flex-col items-center gap-2 p-3 rounded-lg border border-border hover-elevate transition-all"
+              data-testid={`market-${market.name.toLowerCase().replace(/\//g, '-')}`}
+            >
+              <AnalogClock time={market.localTime} status={market.status} />
+              
+              <div className="text-center space-y-1">
+                <div className="font-semibold text-sm text-foreground">{market.name}</div>
+                <div className="text-xs text-muted-foreground">{market.city}</div>
+                <div className="text-xs font-mono text-muted-foreground">
+                  {market.localTime.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: true 
+                  })}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {market.openTime} - {market.closeTime}
+                </div>
+                {getStatusBadge(market.status)}
               </div>
             </div>
           ))}
@@ -187,7 +285,7 @@ export function WorldClocksWidget() {
           </div>
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 rounded-full bg-yellow-500" />
-            <span>Extended Hours</span>
+            <span>After Hours (NY only)</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 rounded-full bg-red-500" />

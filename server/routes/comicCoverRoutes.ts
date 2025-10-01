@@ -1,8 +1,58 @@
 import type { Express } from "express";
 import { storage } from "../storage";
+import { comicDataService } from "../services/comicDataService";
 import { z } from "zod";
 
 export function registerComicCoverRoutes(app: Express) {
+  // Get random comic covers from REAL Marvel API
+  app.get("/api/comic-covers/random", async (req, res) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 12;
+      const comics = await comicDataService.fetchRandomComicCovers(limit);
+      
+      res.json({
+        success: true,
+        data: comics,
+        count: comics.length
+      });
+    } catch (error) {
+      console.error('Error fetching random comic covers:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Failed to fetch random comic covers",
+        data: [],
+        count: 0
+      });
+    }
+  });
+
+  // Get Comic of the Day with historical context
+  app.get("/api/comic-covers/comic-of-the-day", async (req, res) => {
+    try {
+      const comic = await comicDataService.getComicOfTheDay();
+      
+      if (!comic) {
+        return res.status(404).json({ 
+          success: false, 
+          error: "No comic of the day available",
+          data: null
+        });
+      }
+      
+      res.json({
+        success: true,
+        data: comic
+      });
+    } catch (error) {
+      console.error('Error fetching comic of the day:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Failed to fetch comic of the day",
+        data: null
+      });
+    }
+  });
+
   // Get featured comics for homepage
   app.get("/api/comic-covers/featured", async (req, res) => {
     try {

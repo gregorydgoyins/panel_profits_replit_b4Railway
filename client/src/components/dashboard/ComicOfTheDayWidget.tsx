@@ -2,49 +2,60 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Star, TrendingUp, TrendingDown, DollarSign, Users, Calendar, Book } from 'lucide-react';
+import { Star, TrendingUp, TrendingDown, DollarSign, Calendar, Book, User } from 'lucide-react';
 
 interface ComicOfTheDay {
-  id: string;
-  symbol: string;
-  name: string;
-  currentPrice: number;
-  changePercent: number;
-  volume?: number;
-  publisher?: string;
-  year?: number;
-  description?: string;
-  keyFacts: string[];
-  whyFeatured: string;
+  id: number;
+  title: string;
+  series: string;
+  issueNumber: number;
+  coverUrl: string;
+  description: string;
+  printPrice: number;
+  estimatedValue: number;
+  onsaleDate: string | null;
+  creators: Array<{ name: string; role: string }>;
+  pageCount: number;
+  format: string;
+  yearsOld: number;
+  isFirstIssue: boolean;
+  isKeyIssue: boolean;
+  historicalContext: string;
+  significance: string;
 }
 
 export function ComicOfTheDayWidget() {
-  const { data: assets = [] } = useQuery<any[]>({
-    queryKey: ['/api/comic-assets/top'],
-    refetchInterval: 60000,
+  const { data, isLoading, error } = useQuery<{ success: boolean; data: ComicOfTheDay }>({
+    queryKey: ['/api/comic-covers/comic-of-the-day'],
+    refetchInterval: 60 * 60 * 1000, // Refresh every hour
   });
 
-  // Select the top performer as comic of the day
-  const comicOfTheDay: ComicOfTheDay | null = assets.length > 0 ? {
-    id: assets[0].id,
-    symbol: assets[0].symbol,
-    name: assets[0].name,
-    currentPrice: assets[0].currentPrice || 0,
-    changePercent: assets[0].changePercent || 0,
-    volume: assets[0].volume,
-    publisher: 'Marvel Comics',
-    year: 1962,
-    description: 'One of the most iconic and valuable comic assets in the market, representing decades of storytelling excellence and cultural impact.',
-    keyFacts: [
-      'First appearance marked a revolutionary moment in comic history',
-      'Multiple story arcs spanning decades of publication',
-      'Significant cinematic universe representation',
-      'High collector demand and market liquidity',
-    ],
-    whyFeatured: 'Showing exceptional market performance with strong trading volume and positive sentiment.',
-  } : null;
+  const comic = data?.data;
 
-  if (!comicOfTheDay) {
+  if (isLoading || !comic) {
+    return (
+      <Card className="h-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Star className="w-5 h-5 text-yellow-500" />
+            Comic of the Day
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-start gap-4">
+            <div className="w-32 aspect-[2/3] bg-muted rounded-lg animate-pulse" />
+            <div className="flex-1 space-y-3">
+              <div className="h-6 bg-muted rounded animate-pulse w-3/4" />
+              <div className="h-4 bg-muted rounded animate-pulse w-1/2" />
+              <div className="h-8 bg-muted rounded animate-pulse w-1/3" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
     return (
       <Card className="h-full">
         <CardHeader>
@@ -55,12 +66,15 @@ export function ComicOfTheDayWidget() {
         </CardHeader>
         <CardContent>
           <div className="text-center text-muted-foreground py-8">
-            Loading featured comic...
+            Failed to load featured comic. Please try again later.
           </div>
         </CardContent>
       </Card>
     );
   }
+
+  // Calculate price change (simulated market movement)
+  const priceChangePercent = ((comic.estimatedValue - comic.printPrice) / comic.printPrice) * 100;
 
   return (
     <Card className="h-full" data-testid="widget-comic-of-the-day">
@@ -73,76 +87,137 @@ export function ComicOfTheDayWidget() {
       <CardContent className="space-y-6">
         {/* Featured Comic Header */}
         <div className="flex items-start gap-4">
-          {/* Cover Placeholder */}
-          <div className="w-32 aspect-[2/3] bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 rounded-lg flex items-center justify-center shrink-0">
-            <Book className="w-12 h-12 text-primary/50" />
+          {/* Real Comic Cover from Marvel API */}
+          <div className="w-32 aspect-[2/3] bg-muted rounded-lg overflow-hidden shrink-0 border-2 border-border">
+            {comic.coverUrl ? (
+              <img
+                src={comic.coverUrl}
+                alt={comic.title}
+                className="w-full h-full object-cover"
+                loading="lazy"
+                data-testid="img-comic-of-the-day-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+                <Book className="w-12 h-12 text-primary/50" />
+              </div>
+            )}
           </div>
 
           {/* Comic Info */}
           <div className="flex-1 space-y-3">
             <div>
-              <Badge className="mb-2">Featured</Badge>
-              <h3 className="text-2xl font-bold text-foreground">{comicOfTheDay.name}</h3>
-              <p className="text-sm text-muted-foreground">{comicOfTheDay.symbol}</p>
+              <Badge className="mb-2 bg-yellow-500 text-black">
+                {comic.significance}
+              </Badge>
+              <h3 className="text-2xl font-bold text-foreground line-clamp-2">
+                {comic.title}
+              </h3>
+              <p className="text-sm text-muted-foreground">{comic.series} #{comic.issueNumber}</p>
             </div>
 
-            <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-3 flex-wrap">
+              {comic.onsaleDate && (
+                <Badge variant="outline">
+                  <Calendar className="w-3 h-3 mr-1" />
+                  {new Date(comic.onsaleDate).getFullYear()}
+                </Badge>
+              )}
               <Badge variant="secondary">
-                {comicOfTheDay.publisher}
+                {comic.yearsOld} years old
               </Badge>
-              <Badge variant="outline">
-                <Calendar className="w-3 h-3 mr-1" />
-                {comicOfTheDay.year}
-              </Badge>
+              {comic.format && (
+                <Badge variant="secondary">
+                  {comic.format}
+                </Badge>
+              )}
             </div>
 
-            {/* Price and Performance */}
+            {/* Price and Valuation */}
             <div className="flex items-center gap-6">
               <div>
-                <p className="text-sm text-muted-foreground">Current Price</p>
-                <p className="text-2xl font-bold text-foreground">
-                  ${comicOfTheDay.currentPrice.toLocaleString()}
+                <p className="text-sm text-muted-foreground">Print Price</p>
+                <p className="text-lg font-semibold text-foreground">
+                  ${comic.printPrice.toFixed(2)}
                 </p>
               </div>
-              <div className={`flex items-center gap-2 ${comicOfTheDay.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {comicOfTheDay.changePercent >= 0 ? (
-                  <TrendingUp className="w-5 h-5" />
-                ) : (
-                  <TrendingDown className="w-5 h-5" />
-                )}
-                <span className="text-xl font-bold">
-                  {comicOfTheDay.changePercent >= 0 ? '+' : ''}{comicOfTheDay.changePercent.toFixed(2)}%
-                </span>
+              <div className="flex items-center gap-2 text-green-500">
+                <TrendingUp className="w-4 h-4" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Estimated Value</p>
+                  <p className="text-2xl font-bold">
+                    ${comic.estimatedValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Description */}
-        <div className="space-y-2">
-          <h4 className="font-semibold text-foreground">About This Comic</h4>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            {comicOfTheDay.description}
+        {/* Historical Context - Storytelling */}
+        <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+          <p className="text-sm font-semibold text-primary mb-2">Historical Significance</p>
+          <p className="text-sm text-foreground/80 leading-relaxed">
+            {comic.historicalContext}
           </p>
         </div>
 
+        {/* Description */}
+        {comic.description && (
+          <div className="space-y-2">
+            <h4 className="font-semibold text-foreground">About This Issue</h4>
+            <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+              {comic.description}
+            </p>
+          </div>
+        )}
+
+        {/* Creators */}
+        {comic.creators && comic.creators.length > 0 && (
+          <div className="space-y-2">
+            <h4 className="font-semibold text-foreground flex items-center gap-2">
+              <User className="w-4 h-4" />
+              Creative Team
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {comic.creators.map((creator, idx) => (
+                <Badge key={idx} variant="outline" className="text-xs">
+                  {creator.name} <span className="text-muted-foreground ml-1">({creator.role})</span>
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Key Facts */}
         <div className="space-y-2">
-          <h4 className="font-semibold text-foreground">Key Facts</h4>
+          <h4 className="font-semibold text-foreground">Quick Facts</h4>
           <ul className="space-y-2">
-            {comicOfTheDay.keyFacts.map((fact, idx) => (
-              <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
+            {comic.isFirstIssue && (
+              <li className="flex items-start gap-2 text-sm text-muted-foreground">
                 <Star className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
-                <span>{fact}</span>
+                <span>First issue of the series - highly collectible</span>
               </li>
-            ))}
+            )}
+            {comic.isKeyIssue && (
+              <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                <Star className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
+                <span>Key issue with significant historical importance</span>
+              </li>
+            )}
+            {comic.pageCount > 0 && (
+              <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                <Star className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
+                <span>{comic.pageCount} pages of storytelling excellence</span>
+              </li>
+            )}
+            <li className="flex items-start gap-2 text-sm text-muted-foreground">
+              <Star className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
+              <span>
+                Value appreciation: {priceChangePercent > 0 ? '+' : ''}{priceChangePercent.toFixed(0)}% from print price
+              </span>
+            </li>
           </ul>
-        </div>
-
-        {/* Why Featured */}
-        <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
-          <p className="text-sm font-semibold text-primary mb-1">Why Featured Today</p>
-          <p className="text-sm text-foreground/80">{comicOfTheDay.whyFeatured}</p>
         </div>
 
         {/* Trading Actions */}
