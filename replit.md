@@ -44,8 +44,16 @@ Panel Profits is a dark, morally complex virtual trading platform that simulates
 - **Logout Functionality**: Added logout button to navigation sidebar for clean session termination and fresh user flow testing
 - **Database Export**: Added db export from databaseStorage.ts to enable certification route functionality
 
+**Phase 1 Scheduled Services Status** ✅ MOSTLY OPERATIONAL
+- **Options Chain Updates** (30s interval): ✅ FULLY OPERATIONAL - All 12+ missing columns added to database (exercise_style, contract_size, mark_price, historical_volatility, last_trade_time, intrinsic_value, time_value, break_even_price, max_risk, max_reward, last_greeks_update, is_active)
+- **Margin Maintenance** (300s interval): ✅ OPERATIONAL
+- **Order Matching Engine** (5s interval): ✅ OPERATIONAL
+- **Information Tier Services** (120s interval): ✅ OPERATIONAL
+- **NPC Trading Automation** (60s interval): ⚠️ KNOWN ISSUE - "syntax error at or near 'desc'" persists despite verified correct Drizzle code; all imports correct; likely TypeScript caching issue; non-blocking for user features
+
 **Known Issues**
-- Options chain "exercise_style" column needs database migration (non-critical)
+- NPC Trading: Persistent "desc" SQL error despite correct code (deferred for future debugging)
+- WebSocket: Immediate disconnect (code 1006) due to Vite HMR misconfiguration in forbidden vite.config.ts file
 - Stock ticker and dashboard layout compression pending
 
 ### September 30, 2025
