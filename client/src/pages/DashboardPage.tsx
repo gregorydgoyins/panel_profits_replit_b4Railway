@@ -445,10 +445,10 @@ export default function DashboardPage() {
             <PortfolioOverview />
           </MosaicItem>
           <MosaicItem span={1} rowSpan={1} className="!min-h-[50vh]">
-            <MarketOverview />
+            <TradingBalance />
           </MosaicItem>
           <MosaicItem span={1} rowSpan={1} className="!min-h-[50vh]">
-            <FearGreedWidget />
+            <PositionMonitorWidget />
           </MosaicItem>
 
           {/* Visual Row: Comic Covers Gallery (full width) */}
@@ -456,15 +456,12 @@ export default function DashboardPage() {
             <ComicCoverWidget />
           </MosaicSection>
 
-          {/* Trading & Position Info */}
-          <MosaicItem span={1}>
-            <TradingBalance />
+          {/* Market Context Row */}
+          <MosaicItem span={2}>
+            <MarketOverview />
           </MosaicItem>
           <MosaicItem span={1}>
-            <PositionMonitorWidget />
-          </MosaicItem>
-          <MosaicItem span={1}>
-            <WatchlistPanelWidget />
+            <FearGreedWidget />
           </MosaicItem>
 
           {/* Holdings Section - Wide view for detail */}
@@ -472,7 +469,7 @@ export default function DashboardPage() {
             <PortfolioHoldings />
           </MosaicItem>
           <MosaicItem span={1}>
-            <PublisherPerformanceWidget />
+            <WatchlistPanelWidget />
           </MosaicItem>
 
           {/* Comic Content - Three equal squares */}
