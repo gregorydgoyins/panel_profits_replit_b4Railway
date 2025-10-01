@@ -76,14 +76,14 @@ export function ComicCoverWidget() {
                     {comic.publisher}
                   </Badge>
                 )}
-                <p className="text-lg font-bold text-foreground">${comic.currentPrice.toLocaleString()}</p>
-                <div className={`flex items-center gap-1 text-xs ${comic.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {comic.changePercent >= 0 ? (
+                <p className="text-lg font-bold text-foreground">${comic.currentPrice?.toLocaleString() || '0'}</p>
+                <div className={`flex items-center gap-1 text-xs ${(comic.changePercent || 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {(comic.changePercent || 0) >= 0 ? (
                     <TrendingUp className="w-3 h-3" />
                   ) : (
                     <TrendingDown className="w-3 h-3" />
                   )}
-                  {comic.changePercent >= 0 ? '+' : ''}{comic.changePercent.toFixed(2)}%
+                  {(comic.changePercent || 0) >= 0 ? '+' : ''}{(comic.changePercent || 0).toFixed(2)}%
                 </div>
               </div>
             </div>
