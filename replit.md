@@ -4,7 +4,28 @@
 
 Panel Profits is a dark, morally complex virtual trading platform that simulates the brutal reality of financial markets through comic book assets. Inspired by Watchmen's noir aesthetic and philosophical depth, users confront the human cost of capitalism while trading comic characters, issues, creators, and publishers. Every profit has a victim. Every trade accelerates our collective doom. The platform features a brutalist, noir-inspired UI that exposes the existential horror beneath wealth accumulation, targeting those who understand that in finance, nobody is truly a hero.
 
-## Recent Updates (September 30, 2025)
+## Recent Updates
+
+### October 1, 2025 - Certification System & Dashboard Enhancements
+
+**Certification Career Pathway System**
+- **Database Schema**: Added comprehensive certification tables (careerPathwayLevels, certificationCourses, userCourseEnrollments, userPathwayProgress, examAttempts)
+- **Three Career Pathways**: Family Office Owner, Hedge Fund Owner, Agency Owner with tiered progression
+- **5-Course Structure**: 3/5 passes = Certified (100% salary bonus), 5/5 passes = Master (150% bonus)
+- **Retake System**: 3 free attempts, 4th retry charges subscription penalty
+- **Feature Unlocks**: Options trading locked until Hedge Fund Analyst, bonds until Agency Desk Lead, margin/leverage until Portfolio Manager
+- **API Routes**: Full CRUD operations for pathways, courses, enrollment, progress tracking, exam submissions
+
+**Dashboard UI Enhancements**
+- **News Ticker**: Running ticker with hyperlinked comic industry news stories (Marvel announcements, DC updates, Image Comics news)
+- **Logout Functionality**: Added logout button to navigation sidebar for clean session termination and fresh user flow testing
+- **Database Export**: Added db export from databaseStorage.ts to enable certification route functionality
+
+**Known Issues**
+- Options chain "exercise_style" column needs database migration (non-critical)
+- Stock ticker and dashboard layout compression pending
+
+### September 30, 2025
 
 ### 19 Professional Dashboard Widgets Completed
 All institutional-grade dashboard widgets now deployed, providing Bloomberg Terminal-quality analytics:
