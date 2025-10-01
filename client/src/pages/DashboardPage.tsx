@@ -38,6 +38,7 @@ import { OrderBookWidget } from '@/components/dashboard/OrderBookWidget';
 import { AIRecommendationsWidget } from '@/components/dashboard/AIRecommendationsWidget';
 import { PortfolioGreeksWidget } from '@/components/dashboard/PortfolioGreeksWidget';
 import { NewsTicker } from '@/components/dashboard/NewsTicker';
+import { ComicCoverCardsWidget } from '@/components/dashboard/ComicCoverCardsWidget';
 
 interface DashboardStats {
   portfolioValue: number;
@@ -344,6 +345,11 @@ export default function DashboardPage() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Comic Cover Cards - Visual Trading Experience */}
+        <div className="mb-6">
+          <ComicCoverCardsWidget />
         </div>
 
         {/* Main Dashboard Grid */}

@@ -1302,6 +1302,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Collector-Grade Asset Display Routes
   app.use("/api/collector", collectorRoutes);
   
+  // Comic Asset Data Service Routes - Visual Trading Experience
+  const { comicAssetService } = await import('./services/comicAssetService.js');
+  
+  app.get("/api/comic-assets/top", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 20;
+      const assets = await comicAssetService.getTopComicAssets(limit);
+      res.json(assets);
+    } catch (error) {
+      console.error('Failed to fetch top comic assets:', error);
+      res.status(500).json({ error: "Failed to fetch comic assets" });
+    }
+  });
+  
+  app.get("/api/comic-assets/:id/history", async (req, res) => {
+    try {
+      const days = parseInt(req.query.days as string) || 30;
+      const history = await comicAssetService.getComicPriceHistory(req.params.id, days);
+      if (!history) {
+        return res.status(404).json({ error: "Asset not found" });
+      }
+      res.json(history);
+    } catch (error) {
+      console.error('Failed to fetch price history:', error);
+      res.status(500).json({ error: "Failed to fetch price history" });
+    }
+  });
+  
+  app.get("/api/comic-assets/heatmap", async (req, res) => {
+    try {
+      const heatmap = await comicAssetService.getComicHeatMap();
+      res.json(heatmap);
+    } catch (error) {
+      console.error('Failed to fetch heatmap:', error);
+      res.status(500).json({ error: "Failed to fetch heatmap data" });
+    }
+  });
+  
   // AI Market Intelligence Routes
   const aiRoutes = (await import('./routes/aiRoutes.js')).default;
   app.use("/api/ai", aiRoutes);
