@@ -117,26 +117,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // PriceCharting Integration - Fetch real comic book pricing data
+  // PriceCharting Integration - Test API connection with comic search
   app.get('/api/admin/pricecharting/test', async (req: any, res) => {
     try {
       const { priceChartingService } = await import('./services/priceChartingService');
       
-      console.log('💰 Testing PriceCharting API connection...');
-      const prices = await priceChartingService.fetchComicBookPrices();
+      console.log('💰 Testing PriceCharting API with comic book search...');
       
-      if (prices.length === 0) {
+      // Test searches for popular characters
+      const tests = [
+        { query: 'Amazing Spider-Man', type: 'series' },
+        { query: 'Batman', type: 'character' },
+        { query: 'X-Men', type: 'series' }
+      ];
+      
+      const results: any[] = [];
+      
+      for (const test of tests) {
+        const products = await priceChartingService.searchComics(test.query);
+        if (products.length > 0) {
+          const topProduct = products[0];
+          const price = priceChartingService.getBestPrice(topProduct);
+          results.push({
+            query: test.query,
+            type: test.type,
+            found: products.length,
+            topResult: {
+              name: topProduct['product-name'],
+              publisher: topProduct['console-name'],
+              price: `$${price.toFixed(2)}`
+            }
+          });
+        } else {
+          results.push({
+            query: test.query,
+            type: test.type,
+            found: 0,
+            topResult: null
+          });
+        }
+      }
+      
+      const successfulSearches = results.filter(r => r.found > 0).length;
+      
+      if (successfulSearches === 0) {
         return res.json({
           success: false,
-          message: 'PriceCharting returned no data. Check API token or endpoint.',
-          sampleData: []
+          message: 'PriceCharting API is not returning comic book data. Check API token permissions.',
+          results
         });
       }
       
       res.json({
         success: true,
-        message: `Successfully fetched ${prices.length} comic book prices from PriceCharting`,
-        sampleData: prices.slice(0, 10)
+        message: `PriceCharting API is working! Found data for ${successfulSearches}/${tests.length} searches.`,
+        results
       });
     } catch (error) {
       console.error('❌ PriceCharting test failed:', error);
