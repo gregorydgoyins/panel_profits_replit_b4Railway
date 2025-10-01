@@ -93,19 +93,61 @@ export class MarketSimulationEngine {
    * Initialize the market simulation engine
    */
   async initialize(): Promise<void> {
-    console.log('🏪 Initializing Market Simulation Engine...');
-    
-    // Load all assets and their current prices
-    const assets = await storage.getAssets();
-    
-    for (const asset of assets) {
-      await this.initializeAssetMarketData(asset);
+    try {
+      console.log('🏪 Initializing Market Simulation Engine...');
+      
+      // Load all assets and their current prices
+      console.log('  📦 Loading assets...');
+      const assets = await storage.getAssets();
+      console.log(`  📦 Loaded ${assets.length} assets`);
+      
+      // Load all prices at once for fast lookup
+      console.log('  💰 Loading all asset prices...');
+      const allPrices = await storage.getAllAssetCurrentPrices();
+      const priceMap = new Map(allPrices.map(p => [p.assetId, p]));
+      console.log(`  💰 Loaded ${allPrices.length} prices`);
+      
+      console.log('  🔄 Initializing market data...');
+      let loadedCount = 0;
+      let initializedCount = 0;
+      for (const asset of assets) {
+        try {
+          const existingPrice = priceMap.get(asset.id);
+          if (existingPrice) {
+            // Asset already has price data, just load it into memory
+            this.marketData.set(asset.id, {
+              asset,
+              currentPrice: existingPrice,
+              priceHistory: [parseFloat(existingPrice.currentPrice)],
+              trend: (Math.random() - 0.5) * 2,
+              momentum: 0,
+              volatility: parseFloat(existingPrice.volatility || '0.02'),
+              volume24h: existingPrice.volume || 0,
+              marketCap: this.calculateMarketCap(asset, parseFloat(existingPrice.currentPrice)),
+            });
+            loadedCount++;
+          } else {
+            // No price yet, initialize from scratch
+            await this.initializeAssetMarketData(asset);
+            initializedCount++;
+          }
+        } catch (error) {
+          console.error(`  ❌ Error initializing asset ${asset.symbol}:`, error);
+          // Continue with other assets
+        }
+      }
+      console.log(`  ✅ Initialized ${initializedCount} new assets, loaded ${loadedCount} existing assets`);
+      
+      // Load active market events
+      console.log('  📰 Loading market events...');
+      this.marketEvents = await storage.getMarketEvents({ isActive: true });
+      console.log(`  📰 Loaded ${this.marketEvents.length} market events`);
+      
+      console.log(`📈 Market simulation initialized with ${assets.length} assets`);
+    } catch (error) {
+      console.error('❌ Error initializing Market Simulation Engine:', error);
+      throw error;
     }
-    
-    // Load active market events
-    this.marketEvents = await storage.getMarketEvents({ isActive: true });
-    
-    console.log(`📈 Market simulation initialized with ${assets.length} assets`);
   }
 
   /**

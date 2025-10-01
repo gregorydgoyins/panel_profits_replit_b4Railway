@@ -141,31 +141,46 @@ export class PriceStreamingService {
    * Initialize asset streaming data
    */
   private async initializeAssetStreams(): Promise<void> {
-    const assets = await storage.getAssets();
-    
-    for (const asset of assets) {
-      const currentPrice = await storage.getAssetCurrentPrice(asset.id);
-      if (currentPrice) {
-        const price = parseFloat(currentPrice.currentPrice);
-        this.assetStreams.set(asset.id, {
-          asset,
-          currentPrice: price,
-          previousPrice: price,
-          dayOpen: price,
-          dayHigh: price,
-          dayLow: price,
-          volume24h: currentPrice.volume || 0,
-          priceHistory: [price],
-          volatility: this.VOLATILITY_BASE,
-          momentum: 0,
-          trend: 0,
-          lastUpdate: new Date(),
-          subscriberCount: 0
-        });
+    try {
+      console.log('  📦 Loading assets for streaming...');
+      const assets = await storage.getAssets();
+      console.log(`  📦 Loaded ${assets.length} assets`);
+      
+      // Load all prices at once for fast lookup
+      console.log('  💰 Loading asset prices for streaming...');
+      const allPrices = await storage.getAllAssetCurrentPrices();
+      const priceMap = new Map(allPrices.map(p => [p.assetId, p]));
+      console.log(`  💰 Loaded ${allPrices.length} prices`);
+      
+      let initializedCount = 0;
+      for (const asset of assets) {
+        const currentPrice = priceMap.get(asset.id);
+        if (currentPrice) {
+          const price = parseFloat(currentPrice.currentPrice);
+          this.assetStreams.set(asset.id, {
+            asset,
+            currentPrice: price,
+            previousPrice: price,
+            dayOpen: price,
+            dayHigh: price,
+            dayLow: price,
+            volume24h: currentPrice.volume || 0,
+            priceHistory: [price],
+            volatility: this.VOLATILITY_BASE,
+            momentum: 0,
+            trend: 0,
+            lastUpdate: new Date(),
+            subscriberCount: 0
+          });
+          initializedCount++;
+        }
       }
+      
+      console.log(`📊 Initialized streaming for ${initializedCount} assets`);
+    } catch (error) {
+      console.error('❌ Error initializing asset streams:', error);
+      throw error;
     }
-    
-    console.log(`📊 Initialized streaming for ${this.assetStreams.size} assets`);
   }
 
   /**
