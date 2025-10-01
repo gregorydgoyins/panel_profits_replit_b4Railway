@@ -117,6 +117,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // PriceCharting Integration - Fetch real comic book pricing data
+  app.get('/api/admin/pricecharting/test', async (req: any, res) => {
+    try {
+      const { priceChartingService } = await import('./services/priceChartingService');
+      
+      console.log('💰 Testing PriceCharting API connection...');
+      const prices = await priceChartingService.fetchComicBookPrices();
+      
+      if (prices.length === 0) {
+        return res.json({
+          success: false,
+          message: 'PriceCharting returned no data. Check API token or endpoint.',
+          sampleData: []
+        });
+      }
+      
+      res.json({
+        success: true,
+        message: `Successfully fetched ${prices.length} comic book prices from PriceCharting`,
+        sampleData: prices.slice(0, 10)
+      });
+    } catch (error) {
+      console.error('❌ PriceCharting test failed:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to test PriceCharting connection',
+        details: (error as Error).message
+      });
+    }
+  });
+
   // Entry Test Routes - Hidden Psychological Profiling
   app.post('/api/entry-test/submit', isAuthenticated, async (req: any, res) => {
     try {
