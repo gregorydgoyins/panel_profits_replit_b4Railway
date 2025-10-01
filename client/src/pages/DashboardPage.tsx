@@ -61,6 +61,7 @@ import { PublisherPerformanceWidget } from '@/components/dashboard/PublisherPerf
 import { CreatorInfluenceWidget } from '@/components/dashboard/CreatorInfluenceWidget';
 import { GadgetsMemorabiliaWidget } from '@/components/dashboard/GadgetsMemorabiliaWidget';
 import TrendingCharactersWidget from '@/components/dashboard/TrendingCharactersWidget';
+import CreatorSpotlightWidget from '@/components/dashboard/CreatorSpotlightWidget';
 
 // Mosaic Layout System
 import { MosaicLayout, MosaicItem, MosaicSection } from '@/components/dashboard/MosaicLayout';
@@ -490,6 +491,11 @@ export default function DashboardPage() {
           {/* Trending Characters - Heroes & Villains Trading */}
           <MosaicItem span={1}>
             <TrendingCharactersWidget />
+          </MosaicItem>
+          
+          {/* Creator Spotlight - Hot Writers & Artists */}
+          <MosaicItem span={1}>
+            <CreatorSpotlightWidget />
           </MosaicItem>
           
           {/* Gadgets & Memorabilia Tracking */}

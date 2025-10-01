@@ -481,6 +481,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Creator Spotlight - Hot writers and artists across all publishers
+  app.get("/api/creators/spotlight", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 8;
+      
+      // Fetch creator assets with latest market data
+      const creators = await storage.getAssets({ type: 'CREATOR' });
+      
+      // Get latest prices for creators
+      const creatorsWithPrices = await Promise.all(
+        creators.slice(0, limit).map(async (creator) => {
+          const latestData = await storage.getLatestMarketData(creator.symbol);
+          return {
+            ...creator,
+            price: latestData?.close || null,
+            percentChange: latestData?.percentChange || null,
+            volume: latestData?.volume || null
+          };
+        })
+      );
+      
+      // Sort by price change or random for now
+      const spotlight = creatorsWithPrices.sort((a, b) => {
+        if (a.percentChange && b.percentChange) {
+          return Math.abs(b.percentChange) - Math.abs(a.percentChange);
+        }
+        return Math.random() - 0.5;
+      });
+      
+      res.json(spotlight);
+    } catch (error) {
+      console.error('Error fetching creator spotlight:', error);
+      res.status(500).json({ error: "Failed to fetch creator spotlight" });
+    }
+  });
+
   app.post("/api/assets", async (req, res) => {
     try {
       const validatedData = insertAssetSchema.parse(req.body);
