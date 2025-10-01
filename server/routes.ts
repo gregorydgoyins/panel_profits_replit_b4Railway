@@ -63,7 +63,10 @@ import {
   examAttempts,
   subscriberCourseIncentives,
   subscriberActiveBenefits,
-  subscriberIncentiveHistory
+  subscriberIncentiveHistory,
+  easterEggDefinitions,
+  easterEggUserProgress,
+  easterEggUnlocks
 } from "@shared/schema";
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
@@ -2652,7 +2655,7 @@ Respond with valid JSON in this exact format:
   // Get user's certification progress across all pathways
   app.get('/api/certifications/progress', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user!.id;
+      const userId = req.user.claims.sub;
       const progress = await db.select().from(userPathwayProgress).where(eq(userPathwayProgress.userId, userId));
       res.json(progress);
     } catch (error) {
@@ -2681,7 +2684,7 @@ Respond with valid JSON in this exact format:
   // Get user's enrollment for a specific pathway level
   app.get('/api/certifications/enrollments/:pathwayLevelId', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user!.id;
+      const userId = req.user.claims.sub;
       const { pathwayLevelId } = req.params;
       const enrollments = await db.select().from(userCourseEnrollments)
         .where(and(
@@ -2698,7 +2701,7 @@ Respond with valid JSON in this exact format:
   // Enroll in a course
   app.post('/api/certifications/enroll', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user!.id;
+      const userId = req.user.claims.sub;
       const { courseId, pathwayLevelId } = req.body;
 
       // Check if already enrolled
@@ -2731,7 +2734,7 @@ Respond with valid JSON in this exact format:
   // Submit exam attempt
   app.post('/api/certifications/exam', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user!.id;
+      const userId = req.user.claims.sub;
       const { courseId, enrollmentId, responses } = req.body;
 
       // Get course and enrollment data
@@ -2956,6 +2959,162 @@ Respond with valid JSON in this exact format:
     } catch (error) {
       console.error('Error submitting exam:', error);
       res.status(500).json({ error: 'Failed to submit exam' });
+    }
+  });
+
+  // ================================
+  // EASTER EGG SYSTEM ROUTES
+  // ================================
+
+  // Get all Easter egg definitions (filtered by subscriber status)
+  app.get('/api/easter-eggs', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+      const isSubscriber = user && user.subscriptionTier !== 'free';
+
+      // Get all active eggs
+      const eggs = await db.select().from(easterEggDefinitions)
+        .where(eq(easterEggDefinitions.isActive, true));
+
+      // Filter by subscriber status and visibility
+      const visibleEggs = eggs.filter(egg => {
+        if (egg.subscribersOnly && !isSubscriber) return false;
+        return true;
+      });
+
+      // Get user's progress to determine which eggs to show
+      const progress = await db.select().from(easterEggUserProgress)
+        .where(eq(easterEggUserProgress.userId, userId));
+
+      const progressMap = new Map(progress.map(p => [p.eggId, p]));
+
+      // Only show non-secret eggs OR eggs the user has discovered
+      const filteredEggs = visibleEggs.filter(egg => {
+        const userProgress = progressMap.get(egg.id);
+        return !egg.isSecret || (userProgress && userProgress.isUnlocked);
+      });
+
+      res.json(filteredEggs);
+    } catch (error) {
+      console.error('Error fetching Easter eggs:', error);
+      res.status(500).json({ error: 'Failed to fetch Easter eggs' });
+    }
+  });
+
+  // Get user's progress on all Easter eggs
+  app.get('/api/easter-eggs/progress', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const progress = await db.select().from(easterEggUserProgress)
+        .where(eq(easterEggUserProgress.userId, userId));
+      res.json(progress);
+    } catch (error) {
+      console.error('Error fetching Easter egg progress:', error);
+      res.status(500).json({ error: 'Failed to fetch Easter egg progress' });
+    }
+  });
+
+  // Get user's unlocked Easter eggs
+  app.get('/api/easter-eggs/unlocked', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const unlocked = await db.select().from(easterEggUnlocks)
+        .where(eq(easterEggUnlocks.userId, userId));
+      res.json(unlocked);
+    } catch (error) {
+      console.error('Error fetching unlocked Easter eggs:', error);
+      res.status(500).json({ error: 'Failed to fetch unlocked Easter eggs' });
+    }
+  });
+
+  // Claim reward from an unlocked Easter egg
+  app.post('/api/easter-eggs/claim/:unlockId', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { unlockId } = req.params;
+
+      // Get the unlock record
+      const [unlock] = await db.select().from(easterEggUnlocks)
+        .where(and(
+          eq(easterEggUnlocks.id, unlockId),
+          eq(easterEggUnlocks.userId, userId)
+        ))
+        .limit(1);
+
+      if (!unlock) {
+        return res.status(404).json({ error: 'Unlock not found' });
+      }
+
+      if (unlock.rewardClaimed) {
+        return res.status(400).json({ error: 'Reward already claimed' });
+      }
+
+      // Apply reward based on type
+      const rewardValue = parseFloat(unlock.rewardValue);
+      let rewardApplied = false;
+
+      if (unlock.rewardType === 'capital_bonus') {
+        // Add capital to user's portfolio
+        const [portfolio] = await db.select().from(portfolios)
+          .where(eq(portfolios.userId, userId))
+          .limit(1);
+
+        if (portfolio) {
+          const newCash = parseFloat(portfolio.cash) + rewardValue;
+          await db.update(portfolios)
+            .set({ cash: newCash.toString() })
+            .where(eq(portfolios.id, portfolio.id));
+          rewardApplied = true;
+        }
+      } else if (unlock.rewardType === 'fee_waiver' || unlock.rewardType === 'xp_boost') {
+        // Update user's active benefits
+        const [benefits] = await db.select().from(subscriberActiveBenefits)
+          .where(eq(subscriberActiveBenefits.userId, userId))
+          .limit(1);
+
+        if (benefits) {
+          let updates: any = {};
+          if (unlock.rewardType === 'fee_waiver') {
+            updates.tradingFeeDiscount = Math.max(parseFloat(benefits.tradingFeeDiscount), rewardValue).toString();
+          } else if (unlock.rewardType === 'xp_boost') {
+            updates.xpMultiplier = Math.max(parseFloat(benefits.xpMultiplier), rewardValue).toString();
+          }
+          updates.updatedAt = new Date();
+
+          await db.update(subscriberActiveBenefits)
+            .set(updates)
+            .where(eq(subscriberActiveBenefits.userId, userId));
+          rewardApplied = true;
+        } else {
+          // Create new benefits record
+          const initialBenefits: any = {
+            userId,
+            totalCapitalBonusEarned: '0',
+            pendingCapitalBonus: '0',
+            tradingFeeDiscount: unlock.rewardType === 'fee_waiver' ? rewardValue.toString() : '0',
+            xpMultiplier: unlock.rewardType === 'xp_boost' ? rewardValue.toString() : '1.00',
+            displayBadge: false
+          };
+
+          await db.insert(subscriberActiveBenefits).values(initialBenefits);
+          rewardApplied = true;
+        }
+      }
+
+      // Mark as claimed
+      await db.update(easterEggUnlocks)
+        .set({
+          rewardClaimed: true,
+          rewardClaimedAt: new Date(),
+          rewardApplied
+        })
+        .where(eq(easterEggUnlocks.id, unlockId));
+
+      res.json({ success: true, rewardApplied });
+    } catch (error) {
+      console.error('Error claiming Easter egg reward:', error);
+      res.status(500).json({ error: 'Failed to claim reward' });
     }
   });
 
