@@ -40,6 +40,7 @@ import { PortfolioGreeksWidget } from '@/components/dashboard/PortfolioGreeksWid
 import { NewsTicker } from '@/components/dashboard/NewsTicker';
 import { StockTickerWidget } from '@/components/dashboard/StockTickerWidget';
 import { ComicCoverCardsWidget } from '@/components/dashboard/ComicCoverCardsWidget';
+import { ComicHeatMapWidget } from '@/components/dashboard/ComicHeatMapWidget';
 
 interface DashboardStats {
   portfolioValue: number;
@@ -405,8 +406,9 @@ export default function DashboardPage() {
           <VolatilitySurfaceWidget />
         </div>
 
-        <div className="grid grid-cols-1 gap-6 mt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           <CorrelationMatrixWidget />
+          <ComicHeatMapWidget />
         </div>
 
         {/* Trading Tools Grid */}
