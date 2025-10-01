@@ -3130,6 +3130,218 @@ Respond with valid JSON in this exact format:
     }
   });
 
+  // =============================================
+  // INVESTMENT CLUBS API ROUTES
+  // =============================================
+
+  const { investmentClubService } = await import('./services/investmentClubService.js');
+  const { insertInvestmentClubSchema, insertClubProposalSchema } = await import('@shared/schema.js');
+
+  // Create new investment club
+  app.post('/api/investment-clubs/create', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { name, description, minMembers, initialMembers } = req.body;
+
+      const club = await investmentClubService.createClub(userId, {
+        name,
+        description,
+        minMembers: minMembers || 3
+      }, initialMembers || []);
+
+      res.json(club);
+    } catch (error) {
+      console.error('Error creating investment club:', error);
+      res.status(400).json({ error: (error as Error).message });
+    }
+  });
+
+  // Get user's clubs
+  app.get('/api/investment-clubs', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const clubs = await storage.getUserInvestmentClubs(userId);
+      res.json(clubs);
+    } catch (error) {
+      console.error('Error fetching user clubs:', error);
+      res.status(500).json({ error: 'Failed to fetch clubs' });
+    }
+  });
+
+  // Get club details
+  app.get('/api/investment-clubs/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+
+      const club = await storage.getInvestmentClub(id);
+      if (!club) {
+        return res.status(404).json({ error: 'Club not found' });
+      }
+
+      const membership = await storage.getClubMembership(id, userId);
+      if (!membership) {
+        return res.status(403).json({ error: 'Not a member of this club' });
+      }
+
+      const members = await storage.getClubMemberships(id, 'active');
+      const portfolio = await storage.getClubPortfolioByClubId(id);
+
+      res.json({
+        ...club,
+        members,
+        portfolio,
+        userRole: membership.role
+      });
+    } catch (error) {
+      console.error('Error fetching club details:', error);
+      res.status(500).json({ error: 'Failed to fetch club details' });
+    }
+  });
+
+  // Invite member to club
+  app.post('/api/investment-clubs/:id/invite', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { inviteeId } = req.body;
+      const inviterId = req.user.id;
+
+      await investmentClubService.inviteMember(id, inviterId, inviteeId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error inviting member:', error);
+      res.status(400).json({ error: (error as Error).message });
+    }
+  });
+
+  // Join club (accept invitation)
+  app.post('/api/investment-clubs/:id/join', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+
+      await investmentClubService.acceptInvitation(id, userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error joining club:', error);
+      res.status(400).json({ error: (error as Error).message });
+    }
+  });
+
+  // Leave club
+  app.post('/api/investment-clubs/:id/leave', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+
+      await investmentClubService.leaveClub(id, userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error leaving club:', error);
+      res.status(400).json({ error: (error as Error).message });
+    }
+  });
+
+  // Remove member from club
+  app.delete('/api/investment-clubs/:id/members/:userId', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id, userId: memberIdToRemove } = req.params;
+      const removerId = req.user.id;
+
+      await investmentClubService.removeMember(id, removerId, memberIdToRemove);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error removing member:', error);
+      res.status(400).json({ error: (error as Error).message });
+    }
+  });
+
+  // Create proposal
+  app.post('/api/investment-clubs/:id/proposals', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+      const proposalData = req.body;
+
+      const proposal = await investmentClubService.createProposal(id, userId, proposalData);
+      res.json(proposal);
+    } catch (error) {
+      console.error('Error creating proposal:', error);
+      res.status(400).json({ error: (error as Error).message });
+    }
+  });
+
+  // Get club proposals
+  app.get('/api/investment-clubs/:id/proposals', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { status, proposalType } = req.query;
+
+      const proposals = await storage.getClubProposals(id, {
+        status: status as string,
+        proposalType: proposalType as string
+      });
+
+      res.json(proposals);
+    } catch (error) {
+      console.error('Error fetching proposals:', error);
+      res.status(500).json({ error: 'Failed to fetch proposals' });
+    }
+  });
+
+  // Cast vote on proposal
+  app.post('/api/investment-clubs/:id/proposals/:proposalId/vote', isAuthenticated, async (req: any, res) => {
+    try {
+      const { proposalId } = req.params;
+      const { vote } = req.body;
+      const userId = req.user.id;
+
+      if (!['for', 'against', 'abstain'].includes(vote)) {
+        return res.status(400).json({ error: 'Invalid vote type' });
+      }
+
+      await investmentClubService.castVote(proposalId, userId, vote);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error casting vote:', error);
+      res.status(400).json({ error: (error as Error).message });
+    }
+  });
+
+  // Get club activity log
+  app.get('/api/investment-clubs/:id/activity', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { limit } = req.query;
+
+      const userId = req.user.id;
+      const membership = await storage.getClubMembership(id, userId);
+      if (!membership) {
+        return res.status(403).json({ error: 'Not a member of this club' });
+      }
+
+      const activityLog = await storage.getClubActivityLog(id, limit ? parseInt(limit as string) : 50);
+      res.json(activityLog);
+    } catch (error) {
+      console.error('Error fetching activity log:', error);
+      res.status(500).json({ error: 'Failed to fetch activity log' });
+    }
+  });
+
+  // Dissolve club (owner only)
+  app.post('/api/investment-clubs/:id/dissolve', isAuthenticated, async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.user.id;
+
+      await investmentClubService.dissolveClub(id, userId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error dissolving club:', error);
+      res.status(400).json({ error: (error as Error).message });
+    }
+  });
+
   // Initialize WebSocket notification service for real-time notifications
   console.log('🔔 Initializing WebSocket notification service...');
   wsNotificationService.initialize(httpServer, '/ws/notifications');

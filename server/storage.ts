@@ -645,6 +645,52 @@ export interface IStorage {
   }>;
 
   // =============================================
+  // INVESTMENT CLUBS METHODS
+  // =============================================
+
+  // Investment Clubs
+  getInvestmentClub(id: string): Promise<InvestmentClub | undefined>;
+  getInvestmentClubs(filters?: { status?: string; ownerId?: string }): Promise<InvestmentClub[]>;
+  getUserInvestmentClubs(userId: string): Promise<InvestmentClub[]>;
+  createInvestmentClub(club: InsertInvestmentClub): Promise<InvestmentClub>;
+  updateInvestmentClub(id: string, club: Partial<InsertInvestmentClub>): Promise<InvestmentClub | undefined>;
+  deleteInvestmentClub(id: string): Promise<boolean>;
+
+  // Club Memberships
+  getClubMembership(clubId: string, userId: string): Promise<ClubMembership | undefined>;
+  getClubMemberships(clubId: string, status?: string): Promise<ClubMembership[]>;
+  getUserClubMemberships(userId: string, status?: string): Promise<ClubMembership[]>;
+  createClubMembership(membership: InsertClubMembership): Promise<ClubMembership>;
+  updateClubMembership(id: string, membership: Partial<InsertClubMembership>): Promise<ClubMembership | undefined>;
+  deleteClubMembership(id: string): Promise<boolean>;
+
+  // Club Portfolios
+  getClubPortfolio(id: string): Promise<ClubPortfolio | undefined>;
+  getClubPortfolioByClubId(clubId: string): Promise<ClubPortfolio | undefined>;
+  createClubPortfolio(portfolio: InsertClubPortfolio): Promise<ClubPortfolio>;
+  updateClubPortfolio(id: string, portfolio: Partial<InsertClubPortfolio>): Promise<ClubPortfolio | undefined>;
+
+  // Club Proposals
+  getClubProposal(id: string): Promise<ClubProposal | undefined>;
+  getClubProposals(clubId: string, filters?: { status?: string; proposalType?: string }): Promise<ClubProposal[]>;
+  createClubProposal(proposal: InsertClubProposal): Promise<ClubProposal>;
+  updateClubProposal(id: string, proposal: Partial<InsertClubProposal>): Promise<ClubProposal | undefined>;
+  deleteClubProposal(id: string): Promise<boolean>;
+
+  // Club Votes
+  getClubVote(proposalId: string, userId: string): Promise<ClubVote | undefined>;
+  getClubVotes(proposalId: string): Promise<ClubVote[]>;
+  createClubVote(vote: InsertClubVote): Promise<ClubVote>;
+
+  // Club Activity Log
+  getClubActivityLog(clubId: string, limit?: number): Promise<ClubActivityLog[]>;
+  createClubActivityLog(log: InsertClubActivityLog): Promise<ClubActivityLog>;
+
+  // Career Pathway (for eligibility checks)
+  getCareerPathwayLevel(id: string): Promise<CareerPathwayLevel | undefined>;
+  getUserPathwayProgress(userId: string): Promise<UserPathwayProgress | undefined>;
+
+  // =============================================
   // PHASE 8: EXTERNAL INTEGRATION METHODS
   // =============================================
 
