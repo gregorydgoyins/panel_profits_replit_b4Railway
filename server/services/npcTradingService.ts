@@ -296,7 +296,7 @@ export class NPCTradingService {
             gte(marketData.periodStart, oneDayAgo)
           )
         )
-        .orderBy(desc(marketData.periodStart));
+        .orderBy(sql`${marketData.periodStart} DESC`);
 
       if (recentData.length === 0) {
         return {
@@ -413,7 +413,7 @@ export class NPCTradingService {
             gte(marketEvents.eventDate, oneDayAgo)
           )
         )
-        .orderBy(desc(marketEvents.eventDate));
+        .orderBy(sql`${marketEvents.eventDate} DESC`);
 
       for (const event of recentEvents) {
         const affectedAssets = event.affectedAssets || [];
