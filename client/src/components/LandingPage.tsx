@@ -62,18 +62,6 @@ export function LandingPage() {
       
       {/* Dark overlay for text readability */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-black/80 z-10" />
-      
-      {/* Subtle grid overlay for trading floor effect */}
-      <div 
-        className="absolute inset-0 opacity-5 z-10"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(74, 222, 128, 0.05) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(74, 222, 128, 0.05) 1px, transparent 1px)
-          `,
-          backgroundSize: '50px 50px',
-        }}
-      />
 
       {/* Minimal header with theme toggle */}
       <header className="absolute top-0 right-0 p-6 z-50">
