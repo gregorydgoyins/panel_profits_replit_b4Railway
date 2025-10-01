@@ -2486,62 +2486,52 @@ Respond with valid JSON in this exact format:
   await priceStreamingService.start();
   console.log('💹 Price streaming service started');
 
-  // Setup WebSocket for real-time market data with proper path filtering
+  // Setup WebSocket for real-time market data
+  // Try simple server mode with path - client monkey-patch is now disabled
   const wss = new WebSocketServer({ 
     server: httpServer,
-    path: '/ws/market-data' // Only accept connections to this specific path
+    path: '/ws/market-data',
+    perMessageDeflate: false // Disable compression to avoid frame issues
   });
   
   // Store connected clients for broadcasting
   const marketDataClients = new Set<any>();
   
   wss.on('connection', (ws, req) => {
-    // Double-check the path to ensure we only handle market data WebSocket connections
-    if (req.url !== '/ws/market-data') {
-      console.warn(`🚫 Rejecting WebSocket connection to invalid path: ${req.url}`);
-      ws.close(1008, 'Invalid WebSocket path');
-      return;
-    }
     console.log('📡 New WebSocket client connected for market data');
     
     // Apply WebSocket close code sanitization to this connection
     patchWebSocketWithSanitization(ws);
     
+    // Setup heartbeat to keep connection alive
+    (ws as any).isAlive = true;
+    ws.on('pong', () => {
+      (ws as any).isAlive = true;
+    });
+    
     marketDataClients.add(ws);
     
-    // Add client to price streaming service - TEMPORARILY DISABLED TO DEBUG
-    //priceStreamingService.addClient(ws);
+    // Add client to price streaming service
+    priceStreamingService.addClient(ws);
     
-    // DEBUGGING: Delay market overview send to see if connection stays open
-    setTimeout(() => {
-      console.log(`🔍 WebSocket state after 2s delay: ${ws.readyState} (1=OPEN, 2=CLOSING, 3=CLOSED)`);
-      
-      if (ws.readyState === 1) {
-        console.log('✅ Connection still open after 2s, adding to price streaming');
-        priceStreamingService.addClient(ws);
-        
-        marketSimulation.getMarketOverview().then(overview => {
-          if (ws.readyState !== 1) {
-            console.warn(`⚠️ WebSocket not in OPEN state (${ws.readyState}), skipping market overview send`);
-            return;
-          }
-          
-          const message = {
-            type: 'market_overview',
-            data: overview,
-            timestamp: new Date().toISOString()
-          };
-          
-          console.log(`📤 Sending initial market overview to client (${JSON.stringify(message).length} bytes)`);
-          safeWebSocketSend(ws, message);
-          console.log('✅ Market overview sent successfully');
-        }).catch(error => {
-          console.error('❌ Error getting market overview:', error);
-        });
-      } else {
-        console.warn('⚠️ Connection already closed after 2s delay');
+    // Send initial market overview
+    marketSimulation.getMarketOverview().then(overview => {
+      if (ws.readyState !== 1) {
+        console.warn(`⚠️ WebSocket not in OPEN state (${ws.readyState}), skipping market overview send`);
+        return;
       }
-    }, 2000);
+      
+      const message = {
+        type: 'market_overview',
+        data: overview,
+        timestamp: new Date().toISOString()
+      };
+      
+      console.log(`📤 Sending initial market overview to client (${JSON.stringify(message).length} bytes)`);
+      safeWebSocketSend(ws, message);
+    }).catch(error => {
+      console.error('❌ Error getting market overview:', error);
+    });
     
     ws.on('message', (message) => {
       try {
@@ -2645,6 +2635,21 @@ Respond with valid JSON in this exact format:
   
   // Broadcast updates every 30 seconds
   setInterval(broadcastMarketUpdate, 30000);
+  
+  // Heartbeat interval to keep connections alive and terminate dead ones
+  setInterval(() => {
+    wss.clients.forEach((ws: any) => {
+      if (ws.isAlive === false) {
+        console.log('💀 Terminating dead WebSocket connection');
+        marketDataClients.delete(ws);
+        priceStreamingService.removeClient(ws);
+        return ws.terminate();
+      }
+      
+      ws.isAlive = false;
+      ws.ping();
+    });
+  }, 30000); // Ping every 30 seconds
   
   // Store the broadcast function for use in market simulation
   (marketSimulation as any).broadcastUpdate = broadcastMarketUpdate;

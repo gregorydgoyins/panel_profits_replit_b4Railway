@@ -1,4 +1,5 @@
-import "./vite-hmr-fix";
+// DISABLED: WebSocket monkey-patching was causing immediate disconnects (code 1006)
+// import "./vite-hmr-fix";
 import "@fontsource/space-grotesk/300.css";
 import "@fontsource/space-grotesk/400.css";
 import "@fontsource/space-grotesk/500.css";

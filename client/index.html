@@ -18,6 +18,7 @@
         --font-mono: 'JetBrains Mono', 'SF Mono', Monaco, 'Inconsolata', 'Roboto Mono', monospace;
       }
     </style>
+    <!-- DISABLED: WebSocket monkey-patching was causing immediate disconnects (code 1006)
     <script>
       // Critical WebSocket fix for Vite HMR - must run before any other scripts
       console.log('🔧 Applying EARLY WebSocket fix for Vite HMR...');
@@ -82,6 +83,7 @@
       
       console.log('✅ EARLY WebSocket fix applied - Vite HMR should work now');
     </script>
+    -->
   </head>
   <body>
     <div id="root"></div>
