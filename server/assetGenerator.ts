@@ -5,7 +5,7 @@
 
 import crypto from 'crypto';
 import { tickerGenerator, type AssetCategory } from './tickerGenerator.js';
-import { db } from './db.js';
+import { db } from './databaseStorage';
 import { assets, insertAssetSchema } from '../shared/schema.js';
 
 interface AssetData {
@@ -386,27 +386,21 @@ export class AssetGenerator {
         const float = this.calculateFloat(data.estimatedMarketCap);
         const initialPrice = this.calculateInitialPrice(data.estimatedMarketCap, float);
 
-        // Create asset
+        // Create asset with only the fields that exist in the schema
         const asset = {
-          name: data.name,
           symbol: ticker,
+          name: data.name,
           type: data.category,
           description: data.description,
-          publisher: data.metadata.publisher || 'Unknown',
-          currentPrice: initialPrice,
-          dayChange: 0,
-          dayChangePercent: 0,
-          volume: Math.floor(float * 0.01), // 1% of float as daily volume
-          marketCap: data.estimatedMarketCap,
-          peRatio: Math.random() * 30 + 10,
-          high52Week: initialPrice * 1.5,
-          low52Week: initialPrice * 0.5,
-          avgVolume: Math.floor(float * 0.01),
-          beta: Math.random() * 2,
-          dividendYield: 0,
-          exDividendDate: null,
           imageUrl: data.metadata.imageUrl,
-          metadata: data.metadata
+          metadata: {
+            ...data.metadata,
+            publisher: data.metadata.publisher || 'Unknown',
+            estimatedMarketCap: data.estimatedMarketCap,
+            float: float,
+            initialPrice: initialPrice,
+            popularity: data.popularity
+          }
         };
 
         const validated = insertAssetSchema.parse(asset);
