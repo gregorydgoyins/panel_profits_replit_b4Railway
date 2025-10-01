@@ -4,7 +4,7 @@
  * Test Asset System - Validates ticker uniqueness and market data integrity
  */
 
-import { db } from '../server/databaseStorage';
+import { db } from '../server/databaseStorage.js';
 import { assets, marketData } from '../shared/schema.js';
 import { sql } from 'drizzle-orm';
 
@@ -83,6 +83,47 @@ async function main() {
 
     console.log(`   Hierarchical format tickers: ${hierarchicalCount}/${totalAssets} (${hierarchicalRate}%)`);
 
+    // Test 6: OHLCV Data Validation
+    console.log('\n📝 Test 6: OHLCV Data Validation');
+    const invalidOHLCV = await db.execute(sql`
+      SELECT COUNT(*) as count
+      FROM market_data
+      WHERE CAST(low AS DECIMAL) > CAST(open AS DECIMAL)
+         OR CAST(low AS DECIMAL) > CAST(close AS DECIMAL)
+         OR CAST(high AS DECIMAL) < CAST(open AS DECIMAL)
+         OR CAST(high AS DECIMAL) < CAST(close AS DECIMAL)
+    `);
+    
+    const invalidCount = Number(invalidOHLCV.rows[0].count);
+    console.log(`   Invalid OHLCV bars: ${invalidCount}`);
+    
+    if (invalidCount === 0) {
+      console.log('   ✅ All OHLCV data is valid (low ≤ open/close ≤ high)');
+    } else {
+      console.log(`   ❌ Found ${invalidCount} invalid OHLCV bars!`);
+    }
+
+    // Test 7: Technical Indicator Bounds
+    console.log('\n📝 Test 7: Technical Indicator Bounds');
+    const invalidRSI = await db.execute(sql`
+      SELECT COUNT(*) as count
+      FROM market_data
+      WHERE technical_indicators IS NOT NULL
+        AND (
+          CAST(technical_indicators->>'rsi' AS DECIMAL) < 0
+          OR CAST(technical_indicators->>'rsi' AS DECIMAL) > 100
+        )
+    `);
+    
+    const invalidRSICount = Number(invalidRSI.rows[0].count);
+    console.log(`   Invalid RSI values (out of 0-100 range): ${invalidRSICount}`);
+    
+    if (invalidRSICount === 0) {
+      console.log('   ✅ All RSI indicators are within valid bounds');
+    } else {
+      console.log(`   ❌ Found ${invalidRSICount} invalid RSI values!`);
+    }
+
     // Final Results
     console.log('\n' + '='.repeat(60));
     console.log('✨ Test Summary');
@@ -96,7 +137,9 @@ async function main() {
     const allTestsPassed = (
       totalAssets === uniqueTickers &&
       assigned === totalAssets &&
-      Number(marketDataCount[0].count) > 0
+      Number(marketDataCount[0].count) > 0 &&
+      invalidCount === 0 &&
+      invalidRSICount === 0
     );
 
     if (allTestsPassed) {

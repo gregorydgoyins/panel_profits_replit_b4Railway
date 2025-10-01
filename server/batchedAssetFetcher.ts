@@ -92,7 +92,7 @@ export class BatchedAssetFetcher {
     while (results.length < targetCount && offset < maxOffset) {
       try {
         this.stats.apiCalls++;
-        const batch = await assetGenerator['fetchComicVineTeams'](batchSize);
+        const batch = await assetGenerator['fetchComicVineTeams'](batchSize, offset);
         
         const unique = batch.filter(asset => !this.isDuplicate(asset.name));
         results.push(...unique);
@@ -128,7 +128,7 @@ export class BatchedAssetFetcher {
     while (results.length < targetCount && offset < maxOffset) {
       try {
         this.stats.apiCalls++;
-        const batch = await assetGenerator['fetchComicVineLocations'](batchSize);
+        const batch = await assetGenerator['fetchComicVineLocations'](batchSize, offset);
         
         const unique = batch.filter(asset => !this.isDuplicate(asset.name));
         results.push(...unique);
@@ -164,7 +164,7 @@ export class BatchedAssetFetcher {
     while (results.length < targetCount && offset < maxOffset) {
       try {
         this.stats.apiCalls++;
-        const batch = await assetGenerator['fetchComicVineObjects'](batchSize);
+        const batch = await assetGenerator['fetchComicVineObjects'](batchSize, offset);
         
         const unique = batch.filter(asset => !this.isDuplicate(asset.name));
         results.push(...unique);

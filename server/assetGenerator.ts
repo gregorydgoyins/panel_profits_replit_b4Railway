@@ -345,7 +345,7 @@ export class AssetGenerator {
   /**
    * Fetch teams from Comic Vine
    */
-  async fetchComicVineTeams(limit: number = 100): Promise<AssetData[]> {
+  async fetchComicVineTeams(limit: number = 100, offset: number = 0): Promise<AssetData[]> {
     if (!this.COMIC_VINE_API_KEY) {
       console.warn('Comic Vine API key not found');
       return [];
@@ -353,7 +353,7 @@ export class AssetGenerator {
 
     try {
       const response = await fetch(
-        `https://comicvine.gamespot.com/api/teams/?api_key=${this.COMIC_VINE_API_KEY}&format=json&limit=${limit}&sort=name:asc`,
+        `https://comicvine.gamespot.com/api/teams/?api_key=${this.COMIC_VINE_API_KEY}&format=json&limit=${limit}&offset=${offset}&sort=name:asc`,
         {
           headers: {
             'User-Agent': 'Panel Profits Trading Platform'
@@ -397,7 +397,7 @@ export class AssetGenerator {
   /**
    * Fetch locations from Comic Vine
    */
-  async fetchComicVineLocations(limit: number = 100): Promise<AssetData[]> {
+  async fetchComicVineLocations(limit: number = 100, offset: number = 0): Promise<AssetData[]> {
     if (!this.COMIC_VINE_API_KEY) {
       console.warn('Comic Vine API key not found');
       return [];
@@ -405,7 +405,7 @@ export class AssetGenerator {
 
     try {
       const response = await fetch(
-        `https://comicvine.gamespot.com/api/locations/?api_key=${this.COMIC_VINE_API_KEY}&format=json&limit=${limit}&sort=name:asc`,
+        `https://comicvine.gamespot.com/api/locations/?api_key=${this.COMIC_VINE_API_KEY}&format=json&limit=${limit}&offset=${offset}&sort=name:asc`,
         {
           headers: {
             'User-Agent': 'Panel Profits Trading Platform'
@@ -447,7 +447,7 @@ export class AssetGenerator {
   /**
    * Fetch objects/gadgets from Comic Vine
    */
-  async fetchComicVineObjects(limit: number = 100): Promise<AssetData[]> {
+  async fetchComicVineObjects(limit: number = 100, offset: number = 0): Promise<AssetData[]> {
     if (!this.COMIC_VINE_API_KEY) {
       console.warn('Comic Vine API key not found');
       return [];
@@ -455,7 +455,7 @@ export class AssetGenerator {
 
     try {
       const response = await fetch(
-        `https://comicvine.gamespot.com/api/objects/?api_key=${this.COMIC_VINE_API_KEY}&format=json&limit=${limit}&sort=name:asc`,
+        `https://comicvine.gamespot.com/api/objects/?api_key=${this.COMIC_VINE_API_KEY}&format=json&limit=${limit}&offset=${offset}&sort=name:asc`,
         {
           headers: {
             'User-Agent': 'Panel Profits Trading Platform'

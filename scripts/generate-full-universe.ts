@@ -10,6 +10,7 @@ import { marketDataGenerator } from '../server/marketDataGenerator.js';
 import { sevenHousesAssignment } from '../server/sevenHousesAssignment.js';
 import { assetEnrichment } from '../server/assetEnrichmentService.js';
 import { derivativeGenerator } from '../server/derivativeGenerator.js';
+import { sql } from 'drizzle-orm';
 
 async function main() {
   console.log('🚀 Panel Profits - Full Asset Universe Generation\n');
@@ -31,12 +32,15 @@ async function main() {
     // Step 2: Generate base assets using batched fetcher
     console.log('\n📊 STEP 2: Generating base assets...\n');
     await batchedAssetFetcher.generateLargeAssetUniverse({
-      targetCharacters: 3000,  // Characters from all sources
-      targetTeams: 500,        // Teams and alliances
-      targetLocations: 500,    // Locations and realms
-      targetObjects: 500,      // Gadgets and weapons
-      targetCreators: 300      // Artists and writers
+      targetCharacters: 15000,  // Characters from all sources - scale to 15k
+      targetTeams: 2000,        // Teams and alliances - scale to 2k
+      targetLocations: 2000,    // Locations and realms - scale to 2k
+      targetObjects: 2000,      // Gadgets and weapons - scale to 2k
+      targetCreators: 1000      // Artists and writers - scale to 1k
     });
+    
+    // Total base assets: ~22,000
+    // With derivatives (options, bonds, ETFs): 200,000+ total instruments
 
     // Step 3: Assign assets to Seven Houses
     console.log('\n📊 STEP 3: Assigning assets to Seven Houses...\n');
@@ -53,7 +57,27 @@ async function main() {
 
     // Step 6: Generate derivatives
     console.log('\n📊 STEP 6: Generating derivative instruments...\n');
-    await derivativeGenerator.generateDerivatives([], 50);
+    
+    // Fetch all base assets to generate derivatives from
+    const { db } = await import('../server/databaseStorage.js');
+    const { assets } = await import('../shared/schema.js');
+    const baseAssets = await db.select().from(assets).where(
+      sql`type IN ('HER', 'VIL', 'TEM', 'LOC', 'GAD', 'CRT', 'KEY')`
+    );
+    
+    console.log(`Found ${baseAssets.length} base assets for derivative generation`);
+    
+    // Generate derivatives to reach 200k+ total instruments
+    // Target: 22k base assets * ~10 derivatives each = 220k total
+    await derivativeGenerator.generateDerivatives(
+      baseAssets.map(a => a.symbol),
+      Math.min(baseAssets.length, 20000) // Process up to 20k base assets for derivatives
+    );
+    
+    console.log(`\n🎯 Target: 200,000+ total tradable instruments`);
+    console.log(`   Base assets: ${baseAssets.length.toLocaleString()}`);
+    console.log(`   Expected derivatives: ~${(baseAssets.length * 10).toLocaleString()}`);
+    console.log(`   Estimated total: ~${(baseAssets.length + baseAssets.length * 10).toLocaleString()} instruments`);
 
     // Final summary
     const stats = batchedAssetFetcher.getStats();
