@@ -61,7 +61,7 @@ class RSSFeedService {
   /**
    * Get latest comic book news from all RSS feeds
    */
-  async getLatestNews(limit: number = 20): Promise<RSSFeedItem[]> {
+  async getLatestNews(limit: number = 300): Promise<RSSFeedItem[]> {
     // Return cached news if still fresh
     if (this.shouldUseCachedNews()) {
       return this.cachedNews.slice(0, limit);
@@ -90,7 +90,7 @@ class RSSFeedService {
       try {
         const feed = await this.parser.parseURL(source.url);
         
-        const items: RSSFeedItem[] = (feed.items || []).slice(0, 10).map((item, index) => ({
+        const items: RSSFeedItem[] = (feed.items || []).slice(0, 50).map((item, index) => ({
           id: `${source.name}-${item.guid || item.link || index}`,
           headline: this.cleanHeadline(item.title || 'Untitled'),
           url: item.link || source.url,
@@ -159,7 +159,7 @@ class RSSFeedService {
       return [];
     }
     
-    return data.results.slice(0, 20).map((article: NewsDataArticle) => ({
+    return data.results.slice(0, 100).map((article: NewsDataArticle) => ({
       id: `newsdata-${article.article_id}`,
       headline: this.cleanHeadline(article.title),
       url: article.link,

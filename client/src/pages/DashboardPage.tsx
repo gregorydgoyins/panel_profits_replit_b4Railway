@@ -348,6 +348,11 @@ export default function DashboardPage() {
       {/* Stock Ticker - Live asset prices directly under news ticker */}
       <StockTicker />
 
+      {/* World Clocks - Global market hours under stock ticker */}
+      <div className="max-w-7xl mx-auto px-6 pt-4">
+        <WorldClocksWidget />
+      </div>
+
       {/* Dashboard Content */}
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Quick Stats Row */}
@@ -549,11 +554,8 @@ export default function DashboardPage() {
           <MosaicItem span={1}>
             <EconomicCalendarWidget />
           </MosaicItem>
-          <MosaicItem span={1}>
+          <MosaicItem span={2}>
             <SectorRotationWidget />
-          </MosaicItem>
-          <MosaicItem span={1}>
-            <WorldClocksWidget />
           </MosaicItem>
 
           {/* Advanced Trading Instruments */}
