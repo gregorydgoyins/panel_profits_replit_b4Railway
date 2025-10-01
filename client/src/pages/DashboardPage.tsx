@@ -440,15 +440,15 @@ export default function DashboardPage() {
             <ComicOfTheDayWidget />
           </MosaicSection>
 
-          {/* Key Row: 1 large left box (full vh) + 2 stacked right boxes (50% vh each) */}
+          {/* Key Row: 1 large left box (full vh) + 2 smaller stacked right boxes (50% vh each) */}
           <MosaicItem span={2} rowSpan={2} className="!min-h-[100vh]">
             <PortfolioOverview />
           </MosaicItem>
           <MosaicItem span={1} rowSpan={1} className="!min-h-[50vh]">
-            <PositionMonitorWidget />
+            <MarketOverview />
           </MosaicItem>
           <MosaicItem span={1} rowSpan={1} className="!min-h-[50vh]">
-            <TradingBalance />
+            <FearGreedWidget />
           </MosaicItem>
 
           {/* Visual Row: Comic Covers Gallery (full width) */}
@@ -456,19 +456,22 @@ export default function DashboardPage() {
             <ComicCoverWidget />
           </MosaicSection>
 
-          {/* Holdings Section - Wide view for detail */}
-          <MosaicItem span={2}>
-            <PortfolioHoldings />
+          {/* Trading & Position Info */}
+          <MosaicItem span={1}>
+            <TradingBalance />
+          </MosaicItem>
+          <MosaicItem span={1}>
+            <PositionMonitorWidget />
           </MosaicItem>
           <MosaicItem span={1}>
             <WatchlistPanelWidget />
           </MosaicItem>
 
-          {/* Market Context Row */}
-          <MosaicItem span={1}>
-            <MarketOverview />
-          </MosaicItem>
+          {/* Holdings Section - Wide view for detail */}
           <MosaicItem span={2}>
+            <PortfolioHoldings />
+          </MosaicItem>
+          <MosaicItem span={1}>
             <PublisherPerformanceWidget />
           </MosaicItem>
 
