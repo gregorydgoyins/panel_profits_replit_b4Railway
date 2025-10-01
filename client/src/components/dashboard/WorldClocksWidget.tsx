@@ -93,8 +93,9 @@ export function WorldClocksWidget() {
     timezone: string,
     openHour: number,
     closeHour: number,
-    hasAfterHours: boolean = false,
-    afterHoursEnd?: number
+    hasExtendedHours: boolean = false,
+    extendedStart?: number,
+    extendedEnd?: number
   ): 'open' | 'closed' | 'after-hours' => {
     const now = new Date();
     const marketTime = new Date(now.toLocaleString('en-US', { timeZone: timezone }));
@@ -110,9 +111,20 @@ export function WorldClocksWidget() {
       return 'closed';
     }
 
-    // Check after-hours trading (only for NY)
-    if (hasAfterHours && afterHoursEnd && currentMinutes >= closeMinutes && currentMinutes < afterHoursEnd * 60) {
-      return 'after-hours';
+    // Check extended hours trading (pre-market or after-hours)
+    if (hasExtendedHours && extendedStart !== undefined && extendedEnd !== undefined) {
+      const extendedStartMinutes = extendedStart * 60;
+      const extendedEndMinutes = extendedEnd * 60;
+      
+      // Pre-market (before regular hours)
+      if (currentMinutes >= extendedStartMinutes && currentMinutes < openMinutes) {
+        return 'after-hours';
+      }
+      
+      // After-hours (after regular hours)
+      if (currentMinutes >= closeMinutes && currentMinutes < extendedEndMinutes) {
+        return 'after-hours';
+      }
     }
 
     // Regular trading hours
@@ -130,12 +142,13 @@ export function WorldClocksWidget() {
   };
 
   const updateMarkets = () => {
-    // NYSE has after-hours until 8pm
-    const nyseStatus = getMarketStatus('America/New_York', 9.5, 16, true, 20); // 9:30 AM - 4:00 PM, after-hours until 8 PM
-    const lseStatus = getMarketStatus('Europe/London', 8, 16.5); // No after-hours
-    const xetraStatus = getMarketStatus('Europe/Berlin', 9, 17.5); // No after-hours
-    const tseStatus = getMarketStatus('Asia/Tokyo', 9, 15); // No after-hours
-    const hkexStatus = getMarketStatus('Asia/Hong_Kong', 9.5, 16); // No after-hours
+    // NYSE has pre-market (4am) and after-hours (until 8pm)
+    const nyseStatus = getMarketStatus('America/New_York', 9.5, 16, true, 4, 20); // Pre: 4 AM - 9:30 AM, Regular: 9:30 AM - 4:00 PM, After: 4 PM - 8 PM
+    const lseStatus = getMarketStatus('Europe/London', 8, 16.5); // No extended hours
+    // XETRA has extended trading hours (8am-10pm, regular 9am-5:30pm)
+    const xetraStatus = getMarketStatus('Europe/Berlin', 9, 17.5, true, 8, 22); // Extended: 8 AM - 10 PM, Regular: 9 AM - 5:30 PM
+    const tseStatus = getMarketStatus('Asia/Tokyo', 9, 15); // No extended hours
+    const hkexStatus = getMarketStatus('Asia/Hong_Kong', 9.5, 16); // No extended hours
 
     setMarkets([
       {
@@ -285,7 +298,7 @@ export function WorldClocksWidget() {
           </div>
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 rounded-full bg-yellow-500" />
-            <span>After Hours (NY only)</span>
+            <span>Extended Hours (NY: 4am-8pm, Frankfurt: 8am-10pm)</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 rounded-full bg-red-500" />
