@@ -60,8 +60,8 @@ export function LandingPage() {
         Your browser does not support the video tag.
       </video>
       
-      {/* Dark overlay for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-black/80 z-10" />
+      {/* Dark overlay for text readability - lightened for brighter video */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/60 z-10" />
 
       {/* Minimal header with theme toggle */}
       <header className="absolute top-0 right-0 p-6 z-50">
@@ -83,7 +83,7 @@ export function LandingPage() {
 
       {/* Main content - centered login area with lighter overlay (reduced from 60% to 40%) */}
       <main className="flex-1 flex items-center justify-center px-6 relative z-20">
-        <div className="w-full max-w-md backdrop-blur-md bg-black/40 p-12 rounded-lg border border-white/10 shadow-2xl">
+        <div className="w-full max-w-md backdrop-blur-md bg-black/40 p-12 rounded-lg border border-white/10">
           {/* Logo and tagline with stronger text */}
           <div className="text-center mb-12">
             <h1 
@@ -106,13 +106,16 @@ export function LandingPage() {
           <div className="space-y-4">
             <Link href="/auth">
               <Button 
-                className="w-full h-12 text-base tracking-wider uppercase bg-white text-black hover:bg-gray-100 shadow-xl"
+                className="w-full h-12 text-base tracking-wider uppercase bg-white text-black hover:bg-gray-100"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
                 variant="default"
                 size="lg"
                 data-testid="button-begin-test"
               >
-                Begin Entry Test
+                <div className="flex flex-col items-center gap-0.5">
+                  <span className="text-base font-bold">Help Wanted</span>
+                  <span className="text-xs font-normal">Closers Only</span>
+                </div>
               </Button>
             </Link>
 
