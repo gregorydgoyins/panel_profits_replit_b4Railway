@@ -135,7 +135,7 @@ export function LandingPage() {
                 size="lg"
                 data-testid="button-begin-test"
               >
-                Help Wanted • Closers Only
+                Help Wanted
               </Button>
             </Link>
 
@@ -163,7 +163,7 @@ export function LandingPage() {
                 size="lg"
                 data-testid="button-member-login"
               >
-                Follow the Money
+                Closers Only
               </Button>
             </Link>
           </div>
