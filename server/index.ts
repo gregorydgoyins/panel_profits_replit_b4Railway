@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeWebSocketProtocolOverride, applyEmergencyProtocolOverride } from "./utils/webSocketProtocolOverride.js";
 import { phase1Services } from "./phase1ScheduledServices.js";
+import { phase2Services } from "./phase2ScheduledServices.js";
 
 
 const app = express();
@@ -87,6 +88,14 @@ app.use((req, res, next) => {
       log('🚀 Phase 1 Core Trading Foundation: All engines are now LIVE and operational!');
     } catch (error) {
       console.error('Failed to start Phase 1 scheduled services:', error);
+    }
+    
+    // PHASE 2 INTEGRATION: Start narrative-driven trading features
+    try {
+      await phase2Services.start();
+      log('📖 Phase 2 Narrative Trading: Storytelling engines are now LIVE!');
+    } catch (error) {
+      console.error('Failed to start Phase 2 scheduled services:', error);
     }
   });
 })();
