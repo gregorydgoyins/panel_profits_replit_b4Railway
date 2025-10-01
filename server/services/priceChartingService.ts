@@ -4,6 +4,7 @@ interface ComicPrice {
   'console-name': string;
   genre?: string;
   'release-date'?: string;
+  'sales-volume'?: string;
   'loose-price'?: number;
   'cib-price'?: number;
   'new-price'?: number;
@@ -11,6 +12,8 @@ interface ComicPrice {
   'manual-only-price'?: number;
   'box-only-price'?: number;
   'bgs-10-price'?: number;
+  'condition-17-price'?: number;
+  'condition-18-price'?: number;
 }
 
 interface ProductsResponse {
@@ -45,8 +48,9 @@ class PriceChartingService {
     }
 
     try {
-      console.log(`💰 Searching PriceCharting for: ${query}`);
+      console.log(`💰 Searching PriceCharting for comics: ${query}`);
       
+      // Search for comic books specifically by including series name
       const url = `${this.baseUrl}/products?t=${this.apiToken}&q=${encodeURIComponent(query)}`;
       const response = await fetch(url);
 
@@ -62,11 +66,21 @@ class PriceChartingService {
         return [];
       }
 
-      const products = data.products;
-      this.cache.set(cacheKey, { data: products, timestamp: Date.now() });
+      // Filter results to ONLY include comic books
+      // Comics have console-name starting with "Comic Books" + series name
+      // Video games have console-name like "Xbox 360", "Playstation 3", etc.
+      const comicProducts = data.products.filter(p => 
+        p['console-name']?.startsWith('Comic Books') ||
+        p['genre'] === 'Comic Book'
+      );
 
-      console.log(`✅ Found ${products.length} products for: ${query}`);
-      return products;
+      this.cache.set(cacheKey, { data: comicProducts, timestamp: Date.now() });
+
+      console.log(`✅ Found ${comicProducts.length} comic books for: ${query}`);
+      if (comicProducts.length > 0) {
+        console.log(`   Top result: ${comicProducts[0]['product-name']} | Publisher: ${comicProducts[0]['publisher-name']} | Series: ${comicProducts[0]['series-name']}`);
+      }
+      return comicProducts;
     } catch (error) {
       console.error('❌ Error searching PriceCharting:', error);
       return [];
@@ -104,6 +118,14 @@ class PriceChartingService {
       console.error('❌ Error fetching product:', error);
       return null;
     }
+  }
+
+  extractSeriesName(consoleName: string): string {
+    // For comics, console-name is "Comic Books {SeriesName}"
+    if (consoleName.startsWith('Comic Books ')) {
+      return consoleName.replace('Comic Books ', '');
+    }
+    return consoleName;
   }
 
   getBestPrice(product: ComicPrice): number {

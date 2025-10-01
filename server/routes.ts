@@ -138,14 +138,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (products.length > 0) {
           const topProduct = products[0];
           const price = priceChartingService.getBestPrice(topProduct);
+          const seriesName = priceChartingService.extractSeriesName(topProduct['console-name']);
           results.push({
             query: test.query,
             type: test.type,
             found: products.length,
             topResult: {
               name: topProduct['product-name'],
-              publisher: topProduct['console-name'],
-              price: `$${price.toFixed(2)}`
+              series: seriesName,
+              genre: topProduct['genre'],
+              releaseDate: topProduct['release-date'],
+              price: `$${price.toFixed(2)}`,
+              gradedPrices: {
+                ungraded: topProduct['loose-price'] ? `$${(topProduct['loose-price'] / 100).toFixed(2)}` : 'N/A',
+                cgc_4: topProduct['cib-price'] ? `$${(topProduct['cib-price'] / 100).toFixed(2)}` : 'N/A',
+                cgc_6: topProduct['new-price'] ? `$${(topProduct['new-price'] / 100).toFixed(2)}` : 'N/A',
+                cgc_8: topProduct['graded-price'] ? `$${(topProduct['graded-price'] / 100).toFixed(2)}` : 'N/A',
+                cgc_92: topProduct['box-only-price'] ? `$${(topProduct['box-only-price'] / 100).toFixed(2)}` : 'N/A',
+                cgc_98: topProduct['manual-only-price'] ? `$${(topProduct['manual-only-price'] / 100).toFixed(2)}` : 'N/A',
+                cgc_10: topProduct['bgs-10-price'] ? `$${(topProduct['bgs-10-price'] / 100).toFixed(2)}` : 'N/A'
+              }
             }
           });
         } else {
