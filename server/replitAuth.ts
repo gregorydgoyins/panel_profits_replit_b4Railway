@@ -165,7 +165,7 @@ export async function setupAuth(app: Express) {
     }
     
     // No session - save intended destination and trigger OAuth flow
-    req.session.returnTo = "/dashboard";
+    (req.session as any).returnTo = "/dashboard";
     return res.redirect("/api/login");
   });
 }
