@@ -423,6 +423,82 @@ export const marketEvents = pgTable("market_events", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Investment Clubs - Collaborative trading clubs
+export const investmentClubs = pgTable("investment_clubs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  ownerId: varchar("owner_id").notNull().references(() => users.id),
+  description: text("description"),
+  minMembers: integer("min_members").default(3),
+  minMonthsPositiveReturns: integer("min_months_positive_returns").default(3),
+  status: text("status").notNull().default("active"), // 'active', 'suspended', 'dissolved'
+  totalValue: decimal("total_value", { precision: 15, scale: 2 }),
+  monthlyReturns: decimal("monthly_returns", { precision: 8, scale: 2 }).array(), // Track last 12 months
+  createdAt: timestamp("created_at").defaultNow(),
+  dissolvedAt: timestamp("dissolved_at"),
+});
+
+// Club memberships - Member roster for investment clubs
+export const clubMemberships = pgTable("club_memberships", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  clubId: varchar("club_id").notNull().references(() => investmentClubs.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  role: text("role").notNull().default("member"), // 'owner', 'admin', 'member'
+  contributionAmount: decimal("contribution_amount", { precision: 15, scale: 2 }),
+  sharePercentage: decimal("share_percentage", { precision: 5, scale: 2 }),
+  joinedAt: timestamp("joined_at").defaultNow(),
+  leftAt: timestamp("left_at"),
+  status: text("status").notNull().default("active"), // 'active', 'removed', 'left'
+});
+
+// Club portfolios - Dedicated portfolio for club trades
+export const clubPortfolios = pgTable("club_portfolios", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  clubId: varchar("club_id").notNull().references(() => investmentClubs.id),
+  portfolioId: varchar("portfolio_id").notNull().references(() => portfolios.id),
+  totalValue: decimal("total_value", { precision: 15, scale: 2 }),
+  cashBalance: decimal("cash_balance", { precision: 15, scale: 2 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Club proposals - Trade proposals requiring votes
+export const clubProposals = pgTable("club_proposals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  clubId: varchar("club_id").notNull().references(() => investmentClubs.id),
+  proposerId: varchar("proposer_id").notNull().references(() => users.id),
+  proposalType: text("proposal_type").notNull(), // 'buy', 'sell', 'transfer_funds', 'change_rules'
+  assetId: varchar("asset_id").references(() => assets.id),
+  quantity: integer("quantity"),
+  targetPrice: decimal("target_price", { precision: 10, scale: 2 }),
+  rationale: text("rationale"),
+  status: text("status").notNull().default("pending"), // 'pending', 'approved', 'rejected', 'executed', 'expired'
+  votesFor: integer("votes_for").default(0),
+  votesAgainst: integer("votes_against").default(0),
+  votesNeeded: integer("votes_needed").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  expiresAt: timestamp("expires_at"),
+  executedAt: timestamp("executed_at"),
+});
+
+// Club votes - Individual member votes on proposals
+export const clubVotes = pgTable("club_votes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  proposalId: varchar("proposal_id").notNull().references(() => clubProposals.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  vote: text("vote").notNull(), // 'for', 'against', 'abstain'
+  votedAt: timestamp("voted_at").defaultNow(),
+});
+
+// Club activity log - Audit trail for club actions
+export const clubActivityLog = pgTable("club_activity_log", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  clubId: varchar("club_id").notNull().references(() => investmentClubs.id),
+  actionType: text("action_type").notNull(), // 'proposal_created', 'vote_cast', 'proposal_executed', 'member_joined', 'member_left', 'funds_deposited', 'funds_withdrawn', 'status_changed'
+  userId: varchar("user_id").references(() => users.id),
+  details: jsonb("details"),
+  timestamp: timestamp("timestamp").defaultNow(),
+});
+
 // Create insert schemas for all tables
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -517,6 +593,38 @@ export const insertKnowledgeTestResultSchema = createInsertSchema(knowledgeTestR
 export const insertKnowledgeTestResponseSchema = createInsertSchema(knowledgeTestResponses).omit({
   id: true,
   createdAt: true,
+});
+
+// Investment Club insert schemas
+export const insertInvestmentClubSchema = createInsertSchema(investmentClubs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertClubMembershipSchema = createInsertSchema(clubMemberships).omit({
+  id: true,
+  joinedAt: true,
+});
+
+export const insertClubPortfolioSchema = createInsertSchema(clubPortfolios).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertClubProposalSchema = createInsertSchema(clubProposals).omit({
+  id: true,
+  createdAt: true,
+  executedAt: true,
+});
+
+export const insertClubVoteSchema = createInsertSchema(clubVotes).omit({
+  id: true,
+  votedAt: true,
+});
+
+export const insertClubActivityLogSchema = createInsertSchema(clubActivityLog).omit({
+  id: true,
+  timestamp: true,
 });
 
 // Beat the AI Challenge Schema
@@ -624,6 +732,24 @@ export type InsertOrder = z.infer<typeof insertOrderSchema>;
 
 export type MarketEvent = typeof marketEvents.$inferSelect;
 export type InsertMarketEvent = z.infer<typeof insertMarketEventSchema>;
+
+export type InvestmentClub = typeof investmentClubs.$inferSelect;
+export type InsertInvestmentClub = z.infer<typeof insertInvestmentClubSchema>;
+
+export type ClubMembership = typeof clubMemberships.$inferSelect;
+export type InsertClubMembership = z.infer<typeof insertClubMembershipSchema>;
+
+export type ClubPortfolio = typeof clubPortfolios.$inferSelect;
+export type InsertClubPortfolio = z.infer<typeof insertClubPortfolioSchema>;
+
+export type ClubProposal = typeof clubProposals.$inferSelect;
+export type InsertClubProposal = z.infer<typeof insertClubProposalSchema>;
+
+export type ClubVote = typeof clubVotes.$inferSelect;
+export type InsertClubVote = z.infer<typeof insertClubVoteSchema>;
+
+export type ClubActivityLog = typeof clubActivityLog.$inferSelect;
+export type InsertClubActivityLog = z.infer<typeof insertClubActivityLogSchema>;
 
 // Comic Series - Information about comic book series (from comic_list CSV)
 export const comicSeries = pgTable("comic_series", {
