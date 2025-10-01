@@ -134,13 +134,13 @@ export function LandingPage() {
             {/* Existing member login */}
             <Link href="/auth">
               <Button 
-                className="w-full h-12 text-base tracking-wider uppercase border-white/50 text-white hover:bg-white hover:text-black shadow-xl backdrop-blur-sm"
+                className="w-full h-12 text-base tracking-wider uppercase border-white/50 text-white hover:bg-white hover:text-black backdrop-blur-sm font-bold"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}
                 variant="outline"
                 size="lg"
                 data-testid="button-member-login"
               >
-                Member Login
+                Follow the Money
               </Button>
             </Link>
           </div>
