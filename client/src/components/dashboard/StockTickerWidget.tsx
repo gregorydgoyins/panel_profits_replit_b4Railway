@@ -25,7 +25,7 @@ export function StockTickerWidget() {
     if (!scrollContainer || isPaused || assets.length === 0) return;
 
     let scrollPosition = 0;
-    const scrollSpeed = 0.5; // pixels per frame
+    const scrollSpeed = 0.167; // pixels per frame
     
     const animate = () => {
       if (scrollContainer && !isPaused) {
