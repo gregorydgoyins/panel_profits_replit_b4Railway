@@ -49,7 +49,7 @@ export function WatchlistManager() {
   const [selectedWatchlist, setSelectedWatchlist] = useState('');
   
   // Real API calls for watchlist data
-  const { data: watchlists, isLoading: isWatchlistsLoading, error: watchlistsError } = useQuery({ 
+  const { data: watchlists, isLoading: isWatchlistsLoading, error: watchlistsError } = useQuery<any[]>({ 
     queryKey: ['/api/watchlists'],
     refetchInterval: 60000 // Refetch every minute
   });
@@ -277,7 +277,7 @@ export function WatchlistManager() {
               )}
             </div>
           ) : (
-            filteredAssets.map((asset) => (
+            filteredAssets.map((asset: any) => (
               <div 
                 key={asset.id} 
                 className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
@@ -383,19 +383,19 @@ export function WatchlistManager() {
               <div>
                 <p className="text-sm text-muted-foreground">Gainers</p>
                 <p className="text-lg font-bold text-green-500" data-testid="text-gainers-count">
-                  {filteredAssets.filter(a => a.dayChange > 0).length}
+                  {filteredAssets.filter((a: any) => a.dayChange > 0).length}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Unchanged</p>
                 <p className="text-lg font-bold text-muted-foreground" data-testid="text-unchanged-count">
-                  {filteredAssets.filter(a => a.dayChange === 0).length}
+                  {filteredAssets.filter((a: any) => a.dayChange === 0).length}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Losers</p>
                 <p className="text-lg font-bold text-red-500" data-testid="text-losers-count">
-                  {filteredAssets.filter(a => a.dayChange < 0).length}
+                  {filteredAssets.filter((a: any) => a.dayChange < 0).length}
                 </p>
               </div>
             </div>

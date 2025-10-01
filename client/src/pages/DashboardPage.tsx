@@ -43,6 +43,10 @@ import { ComicCoverCardsWidget } from '@/components/dashboard/ComicCoverCardsWid
 import { ComicHeatMapWidget } from '@/components/dashboard/ComicHeatMapWidget';
 import { ComicSentimentWidget } from '@/components/dashboard/ComicSentimentWidget';
 import { WorldClocksWidget } from '@/components/dashboard/WorldClocksWidget';
+import { PositionMonitorWidget } from '@/components/dashboard/PositionMonitorWidget';
+import { TradeBlotterWidget } from '@/components/dashboard/TradeBlotterWidget';
+import { WatchlistPanelWidget } from '@/components/dashboard/WatchlistPanelWidget';
+import { CashFlowStatementWidget } from '@/components/dashboard/CashFlowStatementWidget';
 
 interface UserData {
   id: string;
@@ -418,6 +422,9 @@ export default function DashboardPage() {
             {/* Portfolio Overview */}
             <PortfolioOverview />
             
+            {/* Position Monitor - Real-time P&L tracking */}
+            <PositionMonitorWidget />
+            
             {/* Portfolio Holdings */}
             <PortfolioHoldings />
           </div>
@@ -427,13 +434,25 @@ export default function DashboardPage() {
             {/* Trading Balance */}
             <TradingBalance />
             
+            {/* Watchlist Panel - Compact quick-access monitoring */}
+            <WatchlistPanelWidget />
+            
             {/* Market Overview */}
             <MarketOverview />
           </div>
         </div>
 
-        {/* Bottom Row - Watchlist */}
-        <div className="grid grid-cols-1 gap-6">
+        {/* Trade Blotter - Historical trade log */}
+        <div className="grid grid-cols-1 gap-6 mb-6">
+          <TradeBlotterWidget />
+        </div>
+
+        {/* Income & Watchlist Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* Cash Flow Statement - Dividend/income tracking */}
+          <CashFlowStatementWidget />
+          
+          {/* Full Watchlist Manager */}
           <WatchlistManager />
         </div>
 

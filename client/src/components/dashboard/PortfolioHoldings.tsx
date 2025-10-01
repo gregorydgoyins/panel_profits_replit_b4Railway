@@ -44,7 +44,7 @@ export function PortfolioHoldings() {
   const { toast } = useToast();
 
   // Fetch user portfolios to get default portfolio
-  const { data: userPortfolios } = useQuery({
+  const { data: userPortfolios } = useQuery<any[]>({
     queryKey: ['/api/portfolios', 'user', user?.id],
     enabled: !!user,
   });
@@ -52,14 +52,14 @@ export function PortfolioHoldings() {
   const defaultPortfolio = userPortfolios?.[0];
 
   // Fetch real holdings data
-  const { data: holdings = [], isLoading, refetch } = useQuery({
+  const { data: holdings = [], isLoading, refetch } = useQuery<any[]>({
     queryKey: ['/api/portfolios', defaultPortfolio?.id, 'holdings'],
     enabled: !!defaultPortfolio?.id,
     refetchInterval: 30000,
   });
 
   // Transform holdings data to match interface
-  const transformedHoldings = React.useMemo(() => {
+  const transformedHoldings: Holding[] = React.useMemo(() => {
     if (!holdings) return [];
     
     return holdings.map((holding: any) => ({
@@ -81,7 +81,7 @@ export function PortfolioHoldings() {
   }, [holdings]);
 
   // Mock holdings data for fallback when no real data
-  const mockHoldings = [
+  const mockHoldings: Holding[] = [
     {
       id: 'holding-1',
       assetId: 'spider-man',
@@ -157,10 +157,10 @@ export function PortfolioHoldings() {
       dayChange: 0.40,
       dayChangePercent: 1.40
     }
-  ];
+  ] as Holding[];
 
   // Use real holdings if available, otherwise fallback to mock for demo
-  const displayHoldings = transformedHoldings.length > 0 ? transformedHoldings : (user ? [] : mockHoldings);
+  const displayHoldings: Holding[] = transformedHoldings.length > 0 ? transformedHoldings : (user ? [] : mockHoldings);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -203,8 +203,8 @@ export function PortfolioHoldings() {
     return null;
   };
 
-  const totalHoldingsValue = displayHoldings.reduce((sum, holding) => sum + holding.totalValue, 0);
-  const totalUnrealizedPnL = displayHoldings.reduce((sum, holding) => sum + holding.unrealizedPnL, 0);
+  const totalHoldingsValue = displayHoldings.reduce((sum: number, holding: Holding) => sum + holding.totalValue, 0);
+  const totalUnrealizedPnL = displayHoldings.reduce((sum: number, holding: Holding) => sum + holding.unrealizedPnL, 0);
   const totalUnrealizedPnLPercent = totalHoldingsValue > totalUnrealizedPnL && (totalHoldingsValue - totalUnrealizedPnL) > 0 
     ? (totalUnrealizedPnL / (totalHoldingsValue - totalUnrealizedPnL)) * 100 
     : 0;
@@ -236,7 +236,7 @@ export function PortfolioHoldings() {
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-500"></div>
             </div>
           ) : (
-            displayHoldings.map((holding) => (
+            displayHoldings.map((holding: Holding) => (
             <div 
               key={holding.id} 
               className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
