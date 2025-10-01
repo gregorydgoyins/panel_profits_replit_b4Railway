@@ -5,12 +5,13 @@ import {
   Users, Building, Zap, BookOpen, Calendar, Settings, HelpCircle,
   ChevronLeft, ChevronRight, Trophy, Camera, Heart, Crown, Shield,
   Swords, Scroll, GraduationCap, Target, Sparkles, Gem, Workflow, PenTool,
-  Swords as SwordsIcon
+  Swords as SwordsIcon, LogOut
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { NotificationCenter } from '@/components/ui/notification-center';
+import { useToast } from '@/hooks/use-toast';
 
 interface NavigationItem {
   id: string;
@@ -24,6 +25,7 @@ interface NavigationItem {
 export function NavigationSidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [location] = useLocation();
+  const { toast } = useToast();
   
   // Determine active item based on current location
   const getActiveItem = () => {
@@ -60,6 +62,32 @@ export function NavigationSidebar() {
   };
   
   const activeItem = getActiveItem();
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        toast({
+          title: "Logged Out",
+          description: "You have been successfully logged out"
+        });
+        // Redirect to landing/login page
+        window.location.href = '/';
+      } else {
+        throw new Error('Logout failed');
+      }
+    } catch (error) {
+      toast({
+        title: "Logout Failed",
+        description: "Failed to log out. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
 
   const navigationItems: NavigationItem[] = [
     // Main Navigation
@@ -398,6 +426,19 @@ export function NavigationSidebar() {
               </div>
             </>
           )}
+
+          {/* Logout Button */}
+          <div className="mt-4 pt-4 border-t border-border">
+            <Button
+              onClick={handleLogout}
+              variant="destructive"
+              className={`w-full justify-start ${isCollapsed ? 'w-10 h-10 p-0 justify-center' : ''}`}
+              data-testid="button-logout"
+            >
+              <LogOut className="h-4 w-4" />
+              {!isCollapsed && <span className="ml-2">Logout</span>}
+            </Button>
+          </div>
         </div>
       </div>
     </Card>

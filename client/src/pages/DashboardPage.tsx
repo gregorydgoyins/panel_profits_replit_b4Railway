@@ -37,6 +37,7 @@ import { DarkPoolWidget } from '@/components/dashboard/DarkPoolWidget';
 import { OrderBookWidget } from '@/components/dashboard/OrderBookWidget';
 import { AIRecommendationsWidget } from '@/components/dashboard/AIRecommendationsWidget';
 import { PortfolioGreeksWidget } from '@/components/dashboard/PortfolioGreeksWidget';
+import { NewsTicker } from '@/components/dashboard/NewsTicker';
 
 interface DashboardStats {
   portfolioValue: number;
@@ -263,6 +264,9 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* News Ticker */}
+      <NewsTicker />
 
       {/* Dashboard Content */}
       <div className="max-w-7xl mx-auto px-6 py-6">
