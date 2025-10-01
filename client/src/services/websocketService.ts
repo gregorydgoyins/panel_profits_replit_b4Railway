@@ -94,11 +94,12 @@ type WebSocketEventCallback = (data: any) => void;
 class WebSocketService {
   private ws: WebSocket | null = null;
   private reconnectInterval: number = 5000; // 5 seconds
-  private maxReconnectAttempts: number = 10;
+  private maxReconnectAttempts: number = 3; // Reduced from 10 to 3
   private reconnectAttempts: number = 0;
   private isConnecting: boolean = false;
   private eventHandlers: Map<string, WebSocketEventCallback[]> = new Map();
   private heartbeatInterval: NodeJS.Timeout | null = null;
+  private reconnectTimeout: NodeJS.Timeout | null = null;
 
   constructor() {
     this.connect();
@@ -145,8 +146,13 @@ class WebSocketService {
         this.stopHeartbeat();
         this.emit('connection', { status: 'disconnected' });
         
-        if (event.code !== 1000 && this.reconnectAttempts < this.maxReconnectAttempts) {
+        // Only reconnect on abnormal closures (not 1000) and not on Vite HMR issues (1006)
+        // 1006 is typically Vite HMR - don't aggressively reconnect
+        if (event.code !== 1000 && event.code !== 1006 && this.reconnectAttempts < this.maxReconnectAttempts) {
           this.scheduleReconnect();
+        } else if (event.code === 1006 && this.reconnectAttempts === 0) {
+          // On first 1006 error, try once more after longer delay
+          console.log('⚠️ WebSocket closed abnormally (HMR issue) - will not auto-reconnect');
         }
       };
 
@@ -215,12 +221,17 @@ class WebSocketService {
    * Schedule a reconnection attempt
    */
   private scheduleReconnect(): void {
+    // Clear any existing reconnect timeout
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+    }
+    
     this.reconnectAttempts++;
     const delay = Math.min(this.reconnectInterval * this.reconnectAttempts, 30000); // Max 30 seconds
     
     console.log(`🔄 Scheduling reconnect attempt ${this.reconnectAttempts} in ${delay}ms`);
     
-    setTimeout(() => {
+    this.reconnectTimeout = setTimeout(() => {
       if (this.reconnectAttempts <= this.maxReconnectAttempts) {
         this.connect();
       } else {
@@ -373,6 +384,10 @@ class WebSocketService {
    * Cleanup when service is destroyed
    */
   destroy(): void {
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
     this.disconnect();
     this.eventHandlers.clear();
   }
