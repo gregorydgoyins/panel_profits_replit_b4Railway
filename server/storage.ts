@@ -923,6 +923,11 @@ export interface IStorage {
   createSevenHouse(house: InsertSevenHouse): Promise<SevenHouse>;
   updateSevenHouse(id: string, house: Partial<InsertSevenHouse>): Promise<SevenHouse | undefined>;
   
+  // Convenience aliases for Seven Houses (for consistent API)
+  getHouse(id: string): Promise<SevenHouse | undefined>;
+  getAllHouses(): Promise<SevenHouse[]>;
+  createHouse(house: InsertSevenHouse): Promise<SevenHouse>;
+  
   // House Power Rankings
   getLatestPowerRankings(): Promise<HousePowerRanking[]>;
   getPowerRankingsByWeek(week: Date): Promise<HousePowerRanking[]>;

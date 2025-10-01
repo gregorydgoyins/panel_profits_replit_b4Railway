@@ -32,7 +32,9 @@ import {
   // Entry Test Alignment System Tables
   alignmentScores, userDecisions,
   // Knowledge Test Tables
-  knowledgeTestResults, knowledgeTestResponses
+  knowledgeTestResults, knowledgeTestResponses,
+  // Seven Houses System Tables
+  sevenHouses, housePowerRankings, houseMarketEvents
 } from '@shared/schema.js';
 import type {
   User, InsertUser, UpsertUser, Asset, InsertAsset, MarketData, InsertMarketData,
@@ -4804,6 +4806,112 @@ export class DatabaseStorage implements IStorage {
     return await db.select()
       .from(knowledgeTestResponses)
       .where(eq(knowledgeTestResponses.resultId, resultId));
+  }
+
+  // ============================================================================
+  // SEVEN HOUSES OF PANELTOWN METHODS
+  // ============================================================================
+
+  async getSevenHouse(id: string): Promise<any | undefined> {
+    const result = await db.select()
+      .from(sevenHouses)
+      .where(eq(sevenHouses.id, id))
+      .limit(1);
+    return result[0];
+  }
+
+  async getSevenHouseByName(name: string): Promise<any | undefined> {
+    const result = await db.select()
+      .from(sevenHouses)
+      .where(eq(sevenHouses.name, name))
+      .limit(1);
+    return result[0];
+  }
+
+  async getAllSevenHouses(): Promise<any[]> {
+    return await db.select()
+      .from(sevenHouses)
+      .orderBy(desc(sevenHouses.powerLevel));
+  }
+
+  async createSevenHouse(house: any): Promise<any> {
+    const result = await db.insert(sevenHouses).values(house).returning();
+    return result[0];
+  }
+
+  async updateSevenHouse(id: string, house: any): Promise<any | undefined> {
+    const result = await db.update(sevenHouses)
+      .set(house)
+      .where(eq(sevenHouses.id, id))
+      .returning();
+    return result[0];
+  }
+
+  // Convenience aliases for consistent API
+  async getHouse(id: string): Promise<any | undefined> {
+    return this.getSevenHouse(id);
+  }
+
+  async getAllHouses(): Promise<any[]> {
+    return this.getAllSevenHouses();
+  }
+
+  async createHouse(house: any): Promise<any> {
+    return this.createSevenHouse(house);
+  }
+
+  // House Power Rankings
+  async getLatestPowerRankings(): Promise<any[]> {
+    return await db.select()
+      .from(housePowerRankings)
+      .orderBy(desc(housePowerRankings.weekEnding))
+      .limit(7);
+  }
+
+  async getHousePowerRankings(): Promise<any[]> {
+    return this.getLatestPowerRankings();
+  }
+
+  async updateHousePowerRanking(houseId: string, changeAmount: number, reason: string): Promise<any> {
+    const house = await this.getSevenHouse(houseId);
+    if (!house) throw new Error('House not found');
+
+    const newPowerLevel = parseFloat(house.powerLevel || '100') + changeAmount;
+    return await this.updateSevenHouse(houseId, {
+      powerLevel: newPowerLevel.toString()
+    });
+  }
+
+  // House Market Events
+  async getHouseMarketEvents(limit: number = 10): Promise<any[]> {
+    return await db.select()
+      .from(houseMarketEvents)
+      .orderBy(desc(houseMarketEvents.eventTimestamp))
+      .limit(limit);
+  }
+
+  async createHouseMarketEvent(event: any): Promise<any> {
+    const result = await db.insert(houseMarketEvents).values(event).returning();
+    return result[0];
+  }
+
+  // House Assets
+  async getAssetsByHouse(houseId: string): Promise<any[]> {
+    // For now, return empty array - this would need to be implemented based on asset schema
+    return [];
+  }
+
+  async getHouseStatistics(houseId: string): Promise<any> {
+    const house = await this.getSevenHouse(houseId);
+    if (!house) return null;
+
+    return {
+      totalMarketCap: house.marketCap || '0',
+      totalVolume24h: house.dailyVolume || '0',
+      memberCount: house.controlledAssetsCount || 0,
+      powerLevel: house.powerLevel || '100',
+      reputationScore: house.reputationScore || '100'
+    };
   }
 }
 
