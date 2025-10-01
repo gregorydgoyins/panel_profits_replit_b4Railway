@@ -50,7 +50,7 @@ export function MosaicItem({ children, span = 1, rowSpan = 1, className = '' }: 
     <div
       className={`mosaic-item flex flex-col ${getColSpanClass()} ${getRowSpanClass()} ${className}`}
       style={{
-        minHeight: rowSpan === 1 ? '300px' : rowSpan === 2 ? '600px' : '900px',
+        minHeight: rowSpan === 1 ? '280px' : rowSpan === 2 ? '560px' : '840px',
       }}
     >
       {children}
