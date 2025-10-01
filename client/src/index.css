@@ -287,3 +287,48 @@
   animation-iteration-count: infinite !important;
   animation-delay: 0s !important;
 }
+
+/* News Ticker & Stock Ticker Animations - Override global animation disable */
+@keyframes ticker {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes stockTicker {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-33.333%);
+  }
+}
+
+/* Enable ticker animations */
+.animate-ticker {
+  animation-name: ticker !important;
+  animation-duration: 60s !important;
+  animation-timing-function: linear !important;
+  animation-iteration-count: infinite !important;
+  animation-delay: 0s !important;
+}
+
+.animate-stock-ticker {
+  animation-name: stockTicker !important;
+  animation-duration: 40s !important;
+  animation-timing-function: linear !important;
+  animation-iteration-count: infinite !important;
+  animation-delay: 0s !important;
+}
+
+/* Pause ticker animations on hover */
+.pause-animation {
+  animation-play-state: paused !important;
+}
+
+.pause-stock-animation {
+  animation-play-state: paused !important;
+}
