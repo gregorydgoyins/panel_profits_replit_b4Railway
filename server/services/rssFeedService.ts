@@ -14,11 +14,20 @@ interface RSSSource {
   category: 'marvel' | 'dc' | 'general';
 }
 
+interface NewsDataArticle {
+  article_id: string;
+  title: string;
+  link: string;
+  pubDate: string;
+  source_id: string;
+}
+
 class RSSFeedService {
   private parser: Parser;
   private cachedNews: RSSFeedItem[] = [];
   private lastFetchTime: Date | null = null;
   private readonly CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+  private readonly NEWSDATA_API_KEY = process.env.NEWSDATA_IO_API_KEY;
   
   // Comic book news RSS sources
   private readonly RSS_SOURCES: RSSSource[] = [
@@ -76,8 +85,8 @@ class RSSFeedService {
     
     const allNews: RSSFeedItem[] = [];
     
-    // Fetch from all sources in parallel
-    const fetchPromises = this.RSS_SOURCES.map(async (source) => {
+    // Fetch from RSS sources
+    const rssFetchPromises = this.RSS_SOURCES.map(async (source) => {
       try {
         const feed = await this.parser.parseURL(source.url);
         
@@ -96,14 +105,25 @@ class RSSFeedService {
       }
     });
 
-    const results = await Promise.allSettled(fetchPromises);
+    const rssResults = await Promise.allSettled(rssFetchPromises);
     
-    // Collect all successful results
-    results.forEach((result) => {
+    // Collect RSS results
+    rssResults.forEach((result) => {
       if (result.status === 'fulfilled' && result.value.length > 0) {
         allNews.push(...result.value);
       }
     });
+    
+    // Fetch from NewsData.io if API key is available
+    if (this.NEWSDATA_API_KEY) {
+      try {
+        const newsDataItems = await this.fetchFromNewsData();
+        allNews.push(...newsDataItems);
+        console.log(`✅ Fetched ${newsDataItems.length} items from NewsData.io`);
+      } catch (error) {
+        console.error('⚠️ Failed to fetch from NewsData.io:', error instanceof Error ? error.message : 'Unknown error');
+      }
+    }
 
     // Sort by published date (newest first)
     allNews.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
@@ -112,7 +132,40 @@ class RSSFeedService {
     this.cachedNews = allNews;
     this.lastFetchTime = new Date();
     
-    console.log(`✅ Fetched ${allNews.length} news items from ${this.RSS_SOURCES.length} sources`);
+    console.log(`✅ Fetched ${allNews.length} total news items from ${this.RSS_SOURCES.length} RSS sources${this.NEWSDATA_API_KEY ? ' + NewsData.io' : ''}`);
+  }
+  
+  /**
+   * Fetch news from NewsData.io API
+   */
+  private async fetchFromNewsData(): Promise<RSSFeedItem[]> {
+    if (!this.NEWSDATA_API_KEY) {
+      return [];
+    }
+    
+    const keywords = ['comic', 'comics', 'marvel', 'dc', 'superhero', 'comic book'];
+    const category = 'entertainment';
+    
+    const url = `https://newsdata.io/api/1/news?apikey=${this.NEWSDATA_API_KEY}&category=${category}&q=${keywords.join(' OR ')}&language=en`;
+    
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`NewsData.io API returned ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (!data.results || !Array.isArray(data.results)) {
+      return [];
+    }
+    
+    return data.results.slice(0, 20).map((article: NewsDataArticle) => ({
+      id: `newsdata-${article.article_id}`,
+      headline: this.cleanHeadline(article.title),
+      url: article.link,
+      publishedAt: new Date(article.pubDate),
+      source: article.source_id || 'NewsData.io',
+    }));
   }
 
   /**
