@@ -35,6 +35,9 @@ import SettingsPage from '@/pages/settings';
 // Certifications
 import CertificationsPage from '@/pages/CertificationsPage';
 
+// Easter Eggs
+import EasterEggsPage from '@/pages/EasterEggsPage';
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -70,6 +73,7 @@ function Router() {
       <Route path="/watchlist" component={WatchlistPage} />
       <Route path="/leaderboard" component={LeaderboardPage} />
       <Route path="/certifications" component={CertificationsPage} />
+      <Route path="/easter-eggs" component={EasterEggsPage} />
       <Route path="/settings" component={SettingsPage} />
       <Route component={NotFound} />
     </Switch>

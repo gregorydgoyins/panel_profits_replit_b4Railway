@@ -50,6 +50,7 @@ export function NavigationSidebar() {
     if (location === '/learning') return 'sacred-library';
     if (location.startsWith('/learning/')) return 'sacred-library';
     if (location === '/certifications' || location.startsWith('/certifications/')) return 'certifications';
+    if (location === '/easter-eggs') return 'easter-eggs';
     if (location === '/houses') return 'houses';
     if (location === '/houses/dashboard') return 'house-dashboard';
     if (location === '/houses/competition') return 'house-competition';
@@ -117,6 +118,7 @@ export function NavigationSidebar() {
     // Learning Module
     { id: 'sacred-library', label: 'Learning Center', icon: Scroll, path: '/learning', category: 'learning', badge: 'NEW' },
     { id: 'certifications', label: 'Certifications', icon: GraduationCap, path: '/certifications', category: 'learning', badge: 'NEW' },
+    { id: 'easter-eggs', label: 'Easter Eggs', icon: Gem, path: '/easter-eggs', category: 'learning', badge: 'NEW' },
     
     // Integration Management
     { id: 'divine-connections', label: 'Integrations', icon: Sparkles, path: '/integrations', category: 'integrations', badge: 'NEW' },
@@ -157,6 +159,8 @@ export function NavigationSidebar() {
       leaderboards: 'text-yellow-400 bg-yellow-900/30 hover:bg-yellow-600',
       journal: 'text-red-600 bg-red-950/50 hover:bg-red-900',
       'sacred-library': 'text-indigo-400 bg-indigo-900/30 hover:bg-indigo-600',
+      certifications: 'text-emerald-400 bg-emerald-900/30 hover:bg-emerald-600',
+      'easter-eggs': 'text-purple-400 bg-purple-900/30 hover:bg-purple-600',
       'divine-connections': 'text-cyan-400 bg-cyan-900/30 hover:bg-cyan-600',
       houses: 'text-red-400 bg-red-900/30 hover:bg-red-600',
       'house-dashboard': 'text-blue-400 bg-blue-900/30 hover:bg-blue-600',
