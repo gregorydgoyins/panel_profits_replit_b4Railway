@@ -450,6 +450,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Trending Characters - Heroes and villains across all publishers
+  app.get("/api/characters/trending", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 12;
+      
+      // Fetch character assets with latest market data
+      const characters = await storage.getAssets({ type: 'CHARACTER' });
+      
+      // Get latest prices for characters that have them
+      const charactersWithPrices = await Promise.all(
+        characters.slice(0, limit).map(async (char) => {
+          const latestData = await storage.getLatestMarketData(char.symbol);
+          return {
+            ...char,
+            price: latestData?.close || null,
+            percentChange: latestData?.percentChange || null,
+            volume: latestData?.volume || null
+          };
+        })
+      );
+      
+      // Sort by random or volume for now (since we don't have consistent price data)
+      const trending = charactersWithPrices.sort(() => Math.random() - 0.5);
+      
+      res.json(trending);
+    } catch (error) {
+      console.error('Error fetching trending characters:', error);
+      res.status(500).json({ error: "Failed to fetch trending characters" });
+    }
+  });
+
   app.post("/api/assets", async (req, res) => {
     try {
       const validatedData = insertAssetSchema.parse(req.body);
