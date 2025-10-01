@@ -7,6 +7,10 @@
  * - DC.39.GAD.1 (Detective Comics 1939, Gadget #1 - Batarang)
  */
 
+import { db } from './databaseStorage.js';
+import { assets } from '../shared/schema.js';
+import { sql } from 'drizzle-orm';
+
 export type AssetCategory = 
   | 'HER'  // Heroes/Superheroes
   | 'VIL'  // Villains/Supervillains
@@ -15,9 +19,9 @@ export type AssetCategory =
   | 'GAD'  // Gadgets/Technology
   | 'LOC'  // Locations/Places
   | 'KEY'  // Key Comic Issues
+  | 'CRT'  // Creators (Artists/Writers)
+  | 'TEM'  // Teams
   | 'PUB'  // Publishers
-  | 'ART'  // Artists/Creators
-  | 'WRT'  // Writers
   | 'ETF'  // Funds/ETFs
   | 'OPT'  // Options
   | 'BND'  // Bonds
@@ -39,13 +43,13 @@ interface HierarchicalTickerOptions {
 
 export class TickerGenerator {
   private usedTickers: Set<string> = new Set();
-  private categoryCounters: Map<string, number> = new Map();
 
   /**
    * Generate hierarchical ticker: SERIES.YEAR.CATEGORY.INDEX
    * Example: DC.39.HER.1 (Detective Comics 1939, Hero #1 - Batman)
+   * Uses database to persist counters across runs
    */
-  generateHierarchicalTicker(options: HierarchicalTickerOptions): string {
+  async generateHierarchicalTicker(options: HierarchicalTickerOptions): Promise<string> {
     const { series, year, category, index, name } = options;
 
     // Generate series code (2-3 chars)
@@ -55,13 +59,21 @@ export class TickerGenerator {
     const yearCode = year ? String(year).slice(-2) : '00';
     
     // Get or assign index for this category
-    const categoryKey = `${seriesCode}.${yearCode}.${category}`;
+    const prefix = `${seriesCode}.${yearCode}.${category}`;
     let assetIndex = index;
     
     if (assetIndex === undefined) {
-      const currentCount = this.categoryCounters.get(categoryKey) || 0;
-      assetIndex = currentCount + 1;
-      this.categoryCounters.set(categoryKey, assetIndex);
+      // Query database for max index with this prefix
+      const result = await db.execute<{ max_index: number }>(sql`
+        SELECT COALESCE(MAX(CAST(
+          SPLIT_PART(symbol, '.', 4) AS INTEGER
+        )), 0) as max_index
+        FROM assets
+        WHERE symbol LIKE ${prefix + '.%'}
+      `);
+      
+      const maxIndex = result.rows[0]?.max_index || 0;
+      assetIndex = maxIndex + 1;
     }
 
     // Build ticker: SERIES.YEAR.CATEGORY.INDEX

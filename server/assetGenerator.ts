@@ -21,30 +21,102 @@ interface AssetData {
 
 /**
  * Determine asset category based on metadata
+ * Categories: HER, VIL, GAD, LOC, KEY, CRT, TEM, SID, HEN
  */
 function determineCategory(char: any, source: 'comicvine' | 'marvel' | 'superhero'): AssetCategory {
-  // Check if it's a comic issue
-  if (char.issue_number || char.volume?.name) {
+  const name = (char.name || '').toLowerCase();
+  const description = (char.description || char.deck || '').toLowerCase();
+  const alignment = char.biography?.alignment?.toLowerCase() || '';
+  
+  // Check for creators (writers, artists, editors)
+  if (char.resource_type === 'person' || 
+      char.api_detail_url?.includes('/people/') ||
+      description.includes('writer') || 
+      description.includes('artist') || 
+      description.includes('created by') ||
+      description.includes('creator') ||
+      char.creator_credits) {
+    return 'CRT';
+  }
+
+  // Check for comic issues (key issues)
+  if (char.issue_number || 
+      char.volume?.name || 
+      char.resource_type === 'issue' ||
+      name.includes('#') ||
+      description.includes('issue #')) {
     return 'KEY';
   }
 
-  // Check alignment/role for characters
-  const alignment = char.biography?.alignment?.toLowerCase() || '';
-  const description = (char.description || char.deck || '').toLowerCase();
-  
-  if (alignment === 'bad' || alignment === 'evil' || description.includes('villain')) {
+  // Check for teams/groups
+  if (char.resource_type === 'team' ||
+      char.api_detail_url?.includes('/teams/') ||
+      description.includes('team of') ||
+      description.includes('group of') ||
+      description.includes('squad') ||
+      description.includes('league') ||
+      description.includes('alliance') ||
+      name.includes('team') ||
+      name.includes('squad') ||
+      name.includes('force')) {
+    return 'TEM';
+  }
+
+  // Check for locations
+  if (char.resource_type === 'location' ||
+      char.api_detail_url?.includes('/locations/') ||
+      description.includes('city') ||
+      description.includes('planet') ||
+      description.includes('dimension') ||
+      description.includes('realm') ||
+      description.includes('kingdom') ||
+      description.includes('island') ||
+      name.includes('city') ||
+      name.includes('island')) {
+    return 'LOC';
+  }
+
+  // Check for gadgets/objects/weapons
+  if (char.resource_type === 'object' ||
+      char.api_detail_url?.includes('/objects/') ||
+      description.includes('weapon') ||
+      description.includes('device') ||
+      description.includes('artifact') ||
+      description.includes('gadget') ||
+      description.includes('armor') ||
+      description.includes('suit') ||
+      description.includes('shield') ||
+      description.includes('hammer') ||
+      description.includes('ring') ||
+      name.includes('armor') ||
+      name.includes('suit')) {
+    return 'GAD';
+  }
+
+  // Character categorization (heroes, villains, sidekicks, henchmen)
+  if (alignment === 'bad' || 
+      alignment === 'evil' || 
+      description.includes('villain') ||
+      description.includes('enemy of') ||
+      description.includes('nemesis') ||
+      description.includes('archenemy')) {
     return 'VIL';
   }
   
-  if (description.includes('sidekick')) {
+  if (description.includes('sidekick') || 
+      description.includes('partner of') ||
+      description.includes('protégé')) {
     return 'SID';
   }
   
-  if (description.includes('henchman') || description.includes('hench')) {
+  if (description.includes('henchman') || 
+      description.includes('hench') ||
+      description.includes('minion') ||
+      description.includes('lackey')) {
     return 'HEN';
   }
   
-  // Default to hero
+  // Default to hero for characters
   return 'HER';
 }
 
@@ -110,7 +182,7 @@ export class AssetGenerator {
   /**
    * Fetch characters from Comic Vine
    */
-  async fetchComicVineCharacters(limit: number = 100): Promise<AssetData[]> {
+  async fetchComicVineCharacters(limit: number = 100, offset: number = 0): Promise<AssetData[]> {
     if (!this.COMIC_VINE_API_KEY) {
       console.warn('Comic Vine API key not found');
       return [];
@@ -118,7 +190,7 @@ export class AssetGenerator {
 
     try {
       const response = await fetch(
-        `https://comicvine.gamespot.com/api/characters/?api_key=${this.COMIC_VINE_API_KEY}&format=json&limit=${limit}&sort=name:asc`,
+        `https://comicvine.gamespot.com/api/characters/?api_key=${this.COMIC_VINE_API_KEY}&format=json&limit=${limit}&offset=${offset}&sort=name:asc`,
         {
           headers: {
             'User-Agent': 'Panel Profits Trading Platform'
@@ -271,6 +343,211 @@ export class AssetGenerator {
   }
 
   /**
+   * Fetch teams from Comic Vine
+   */
+  async fetchComicVineTeams(limit: number = 100): Promise<AssetData[]> {
+    if (!this.COMIC_VINE_API_KEY) {
+      console.warn('Comic Vine API key not found');
+      return [];
+    }
+
+    try {
+      const response = await fetch(
+        `https://comicvine.gamespot.com/api/teams/?api_key=${this.COMIC_VINE_API_KEY}&format=json&limit=${limit}&sort=name:asc`,
+        {
+          headers: {
+            'User-Agent': 'Panel Profits Trading Platform'
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Comic Vine API error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      return (data.results || []).map((team: any) => {
+        const category = determineCategory(team, 'comicvine');
+        const { series, year } = extractSeriesAndYear(team);
+        
+        return {
+          name: team.name,
+          description: team.deck || team.description || `${team.name} is a team from the comic book universe.`,
+          category,
+          series: series || team.publisher?.name || 'Unknown',
+          year,
+          metadata: {
+            publisher: team.publisher?.name,
+            firstAppearance: team.first_appeared_in_issue?.name,
+            imageUrl: team.image?.medium_url,
+            comicVineId: team.id,
+            characterCount: team.count_of_team_members
+          },
+          estimatedMarketCap: this.estimateCharacterMarketCap(team),
+          popularity: this.calculatePopularity(team)
+        };
+      });
+    } catch (error) {
+      console.error('Error fetching teams from Comic Vine:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Fetch locations from Comic Vine
+   */
+  async fetchComicVineLocations(limit: number = 100): Promise<AssetData[]> {
+    if (!this.COMIC_VINE_API_KEY) {
+      console.warn('Comic Vine API key not found');
+      return [];
+    }
+
+    try {
+      const response = await fetch(
+        `https://comicvine.gamespot.com/api/locations/?api_key=${this.COMIC_VINE_API_KEY}&format=json&limit=${limit}&sort=name:asc`,
+        {
+          headers: {
+            'User-Agent': 'Panel Profits Trading Platform'
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Comic Vine API error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      return (data.results || []).map((loc: any) => {
+        const category = determineCategory(loc, 'comicvine');
+        const { series, year } = extractSeriesAndYear(loc);
+        
+        return {
+          name: loc.name,
+          description: loc.deck || loc.description || `${loc.name} is a location from the comic book universe.`,
+          category,
+          series: series || 'Unknown',
+          year,
+          metadata: {
+            firstAppearance: loc.first_appeared_in_issue?.name,
+            imageUrl: loc.image?.medium_url,
+            comicVineId: loc.id
+          },
+          estimatedMarketCap: this.estimateCharacterMarketCap(loc),
+          popularity: this.calculatePopularity(loc)
+        };
+      });
+    } catch (error) {
+      console.error('Error fetching locations from Comic Vine:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Fetch objects/gadgets from Comic Vine
+   */
+  async fetchComicVineObjects(limit: number = 100): Promise<AssetData[]> {
+    if (!this.COMIC_VINE_API_KEY) {
+      console.warn('Comic Vine API key not found');
+      return [];
+    }
+
+    try {
+      const response = await fetch(
+        `https://comicvine.gamespot.com/api/objects/?api_key=${this.COMIC_VINE_API_KEY}&format=json&limit=${limit}&sort=name:asc`,
+        {
+          headers: {
+            'User-Agent': 'Panel Profits Trading Platform'
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Comic Vine API error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      return (data.results || []).map((obj: any) => {
+        const category = determineCategory(obj, 'comicvine');
+        const { series, year } = extractSeriesAndYear(obj);
+        
+        return {
+          name: obj.name,
+          description: obj.deck || obj.description || `${obj.name} is an object from the comic book universe.`,
+          category,
+          series: series || 'Unknown',
+          year,
+          metadata: {
+            firstAppearance: obj.first_appeared_in_issue?.name,
+            imageUrl: obj.image?.medium_url,
+            comicVineId: obj.id
+          },
+          estimatedMarketCap: this.estimateCharacterMarketCap(obj),
+          popularity: this.calculatePopularity(obj)
+        };
+      });
+    } catch (error) {
+      console.error('Error fetching objects from Comic Vine:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Fetch creators from Comic Vine
+   */
+  async fetchComicVineCreators(limit: number = 100): Promise<AssetData[]> {
+    if (!this.COMIC_VINE_API_KEY) {
+      console.warn('Comic Vine API key not found');
+      return [];
+    }
+
+    try {
+      const response = await fetch(
+        `https://comicvine.gamespot.com/api/people/?api_key=${this.COMIC_VINE_API_KEY}&format=json&limit=${limit}&sort=name:asc`,
+        {
+          headers: {
+            'User-Agent': 'Panel Profits Trading Platform'
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Comic Vine API error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      return (data.results || []).map((person: any) => {
+        const category = determineCategory(person, 'comicvine');
+        const year = person.birth ? new Date(person.birth).getFullYear() : undefined;
+        
+        return {
+          name: person.name,
+          description: person.deck || person.description || `${person.name} is a comic book creator.`,
+          category,
+          series: 'Comics Industry',
+          year,
+          metadata: {
+            birth: person.birth,
+            death: person.death,
+            country: person.country,
+            hometown: person.hometown,
+            imageUrl: person.image?.medium_url,
+            comicVineId: person.id
+          },
+          estimatedMarketCap: this.estimateCharacterMarketCap(person),
+          popularity: this.calculatePopularity(person)
+        };
+      });
+    } catch (error) {
+      console.error('Error fetching creators from Comic Vine:', error);
+      return [];
+    }
+  }
+
+  /**
    * Estimate market cap for Comic Vine character
    */
   private estimateCharacterMarketCap(char: any): number {
@@ -417,29 +694,69 @@ export class AssetGenerator {
   }
 
   /**
-   * Generate comprehensive asset universe
+   * Generate comprehensive asset universe across all categories
    */
   async generateAssetUniverse(options: {
     comicVineCharacters?: number;
+    comicVineTeams?: number;
+    comicVineLocations?: number;
+    comicVineObjects?: number;
+    comicVineCreators?: number;
     marvelCharacters?: number;
     superheroIds?: number[];
   } = {}): Promise<void> {
     const {
       comicVineCharacters = 100,
+      comicVineTeams = 50,
+      comicVineLocations = 50,
+      comicVineObjects = 50,
+      comicVineCreators = 50,
       marvelCharacters = 100,
       superheroIds = []
     } = options;
 
-    console.log('🚀 Starting asset generation...\n');
+    console.log('🚀 Starting comprehensive asset generation...\n');
 
     const allAssetData: AssetData[] = [];
 
-    // Fetch from Comic Vine
+    // Fetch characters from Comic Vine
     if (comicVineCharacters > 0) {
       console.log(`📚 Fetching ${comicVineCharacters} characters from Comic Vine...`);
       const cvData = await this.fetchComicVineCharacters(comicVineCharacters);
       allAssetData.push(...cvData);
       console.log(`✅ Fetched ${cvData.length} Comic Vine characters\n`);
+    }
+
+    // Fetch teams from Comic Vine
+    if (comicVineTeams > 0) {
+      console.log(`👥 Fetching ${comicVineTeams} teams from Comic Vine...`);
+      const teams = await this.fetchComicVineTeams(comicVineTeams);
+      allAssetData.push(...teams);
+      console.log(`✅ Fetched ${teams.length} Comic Vine teams\n`);
+    }
+
+    // Fetch locations from Comic Vine
+    if (comicVineLocations > 0) {
+      console.log(`🌍 Fetching ${comicVineLocations} locations from Comic Vine...`);
+      const locations = await this.fetchComicVineLocations(comicVineLocations);
+      allAssetData.push(...locations);
+      console.log(`✅ Fetched ${locations.length} Comic Vine locations\n`);
+    }
+
+    // Fetch objects/gadgets from Comic Vine
+    if (comicVineObjects > 0) {
+      console.log(`🔧 Fetching ${comicVineObjects} objects from Comic Vine...`);
+      const objects = await this.fetchComicVineObjects(comicVineObjects);
+      allAssetData.push(...objects);
+      console.log(`✅ Fetched ${objects.length} Comic Vine objects\n`);
+    }
+
+    // Fetch creators from Comic Vine
+    if (comicVineCreators > 0) {
+      console.log(`✍️ Fetching ${comicVineCreators} creators from Comic Vine...`);
+      const creators = await this.fetchComicVineCreators(comicVineCreators);
+      allAssetData.push(...creators);
+      console.log(`✅ Fetched ${creators.length} Comic Vine creators\n`);
     }
 
     // Fetch from Marvel
@@ -465,6 +782,17 @@ export class AssetGenerator {
     console.log(`\n✨ Asset generation complete!`);
     console.log(`📊 Total assets created: ${inserted}`);
     console.log(`🎯 Ticker space used: ${tickerGenerator.getStats().totalUsed.toLocaleString()}`);
+    
+    // Display category breakdown
+    const categoryBreakdown = allAssetData.reduce((acc, asset) => {
+      acc[asset.category] = (acc[asset.category] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    
+    console.log('\n📊 Category Breakdown:');
+    Object.entries(categoryBreakdown).forEach(([category, count]) => {
+      console.log(`   ${category}: ${count} assets`);
+    });
   }
 }
 
