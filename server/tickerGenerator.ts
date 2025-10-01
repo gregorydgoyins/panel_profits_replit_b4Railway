@@ -1,8 +1,27 @@
 /**
- * Smart Ticker Generation System
- * Generates alphabetic tickers with period variations
- * Examples: BATM, BT.89, SPDY, SP.NWH
+ * Hierarchical Ticker Generation System
+ * Supports SERIES.YEAR.CATEGORY.INDEX format for infinite scalability
+ * Examples: 
+ * - DC.39.HER.1 (Detective Comics 1939, Hero #1 - Batman)
+ * - ASM.63.KEY.1 (Amazing Spider-Man 1963, Key Issue #1)
+ * - DC.39.GAD.1 (Detective Comics 1939, Gadget #1 - Batarang)
  */
+
+export type AssetCategory = 
+  | 'HER'  // Heroes/Superheroes
+  | 'VIL'  // Villains/Supervillains
+  | 'SID'  // Sidekicks
+  | 'HEN'  // Henchmen
+  | 'GAD'  // Gadgets/Technology
+  | 'LOC'  // Locations/Places
+  | 'KEY'  // Key Comic Issues
+  | 'PUB'  // Publishers
+  | 'ART'  // Artists/Creators
+  | 'WRT'  // Writers
+  | 'ETF'  // Funds/ETFs
+  | 'OPT'  // Options
+  | 'BND'  // Bonds
+  | 'DRV'; // Other Derivatives
 
 interface TickerOptions {
   baseName: string;
@@ -10,8 +29,74 @@ interface TickerOptions {
   type?: 'stock' | 'option' | 'bond' | 'etf';
 }
 
+interface HierarchicalTickerOptions {
+  series: string;        // e.g., "Detective Comics", "Amazing Spider-Man"
+  year?: number;         // e.g., 1939, 1963
+  category: AssetCategory;
+  index?: number;        // Auto-assigned if not provided
+  name: string;          // Full asset name for fallback
+}
+
 export class TickerGenerator {
   private usedTickers: Set<string> = new Set();
+  private categoryCounters: Map<string, number> = new Map();
+
+  /**
+   * Generate hierarchical ticker: SERIES.YEAR.CATEGORY.INDEX
+   * Example: DC.39.HER.1 (Detective Comics 1939, Hero #1 - Batman)
+   */
+  generateHierarchicalTicker(options: HierarchicalTickerOptions): string {
+    const { series, year, category, index, name } = options;
+
+    // Generate series code (2-3 chars)
+    const seriesCode = this.generateSeriesCode(series);
+    
+    // Format year (2 digits)
+    const yearCode = year ? String(year).slice(-2) : '00';
+    
+    // Get or assign index for this category
+    const categoryKey = `${seriesCode}.${yearCode}.${category}`;
+    let assetIndex = index;
+    
+    if (assetIndex === undefined) {
+      const currentCount = this.categoryCounters.get(categoryKey) || 0;
+      assetIndex = currentCount + 1;
+      this.categoryCounters.set(categoryKey, assetIndex);
+    }
+
+    // Build ticker: SERIES.YEAR.CATEGORY.INDEX
+    const ticker = `${seriesCode}.${yearCode}.${category}.${assetIndex}`;
+    
+    this.usedTickers.add(ticker);
+    return ticker;
+  }
+
+  /**
+   * Generate series code from series name
+   * "Detective Comics" → "DC"
+   * "Amazing Spider-Man" → "ASM"
+   */
+  private generateSeriesCode(series: string): string {
+    // Clean and uppercase
+    const cleaned = series
+      .replace(/^(THE|AN|A)\s+/i, '')
+      .toUpperCase()
+      .replace(/[^A-Z0-9\s]/g, '');
+
+    // Try acronym first (first letter of each word)
+    const words = cleaned.split(/\s+/).filter(w => w.length > 0);
+    if (words.length >= 2) {
+      const acronym = words.slice(0, 3).map(w => w[0]).join('');
+      if (acronym.length >= 2) {
+        return acronym;
+      }
+    }
+
+    // Fallback to consonant compression
+    const singleWord = words.join('');
+    const compressed = this.generateBaseTicker(singleWord, 3).substring(0, 3);
+    return compressed;
+  }
 
   /**
    * Generate a base ticker using consonant compression

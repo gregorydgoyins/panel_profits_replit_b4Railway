@@ -4,17 +4,75 @@
  */
 
 import crypto from 'crypto';
-import { tickerGenerator } from './tickerGenerator.js';
+import { tickerGenerator, type AssetCategory } from './tickerGenerator.js';
 import { db } from './db.js';
 import { assets, insertAssetSchema } from '../shared/schema.js';
 
 interface AssetData {
   name: string;
   description: string;
-  category: 'character' | 'creator' | 'issue' | 'location' | 'team' | 'publisher';
+  category: AssetCategory;
+  series?: string;          // e.g., "Detective Comics", "Amazing Spider-Man"
+  year?: number;            // e.g., 1939, 1963
   metadata: Record<string, any>;
   estimatedMarketCap: number; // In dollars
   popularity: number; // 1-100
+}
+
+/**
+ * Determine asset category based on metadata
+ */
+function determineCategory(char: any, source: 'comicvine' | 'marvel' | 'superhero'): AssetCategory {
+  // Check if it's a comic issue
+  if (char.issue_number || char.volume?.name) {
+    return 'KEY';
+  }
+
+  // Check alignment/role for characters
+  const alignment = char.biography?.alignment?.toLowerCase() || '';
+  const description = (char.description || char.deck || '').toLowerCase();
+  
+  if (alignment === 'bad' || alignment === 'evil' || description.includes('villain')) {
+    return 'VIL';
+  }
+  
+  if (description.includes('sidekick')) {
+    return 'SID';
+  }
+  
+  if (description.includes('henchman') || description.includes('hench')) {
+    return 'HEN';
+  }
+  
+  // Default to hero
+  return 'HER';
+}
+
+/**
+ * Extract series and year from metadata
+ */
+function extractSeriesAndYear(char: any): { series?: string; year?: number } {
+  let series: string | undefined;
+  let year: number | undefined;
+
+  // Try to get first appearance info
+  if (char.first_appeared_in_issue?.volume?.name) {
+    series = char.first_appeared_in_issue.volume.name;
+  } else if (char.series?.items?.[0]?.name) {
+    series = char.series.items[0].name;
+  } else if (char.publisher?.name) {
+    series = char.publisher.name + ' Comics';
+  }
+
+  // Try to extract year from first appearance
+  if (char.first_appeared_in_issue?.cover_date) {
+    const match = char.first_appeared_in_issue.cover_date.match(/(\d{4})/);
+    if (match) year = parseInt(match[1]);
+  } else if (char.start_year) {
+    year = parseInt(char.start_year);
+  }
+
+  return { series, year };
 }
 
 export class AssetGenerator {
@@ -74,21 +132,28 @@ export class AssetGenerator {
 
       const data = await response.json();
       
-      return (data.results || []).map((char: any) => ({
-        name: char.name,
-        description: char.deck || char.description || `${char.name} is a character from the comic book universe.`,
-        category: 'character' as const,
-        metadata: {
-          publisher: char.publisher?.name,
-          realName: char.real_name,
-          aliases: char.aliases,
-          firstAppearance: char.first_appeared_in_issue?.name,
-          imageUrl: char.image?.medium_url,
-          comicVineId: char.id
-        },
-        estimatedMarketCap: this.estimateCharacterMarketCap(char),
-        popularity: this.calculatePopularity(char)
-      }));
+      return (data.results || []).map((char: any) => {
+        const category = determineCategory(char, 'comicvine');
+        const { series, year } = extractSeriesAndYear(char);
+        
+        return {
+          name: char.name,
+          description: char.deck || char.description || `${char.name} is a character from the comic book universe.`,
+          category,
+          series: series || char.publisher?.name || 'Unknown',
+          year,
+          metadata: {
+            publisher: char.publisher?.name,
+            realName: char.real_name,
+            aliases: char.aliases,
+            firstAppearance: char.first_appeared_in_issue?.name,
+            imageUrl: char.image?.medium_url,
+            comicVineId: char.id
+          },
+          estimatedMarketCap: this.estimateCharacterMarketCap(char),
+          popularity: this.calculatePopularity(char)
+        };
+      });
     } catch (error) {
       console.error('Error fetching from Comic Vine:', error);
       return [];
@@ -121,21 +186,29 @@ export class AssetGenerator {
 
       const data = await response.json();
 
-      return (data.data?.results || []).map((char: any) => ({
-        name: char.name,
-        description: char.description || `${char.name} is a Marvel Universe character.`,
-        category: 'character' as const,
-        metadata: {
-          publisher: 'Marvel Comics',
-          comics: char.comics?.available,
-          series: char.series?.available,
-          stories: char.stories?.available,
-          imageUrl: `${char.thumbnail?.path}.${char.thumbnail?.extension}`,
-          marvelId: char.id
-        },
-        estimatedMarketCap: this.estimateMarvelCharacterMarketCap(char),
-        popularity: this.calculateMarvelPopularity(char)
-      }));
+      return (data.data?.results || []).map((char: any) => {
+        const category = determineCategory(char, 'marvel');
+        const series = char.series?.items?.[0]?.name || 'Marvel Comics';
+        const year = char.modified ? new Date(char.modified).getFullYear() : undefined;
+        
+        return {
+          name: char.name,
+          description: char.description || `${char.name} is a Marvel Universe character.`,
+          category,
+          series,
+          year,
+          metadata: {
+            publisher: 'Marvel Comics',
+            comics: char.comics?.available,
+            series: char.series?.available,
+            stories: char.stories?.available,
+            imageUrl: `${char.thumbnail?.path}.${char.thumbnail?.extension}`,
+            marvelId: char.id
+          },
+          estimatedMarketCap: this.estimateMarvelCharacterMarketCap(char),
+          popularity: this.calculateMarvelPopularity(char)
+        };
+      });
     } catch (error) {
       console.error('Error fetching from Marvel API:', error);
       return [];
@@ -163,10 +236,18 @@ export class AssetGenerator {
 
         const char = await response.json();
 
+        const category = determineCategory(char, 'superhero');
+        const series = char.biography?.publisher || 'Unknown';
+        const year = char.biography?.['first-appearance']?.match(/(\d{4})/)?.[1] 
+          ? parseInt(char.biography['first-appearance'].match(/(\d{4})/)[1]) 
+          : undefined;
+        
         characters.push({
           name: char.name,
           description: `${char.name} - ${char.biography?.['full-name'] || 'Superhero'}`,
-          category: 'character' as const,
+          category,
+          series,
+          year,
           metadata: {
             publisher: char.biography?.publisher,
             realName: char.biography?.['full-name'],
@@ -293,10 +374,12 @@ export class AssetGenerator {
 
     for (const data of assetData) {
       try {
-        // Generate ticker
-        const ticker = tickerGenerator.generateTicker({ 
-          baseName: data.name,
-          type: 'stock'
+        // Generate hierarchical ticker: SERIES.YEAR.CATEGORY.INDEX
+        const ticker = tickerGenerator.generateHierarchicalTicker({
+          series: data.series || 'Unknown',
+          year: data.year,
+          category: data.category,
+          name: data.name
         });
 
         // Calculate float and price
