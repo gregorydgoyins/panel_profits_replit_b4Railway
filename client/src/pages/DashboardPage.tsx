@@ -433,19 +433,19 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* ASYMMETRICAL MOSAIC - Bloomberg Terminal Style with Varied Widget Sizes */}
+        {/* ASYMMETRICAL MOSAIC - Bloomberg Terminal with Tight 3px Spacing */}
         <MosaicLayout>
           {/* Comic of the Day - Featured spotlight (full width) */}
-          <MosaicSection className="mb-0">
+          <MosaicSection>
             <ComicOfTheDayWidget />
           </MosaicSection>
 
           {/* Comic Covers Row - Visual Trading */}
-          <MosaicSection className="mb-0">
+          <MosaicSection>
             <ComicCoverWidget />
           </MosaicSection>
 
-          {/* Asymmetrical Portfolio Section - 1 square, 2-span rectangle */}
+          {/* Asymmetrical - square then 2-span rectangle */}
           <MosaicItem span={1}>
             <TradingBalance />
           </MosaicItem>
@@ -453,7 +453,7 @@ export default function DashboardPage() {
             <PortfolioOverview />
           </MosaicItem>
 
-          {/* Position Monitor - 2-span wide */}
+          {/* 2-span then square - opposite pattern */}
           <MosaicItem span={2}>
             <PositionMonitorWidget />
           </MosaicItem>
@@ -461,7 +461,7 @@ export default function DashboardPage() {
             <WatchlistPanelWidget />
           </MosaicItem>
 
-          {/* Mixed sizes - square, then large rectangle */}
+          {/* Square then 2-span */}
           <MosaicItem span={1}>
             <MarketOverview />
           </MosaicItem>
@@ -469,7 +469,7 @@ export default function DashboardPage() {
             <PortfolioHoldings />
           </MosaicItem>
 
-          {/* Three squares in a row */}
+          {/* Three squares - symmetric break */}
           <MosaicItem span={1}>
             <ComicHistoryWidget />
           </MosaicItem>
@@ -480,7 +480,7 @@ export default function DashboardPage() {
             <ComicRecommendationsWidget />
           </MosaicItem>
 
-          {/* Asymmetrical - square then 2-span */}
+          {/* Square then 2-span */}
           <MosaicItem span={1}>
             <CreatorInfluenceWidget />
           </MosaicItem>
@@ -488,7 +488,7 @@ export default function DashboardPage() {
             <PublisherPerformanceWidget />
           </MosaicItem>
 
-          {/* 2-span then square - opposite of previous */}
+          {/* 2-span then square */}
           <MosaicItem span={2}>
             <ComicRiskAssessmentWidget />
           </MosaicItem>
@@ -496,7 +496,7 @@ export default function DashboardPage() {
             <TrendingCharactersWidget />
           </MosaicItem>
           
-          {/* Two squares side by side */}
+          {/* Three squares */}
           <MosaicItem span={1}>
             <CreatorSpotlightWidget />
           </MosaicItem>
@@ -507,12 +507,12 @@ export default function DashboardPage() {
             <FearGreedWidget />
           </MosaicItem>
 
-          {/* Full width risk metrics */}
+          {/* Full width */}
           <MosaicSection>
             <PortfolioRiskMetricsWidget />
           </MosaicSection>
 
-          {/* Asymmetrical - 2-span then square */}
+          {/* 2-span then square */}
           <MosaicItem span={2}>
             <WatchlistManager />
           </MosaicItem>
@@ -520,7 +520,7 @@ export default function DashboardPage() {
             <CashFlowStatementWidget />
           </MosaicItem>
 
-          {/* Trade Blotter - Full Width */}
+          {/* Full width */}
           <MosaicSection>
             <TradeBlotterWidget />
           </MosaicSection>
@@ -536,12 +536,12 @@ export default function DashboardPage() {
             <ComicSentimentWidget />
           </MosaicItem>
 
-          {/* Options Chain - Full Width */}
+          {/* Full width */}
           <MosaicSection>
             <OptionsChainWidget />
           </MosaicSection>
 
-          {/* Asymmetrical mix - square, square, square */}
+          {/* Three squares */}
           <MosaicItem span={1}>
             <OracleProphecyWidget />
           </MosaicItem>
@@ -560,7 +560,7 @@ export default function DashboardPage() {
             <CorrelationMatrixWidget />
           </MosaicItem>
 
-          {/* Square then 2-span - asymmetrical */}
+          {/* Square then 2-span */}
           <MosaicItem span={1}>
             <ComicHeatMapWidget />
           </MosaicItem>
@@ -579,7 +579,7 @@ export default function DashboardPage() {
             <LEAPSWidget />
           </MosaicItem>
 
-          {/* Asymmetrical ending - 2-span then square */}
+          {/* 2-span then square */}
           <MosaicItem span={2}>
             <UnusualActivityWidget />
           </MosaicItem>
@@ -587,7 +587,7 @@ export default function DashboardPage() {
             <PublisherBondsWidget />
           </MosaicItem>
 
-          {/* Final row - square, square, square */}
+          {/* Three squares */}
           <MosaicItem span={1}>
             <DarkPoolWidget />
           </MosaicItem>

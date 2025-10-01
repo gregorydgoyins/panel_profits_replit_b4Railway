@@ -12,7 +12,7 @@ interface MosaicLayoutProps {
 export function MosaicLayout({ children, className = '' }: MosaicLayoutProps) {
   return (
     <div
-      className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full ${className}`}
+      className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 w-full ${className}`}
     >
       {children}
     </div>
