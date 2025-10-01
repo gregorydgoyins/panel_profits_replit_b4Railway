@@ -228,7 +228,7 @@ export function WatchlistManager() {
           <div className="flex items-center gap-2">
             <Eye className="w-5 h-5 text-purple-500" />
             <CardTitle>Watchlist</CardTitle>
-            <Badge variant="outline">{currentWatchlist.assets.length} assets</Badge>
+            <Badge variant="outline">{currentWatchlist?.assets?.length || 0} assets</Badge>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" data-testid="button-add-asset">
