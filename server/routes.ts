@@ -1382,6 +1382,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // RSS News Feed Routes - Real Comic Book News
+  const { rssFeedService } = await import('./services/rssFeedService.js');
+  
+  app.get("/api/news/rss", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 20;
+      const news = await rssFeedService.getLatestNews(limit);
+      res.json(news);
+    } catch (error) {
+      console.error('Failed to fetch RSS news:', error);
+      res.status(500).json({ error: "Failed to fetch news" });
+    }
+  });
+  
   // AI Market Intelligence Routes
   const aiRoutes = (await import('./routes/aiRoutes.js')).default;
   app.use("/api/ai", aiRoutes);
