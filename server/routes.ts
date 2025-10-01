@@ -182,12 +182,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
-      const alignmentScore = await storage.getUserAlignmentScore(userId);
+      
+      // Check if user has portfolio holdings (returning "Closers")
+      const portfolios = await storage.getPortfolios(userId);
+      const hasPortfolio = portfolios && portfolios.length > 0;
+      
+      // Check if user has any trading activity
+      const hasTraded = user?.lastTradingActivity != null;
+      
+      // "Closers" (returning users) bypass tests if they have portfolio or trading history
+      const isReturningUser = hasPortfolio || hasTraded || !!user?.houseId;
       
       res.json({
-        completed: !!user?.houseId,
+        completed: isReturningUser,
         houseId: user?.houseId || null,
-        requiresTest: !user?.houseId
+        requiresTest: !isReturningUser
       });
     } catch (error) {
       console.error("Error checking test status:", error);
