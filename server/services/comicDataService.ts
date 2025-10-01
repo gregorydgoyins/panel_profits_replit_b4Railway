@@ -643,6 +643,287 @@ class ComicDataService {
     
     return contexts[Math.floor(Math.random() * contexts.length)];
   }
+
+  /**
+   * ==================================================
+   * COMIC VINE API INTEGRATION
+   * Fetches DC, Image, Dark Horse, IDW, manga, graphic novels
+   * ==================================================
+   */
+
+  /**
+   * Fetch publishers from Comic Vine (DC, Image, Dark Horse, etc.)
+   */
+  async fetchComicVinePublishers(limit = 20): Promise<any[]> {
+    try {
+      if (!this.comicVineApiKey) {
+        console.warn('Comic Vine API key not configured');
+        return [];
+      }
+
+      const url = `${this.comicVineBaseUrl}/publishers/?api_key=${this.comicVineApiKey}&format=json&limit=${limit}`;
+      
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Panel Profits Trading Platform'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Comic Vine API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.error !== 'OK' || !data.results) {
+        console.error('Comic Vine API returned error:', data.error);
+        return [];
+      }
+
+      return data.results.map((publisher: any) => ({
+        id: publisher.id,
+        name: publisher.name,
+        description: publisher.deck || publisher.description,
+        imageUrl: publisher.image?.medium_url || publisher.image?.small_url,
+        aliases: publisher.aliases,
+        locationCity: publisher.location_city,
+        locationState: publisher.location_state,
+        metadata: {
+          comicVineId: publisher.id,
+          comicVineUrl: publisher.site_detail_url,
+          apiUrl: publisher.api_detail_url,
+        }
+      }));
+    } catch (error) {
+      console.error('Error fetching Comic Vine publishers:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Fetch characters from Comic Vine (Batman, Joker, Spawn, etc.)
+   */
+  async fetchComicVineCharacters(publisherFilter?: string, limit = 50): Promise<any[]> {
+    try {
+      if (!this.comicVineApiKey) {
+        console.warn('Comic Vine API key not configured');
+        return [];
+      }
+
+      let url = `${this.comicVineBaseUrl}/characters/?api_key=${this.comicVineApiKey}&format=json&limit=${limit}`;
+      
+      if (publisherFilter) {
+        url += `&filter=publisher:${publisherFilter}`;
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Panel Profits Trading Platform'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Comic Vine API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.error !== 'OK' || !data.results) {
+        console.error('Comic Vine API returned error:', data.error);
+        return [];
+      }
+
+      return data.results
+        .filter((char: any) => char.image && !char.image.original_url?.includes('blank'))
+        .map((character: any) => ({
+          id: character.id,
+          name: character.name,
+          realName: character.real_name,
+          description: character.deck || character.description,
+          imageUrl: character.image?.medium_url || character.image?.small_url,
+          firstAppearance: character.first_appeared_in_issue?.name,
+          publisher: character.publisher?.name,
+          origin: character.origin?.name,
+          powers: character.powers?.map((p: any) => p.name) || [],
+          aliases: character.aliases ? character.aliases.split('\n').filter(Boolean) : [],
+          metadata: {
+            comicVineId: character.id,
+            gender: character.gender,
+            countOfIssueAppearances: character.count_of_issue_appearances,
+            comicVineUrl: character.site_detail_url,
+          }
+        }));
+    } catch (error) {
+      console.error('Error fetching Comic Vine characters:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Fetch comic series/volumes from Comic Vine
+   */
+  async fetchComicVineVolumes(publisherFilter?: string, limit = 50): Promise<any[]> {
+    try {
+      if (!this.comicVineApiKey) {
+        console.warn('Comic Vine API key not configured');
+        return [];
+      }
+
+      let url = `${this.comicVineBaseUrl}/volumes/?api_key=${this.comicVineApiKey}&format=json&limit=${limit}&sort=date_last_updated:desc`;
+      
+      if (publisherFilter) {
+        url += `&filter=publisher:${publisherFilter}`;
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Panel Profits Trading Platform'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Comic Vine API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.error !== 'OK' || !data.results) {
+        console.error('Comic Vine API returned error:', data.error);
+        return [];
+      }
+
+      return data.results
+        .filter((vol: any) => vol.image && !vol.image.original_url?.includes('blank'))
+        .map((volume: any) => ({
+          id: volume.id,
+          name: volume.name,
+          description: volume.deck || volume.description,
+          imageUrl: volume.image?.medium_url || volume.image?.small_url,
+          publisher: volume.publisher?.name,
+          startYear: volume.start_year,
+          issueCount: volume.count_of_issues,
+          firstIssue: volume.first_issue,
+          lastIssue: volume.last_issue,
+          metadata: {
+            comicVineId: volume.id,
+            comicVineUrl: volume.site_detail_url,
+            aliases: volume.aliases,
+          }
+        }));
+    } catch (error) {
+      console.error('Error fetching Comic Vine volumes:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Fetch specific comic issues from Comic Vine
+   */
+  async fetchComicVineIssues(volumeId?: number, limit = 50): Promise<any[]> {
+    try {
+      if (!this.comicVineApiKey) {
+        console.warn('Comic Vine API key not configured');
+        return [];
+      }
+
+      let url = `${this.comicVineBaseUrl}/issues/?api_key=${this.comicVineApiKey}&format=json&limit=${limit}&sort=date_last_updated:desc`;
+      
+      if (volumeId) {
+        url += `&filter=volume:${volumeId}`;
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Panel Profits Trading Platform'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Comic Vine API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.error !== 'OK' || !data.results) {
+        console.error('Comic Vine API returned error:', data.error);
+        return [];
+      }
+
+      return data.results
+        .filter((issue: any) => issue.image && !issue.image.original_url?.includes('blank'))
+        .map((issue: any) => ({
+          id: issue.id,
+          name: issue.name || `Issue #${issue.issue_number}`,
+          issueNumber: issue.issue_number,
+          description: issue.deck || issue.description,
+          imageUrl: issue.image?.medium_url || issue.image?.small_url,
+          volumeName: issue.volume?.name,
+          coverDate: issue.cover_date,
+          storeDate: issue.store_date,
+          metadata: {
+            comicVineId: issue.id,
+            comicVineUrl: issue.site_detail_url,
+            hasStaffReview: issue.has_staff_review,
+          }
+        }));
+    } catch (error) {
+      console.error('Error fetching Comic Vine issues:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Fetch creators/people from Comic Vine (writers, artists)
+   */
+  async fetchComicVineCreators(limit = 50): Promise<any[]> {
+    try {
+      if (!this.comicVineApiKey) {
+        console.warn('Comic Vine API key not configured');
+        return [];
+      }
+
+      const url = `${this.comicVineBaseUrl}/people/?api_key=${this.comicVineApiKey}&format=json&limit=${limit}&sort=date_last_updated:desc`;
+
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Panel Profits Trading Platform'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Comic Vine API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.error !== 'OK' || !data.results) {
+        console.error('Comic Vine API returned error:', data.error);
+        return [];
+      }
+
+      return data.results
+        .filter((person: any) => person.image && !person.image.original_url?.includes('blank'))
+        .map((creator: any) => ({
+          id: creator.id,
+          name: creator.name,
+          description: creator.deck || creator.description,
+          imageUrl: creator.image?.medium_url || creator.image?.small_url,
+          birthDate: creator.birth,
+          hometown: creator.hometown,
+          country: creator.country,
+          aliases: creator.aliases ? creator.aliases.split('\n').filter(Boolean) : [],
+          metadata: {
+            comicVineId: creator.id,
+            comicVineUrl: creator.site_detail_url,
+            gender: creator.gender,
+            countOfIssueAppearances: creator.count_of_issue_appearances,
+          }
+        }));
+    } catch (error) {
+      console.error('Error fetching Comic Vine creators:', error);
+      return [];
+    }
+  }
 }
 
 export const comicDataService = new ComicDataService();
