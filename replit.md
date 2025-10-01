@@ -6,6 +6,27 @@ Panel Profits is a dark, morally complex virtual trading platform that simulates
 
 ## Recent Updates
 
+### October 1, 2025 - Phase 2 Narrative Trading Architecture LAUNCHED 🚀
+
+**Phase 2 Scheduled Services** ✅ FULLY OPERATIONAL
+All narrative-driven trading features are now LIVE with automated cycles:
+- **Narrative Generation Service** (30min interval): Generates story arcs from comic data, creates timeline narratives
+- **House Rankings Service** (10min interval): Updates Seven Houses power rankings based on member performance and market movements
+- **Karmic Tracking Service** (5min interval): Monitors player alignment shifts, updates karma scores
+- **Story Impact Service** (2min interval): Applies narrative events to market prices
+- **Timeline Updates Service** (60min interval): Refreshes narrative timelines with new story beats
+
+**Phase 2 API Routes** ✅ COMPREHENSIVE
+Complete REST API for narrative-driven trading:
+- **Visual Storytelling**: `/api/storytelling/timelines`, `/api/storytelling/story-beats`, `/api/storytelling/narrative-analysis`
+- **Seven Houses**: `/api/seven-houses`, `/api/seven-houses/rankings/power`, `/api/seven-houses/events`, `/api/seven-houses/:houseId/assets`
+- **Karmic Alignment**: `/api/karma/alignment`, `/api/karma/profile`, `/api/karma/consequences`, `/api/karma/action`
+
+**Server Integration** ✅ SEAMLESS
+Phase 2 services automatically start with server (server/index.ts), running alongside Phase 1 trading foundation.
+
+---
+
 ### October 1, 2025 - Certification System & Dashboard Enhancements
 
 **Certification Career Pathway System**
