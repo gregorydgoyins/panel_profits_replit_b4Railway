@@ -15,8 +15,8 @@ export function MosaicLayout({ children, className = '' }: MosaicLayoutProps) {
       className={`mosaic-grid ${className}`}
       style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: 0, // NO GAPS - widgets fit like puzzle pieces
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: '1rem',
         width: '100%',
       }}
     >
