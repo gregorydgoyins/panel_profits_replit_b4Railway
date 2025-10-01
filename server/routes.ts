@@ -56,6 +56,7 @@ import {
   insertMarketEventSchema,
   insertComicGradingPredictionSchema,
   users,
+  portfolios,
   careerPathwayLevels,
   certificationCourses,
   userCourseEnrollments,
@@ -3019,7 +3020,18 @@ Respond with valid JSON in this exact format:
   app.get('/api/easter-eggs/unlocked', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const unlocked = await db.select().from(easterEggUnlocks)
+      const unlocked = await db.select({
+        id: easterEggUnlocks.id,
+        egg_id: easterEggUnlocks.eggId,
+        unlocked_at: easterEggUnlocks.unlockedAt,
+        reward_claimed: easterEggUnlocks.rewardClaimed,
+        reward_claimed_at: easterEggUnlocks.rewardClaimedAt,
+        egg_name: easterEggDefinitions.name,
+        egg_description: easterEggDefinitions.description,
+        egg_rarity: easterEggDefinitions.rarity,
+      })
+        .from(easterEggUnlocks)
+        .leftJoin(easterEggDefinitions, eq(easterEggUnlocks.eggId, easterEggDefinitions.id))
         .where(eq(easterEggUnlocks.userId, userId));
       res.json(unlocked);
     } catch (error) {

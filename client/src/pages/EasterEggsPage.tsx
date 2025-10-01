@@ -48,6 +48,8 @@ export default function EasterEggsPage() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('all');
   const [showSecrets, setShowSecrets] = useState(false);
+  
+  const isSubscriber = user?.subscriptionTier && user.subscriptionTier !== 'free';
 
   // Fetch all Easter eggs
   const { data: eggs = [], isLoading: eggsLoading } = useQuery<EasterEggDefinition[]>({
@@ -85,6 +87,7 @@ export default function EasterEggsPage() {
         description: `You've received: ${formatReward(data.reward_type, data.reward_value)}`,
       });
       queryClient.invalidateQueries({ queryKey: ['/api/easter-eggs/unlocked'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/easter-eggs/progress'] });
     },
     onError: (error: Error) => {
       toast({
@@ -437,15 +440,34 @@ export default function EasterEggsPage() {
 
                       {/* Claim button for unlocked eggs */}
                       {isUnlocked && !unlock.reward_claimed && (
-                        <Button 
-                          className="w-full"
-                          onClick={() => claimRewardMutation.mutate(unlock.id)}
-                          disabled={claimRewardMutation.isPending}
-                          data-testid={`button-claim-${egg.id}`}
-                        >
-                          <Zap className="h-4 w-4 mr-2" />
-                          Claim Reward
-                        </Button>
+                        <>
+                          {egg.requires_subscription && !isSubscriber ? (
+                            <div className="space-y-2">
+                              <Button 
+                                className="w-full"
+                                variant="outline"
+                                disabled
+                                data-testid={`button-claim-${egg.id}-locked`}
+                              >
+                                <Lock className="h-4 w-4 mr-2" />
+                                Subscriber Exclusive
+                              </Button>
+                              <p className="text-xs text-center text-muted-foreground">
+                                Upgrade to claim this reward
+                              </p>
+                            </div>
+                          ) : (
+                            <Button 
+                              className="w-full"
+                              onClick={() => claimRewardMutation.mutate(unlock.id)}
+                              disabled={claimRewardMutation.isPending}
+                              data-testid={`button-claim-${egg.id}`}
+                            >
+                              <Zap className="h-4 w-4 mr-2" />
+                              Claim Reward
+                            </Button>
+                          )}
+                        </>
                       )}
 
                       {/* Claimed status */}
