@@ -358,7 +358,7 @@ export default function DashboardPage() {
       {/* Dashboard Content */}
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Quick Stats Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" data-testid="dashboard-quick-stats">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-2" data-testid="dashboard-quick-stats">
           <Card className="hover-elevate" data-testid="card-portfolio-value">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
