@@ -86,7 +86,7 @@ export function NewsTicker() {
         }
         
         .animate-ticker {
-          animation: ticker 720s linear infinite;
+          animation: ticker 240s linear infinite;
         }
         
         .pause-animation {

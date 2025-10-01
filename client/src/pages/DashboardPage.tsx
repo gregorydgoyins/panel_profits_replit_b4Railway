@@ -433,7 +433,7 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* MOSAIC LAYOUT - All Widgets Fit Together Like Puzzle Pieces with NO GAPS */}
+        {/* ASYMMETRICAL MOSAIC - Bloomberg Terminal Style with Varied Widget Sizes */}
         <MosaicLayout>
           {/* Comic of the Day - Featured spotlight (full width) */}
           <MosaicSection className="mb-0">
@@ -445,15 +445,15 @@ export default function DashboardPage() {
             <ComicCoverWidget />
           </MosaicSection>
 
-          {/* Portfolio & Trading - Main Section */}
-          <MosaicItem span={2}>
-            <PortfolioOverview />
-          </MosaicItem>
+          {/* Asymmetrical Portfolio Section - 1 square, 2-span rectangle */}
           <MosaicItem span={1}>
             <TradingBalance />
           </MosaicItem>
+          <MosaicItem span={2}>
+            <PortfolioOverview />
+          </MosaicItem>
 
-          {/* Position Monitor - Real-time tracking */}
+          {/* Position Monitor - 2-span wide */}
           <MosaicItem span={2}>
             <PositionMonitorWidget />
           </MosaicItem>
@@ -461,15 +461,15 @@ export default function DashboardPage() {
             <WatchlistPanelWidget />
           </MosaicItem>
 
-          {/* Holdings & Market Overview */}
-          <MosaicItem span={2}>
-            <PortfolioHoldings />
-          </MosaicItem>
+          {/* Mixed sizes - square, then large rectangle */}
           <MosaicItem span={1}>
             <MarketOverview />
           </MosaicItem>
+          <MosaicItem span={2}>
+            <PortfolioHoldings />
+          </MosaicItem>
 
-          {/* Comic Content Widgets Row */}
+          {/* Three squares in a row */}
           <MosaicItem span={1}>
             <ComicHistoryWidget />
           </MosaicItem>
@@ -480,56 +480,52 @@ export default function DashboardPage() {
             <ComicRecommendationsWidget />
           </MosaicItem>
 
-          {/* Publisher & Creator Tracking Row */}
-          <MosaicItem span={2}>
-            <PublisherPerformanceWidget />
-          </MosaicItem>
+          {/* Asymmetrical - square then 2-span */}
           <MosaicItem span={1}>
             <CreatorInfluenceWidget />
           </MosaicItem>
+          <MosaicItem span={2}>
+            <PublisherPerformanceWidget />
+          </MosaicItem>
 
-          {/* Trending Characters - Heroes & Villains Trading */}
+          {/* 2-span then square - opposite of previous */}
+          <MosaicItem span={2}>
+            <ComicRiskAssessmentWidget />
+          </MosaicItem>
           <MosaicItem span={1}>
             <TrendingCharactersWidget />
           </MosaicItem>
           
-          {/* Creator Spotlight - Hot Writers & Artists */}
+          {/* Two squares side by side */}
           <MosaicItem span={1}>
             <CreatorSpotlightWidget />
           </MosaicItem>
-          
-          {/* Gadgets & Memorabilia Tracking */}
           <MosaicItem span={1}>
             <GadgetsMemorabiliaWidget />
           </MosaicItem>
-          <MosaicItem span={2}>
-            <ComicRiskAssessmentWidget />
+          <MosaicItem span={1}>
+            <FearGreedWidget />
           </MosaicItem>
 
-          {/* Portfolio Risk */}
+          {/* Full width risk metrics */}
           <MosaicSection>
             <PortfolioRiskMetricsWidget />
           </MosaicSection>
+
+          {/* Asymmetrical - 2-span then square */}
+          <MosaicItem span={2}>
+            <WatchlistManager />
+          </MosaicItem>
+          <MosaicItem span={1}>
+            <CashFlowStatementWidget />
+          </MosaicItem>
 
           {/* Trade Blotter - Full Width */}
           <MosaicSection>
             <TradeBlotterWidget />
           </MosaicSection>
 
-          {/* Income & Watchlist */}
-          <MosaicItem span={1}>
-            <CashFlowStatementWidget />
-          </MosaicItem>
-          <MosaicItem span={2}>
-            <WatchlistManager />
-          </MosaicItem>
-
-          {/* Options & Derivatives */}
-          <MosaicSection>
-            <OptionsChainWidget />
-          </MosaicSection>
-
-          {/* Market Intelligence Row */}
+          {/* Three squares */}
           <MosaicItem span={1}>
             <ComicETFsWidget />
           </MosaicItem>
@@ -540,64 +536,66 @@ export default function DashboardPage() {
             <ComicSentimentWidget />
           </MosaicItem>
 
-          {/* Market Dynamics */}
-          <MosaicItem span={1}>
-            <FearGreedWidget />
-          </MosaicItem>
+          {/* Options Chain - Full Width */}
+          <MosaicSection>
+            <OptionsChainWidget />
+          </MosaicSection>
+
+          {/* Asymmetrical mix - square, square, square */}
           <MosaicItem span={1}>
             <OracleProphecyWidget />
           </MosaicItem>
           <MosaicItem span={1}>
             <HousePowerRankingsWidget />
           </MosaicItem>
-
-          {/* Advanced Analytics */}
           <MosaicItem span={1}>
             <VolatilitySurfaceWidget />
+          </MosaicItem>
+
+          {/* 2-span then square */}
+          <MosaicItem span={2}>
+            <SectorRotationWidget />
           </MosaicItem>
           <MosaicItem span={1}>
             <CorrelationMatrixWidget />
           </MosaicItem>
+
+          {/* Square then 2-span - asymmetrical */}
           <MosaicItem span={1}>
             <ComicHeatMapWidget />
           </MosaicItem>
+          <MosaicItem span={2}>
+            <PortfolioGreeksWidget />
+          </MosaicItem>
 
-          {/* Trading Tools */}
+          {/* Three squares */}
           <MosaicItem span={1}>
             <EconomicCalendarWidget />
           </MosaicItem>
-          <MosaicItem span={2}>
-            <SectorRotationWidget />
-          </MosaicItem>
-
-          {/* Advanced Trading Instruments */}
           <MosaicItem span={1}>
             <MarginUtilizationWidget />
           </MosaicItem>
           <MosaicItem span={1}>
             <LEAPSWidget />
           </MosaicItem>
+
+          {/* Asymmetrical ending - 2-span then square */}
+          <MosaicItem span={2}>
+            <UnusualActivityWidget />
+          </MosaicItem>
           <MosaicItem span={1}>
             <PublisherBondsWidget />
           </MosaicItem>
 
-          {/* Advanced Trading Tools */}
-          <MosaicItem span={1}>
-            <UnusualActivityWidget />
-          </MosaicItem>
+          {/* Final row - square, square, square */}
           <MosaicItem span={1}>
             <DarkPoolWidget />
           </MosaicItem>
           <MosaicItem span={1}>
             <OrderBookWidget />
           </MosaicItem>
-
-          {/* AI & Portfolio Tools */}
           <MosaicItem span={1}>
             <AIRecommendationsWidget />
-          </MosaicItem>
-          <MosaicItem span={2}>
-            <PortfolioGreeksWidget />
           </MosaicItem>
         </MosaicLayout>
 
