@@ -142,38 +142,31 @@ export class PriceStreamingService {
    */
   private async initializeAssetStreams(): Promise<void> {
     try {
-      console.log('  📦 Loading assets for streaming...');
-      const assets = await storage.getAssets({ limit: 100 });
-      console.log(`  📦 Loaded ${assets.length} assets`);
+      console.log('  📦 Loading assets with prices for streaming...');
       
-      // Load all prices at once for fast lookup
-      console.log('  💰 Loading asset prices for streaming...');
-      const allPrices = await storage.getAllAssetCurrentPrices();
-      const priceMap = new Map(allPrices.map(p => [p.assetId, p]));
-      console.log(`  💰 Loaded ${allPrices.length} prices`);
+      // Load assets with prices using JOIN query (limit to 10,000 most recently updated)
+      const assetsWithPrices = await storage.getAssetsWithPrices(10000);
+      console.log(`  ✅ Loaded ${assetsWithPrices.length} assets with prices`);
       
       let initializedCount = 0;
-      for (const asset of assets) {
-        const currentPrice = priceMap.get(asset.id);
-        if (currentPrice) {
-          const price = parseFloat(currentPrice.currentPrice);
-          this.assetStreams.set(asset.id, {
-            asset,
-            currentPrice: price,
-            previousPrice: price,
-            dayOpen: price,
-            dayHigh: price,
-            dayLow: price,
-            volume24h: currentPrice.volume || 0,
-            priceHistory: [price],
-            volatility: this.VOLATILITY_BASE,
-            momentum: 0,
-            trend: 0,
-            lastUpdate: new Date(),
-            subscriberCount: 0
-          });
-          initializedCount++;
-        }
+      for (const { asset, price } of assetsWithPrices) {
+        const priceValue = parseFloat(price.currentPrice);
+        this.assetStreams.set(asset.id, {
+          asset,
+          currentPrice: priceValue,
+          previousPrice: priceValue,
+          dayOpen: priceValue,
+          dayHigh: priceValue,
+          dayLow: priceValue,
+          volume24h: price.volume || 0,
+          priceHistory: [priceValue],
+          volatility: this.VOLATILITY_BASE,
+          momentum: 0,
+          trend: 0,
+          lastUpdate: new Date(),
+          subscriberCount: 0
+        });
+        initializedCount++;
       }
       
       console.log(`📊 Initialized streaming for ${initializedCount} assets`);

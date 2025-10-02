@@ -320,7 +320,8 @@ export interface IStorage {
   // Asset Current Prices  
   getAssetCurrentPrice(assetId: string): Promise<AssetCurrentPrice | undefined>;
   getAssetCurrentPrices(assetIds: string[]): Promise<AssetCurrentPrice[]>;
-  getAllAssetCurrentPrices(marketStatus?: string): Promise<AssetCurrentPrice[]>;
+  getAllAssetCurrentPrices(marketStatus?: string, limit?: number): Promise<AssetCurrentPrice[]>;
+  getAssetsWithPrices(limit?: number): Promise<Array<{ asset: Asset; price: AssetCurrentPrice }>>;
   createAssetCurrentPrice(price: InsertAssetCurrentPrice): Promise<AssetCurrentPrice>;
   updateAssetCurrentPrice(assetId: string, price: Partial<InsertAssetCurrentPrice>): Promise<AssetCurrentPrice | undefined>;
   updateBulkAssetPrices(prices: Partial<AssetCurrentPrice>[]): Promise<AssetCurrentPrice[]>;

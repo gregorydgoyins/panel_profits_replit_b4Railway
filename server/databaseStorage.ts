@@ -1187,6 +1187,20 @@ export class DatabaseStorage implements IStorage {
     return await query.orderBy(desc(assetCurrentPrices.updatedAt)).limit(limit);
   }
 
+  async getAssetsWithPrices(limit: number = 100): Promise<Array<{ asset: Asset; price: AssetCurrentPrice }>> {
+    const results = await db
+      .select({
+        asset: assets,
+        price: assetCurrentPrices
+      })
+      .from(assets)
+      .innerJoin(assetCurrentPrices, eq(assets.id, assetCurrentPrices.assetId))
+      .orderBy(desc(assetCurrentPrices.updatedAt))
+      .limit(limit);
+    
+    return results;
+  }
+
   async createAssetCurrentPrice(price: InsertAssetCurrentPrice): Promise<AssetCurrentPrice> {
     const result = await db.insert(assetCurrentPrices).values(price).returning();
     return result[0];
