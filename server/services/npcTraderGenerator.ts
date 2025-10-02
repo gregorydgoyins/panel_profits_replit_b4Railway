@@ -109,22 +109,12 @@ const LAST_NAMES = [
 ];
 
 /**
- * Capital tier configuration
+ * Merit-Based Capital System
+ * All NPCs start with $50k base + test bonus
+ * Pure meritocracy based on Knowledge Test performance
  */
-interface CapitalTier {
-  name: string;
-  count: number;
-  minCapital: number;
-  maxCapital: number;
-}
-
-const CAPITAL_TIERS: CapitalTier[] = [
-  { name: 'Whale', count: 100, minCapital: 50_000_000, maxCapital: 200_000_000 },
-  { name: 'Large', count: 400, minCapital: 10_000_000, maxCapital: 49_000_000 },
-  { name: 'Medium', count: 1500, minCapital: 1_000_000, maxCapital: 9_900_000 },
-  { name: 'Small', count: 3000, minCapital: 100_000, maxCapital: 999_000 },
-  { name: 'Micro', count: 5000, minCapital: 10_000, maxCapital: 99_000 },
-];
+const BASE_CAPITAL = 50_000;
+const TEST_BONUS_MULTIPLIER = 1667; // $50k bonus at score 100 (30 points above passing)
 
 /**
  * Generate a random number within a range
@@ -201,15 +191,14 @@ function generatePreferredAssets(archetype: string): string[] {
 }
 
 /**
- * Generate Knowledge Test score with realistic distribution
- * Bell curve centered at 75, range 50-100
+ * Generate Knowledge Test score - PASSING GRADES ONLY (70-100)
+ * All NPCs are competent traders who passed the exam
  * 
- * Distribution:
+ * Distribution (bell curve centered at 85):
  * - 10% score 96-100 (elite genius)
  * - 20% score 86-95 (excellent)
- * - 40% score 71-85 (solid performance)
- * - 20% score 61-70 (passing grade)
- * - 10% score 50-60 (struggling, barely passed)
+ * - 40% score 76-85 (solid performance)
+ * - 30% score 70-75 (barely passing)
  */
 function generateKnowledgeTestScore(): number {
   const roll = Math.random();
@@ -221,14 +210,11 @@ function generateKnowledgeTestScore(): number {
     // Excellent: 86-95 (20%)
     return randomIntInRange(86, 95);
   } else if (roll < 0.70) {
-    // Solid performance: 71-85 (40%)
-    return randomIntInRange(71, 85);
-  } else if (roll < 0.90) {
-    // Passing grade: 61-70 (20%)
-    return randomIntInRange(61, 70);
+    // Solid performance: 76-85 (40%)
+    return randomIntInRange(76, 85);
   } else {
-    // Struggling, barely passed: 50-60 (10%)
-    return randomIntInRange(50, 60);
+    // Barely passing: 70-75 (30%)
+    return randomIntInRange(70, 75);
   }
 }
 
@@ -244,10 +230,10 @@ export interface CompleteNPCTrader {
 /**
  * Generate NPC traders with diverse names, capitals, and personalities
  * 
- * @param count - Number of traders to generate (default: 1000)
+ * @param count - Number of traders to generate (default: 10,000)
  * @returns Array of complete NPC trader data
  */
-export function generateNPCTraders(count: number = 1000): CompleteNPCTrader[] {
+export function generateNPCTraders(count: number = 10000): CompleteNPCTrader[] {
   const traders: CompleteNPCTrader[] = [];
   const existingNames = new Set<string>();
   
@@ -286,33 +272,21 @@ export function generateNPCTraders(count: number = 1000): CompleteNPCTrader[] {
     [archetypePool[i], archetypePool[j]] = [archetypePool[j], archetypePool[i]];
   }
   
-  // Build tier assignments
-  const tierAssignments: CapitalTier[] = [];
-  for (const tier of CAPITAL_TIERS) {
-    for (let i = 0; i < tier.count && tierAssignments.length < count; i++) {
-      tierAssignments.push(tier);
-    }
-  }
-  
-  // Shuffle tier assignments for randomness
-  for (let i = tierAssignments.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [tierAssignments[i], tierAssignments[j]] = [tierAssignments[j], tierAssignments[i]];
-  }
-  
   // Generate traders
   for (let traderIndex = 0; traderIndex < Math.min(count, archetypePool.length); traderIndex++) {
     const archetype = archetypePool[traderIndex];
     
     {
       const name = generateUniqueName(existingNames);
-      const tier = tierAssignments[traderIndex];
-      const baseCapital = randomInRange(tier.minCapital, tier.maxCapital);
       
-      // Generate Knowledge Test score and apply to capital
+      // Generate Knowledge Test score (70-100, passing grades only)
       const knowledgeTestScore = generateKnowledgeTestScore();
-      const scoreMultiplier = knowledgeTestScore / 70; // 50->0.71x, 70->1.00x, 85->1.21x, 100->1.43x
-      const adjustedCapital = baseCapital * scoreMultiplier;
+      
+      // Calculate capital: $50k base + test bonus
+      // Formula: testBonus = (testScore - 70) * 1667
+      // Results: 70→$50k, 85→$75k, 100→$100k
+      const testBonus = (knowledgeTestScore - 70) * TEST_BONUS_MULTIPLIER;
+      const startingCapital = BASE_CAPITAL + testBonus;
       
       // Generate personality configuration from personality engine
       const personality = generatePersonalityConfig(archetype);
@@ -340,7 +314,7 @@ export function generateNPCTraders(count: number = 1000): CompleteNPCTrader[] {
         },
         preferredAssets: generatePreferredAssets(archetype),
         tradingStyle: archetype.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-        availableCapital: adjustedCapital.toFixed(2),
+        availableCapital: startingCapital.toFixed(2),
         aggressiveness: personality.riskTolerance.toFixed(2),
         intelligence: personality.skillLevel.toFixed(2),
         emotionality: personality.panicThreshold.toFixed(2),
@@ -444,11 +418,10 @@ export async function seedNPCTradersToDatabase(db: any, count: number = 10000): 
     // Track distributions for summary
     const archetypeDistribution: Record<string, number> = {};
     const capitalDistribution: Record<string, number> = {
-      'Whale (>$50M)': 0,
-      'Large ($10M-$49M)': 0,
-      'Medium ($1M-$9.9M)': 0,
-      'Small ($100K-$999K)': 0,
-      'Micro ($10K-$99K)': 0,
+      'Elite ($90k-$100k)': 0,        // Score 94-100
+      'Excellent ($75k-$90k)': 0,     // Score 85-93
+      'Solid ($60k-$75k)': 0,         // Score 76-84
+      'Passing ($50k-$60k)': 0,       // Score 70-75
     };
     
     // Insert traders in batches of 100 to optimize performance
@@ -482,18 +455,16 @@ export async function seedNPCTradersToDatabase(db: any, count: number = 10000): 
         const archetype = npcData.trader.traderType;
         archetypeDistribution[archetype] = (archetypeDistribution[archetype] || 0) + 1;
         
-        // Track capital distribution
+        // Track capital distribution (based on Knowledge Test performance)
         const capital = parseFloat(npcData.trader.availableCapital);
-        if (capital >= 50_000_000) {
-          capitalDistribution['Whale (>$50M)']++;
-        } else if (capital >= 10_000_000) {
-          capitalDistribution['Large ($10M-$49M)']++;
-        } else if (capital >= 1_000_000) {
-          capitalDistribution['Medium ($1M-$9.9M)']++;
-        } else if (capital >= 100_000) {
-          capitalDistribution['Small ($100K-$999K)']++;
+        if (capital >= 90_000) {
+          capitalDistribution['Elite ($90k-$100k)']++;
+        } else if (capital >= 75_000) {
+          capitalDistribution['Excellent ($75k-$90k)']++;
+        } else if (capital >= 60_000) {
+          capitalDistribution['Solid ($60k-$75k)']++;
         } else {
-          capitalDistribution['Micro ($10K-$99K)']++;
+          capitalDistribution['Passing ($50k-$60k)']++;
         }
         
         totalInserted++;
@@ -536,11 +507,10 @@ export function getTradersSummary(traders: CompleteNPCTrader[]): {
 } {
   const archetypeDistribution: Record<string, number> = {};
   const capitalTiers: Record<string, { count: number; totalCapital: number }> = {
-    'Whale': { count: 0, totalCapital: 0 },
-    'Large': { count: 0, totalCapital: 0 },
-    'Medium': { count: 0, totalCapital: 0 },
-    'Small': { count: 0, totalCapital: 0 },
-    'Micro': { count: 0, totalCapital: 0 },
+    'Elite ($90k-$100k)': { count: 0, totalCapital: 0 },
+    'Excellent ($75k-$90k)': { count: 0, totalCapital: 0 },
+    'Solid ($60k-$75k)': { count: 0, totalCapital: 0 },
+    'Passing ($50k-$60k)': { count: 0, totalCapital: 0 },
   };
   const skillDistribution: Record<number, number> = {};
   
@@ -549,20 +519,19 @@ export function getTradersSummary(traders: CompleteNPCTrader[]): {
     archetypeDistribution[trader.traderType] = 
       (archetypeDistribution[trader.traderType] || 0) + 1;
     
-    // Capital distribution
+    // Capital distribution (based on Knowledge Test performance)
     const capital = parseFloat(trader.availableCapital);
     let tier: string;
-    if (capital >= 50_000_000) tier = 'Whale';
-    else if (capital >= 10_000_000) tier = 'Large';
-    else if (capital >= 1_000_000) tier = 'Medium';
-    else if (capital >= 100_000) tier = 'Small';
-    else tier = 'Micro';
+    if (capital >= 90_000) tier = 'Elite ($90k-$100k)';
+    else if (capital >= 75_000) tier = 'Excellent ($75k-$90k)';
+    else if (capital >= 60_000) tier = 'Solid ($60k-$75k)';
+    else tier = 'Passing ($50k-$60k)';
     
     capitalTiers[tier].count++;
     capitalTiers[tier].totalCapital += capital;
     
     // Skill distribution (intelligence field)
-    const skillLevel = Math.round(parseFloat(trader.intelligence));
+    const skillLevel = Math.round(parseFloat(trader.intelligence || '0'));
     skillDistribution[skillLevel] = (skillDistribution[skillLevel] || 0) + 1;
   }
   
