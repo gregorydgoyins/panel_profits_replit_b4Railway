@@ -32,6 +32,7 @@ Preferred communication style: Simple, everyday language.
 - **Entity Seeding System**: Comprehensive seeding service mines Comic Vine, Kaggle datasets, and PriceCharting to populate database with publishers, characters, creators, franchises, and comic assets with real market pricing.
 - **Database Schema**: Comprehensive schemas for users, assets, market data, portfolios, watchlists, orders, market events, certification pathways, subscriber incentives, easter eggs, and assessment scores.
 - **Design System**: Dark mode with indigo/purple gradients, green/red for trading, consistent styling via class-variance-authority, animations, and responsive design.
+- **Real-Time Price Streaming**: WebSocket-based price streaming service delivers live market data to connected clients. On connection, clients receive initial snapshot of 100 assets with pricing (type: 'market_data', data: {assetId, symbol, currentPrice, change, changePercent, volume, timestamp}). Stock ticker displays scrolling prices with volume sorting. System streams 1,187+ assets with 1,671+ prices across comics, ETFs, bonds, and options.
 
 ## External Dependencies
 
