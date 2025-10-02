@@ -449,11 +449,14 @@ export class PriceStreamingService {
   addClient(ws: WebSocket): void {
     this.connectedClients.add(ws);
     console.log(`📡 Client connected. Total clients: ${this.connectedClients.size}`);
+    console.log(`📡 WebSocket readyState: ${ws.readyState}`);
     
-    // Wait 500ms for connection to stabilize before sending snapshot
+    // DEBUGGING: Don't send snapshot yet - just keep connection open
     setTimeout(() => {
-      if (ws.readyState === 1) { // Still open
-        this.sendInitialMarketSnapshot(ws);
+      console.log(`📡 After 500ms, WebSocket readyState: ${ws.readyState}`);
+      if (ws.readyState === 1) {
+        console.log('✅ Connection still open after 500ms!');
+        // this.sendInitialMarketSnapshot(ws);
       } else {
         console.warn('⚠️ WebSocket closed before snapshot could be sent');
       }
