@@ -1,0 +1,67 @@
+{
+  "downloaded": [
+    {
+      "dataset": "fivethirtyeight/fivethirtyeight-comic-characters-dataset",
+      "path": "/home/runner/.cache/kagglehub/datasets/fivethirtyeight/fivethirtyeight-comic-characters-dataset/versions/111",
+      "files": [
+        "README.md",
+        "dc-wikia-data.csv",
+        "marvel-wikia-data.csv"
+      ],
+      "total_size_mb": 3.35
+    },
+    {
+      "dataset": "dannielr/marvel-superheroes",
+      "path": "/home/runner/.cache/kagglehub/datasets/dannielr/marvel-superheroes/versions/3",
+      "files": [
+        "characters.csv",
+        "charactersToComics.csv",
+        "charcters_stats.csv",
+        "comics.csv",
+        "marvel_characters_info.csv",
+        "marvel_dc_characters.csv",
+        "marvel_dc_characters.xlsx",
+        "superheroes_power_matrix.csv"
+      ],
+      "total_size_mb": 19.35
+    },
+    {
+      "dataset": "claudiodavi/superhero-set",
+      "path": "/home/runner/.cache/kagglehub/datasets/claudiodavi/superhero-set/versions/1",
+      "files": [
+        "heroes_information.csv",
+        "super_hero_powers.csv"
+      ],
+      "total_size_mb": 0.69
+    },
+    {
+      "dataset": "csanhueza/the-marvel-universe-social-network",
+      "path": "/home/runner/.cache/kagglehub/datasets/csanhueza/the-marvel-universe-social-network/versions/1",
+      "files": [
+        "edges.csv",
+        "hero-network.csv",
+        "nodes.csv"
+      ],
+      "total_size_mb": 23.74
+    }
+  ],
+  "failed": [
+    {
+      "dataset": "thedevastator/comic-books-data",
+      "reason": "private/restricted"
+    },
+    {
+      "dataset": "rounakbanik/marvel-universe",
+      "reason": "private/restricted"
+    },
+    {
+      "dataset": "jonathanbesomi/marvel-cinematic-universe",
+      "reason": "private/restricted"
+    },
+    {
+      "dataset": "corydonbaylor/comic-book-character-network",
+      "reason": "private/restricted"
+    }
+  ],
+  "total_datasets_found": 4
+}

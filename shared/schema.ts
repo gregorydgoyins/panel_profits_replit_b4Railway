@@ -174,6 +174,7 @@ export const assets = pgTable("assets", {
   type: text("type").notNull(), // 'character', 'comic', 'creator', 'publisher'
   description: text("description"),
   imageUrl: text("image_url"),
+  coverImageUrl: text("cover_image_url"),
   metadata: jsonb("metadata"), // Additional asset-specific data
   
   // Seven Houses control

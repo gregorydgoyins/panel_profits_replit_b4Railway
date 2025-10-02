@@ -1,0 +1,116 @@
+[
+  {
+    "dataset": "fivethirtyeight/fivethirtyeight-comic-characters-dataset",
+    "file": "dc-wikia-data.csv",
+    "path": "/home/runner/.cache/kagglehub/datasets/fivethirtyeight/fivethirtyeight-comic-characters-dataset/versions/111/dc-wikia-data.csv",
+    "size_mb": 1.05
+  },
+  {
+    "dataset": "dannielr/marvel-superheroes",
+    "file": "characters.csv",
+    "path": "/home/runner/.cache/kagglehub/datasets/dannielr/marvel-superheroes/versions/3/characters.csv",
+    "size_mb": 0.02
+  },
+  {
+    "dataset": "dannielr/marvel-superheroes",
+    "file": "charcters_stats.csv",
+    "path": "/home/runner/.cache/kagglehub/datasets/dannielr/marvel-superheroes/versions/3/charcters_stats.csv",
+    "size_mb": 0.02
+  },
+  {
+    "dataset": "dannielr/marvel-superheroes",
+    "file": "comics.csv",
+    "path": "/home/runner/.cache/kagglehub/datasets/dannielr/marvel-superheroes/versions/3/comics.csv",
+    "size_mb": 11.94
+  },
+  {
+    "dataset": "dannielr/marvel-superheroes",
+    "file": "marvel_characters_info.csv",
+    "path": "/home/runner/.cache/kagglehub/datasets/dannielr/marvel-superheroes/versions/3/marvel_characters_info.csv",
+    "size_mb": 0.04
+  },
+  {
+    "dataset": "dannielr/marvel-superheroes",
+    "file": "marvel_dc_characters.csv",
+    "path": "/home/runner/.cache/kagglehub/datasets/dannielr/marvel-superheroes/versions/3/marvel_dc_characters.csv",
+    "size_mb": 3.14
+  },
+  {
+    "dataset": "claudiodavi/superhero-set",
+    "file": "heroes_information.csv",
+    "path": "/home/runner/.cache/kagglehub/datasets/claudiodavi/superhero-set/versions/1/heroes_information.csv",
+    "size_mb": 0.05
+  },
+  {
+    "dataset": "claudiodavi/superhero-set",
+    "file": "super_hero_powers.csv",
+    "path": "/home/runner/.cache/kagglehub/datasets/claudiodavi/superhero-set/versions/1/super_hero_powers.csv",
+    "size_mb": 0.64
+  },
+  {
+    "dataset": "fivethirtyeight/fivethirtyeight-comic-characters-dataset",
+    "file": "dc-wikia-data.csv",
+    "path": "/home/runner/.cache/kagglehub/datasets/fivethirtyeight/fivethirtyeight-comic-characters-dataset/versions/111/dc-wikia-data.csv",
+    "size_mb": 1.05
+  },
+  {
+    "dataset": "dannielr/marvel-superheroes",
+    "file": "characters.csv",
+    "path": "/home/runner/.cache/kagglehub/datasets/dannielr/marvel-superheroes/versions/3/characters.csv",
+    "size_mb": 0.02
+  },
+  {
+    "dataset": "dannielr/marvel-superheroes",
+    "file": "charcters_stats.csv",
+    "path": "/home/runner/.cache/kagglehub/datasets/dannielr/marvel-superheroes/versions/3/charcters_stats.csv",
+    "size_mb": 0.02
+  },
+  {
+    "dataset": "dannielr/marvel-superheroes",
+    "file": "comics.csv",
+    "path": "/home/runner/.cache/kagglehub/datasets/dannielr/marvel-superheroes/versions/3/comics.csv",
+    "size_mb": 11.94
+  },
+  {
+    "dataset": "dannielr/marvel-superheroes",
+    "file": "marvel_characters_info.csv",
+    "path": "/home/runner/.cache/kagglehub/datasets/dannielr/marvel-superheroes/versions/3/marvel_characters_info.csv",
+    "size_mb": 0.04
+  },
+  {
+    "dataset": "dannielr/marvel-superheroes",
+    "file": "marvel_dc_characters.csv",
+    "path": "/home/runner/.cache/kagglehub/datasets/dannielr/marvel-superheroes/versions/3/marvel_dc_characters.csv",
+    "size_mb": 3.14
+  },
+  {
+    "dataset": "claudiodavi/superhero-set",
+    "file": "heroes_information.csv",
+    "path": "/home/runner/.cache/kagglehub/datasets/claudiodavi/superhero-set/versions/1/heroes_information.csv",
+    "size_mb": 0.05
+  },
+  {
+    "dataset": "claudiodavi/superhero-set",
+    "file": "super_hero_powers.csv",
+    "path": "/home/runner/.cache/kagglehub/datasets/claudiodavi/superhero-set/versions/1/super_hero_powers.csv",
+    "size_mb": 0.64
+  },
+  {
+    "dataset": "csanhueza/the-marvel-universe-social-network",
+    "file": "edges.csv",
+    "path": "/home/runner/.cache/kagglehub/datasets/csanhueza/the-marvel-universe-social-network/versions/1/edges.csv",
+    "size_mb": 2.26
+  },
+  {
+    "dataset": "csanhueza/the-marvel-universe-social-network",
+    "file": "hero-network.csv",
+    "path": "/home/runner/.cache/kagglehub/datasets/csanhueza/the-marvel-universe-social-network/versions/1/hero-network.csv",
+    "size_mb": 21.19
+  },
+  {
+    "dataset": "csanhueza/the-marvel-universe-social-network",
+    "file": "nodes.csv",
+    "path": "/home/runner/.cache/kagglehub/datasets/csanhueza/the-marvel-universe-social-network/versions/1/nodes.csv",
+    "size_mb": 0.28
+  }
+]

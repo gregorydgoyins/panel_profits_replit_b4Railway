@@ -1,0 +1,46 @@
+{
+  "downloaded": [],
+  "failed": [
+    {
+      "dataset": "aludvigsson/myanimelist-anime-dataset-as-20190204",
+      "reason": "private"
+    },
+    {
+      "dataset": "azathoth42/myanimelist",
+      "reason": "not_found"
+    },
+    {
+      "dataset": "CooperUnion/anime-characters-database",
+      "reason": "private"
+    },
+    {
+      "dataset": "marlesson/myanimelist-dataset-animes-profiles-reviews",
+      "reason": "not_found"
+    },
+    {
+      "dataset": "canggih/anime-data-score-staff-synopsis-and-genre",
+      "reason": "not_found"
+    },
+    {
+      "dataset": "hernan4444/anime-recommendation-database-2020",
+      "reason": "not_found"
+    },
+    {
+      "dataset": "svanoo/myanimelist-dataset",
+      "reason": "not_found"
+    },
+    {
+      "dataset": "andreuvallhernandez/myanimelist",
+      "reason": "private"
+    },
+    {
+      "dataset": "dbdmobile/myanimelist-dataset",
+      "reason": "not_found"
+    },
+    {
+      "dataset": "victorsoeiro/netflix-tv-shows-and-movies",
+      "reason": "not_found"
+    }
+  ],
+  "total_datasets_found": 0
+}
