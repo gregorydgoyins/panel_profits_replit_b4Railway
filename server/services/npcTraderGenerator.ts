@@ -114,7 +114,7 @@ const LAST_NAMES = [
  * Pure meritocracy based on Knowledge Test performance
  */
 const BASE_CAPITAL = 50_000;
-const TEST_BONUS_MULTIPLIER = 1667; // $50k bonus at score 100 (30 points above passing)
+const TEST_BONUS_MULTIPLIER = 1724; // (100 - 71) × 1724 = $49,996 bonus → $99,996 total at score 100
 
 /**
  * Generate a random number within a range
@@ -191,30 +191,35 @@ function generatePreferredAssets(archetype: string): string[] {
 }
 
 /**
- * Generate Knowledge Test score - PASSING GRADES ONLY (70-100)
- * All NPCs are competent traders who passed the exam
+ * Generate Knowledge Test score - GENUINE PASSES ONLY (71-100)
+ * All NPCs scored ABOVE the minimum passing grade (70)
+ * Score 70 = minimum passing, so everyone scored 71+ showing competence
  * 
  * Distribution (bell curve centered at 85):
- * - 10% score 96-100 (elite genius)
- * - 20% score 86-95 (excellent)
- * - 40% score 76-85 (solid performance)
- * - 30% score 70-75 (barely passing)
+ * - 10% score 71-75 (solid pass)
+ * - 25% score 76-82 (good)
+ * - 35% score 83-90 (strong)
+ * - 25% score 91-96 (excellent)
+ * - 5% score 97-100 (elite)
  */
 function generateKnowledgeTestScore(): number {
-  const roll = Math.random();
+  const rand = Math.random();
   
-  if (roll < 0.10) {
-    // Elite genius: 96-100 (10%)
-    return randomIntInRange(96, 100);
-  } else if (roll < 0.30) {
-    // Excellent: 86-95 (20%)
-    return randomIntInRange(86, 95);
-  } else if (roll < 0.70) {
-    // Solid performance: 76-85 (40%)
-    return randomIntInRange(76, 85);
+  if (rand < 0.10) {
+    // Solid pass: 71-75 (10%)
+    return randomIntInRange(71, 75);
+  } else if (rand < 0.35) {
+    // Good: 76-82 (25%)
+    return randomIntInRange(76, 82);
+  } else if (rand < 0.70) {
+    // Strong: 83-90 (35%)
+    return randomIntInRange(83, 90);
+  } else if (rand < 0.95) {
+    // Excellent: 91-96 (25%)
+    return randomIntInRange(91, 96);
   } else {
-    // Barely passing: 70-75 (30%)
-    return randomIntInRange(70, 75);
+    // Elite: 97-100 (5%)
+    return randomIntInRange(97, 100);
   }
 }
 
@@ -279,13 +284,13 @@ export function generateNPCTraders(count: number = 10000): CompleteNPCTrader[] {
     {
       const name = generateUniqueName(existingNames);
       
-      // Generate Knowledge Test score (70-100, passing grades only)
+      // Generate Knowledge Test score (71-100, genuine passes only)
       const knowledgeTestScore = generateKnowledgeTestScore();
       
       // Calculate capital: $50k base + test bonus
-      // Formula: testBonus = (testScore - 70) * 1667
-      // Results: 70→$50k, 85→$75k, 100→$100k
-      const testBonus = (knowledgeTestScore - 70) * TEST_BONUS_MULTIPLIER;
+      // Formula: testBonus = (testScore - 71) * 1724
+      // Results: 71→$50k, 85→$74,136, 100→$99,996 (respects $100k ceiling)
+      const testBonus = (knowledgeTestScore - 71) * TEST_BONUS_MULTIPLIER;
       const startingCapital = BASE_CAPITAL + testBonus;
       
       // Generate personality configuration from personality engine
