@@ -4,6 +4,7 @@ import { setupVite, serveStatic, log } from "./vite";
 import { initializeWebSocketProtocolOverride, applyEmergencyProtocolOverride } from "./utils/webSocketProtocolOverride.js";
 import { phase1Services } from "./phase1ScheduledServices.js";
 import { phase2Services } from "./phase2ScheduledServices.js";
+import { pineconeService } from "./services/pineconeService";
 
 
 const app = express();
@@ -81,6 +82,13 @@ app.use((req, res, next) => {
     reusePort: true,
   }, async () => {
     log(`serving on port ${port}`);
+    
+    // PINECONE INTEGRATION: Connect to vector database
+    try {
+      await pineconeService.init();
+    } catch (error) {
+      console.error('Failed to initialize Pinecone:', error);
+    }
     
     // PHASE 1 INTEGRATION: Start all scheduled services for living financial simulation
     try {
