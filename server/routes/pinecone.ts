@@ -47,18 +47,14 @@ router.post("/search", async (req, res) => {
  */
 router.get("/sample", async (req, res) => {
   try {
-    // Query with a generic embedding to get sample results
-    const sampleQuery = "superhero comic book character";
-    const embedding = await openaiService.generateEmbedding(sampleQuery);
+    // Use a zero vector to get random samples (no semantic meaning needed)
+    const zeroVector = new Array(1024).fill(0);
+    zeroVector[0] = 0.1; // Small value to avoid errors
     
-    if (!embedding) {
-      return res.status(500).json({ error: "Failed to generate sample embedding" });
-    }
-
-    const results = await pineconeService.querySimilar(embedding, 5);
+    const results = await pineconeService.querySimilar(zeroVector, 10);
 
     res.json({
-      message: "Sample records from Pinecone index",
+      message: "Sample records from Pinecone index (no OpenAI required)",
       totalRecords: 63934,
       dimension: 1024,
       samples: results?.map((match: any) => ({
@@ -70,6 +66,34 @@ router.get("/sample", async (req, res) => {
   } catch (error) {
     console.error('Pinecone sample error:', error);
     res.status(500).json({ error: "Failed to fetch samples" });
+  }
+});
+
+/**
+ * Fetch specific records by ID (no OpenAI needed)
+ * POST /api/pinecone/fetch
+ * Body: { ids: string[] }
+ */
+router.post("/fetch", async (req, res) => {
+  try {
+    const { ids } = req.body;
+    
+    if (!ids || !Array.isArray(ids)) {
+      return res.status(400).json({ error: "IDs array is required" });
+    }
+
+    const records = await pineconeService.fetchVectors(ids);
+
+    res.json({
+      records: Object.entries(records || {}).map(([id, record]: [string, any]) => ({
+        id,
+        metadata: record.metadata,
+        values: record.values
+      }))
+    });
+  } catch (error) {
+    console.error('Pinecone fetch error:', error);
+    res.status(500).json({ error: "Fetch failed" });
   }
 });
 
