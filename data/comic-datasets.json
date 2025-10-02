@@ -1,0 +1,21 @@
+[
+  {
+    "dataset": "dannielr/marvel-superheroes",
+    "path": "/home/runner/.cache/kagglehub/datasets/dannielr/marvel-superheroes/versions/3",
+    "files": [
+      {
+        "file": "charactersToComics.csv",
+        "path": "/home/runner/.cache/kagglehub/datasets/dannielr/marvel-superheroes/versions/3/charactersToComics.csv",
+        "size_mb": 1.06,
+        "columns": "comicid,characterid"
+      },
+      {
+        "file": "comics.csv",
+        "path": "/home/runner/.cache/kagglehub/datasets/dannielr/marvel-superheroes/versions/3/comics.csv",
+        "size_mb": 11.94,
+        "columns": "comicid,title,issuenumber,description"
+      }
+    ],
+    "total_size_mb": 19.35
+  }
+]
