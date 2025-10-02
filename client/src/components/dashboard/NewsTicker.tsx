@@ -78,10 +78,10 @@ export function NewsTicker() {
       <style>{`
         @keyframes ticker {
           0% {
-            transform: translateX(100%);
+            transform: translateX(0%);
           }
           100% {
-            transform: translateX(-100%);
+            transform: translateX(-50%);
           }
         }
         

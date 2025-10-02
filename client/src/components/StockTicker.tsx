@@ -46,7 +46,7 @@ export function StockTicker() {
     if (!scrollContainer || isPaused || topAssets.length === 0) return;
 
     let scrollPosition = 0;
-    const scrollSpeed = 0.5; // pixels per frame - slower for easier reading
+    const scrollSpeed = 0.25; // pixels per frame - extra slow for readability
     let animationFrameId: number;
     
     const animate = () => {
