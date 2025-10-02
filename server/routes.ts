@@ -2130,6 +2130,38 @@ Respond with valid JSON in this exact format:
     }
   });
 
+  // Weighted Market Cap Details - Share pricing and float data for an asset
+  app.get("/api/market/market-cap/:assetId", async (req, res) => {
+    try {
+      const { assetId } = req.params;
+      const priceData = await storage.getAssetCurrentPrices([assetId]);
+      
+      if (!priceData || priceData.length === 0) {
+        return res.status(404).json({ error: "Asset not found" });
+      }
+
+      const price = priceData[0];
+      
+      res.json({
+        success: true,
+        data: {
+          assetId,
+          sharePrice: parseFloat(price.currentPrice),
+          totalMarketValue: price.totalMarketValue ? parseFloat(price.totalMarketValue) : null,
+          totalFloat: price.totalFloat,
+          sharesPerCopy: price.sharesPerCopy || 100,
+          averageComicValue: price.averageComicValue ? parseFloat(price.averageComicValue) : null,
+          scarcityModifier: price.scarcityModifier ? parseFloat(price.scarcityModifier) : 1.0,
+          censusDistribution: price.censusDistribution || [],
+          priceSource: price.priceSource
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching market cap details:', error);
+      res.status(500).json({ error: "Failed to fetch market cap details" });
+    }
+  });
+
   // Market Depth - Simulated order book data
   app.get("/api/market/depth/:assetId", async (req, res) => {
     try {

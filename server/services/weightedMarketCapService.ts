@@ -125,14 +125,17 @@ class WeightedMarketCapService {
       priceData.highestPrice || 0
     );
 
-    // Step 6: Apply scarcity modifier to share price
-    const adjustedSharePrice = marketCap.sharePrice * scarcityModifier;
+    // Step 6: Apply scarcity modifier to total market value (not just share price)
+    // This maintains the formula: sharePrice = totalMarketValue / totalFloat
+    const adjustedTotalMarketValue = marketCap.totalMarketValue * scarcityModifier;
+    const adjustedSharePrice = adjustedTotalMarketValue / marketCap.totalFloat;
+    const adjustedAverageComicValue = marketCap.averageComicValue * scarcityModifier;
 
     const result: WeightedPricingResult = {
       sharePrice: adjustedSharePrice,
-      totalMarketValue: marketCap.totalMarketValue,
+      totalMarketValue: adjustedTotalMarketValue,
       totalFloat: marketCap.totalFloat,
-      averageComicValue: marketCap.averageComicValue,
+      averageComicValue: adjustedAverageComicValue,
       scarcityModifier,
       censusDistribution: censusData.gradeDistribution.map(grade => ({
         ...grade,
@@ -144,8 +147,9 @@ class WeightedMarketCapService {
     console.log(`\n✅ Weighted Pricing Complete:`);
     console.log(`   Share Price: $${result.sharePrice.toFixed(2)} (with scarcity modifier: ${scarcityModifier.toFixed(4)})`);
     console.log(`   Total Float: ${result.totalFloat.toLocaleString()} shares`);
-    console.log(`   Total Market Value: $${result.totalMarketValue.toLocaleString()}`);
-    console.log(`   Avg Comic Value: $${result.averageComicValue.toLocaleString()}\n`);
+    console.log(`   Total Market Value: $${result.totalMarketValue.toLocaleString()} (adjusted)`);
+    console.log(`   Avg Comic Value: $${result.averageComicValue.toLocaleString()} (adjusted)`);
+    console.log(`   Formula check: $${result.totalMarketValue.toLocaleString()} ÷ ${result.totalFloat.toLocaleString()} = $${adjustedSharePrice.toFixed(2)}\n`);
 
     return result;
   }
