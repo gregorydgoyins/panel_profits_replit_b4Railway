@@ -2,6 +2,7 @@ import { Router } from "express";
 import { pineconeService } from "../services/pineconeService";
 import { openaiService } from "../services/openaiService";
 import { pineconeAssetExpansion } from "../services/pineconeAssetExpansion";
+import { pineconeAssetSeeder } from "../services/pineconeAssetSeeder";
 
 const router = Router();
 
@@ -117,6 +118,75 @@ router.post("/expand", async (req, res) => {
     res.status(500).json({ 
       success: false,
       error: error instanceof Error ? error.message : "Expansion failed" 
+    });
+  }
+});
+
+/**
+ * Seed assets from Pinecone into the database
+ * POST /api/pinecone/seed-assets
+ * Body: { 
+ *   batchSize?: number,           // Assets per batch (default: 100)
+ *   totalSamples?: number,         // Total samples to process (overrides samplesPerCategory)
+ *   samplesPerCategory?: number    // Samples per category (default: 100)
+ * }
+ * 
+ * Returns: {
+ *   success: boolean,
+ *   totalProcessed: number,
+ *   inserted: number,
+ *   skipped: number,
+ *   errors: number,
+ *   processingTime: number,
+ *   errorDetails?: string[]
+ * }
+ */
+router.post("/seed-assets", async (req, res) => {
+  try {
+    const { 
+      batchSize = 100, 
+      totalSamples,
+      samplesPerCategory = 100 
+    } = req.body;
+
+    // Validate parameters
+    if (batchSize && (typeof batchSize !== 'number' || batchSize < 1 || batchSize > 500)) {
+      return res.status(400).json({ 
+        error: "batchSize must be a number between 1 and 500" 
+      });
+    }
+
+    if (samplesPerCategory && (typeof samplesPerCategory !== 'number' || samplesPerCategory < 1)) {
+      return res.status(400).json({ 
+        error: "samplesPerCategory must be a positive number" 
+      });
+    }
+
+    // Use totalSamples to override samplesPerCategory if provided
+    const effectiveSamplesPerCategory = totalSamples 
+      ? Math.ceil(totalSamples / 3) // Divide by 3 for characters, creators, comics
+      : samplesPerCategory;
+
+    console.log(`🌱 Starting Pinecone asset seeding pipeline...`);
+    console.log(`   - Batch size: ${batchSize}`);
+    console.log(`   - Samples per category: ${effectiveSamplesPerCategory}`);
+    
+    const result = await pineconeAssetSeeder.seedAssets({
+      batchSize,
+      samplesPerCategory: effectiveSamplesPerCategory
+    });
+    
+    res.json(result);
+  } catch (error) {
+    console.error('❌ Asset seeding error:', error);
+    res.status(500).json({ 
+      success: false,
+      totalProcessed: 0,
+      inserted: 0,
+      skipped: 0,
+      errors: 1,
+      processingTime: 0,
+      errorDetails: [error instanceof Error ? error.message : "Seeding failed"]
     });
   }
 });
