@@ -1,6 +1,7 @@
 import { comicDataService } from './comicDataService';
 import { storage } from '../storage';
 import { priceChartingService } from './priceChartingService';
+import { weightedMarketCapService } from './weightedMarketCapService';
 import { readFileSync } from 'fs';
 import { parse } from 'csv-parse/sync';
 
@@ -495,88 +496,77 @@ class EntitySeedingService {
             const existing = await storage.getAssetBySymbol(symbol);
             if (existing) continue;
 
-            // Get comprehensive pricing by grade from PriceCharting
-            const pricesByGrade = await priceChartingService.getComicPricesByGrade(comic['product-name']);
-            
-            let price: number;
-            let gradeData: any = {};
-            let pricingSource = 'pricecharting';
+            // Calculate weighted market cap pricing using real census + price data
+            const weightedPricing = await weightedMarketCapService.calculateWeightedPricing(
+              comic['product-name'],
+              100 // 100 shares per physical comic
+            );
 
-            if (pricesByGrade && pricesByGrade.grades.length > 0) {
-              // Use real PriceCharting prices by grade
-              console.log(`   💰 Using real PriceCharting grades for: ${comic['product-name']}`);
-              
-              // Build grade data from PriceCharting response
-              for (const gradeInfo of pricesByGrade.grades) {
-                if (gradeInfo.available && gradeInfo.price) {
-                  const gradeKey = gradeInfo.grade.toLowerCase().replace(/[^a-z0-9]/g, '');
-                  gradeData[gradeKey] = gradeInfo.price;
-                }
-              }
-              
-              // Use ungraded price as base, or lowest available grade
-              const ungradedPrice = pricesByGrade.grades.find(g => g.grade === 'Ungraded' && g.available);
-              if (ungradedPrice?.price) {
-                price = ungradedPrice.price;
-              } else {
-                // Use lowest available grade as fallback
-                const lowestGrade = pricesByGrade.grades.find(g => g.available && g.price);
-                price = lowestGrade?.price || 0;
-              }
-            } else {
-              // Fallback to getBestPrice if getComicPricesByGrade doesn't return data
-              console.log(`   📊 Using calculated price for: ${comic['product-name']}`);
-              price = priceChartingService.getBestPrice(comic);
-              pricingSource = 'calculated';
-              
-              // Still store the grade breakdown from the original product data
-              gradeData = {
-                ungraded: comic['loose-price'] ? comic['loose-price'] / 100 : null,
-                cgc40: comic['cib-price'] ? comic['cib-price'] / 100 : null,
-                cgc60: comic['new-price'] ? comic['new-price'] / 100 : null,
-                cgc80: comic['graded-price'] ? comic['graded-price'] / 100 : null,
-                cgc92: comic['box-only-price'] ? comic['box-only-price'] / 100 : null,
-                cgc98: comic['manual-only-price'] ? comic['manual-only-price'] / 100 : null,
-                cgc100: comic['bgs-10-price'] ? comic['bgs-10-price'] / 100 : null,
-              };
+            if (!weightedPricing) {
+              console.log(`   ⚠️  Could not calculate weighted pricing for: ${comic['product-name']}`);
+              continue;
             }
 
-            if (price === 0) continue;
+            // Use share price as the trading price
+            const sharePrice = weightedPricing.sharePrice;
 
-            // Create comic asset with full grade pricing
+            // Create comic asset with weighted market cap data
             await storage.createAsset({
               symbol,
               name: comic['product-name'],
               type: 'comic',
-              description: `${priceChartingService.extractSeriesName(comic['console-name'])} - Real market pricing from PriceCharting`,
+              description: `${priceChartingService.extractSeriesName(comic['console-name'])} - Share-based pricing with real census data`,
               imageUrl: null,
               metadata: {
                 series: priceChartingService.extractSeriesName(comic['console-name']),
                 publisher: comic['publisher-name'] || (seriesName.includes('Spider-Man') || seriesName.includes('X-Men') ? 'Marvel' : 'DC'),
                 releaseDate: comic['release-date'],
-                productId: pricesByGrade?.productId || comic.id,
-                grading: gradeData,
-                pricingSource,
-                bestGrade: pricesByGrade?.bestGrade,
-                highestPrice: pricesByGrade?.highestPrice
+                productId: comic.id,
+                pricingSource: 'weighted_market_cap',
+                totalMarketValue: weightedPricing.totalMarketValue,
+                totalFloat: weightedPricing.totalFloat,
+                sharesPerCopy: weightedPricing.sharesPerCopy,
+                averageComicValue: weightedPricing.averageComicValue,
+                scarcityModifier: weightedPricing.scarcityModifier,
+                censusDistribution: weightedPricing.censusDistribution
               }
             });
 
-            // Create initial market data
+            // Create initial market data using share price
             await storage.createMarketData({
               assetId: symbol,
               timeframe: '1d',
               periodStart: new Date(),
-              open: price.toString(),
-              high: (price * 1.05).toString(),
-              low: (price * 0.95).toString(),
-              close: price.toString(),
+              open: sharePrice.toString(),
+              high: (sharePrice * 1.02).toString(),
+              low: (sharePrice * 0.98).toString(),
+              close: sharePrice.toString(),
               volume: Math.floor(100 + Math.random() * 500),
               change: '0',
               percentChange: '0'
             });
 
-            console.log(`   ✅ Created: ${comic['product-name']} @ $${price} [${pricingSource}]${pricesByGrade?.bestGrade ? ` | Best: ${pricesByGrade.bestGrade} @ $${pricesByGrade.highestPrice}` : ''}`);
+            // Create current price entry with weighted market cap data
+            await storage.createAssetCurrentPrice({
+              assetId: symbol,
+              currentPrice: sharePrice.toString(),
+              bidPrice: (sharePrice * 0.995).toString(),
+              askPrice: (sharePrice * 1.005).toString(),
+              dayChange: '0',
+              dayChangePercent: '0',
+              weekHigh: (sharePrice * 1.1).toString(),
+              volume: Math.floor(100 + Math.random() * 500),
+              marketStatus: 'open',
+              priceSource: 'weighted_market_cap',
+              totalMarketValue: weightedPricing.totalMarketValue.toString(),
+              totalFloat: weightedPricing.totalFloat,
+              sharesPerCopy: weightedPricing.sharesPerCopy,
+              censusDistribution: weightedPricing.censusDistribution,
+              scarcityModifier: weightedPricing.scarcityModifier.toString(),
+              averageComicValue: weightedPricing.averageComicValue.toString()
+            });
+
+            console.log(`   ✅ Created: ${comic['product-name']} @ $${sharePrice.toFixed(2)}/share | Float: ${weightedPricing.totalFloat.toLocaleString()} | Market Cap: $${weightedPricing.totalMarketValue.toLocaleString()}`);
           }
         }
       }
