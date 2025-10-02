@@ -63,6 +63,10 @@ import { GadgetsMemorabiliaWidget } from '@/components/dashboard/GadgetsMemorabi
 import TrendingCharactersWidget from '@/components/dashboard/TrendingCharactersWidget';
 import CreatorSpotlightWidget from '@/components/dashboard/CreatorSpotlightWidget';
 
+// Price History & Grading Widgets
+import { PriceHistoryChartWidget } from '@/components/dashboard/PriceHistoryChartWidget';
+import { CGCGradeComparisonWidget } from '@/components/dashboard/CGCGradeComparisonWidget';
+
 // Mosaic Layout System
 import { MosaicLayout, MosaicItem, MosaicSection } from '@/components/dashboard/MosaicLayout';
 
@@ -154,6 +158,16 @@ export default function DashboardPage() {
     enabled: !!userData?.id,
     refetchInterval: 30000
   });
+
+  // Fetch featured/trending assets for price widgets
+  const { data: featuredAssets } = useQuery<any[]>({
+    queryKey: ['/api/assets'],
+    select: (data) => data?.slice(0, 5) || [], // Get first 5 assets
+    refetchInterval: 60000
+  });
+
+  // Use first trending asset for price widgets, or fallback to first available
+  const selectedAssetId = featuredAssets?.[0]?.id;
 
   // Calculate real dashboard stats from API data
   const dashboardStats = useMemo((): DashboardStats => {
@@ -529,6 +543,14 @@ export default function DashboardPage() {
           </MosaicItem>
           <MosaicItem span={1}>
             <ComicSentimentWidget />
+          </MosaicItem>
+
+          {/* Price Analysis & Grading */}
+          <MosaicItem span={2}>
+            <PriceHistoryChartWidget assetId={selectedAssetId} />
+          </MosaicItem>
+          <MosaicItem span={1}>
+            <CGCGradeComparisonWidget assetId={selectedAssetId} />
           </MosaicItem>
 
           {/* Advanced Trading - Options Chain (Full Width) */}
