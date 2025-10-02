@@ -304,6 +304,12 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
+  async createPriceHistoryBatch(data: InsertPriceHistory[]): Promise<PriceHistory[]> {
+    if (data.length === 0) return [];
+    const results = await db.insert(priceHistory).values(data).returning();
+    return results;
+  }
+
   async getPriceHistory(assetId: string, grade: string, days: number): Promise<PriceHistory[]> {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - days);

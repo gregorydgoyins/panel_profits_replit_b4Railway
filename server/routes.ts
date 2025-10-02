@@ -117,6 +117,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Price History Seeding - Create historical price snapshots for all assets
+  app.post('/api/admin/seed-price-history', async (req: any, res) => {
+    try {
+      console.log('📊 Starting price history seeding from API request...');
+      
+      const { seedPriceHistory } = await import('./services/priceHistorySeeding');
+      
+      // Run seeding service asynchronously
+      seedPriceHistory()
+        .then(() => {
+          console.log('✅ Price history seeding completed successfully');
+        })
+        .catch((error) => {
+          console.error('❌ Price history seeding failed:', error);
+        });
+      
+      // Return immediately so the request doesn't timeout
+      res.json({
+        success: true,
+        message: 'Price history seeding started. Creating 90 days of historical data for all assets and CGC grades. Check server logs for progress.'
+      });
+    } catch (error) {
+      console.error('Error starting price history seeding:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to start price history seeding' 
+      });
+    }
+  });
+
   // PriceCharting Integration - Test API connection with comic search
   app.get('/api/admin/pricecharting/test', async (req: any, res) => {
     try {

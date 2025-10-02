@@ -127,6 +127,7 @@ export interface IStorage {
 
   // Price history (graded comic book pricing)
   createPriceHistory(data: InsertPriceHistory): Promise<PriceHistory>;
+  createPriceHistoryBatch(data: InsertPriceHistory[]): Promise<PriceHistory[]>;
   getPriceHistory(assetId: string, grade: string, days: number): Promise<PriceHistory[]>;
   getLatestPricesByGrade(assetId: string): Promise<PriceHistory[]>;
   getPriceTrends(assetId: string, timeframe: '30d' | '90d' | '1y'): Promise<{
