@@ -133,10 +133,13 @@ class WebSocketService {
 
       this.ws.onmessage = (event) => {
         try {
+          console.log('📨 Received message, length:', event.data.length);
           const message: WebSocketMessage = JSON.parse(event.data);
+          console.log('📨 Message type:', message.type);
           this.handleMessage(message);
+          console.log('✅ Message handled');
         } catch (error) {
-          console.error('❌ Error parsing WebSocket message:', error);
+          console.error('❌ Error with WebSocket message:', error, 'Data:', event.data.substring(0, 300));
         }
       };
 
