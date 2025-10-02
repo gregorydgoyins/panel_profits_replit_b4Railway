@@ -5,7 +5,7 @@
  * and capital allocations for the Panel Profits trading simulation.
  */
 
-import { generatePersonalityConfig, getAllArchetypes } from './npcPersonalityEngine';
+import { generatePersonalityConfig, getAllArchetypes, getTradingFrequencyValue } from './npcPersonalityEngine';
 import type { InsertNpcTrader, InsertNpcTraderStrategy, InsertNpcTraderPsychology } from '@shared/schema';
 
 // Diverse first names from various cultural backgrounds
@@ -119,11 +119,11 @@ interface CapitalTier {
 }
 
 const CAPITAL_TIERS: CapitalTier[] = [
-  { name: 'Whale', count: 10, minCapital: 50_000_000, maxCapital: 200_000_000 },
-  { name: 'Large', count: 40, minCapital: 10_000_000, maxCapital: 49_000_000 },
-  { name: 'Medium', count: 150, minCapital: 1_000_000, maxCapital: 9_900_000 },
-  { name: 'Small', count: 300, minCapital: 100_000, maxCapital: 999_000 },
-  { name: 'Micro', count: 500, minCapital: 10_000, maxCapital: 99_000 },
+  { name: 'Whale', count: 100, minCapital: 50_000_000, maxCapital: 200_000_000 },
+  { name: 'Large', count: 400, minCapital: 10_000_000, maxCapital: 49_000_000 },
+  { name: 'Medium', count: 1500, minCapital: 1_000_000, maxCapital: 9_900_000 },
+  { name: 'Small', count: 3000, minCapital: 100_000, maxCapital: 999_000 },
+  { name: 'Micro', count: 5000, minCapital: 10_000, maxCapital: 99_000 },
 ];
 
 /**
@@ -201,6 +201,38 @@ function generatePreferredAssets(archetype: string): string[] {
 }
 
 /**
+ * Generate Knowledge Test score with realistic distribution
+ * Bell curve centered at 75, range 50-100
+ * 
+ * Distribution:
+ * - 10% score 96-100 (elite genius)
+ * - 20% score 86-95 (excellent)
+ * - 40% score 71-85 (solid performance)
+ * - 20% score 61-70 (passing grade)
+ * - 10% score 50-60 (struggling, barely passed)
+ */
+function generateKnowledgeTestScore(): number {
+  const roll = Math.random();
+  
+  if (roll < 0.10) {
+    // Elite genius: 96-100 (10%)
+    return randomIntInRange(96, 100);
+  } else if (roll < 0.30) {
+    // Excellent: 86-95 (20%)
+    return randomIntInRange(86, 95);
+  } else if (roll < 0.70) {
+    // Solid performance: 71-85 (40%)
+    return randomIntInRange(71, 85);
+  } else if (roll < 0.90) {
+    // Passing grade: 61-70 (20%)
+    return randomIntInRange(61, 70);
+  } else {
+    // Struggling, barely passed: 50-60 (10%)
+    return randomIntInRange(50, 60);
+  }
+}
+
+/**
  * Complete NPC trader data structure
  */
 export interface CompleteNPCTrader {
@@ -218,11 +250,41 @@ export interface CompleteNPCTrader {
 export function generateNPCTraders(count: number = 1000): CompleteNPCTrader[] {
   const traders: CompleteNPCTrader[] = [];
   const existingNames = new Set<string>();
-  const archetypes = getAllArchetypes();
   
-  // Calculate how many traders per archetype
-  const tradersPerArchetype = Math.floor(count / archetypes.length);
-  const remainder = count % archetypes.length;
+  // Realistic archetype distribution weighted for conservative behavior
+  // 60% conservative, 25% moderate, 15% aggressive
+  const archetypeDistribution = {
+    // Conservative (60%)
+    value_investor: 0.25,      // 25% - Value-focused long-term investors
+    dividend_hunter: 0.20,     // 20% - Income-focused conservative traders
+    index_hugger: 0.15,        // 15% - Passive index followers
+    
+    // Moderate (25%)
+    whale: 0.08,               // 8% - Large capital institutional traders
+    swing_trader: 0.10,        // 10% - Medium-term position traders
+    contrarian: 0.07,          // 7% - Counter-trend traders
+    
+    // Aggressive (15%)
+    day_trader: 0.06,          // 6% - High-frequency short-term traders
+    momentum_chaser: 0.05,     // 5% - Trend-following aggressive traders
+    options_gambler: 0.02,     // 2% - High-risk options traders
+    panic_seller: 0.02,        // 2% - Emotional reactive traders
+  };
+  
+  // Build weighted archetype pool
+  const archetypePool: string[] = [];
+  for (const [archetype, weight] of Object.entries(archetypeDistribution)) {
+    const numTraders = Math.round(count * weight);
+    for (let i = 0; i < numTraders; i++) {
+      archetypePool.push(archetype);
+    }
+  }
+  
+  // Shuffle the pool for randomness
+  for (let i = archetypePool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [archetypePool[i], archetypePool[j]] = [archetypePool[j], archetypePool[i]];
+  }
   
   // Build tier assignments
   const tierAssignments: CapitalTier[] = [];
@@ -238,33 +300,65 @@ export function generateNPCTraders(count: number = 1000): CompleteNPCTrader[] {
     [tierAssignments[i], tierAssignments[j]] = [tierAssignments[j], tierAssignments[i]];
   }
   
-  let traderIndex = 0;
-  
-  // Generate traders for each archetype
-  for (let archetypeIndex = 0; archetypeIndex < archetypes.length; archetypeIndex++) {
-    const archetype = archetypes[archetypeIndex];
+  // Generate traders
+  for (let traderIndex = 0; traderIndex < Math.min(count, archetypePool.length); traderIndex++) {
+    const archetype = archetypePool[traderIndex];
     
-    // Add extra trader to first few archetypes if there's a remainder
-    const numTradersForArchetype = tradersPerArchetype + (archetypeIndex < remainder ? 1 : 0);
-    
-    for (let i = 0; i < numTradersForArchetype && traderIndex < count; i++) {
+    {
       const name = generateUniqueName(existingNames);
       const tier = tierAssignments[traderIndex];
-      const startingCapital = randomInRange(tier.minCapital, tier.maxCapital);
+      const baseCapital = randomInRange(tier.minCapital, tier.maxCapital);
+      
+      // Generate Knowledge Test score and apply to capital
+      const knowledgeTestScore = generateKnowledgeTestScore();
+      const scoreMultiplier = knowledgeTestScore / 70; // 50->0.71x, 70->1.00x, 85->1.21x, 100->1.43x
+      const adjustedCapital = baseCapital * scoreMultiplier;
       
       // Generate personality configuration from personality engine
       const personality = generatePersonalityConfig(archetype);
       
-      // Build trader data
+      // Adjust take-profit targets to be realistic (12% annual = ~1% monthly, target 10-30% for positions)
+      const realisticTakeProfit = Math.min(
+        personality.takeProfit,
+        30 + randomInRange(-5, 10) // Cap at 20-40% take profit
+      );
+      
+      // Build trader data matching database schema
       const trader: InsertNpcTrader = {
-        name,
-        personalityArchetype: archetype,
-        riskTolerance: personality.riskTolerance.toString(),
-        skillLevel: Math.round(personality.skillLevel),
-        startingCapital: startingCapital.toFixed(2),
-        currentCapital: startingCapital.toFixed(2),
+        traderName: name,
+        traderType: archetype,
+        tradingPersonality: {
+          archetype,
+          riskTolerance: personality.riskTolerance,
+          skillLevel: personality.skillLevel,
+          panicThreshold: personality.panicThreshold,
+          greedThreshold: personality.greedThreshold,
+          fomoSusceptibility: personality.fomoSusceptibility,
+          newsReaction: personality.newsReaction,
+          lossCutSpeed: personality.lossCutSpeed,
+          knowledgeTestScore, // Store test score that determined starting capital
+        },
+        preferredAssets: generatePreferredAssets(archetype),
+        tradingStyle: archetype.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+        availableCapital: adjustedCapital.toFixed(2),
+        aggressiveness: personality.riskTolerance.toFixed(2),
+        intelligence: personality.skillLevel.toFixed(2),
+        emotionality: personality.panicThreshold.toFixed(2),
+        adaptability: ((personality.skillLevel / 10) * 10).toFixed(2), // Scale to 0-10
+        tradesPerDay: Math.round(getTradingFrequencyValue(personality.tradingFrequency)),
+        minTimeBetweenTradesMinutes: personality.tradingFrequency === 'very_high' ? 30 : 
+                                       personality.tradingFrequency === 'high' ? 120 : 
+                                       personality.tradingFrequency === 'medium' ? 360 : 
+                                       personality.tradingFrequency === 'low' ? 1440 : 7200,
+        // Zero out "time in grade" fields - they're rookies who just passed the test!
         totalTrades: 0,
         winRate: '0.00',
+        avgTradeReturn: null,
+        totalPnL: null,
+        sharpeRatio: null,
+        maxDrawdown: null,
+        lastTradeTime: null,
+        nextTradeTime: null,
         isActive: true,
       };
       
@@ -275,7 +369,7 @@ export function generateNPCTraders(count: number = 1000): CompleteNPCTrader[] {
         positionSizingStrategy: 'percentage',
         maxPositionSize: personality.positionSizing.toFixed(2),
         stopLossPercent: personality.stopLoss.toFixed(2),
-        takeProfitPercent: personality.takeProfit.toFixed(2),
+        takeProfitPercent: realisticTakeProfit.toFixed(2),
       };
       
       // Build psychology data
@@ -293,8 +387,6 @@ export function generateNPCTraders(count: number = 1000): CompleteNPCTrader[] {
         strategy,
         psychology,
       });
-      
-      traderIndex++;
     }
   }
   
@@ -305,9 +397,10 @@ export function generateNPCTraders(count: number = 1000): CompleteNPCTrader[] {
  * Seed NPC traders to the database
  * 
  * @param db - Database instance with Drizzle ORM
+ * @param count - Number of traders to generate (default: 10,000)
  * @returns Summary of seeded traders
  */
-export async function seedNPCTradersToDatabase(db: any): Promise<{
+export async function seedNPCTradersToDatabase(db: any, count: number = 10000): Promise<{
   success: boolean;
   tradersSeeded: number;
   strategiesSeeded: number;
@@ -318,26 +411,35 @@ export async function seedNPCTradersToDatabase(db: any): Promise<{
 }> {
   try {
     const { npcTraders, npcTraderStrategies, npcTraderPsychology } = await import('@shared/schema');
-    const { eq, count } = await import('drizzle-orm');
+    const { eq, count: dbCount } = await import('drizzle-orm');
     
     // Check if NPCs already exist
-    const existingCount = await db.select({ count: count() }).from(npcTraders);
+    const existingCount = await db.select({ count: dbCount() }).from(npcTraders);
     
-    if (existingCount[0]?.count > 0) {
+    // Only skip if we already have the target count or more
+    if (existingCount[0]?.count >= count) {
       return {
         success: false,
         tradersSeeded: 0,
         strategiesSeeded: 0,
         psychologiesSeeded: 0,
-        message: `Database already contains ${existingCount[0].count} NPC traders. Skipping seeding to avoid duplicates.`,
+        message: `Database already contains ${existingCount[0].count} NPC traders (>= target ${count}). Skipping seeding to avoid duplicates.`,
         archetypeDistribution: {},
         capitalDistribution: {},
       };
     }
     
-    // Generate 1000 traders
-    console.log('🤖 Generating 1000 NPC traders...');
-    const traders = generateNPCTraders(1000);
+    // If there are some NPCs but fewer than target, clear them first
+    if (existingCount[0]?.count > 0) {
+      console.log(`🧹 Clearing ${existingCount[0].count} existing NPC traders before seeding...`);
+      await db.delete(npcTraderPsychology);
+      await db.delete(npcTraderStrategies);
+      await db.delete(npcTraders);
+    }
+    
+    // Generate traders
+    console.log(`🤖 Generating ${count} NPC traders...`);
+    const traders = generateNPCTraders(count);
     
     // Track distributions for summary
     const archetypeDistribution: Record<string, number> = {};
@@ -349,46 +451,57 @@ export async function seedNPCTradersToDatabase(db: any): Promise<{
       'Micro ($10K-$99K)': 0,
     };
     
-    // Insert traders and track their IDs
-    console.log('💾 Inserting traders into database...');
-    const insertedTraders: any[] = [];
+    // Insert traders in batches of 100 to optimize performance
+    console.log('💾 Inserting traders into database in batches of 100...');
+    const BATCH_SIZE = 100;
+    let totalInserted = 0;
     
-    for (const npcData of traders) {
-      // Insert trader
-      const [insertedTrader] = await db.insert(npcTraders)
-        .values(npcData.trader)
-        .returning();
+    for (let i = 0; i < traders.length; i += BATCH_SIZE) {
+      const batch = traders.slice(i, i + BATCH_SIZE);
       
-      insertedTraders.push(insertedTrader);
+      // Insert traders in batch
+      for (const npcData of batch) {
+        // Insert trader
+        const [insertedTrader] = await db.insert(npcTraders)
+          .values(npcData.trader)
+          .returning();
+        
+        // Insert strategy
+        await db.insert(npcTraderStrategies).values({
+          ...npcData.strategy,
+          traderId: insertedTrader.id,
+        });
+        
+        // Insert psychology
+        await db.insert(npcTraderPsychology).values({
+          ...npcData.psychology,
+          traderId: insertedTrader.id,
+        });
+        
+        // Track archetype distribution
+        const archetype = npcData.trader.traderType;
+        archetypeDistribution[archetype] = (archetypeDistribution[archetype] || 0) + 1;
+        
+        // Track capital distribution
+        const capital = parseFloat(npcData.trader.availableCapital);
+        if (capital >= 50_000_000) {
+          capitalDistribution['Whale (>$50M)']++;
+        } else if (capital >= 10_000_000) {
+          capitalDistribution['Large ($10M-$49M)']++;
+        } else if (capital >= 1_000_000) {
+          capitalDistribution['Medium ($1M-$9.9M)']++;
+        } else if (capital >= 100_000) {
+          capitalDistribution['Small ($100K-$999K)']++;
+        } else {
+          capitalDistribution['Micro ($10K-$99K)']++;
+        }
+        
+        totalInserted++;
+      }
       
-      // Insert strategy
-      await db.insert(npcTraderStrategies).values({
-        ...npcData.strategy,
-        traderId: insertedTrader.id,
-      });
-      
-      // Insert psychology
-      await db.insert(npcTraderPsychology).values({
-        ...npcData.psychology,
-        traderId: insertedTrader.id,
-      });
-      
-      // Track archetype distribution
-      const archetype = npcData.trader.personalityArchetype;
-      archetypeDistribution[archetype] = (archetypeDistribution[archetype] || 0) + 1;
-      
-      // Track capital distribution
-      const capital = parseFloat(npcData.trader.startingCapital);
-      if (capital >= 50_000_000) {
-        capitalDistribution['Whale (>$50M)']++;
-      } else if (capital >= 10_000_000) {
-        capitalDistribution['Large ($10M-$49M)']++;
-      } else if (capital >= 1_000_000) {
-        capitalDistribution['Medium ($1M-$9.9M)']++;
-      } else if (capital >= 100_000) {
-        capitalDistribution['Small ($100K-$999K)']++;
-      } else {
-        capitalDistribution['Micro ($10K-$99K)']++;
+      // Progress logging every 1000 traders
+      if (totalInserted % 1000 === 0) {
+        console.log(`📈 Progress: ${totalInserted}/${count} traders seeded (${Math.round((totalInserted / count) * 100)}%)`);
       }
     }
     
@@ -433,11 +546,11 @@ export function getTradersSummary(traders: CompleteNPCTrader[]): {
   
   for (const { trader } of traders) {
     // Archetype distribution
-    archetypeDistribution[trader.personalityArchetype] = 
-      (archetypeDistribution[trader.personalityArchetype] || 0) + 1;
+    archetypeDistribution[trader.traderType] = 
+      (archetypeDistribution[trader.traderType] || 0) + 1;
     
     // Capital distribution
-    const capital = parseFloat(trader.startingCapital);
+    const capital = parseFloat(trader.availableCapital);
     let tier: string;
     if (capital >= 50_000_000) tier = 'Whale';
     else if (capital >= 10_000_000) tier = 'Large';
@@ -448,8 +561,9 @@ export function getTradersSummary(traders: CompleteNPCTrader[]): {
     capitalTiers[tier].count++;
     capitalTiers[tier].totalCapital += capital;
     
-    // Skill distribution
-    skillDistribution[trader.skillLevel] = (skillDistribution[trader.skillLevel] || 0) + 1;
+    // Skill distribution (intelligence field)
+    const skillLevel = Math.round(parseFloat(trader.intelligence));
+    skillDistribution[skillLevel] = (skillDistribution[skillLevel] || 0) + 1;
   }
   
   // Calculate averages

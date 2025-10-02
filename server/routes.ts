@@ -225,6 +225,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // NPC Trader Seeding - Populate market with 10,000 AI traders
+  app.post('/api/admin/seed-npcs', async (req: any, res) => {
+    try {
+      console.log('🤖 Starting NPC trader seeding from API request...');
+      
+      const { count = 10000 } = req.body;
+      const traderCount = typeof count === 'number' && count > 0 ? count : 10000;
+      
+      const { seedNPCTradersToDatabase } = await import('./services/npcTraderGenerator');
+      
+      // Run seeding service asynchronously
+      seedNPCTradersToDatabase(db, traderCount)
+        .then((result) => {
+          if (result.success) {
+            console.log('✅ NPC trader seeding completed successfully');
+            console.log(`📊 Seeded ${result.tradersSeeded} traders`);
+            console.log('🎭 Archetype distribution:', result.archetypeDistribution);
+            console.log('💰 Capital distribution:', result.capitalDistribution);
+          } else {
+            console.log('⚠️ NPC seeding skipped:', result.message);
+          }
+        })
+        .catch((error) => {
+          console.error('❌ NPC trader seeding failed:', error);
+        });
+      
+      // Return immediately so the request doesn't timeout
+      res.json({
+        success: true,
+        message: `NPC trader seeding started. Generating ${traderCount} traders with diverse personalities and capital levels. Check server logs for progress.`
+      });
+    } catch (error) {
+      console.error('Error starting NPC trader seeding:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to start NPC trader seeding' 
+      });
+    }
+  });
+
   // Entry Test Routes - Hidden Psychological Profiling
   app.post('/api/entry-test/submit', isAuthenticated, async (req: any, res) => {
     try {
