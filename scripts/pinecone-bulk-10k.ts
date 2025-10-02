@@ -1,5 +1,5 @@
-import { db } from '../server/db';
-import { assets, assetCurrentPrices } from '../shared/schema';
+import { db } from '../server/databaseStorage.js';
+import { assets, assetCurrentPrices } from '../shared/schema.js';
 import { eq } from 'drizzle-orm';
 
 const Pinecone = require('@pinecone-database/pinecone').Pinecone;
