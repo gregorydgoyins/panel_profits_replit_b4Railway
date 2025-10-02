@@ -1177,14 +1177,14 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(assetCurrentPrices).where(inArray(assetCurrentPrices.assetId, assetIds));
   }
 
-  async getAllAssetCurrentPrices(marketStatus?: string): Promise<AssetCurrentPrice[]> {
+  async getAllAssetCurrentPrices(marketStatus?: string, limit: number = 1000): Promise<AssetCurrentPrice[]> {
     let query = db.select().from(assetCurrentPrices);
     
     if (marketStatus) {
       query = query.where(eq(assetCurrentPrices.marketStatus, marketStatus));
     }
     
-    return await query.orderBy(desc(assetCurrentPrices.updatedAt));
+    return await query.orderBy(desc(assetCurrentPrices.updatedAt)).limit(limit);
   }
 
   async createAssetCurrentPrice(price: InsertAssetCurrentPrice): Promise<AssetCurrentPrice> {
