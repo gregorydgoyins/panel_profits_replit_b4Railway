@@ -461,7 +461,7 @@ export class PriceStreamingService {
     try {
       // Get all asset stream data and convert to market data updates
       const marketDataUpdates = Array.from(this.assetStreams.entries())
-        .slice(0, 100) // Send top 100 assets initially
+        .slice(0, 20) // Send top 20 assets initially to avoid overwhelming the connection
         .map(([assetId, streamData]) => {
           const change = streamData.currentPrice - streamData.dayOpen;
           const changePercent = streamData.dayOpen > 0 ? (change / streamData.dayOpen) * 100 : 0;
