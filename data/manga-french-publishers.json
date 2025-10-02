@@ -1,0 +1,151 @@
+{
+  "manga": {
+    "Shueisha": {
+      "magazine": "Weekly Shonen Jump",
+      "titles": [
+        "One Piece",
+        "Naruto",
+        "Bleach",
+        "Dragon Ball",
+        "My Hero Academia",
+        "Jujutsu Kaisen",
+        "Demon Slayer",
+        "Hunter x Hunter",
+        "Yu Yu Hakusho",
+        "Death Note",
+        "Rurouni Kenshin",
+        "JoJo's Bizarre Adventure",
+        "Gintama",
+        "Chainsaw Man",
+        "Spy x Family",
+        "Dr. Stone",
+        "Black Clover",
+        "Haikyu!!",
+        "The Promised Neverland",
+        "Assassination Classroom",
+        "Slam Dunk"
+      ]
+    },
+    "Kodansha": {
+      "magazine": "Weekly Shonen Magazine",
+      "titles": [
+        "Attack on Titan",
+        "Fairy Tail",
+        "Tokyo Revengers",
+        "Seven Deadly Sins",
+        "Fire Force",
+        "Vinland Saga",
+        "Akira",
+        "Ghost in the Shell",
+        "Parasyte",
+        "Battle Angel Alita",
+        "Great Teacher Onizuka",
+        "Chobits",
+        "Love Hina"
+      ]
+    },
+    "Shogakukan": {
+      "magazine": "Weekly Shonen Sunday",
+      "titles": [
+        "Detective Conan",
+        "Inuyasha",
+        "Ranma 1/2",
+        "Urusei Yatsura",
+        "Magi",
+        "Zatch Bell!",
+        "Rave Master",
+        "Hayate the Combat Butler"
+      ]
+    },
+    "Square Enix": {
+      "magazine": "Monthly Shonen Gangan",
+      "titles": [
+        "Fullmetal Alchemist",
+        "Soul Eater",
+        "Pandora Hearts",
+        "D.Gray-man"
+      ]
+    },
+    "Hakusensha": {
+      "magazine": "Young Animal",
+      "titles": [
+        "Berserk",
+        "The Ancient Magus' Bride",
+        "Banana Fish",
+        "Nana"
+      ]
+    }
+  },
+  "french": {
+    "Dupuis": {
+      "country": "Belgium",
+      "titles": [
+        "Spirou et Fantasio",
+        "Gaston Lagaffe",
+        "Lucky Luke",
+        "Les Schtroumpfs (Smurfs)",
+        "Marsupilami",
+        "Boule et Bill",
+        "Largo Winch",
+        "XIII"
+      ]
+    },
+    "Dargaud": {
+      "country": "France",
+      "titles": [
+        "Asterix",
+        "Blueberry",
+        "Valérian et Laureline",
+        "Tanguy et Laverdure",
+        "Achille Talon",
+        "Thorgal",
+        "Blake et Mortimer"
+      ]
+    },
+    "Casterman": {
+      "country": "Belgium",
+      "titles": [
+        "Tintin",
+        "Corto Maltese",
+        "Blacksad",
+        "Sillage",
+        "Alix"
+      ]
+    },
+    "Le Lombard": {
+      "country": "Belgium",
+      "titles": [
+        "Blake et Mortimer",
+        "Buck Danny",
+        "Yoko Tsuno",
+        "Jérôme K. Jérôme Bloche"
+      ]
+    },
+    "Glénat": {
+      "country": "France",
+      "titles": [
+        "Titeuf",
+        "Lanfeust de Troy",
+        "Les Légendaires",
+        "Ekhö Monde Miroir"
+      ]
+    },
+    "Delcourt": {
+      "country": "France",
+      "titles": [
+        "Universal War One",
+        "Complainte des Landes Perdues",
+        "Carthago"
+      ]
+    },
+    "Soleil": {
+      "country": "France",
+      "titles": [
+        "Lanfeust",
+        "Trolls de Troy",
+        "Les Naufragés d'Ythaq"
+      ]
+    }
+  },
+  "totalPublishers": 12
+}

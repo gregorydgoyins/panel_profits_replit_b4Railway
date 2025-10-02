@@ -1,0 +1,214 @@
+[
+  {
+    "name": "Timely Comics",
+    "years": "1939-1950",
+    "era": "Golden Age",
+    "became": "Marvel"
+  },
+  {
+    "name": "National Allied Publications",
+    "years": "1934-1946",
+    "era": "Golden Age",
+    "became": "DC Comics"
+  },
+  {
+    "name": "All-American Publications",
+    "years": "1939-1946",
+    "era": "Golden Age",
+    "became": "DC Comics"
+  },
+  {
+    "name": "Detective Comics Inc",
+    "years": "1937-1946",
+    "era": "Golden Age",
+    "became": "DC Comics"
+  },
+  {
+    "name": "Fawcett Comics",
+    "years": "1939-1953",
+    "era": "Golden Age",
+    "notable": "Captain Marvel"
+  },
+  {
+    "name": "Quality Comics",
+    "years": "1937-1956",
+    "era": "Golden Age",
+    "notable": "Blackhawk"
+  },
+  {
+    "name": "Charlton Comics",
+    "years": "1946-1986",
+    "era": "Golden-Modern",
+    "notable": "Blue Beetle"
+  },
+  {
+    "name": "MLJ Comics",
+    "years": "1939-1946",
+    "era": "Golden Age",
+    "became": "Archie Comics"
+  },
+  {
+    "name": "DC Comics",
+    "years": "1937-present",
+    "era": "All",
+    "notable": "Superman, Batman"
+  },
+  {
+    "name": "Marvel Comics",
+    "years": "1961-present",
+    "era": "All",
+    "notable": "Spider-Man, X-Men"
+  },
+  {
+    "name": "Archie Comics",
+    "years": "1939-present",
+    "era": "All",
+    "notable": "Archie"
+  },
+  {
+    "name": "Gold Key Comics",
+    "years": "1962-1984",
+    "era": "Silver-Bronze",
+    "notable": "Magnus Robot Fighter"
+  },
+  {
+    "name": "Tower Comics",
+    "years": "1965-1969",
+    "era": "Silver Age",
+    "notable": "T.H.U.N.D.E.R. Agents"
+  },
+  {
+    "name": "Atlas/Seaboard Comics",
+    "years": "1974-1975",
+    "era": "Bronze Age",
+    "notable": "The Grim Ghost"
+  },
+  {
+    "name": "Pacific Comics",
+    "years": "1971-1984",
+    "era": "Bronze Age",
+    "notable": "Captain Victory"
+  },
+  {
+    "name": "Eclipse Comics",
+    "years": "1978-1994",
+    "era": "Bronze-Copper",
+    "notable": "Miracleman"
+  },
+  {
+    "name": "First Comics",
+    "years": "1983-1991",
+    "era": "Bronze-Copper",
+    "notable": "Nexus"
+  },
+  {
+    "name": "Comico",
+    "years": "1982-1997",
+    "era": "Bronze-Modern",
+    "notable": "Elementals"
+  },
+  {
+    "name": "Dark Horse Comics",
+    "years": "1986-present",
+    "era": "Modern",
+    "notable": "Hellboy"
+  },
+  {
+    "name": "Malibu Comics",
+    "years": "1986-1994",
+    "era": "Copper Age",
+    "notable": "Ultraverse"
+  },
+  {
+    "name": "Valiant Comics",
+    "years": "1989-present",
+    "era": "Modern",
+    "notable": "X-O Manowar"
+  },
+  {
+    "name": "Image Comics",
+    "years": "1992-present",
+    "era": "Modern",
+    "notable": "Spawn, Savage Dragon"
+  },
+  {
+    "name": "Wildstorm",
+    "years": "1992-2010",
+    "era": "Modern",
+    "notable": "WildC.A.T.s"
+  },
+  {
+    "name": "Top Cow",
+    "years": "1992-present",
+    "era": "Modern",
+    "notable": "Witchblade"
+  },
+  {
+    "name": "CrossGen",
+    "years": "1998-2004",
+    "era": "Modern",
+    "notable": "Mystic"
+  },
+  {
+    "name": "Boom! Studios",
+    "years": "2005-present",
+    "era": "Modern",
+    "notable": "Irredeemable"
+  },
+  {
+    "name": "IDW Publishing",
+    "years": "1999-present",
+    "era": "Modern",
+    "notable": "G.I. Joe"
+  },
+  {
+    "name": "Dynamite Entertainment",
+    "years": "2004-present",
+    "era": "Modern",
+    "notable": "The Boys"
+  },
+  {
+    "name": "Avatar Press",
+    "years": "1996-present",
+    "era": "Modern",
+    "notable": "Crossed"
+  },
+  {
+    "name": "Zenescope",
+    "years": "2005-present",
+    "era": "Modern",
+    "notable": "Grimm Fairy Tales"
+  },
+  {
+    "name": "AfterShock Comics",
+    "years": "2015-present",
+    "era": "Modern",
+    "notable": "Animosity"
+  },
+  {
+    "name": "Black Mask Studios",
+    "years": "2013-present",
+    "era": "Modern",
+    "notable": "We Can Never Go Home"
+  },
+  {
+    "name": "Vertigo",
+    "years": "1993-2020",
+    "era": "Modern",
+    "notable": "Sandman, Preacher"
+  },
+  {
+    "name": "2000 AD",
+    "years": "1977-present",
+    "era": "Modern",
+    "notable": "Judge Dredd",
+    "country": "UK"
+  },
+  {
+    "name": "Rebellion",
+    "years": "1992-present",
+    "era": "Modern",
+    "notable": "2000 AD reprints",
+    "country": "UK"
+  }
+]
