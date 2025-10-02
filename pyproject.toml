@@ -5,4 +5,5 @@ description = "Add your description here"
 requires-python = ">=3.11"
 dependencies = [
     "kaggle>=1.7.4.5",
+    "kagglehub>=0.3.13",
 ]

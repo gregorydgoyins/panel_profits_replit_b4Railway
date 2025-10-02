@@ -1,0 +1,366 @@
+{
+  "generated_at": "2025-10-02T19:01:49.002464",
+  "session_start": "2025-10-02T19:01:44.826411",
+  "version": "2.0",
+  "total_datasets": 6,
+  "total_failed": 5,
+  "datasets_by_category": {
+    "high-value": 6
+  },
+  "total_files": 18,
+  "total_records": 219624,
+  "total_size_bytes": 23448656,
+  "dataset_details": [
+    {
+      "dataset": "dannielr/marvel-superheroes",
+      "path": "/home/runner/.cache/kagglehub/datasets/dannielr/marvel-superheroes/versions/3",
+      "symlink": "data/kaggle/dannielr_marvel-superheroes",
+      "files": 8,
+      "csv_files": 7,
+      "json_files": 0,
+      "estimated_records": 184353,
+      "size_bytes": 17687076,
+      "size_mb": 16.86771011352539,
+      "file_list": [
+        {
+          "name": "characters.csv",
+          "path": "characters.csv",
+          "size_bytes": 26208,
+          "records": 1170
+        },
+        {
+          "name": "charactersToComics.csv",
+          "path": "charactersToComics.csv",
+          "size_bytes": 1108970,
+          "records": 75257
+        },
+        {
+          "name": "charcters_stats.csv",
+          "path": "charcters_stats.csv",
+          "size_bytes": 21925,
+          "records": 611
+        },
+        {
+          "name": "comics.csv",
+          "path": "comics.csv",
+          "size_bytes": 12521759,
+          "records": 66266
+        },
+        {
+          "name": "marvel_characters_info.csv",
+          "path": "marvel_characters_info.csv",
+          "size_bytes": 46272,
+          "records": 734
+        },
+        {
+          "name": "marvel_dc_characters.csv",
+          "path": "marvel_dc_characters.csv",
+          "size_bytes": 3289643,
+          "records": 39648
+        },
+        {
+          "name": "superheroes_power_matrix.csv",
+          "path": "superheroes_power_matrix.csv",
+          "size_bytes": 672299,
+          "records": 667
+        }
+      ]
+    },
+    {
+      "dataset": "fivethirtyeight/fivethirtyeight-comic-characters-dataset",
+      "path": "/home/runner/.cache/kagglehub/datasets/fivethirtyeight/fivethirtyeight-comic-characters-dataset/versions/111",
+      "symlink": "data/kaggle/fivethirtyeight_fivethirtyeight-comic-characters-dataset",
+      "files": 3,
+      "csv_files": 2,
+      "json_files": 0,
+      "estimated_records": 23272,
+      "size_bytes": 3512221,
+      "size_mb": 3.349514961242676,
+      "file_list": [
+        {
+          "name": "dc-wikia-data.csv",
+          "path": "dc-wikia-data.csv",
+          "size_bytes": 1105600,
+          "records": 6896
+        },
+        {
+          "name": "marvel-wikia-data.csv",
+          "path": "marvel-wikia-data.csv",
+          "size_bytes": 2406621,
+          "records": 16376
+        }
+      ]
+    },
+    {
+      "dataset": "arunasivapragasam/dc-comics",
+      "path": "/home/runner/.cache/kagglehub/datasets/arunasivapragasam/dc-comics/versions/3",
+      "symlink": "data/kaggle/arunasivapragasam_dc-comics",
+      "files": 1,
+      "csv_files": 1,
+      "json_files": 0,
+      "estimated_records": 6896,
+      "size_bytes": 1104274,
+      "size_mb": 1.0531177520751953,
+      "file_list": [
+        {
+          "name": "dc-comics.csv",
+          "path": "dc-comics.csv",
+          "size_bytes": 1104274,
+          "records": 6896
+        }
+      ]
+    },
+    {
+      "dataset": "mylesoneill/game-of-thrones",
+      "path": "/home/runner/.cache/kagglehub/datasets/mylesoneill/game-of-thrones/versions/1",
+      "symlink": "data/kaggle/mylesoneill_game-of-thrones",
+      "files": 3,
+      "csv_files": 3,
+      "json_files": 0,
+      "estimated_records": 2901,
+      "size_bytes": 262969,
+      "size_mb": 0.25078678131103516,
+      "file_list": [
+        {
+          "name": "battles.csv",
+          "path": "battles.csv",
+          "size_bytes": 8550,
+          "records": 38
+        },
+        {
+          "name": "character-deaths.csv",
+          "path": "character-deaths.csv",
+          "size_bytes": 38873,
+          "records": 917
+        },
+        {
+          "name": "character-predictions.csv",
+          "path": "character-predictions.csv",
+          "size_bytes": 215546,
+          "records": 1946
+        }
+      ]
+    },
+    {
+      "dataset": "claudiodavi/superhero-set",
+      "path": "/home/runner/.cache/kagglehub/datasets/claudiodavi/superhero-set/versions/1",
+      "symlink": "data/kaggle/claudiodavi_superhero-set",
+      "files": 2,
+      "csv_files": 2,
+      "json_files": 0,
+      "estimated_records": 1401,
+      "size_bytes": 721500,
+      "size_mb": 0.6880760192871094,
+      "file_list": [
+        {
+          "name": "heroes_information.csv",
+          "path": "heroes_information.csv",
+          "size_bytes": 49195,
+          "records": 734
+        },
+        {
+          "name": "super_hero_powers.csv",
+          "path": "super_hero_powers.csv",
+          "size_bytes": 672305,
+          "records": 667
+        }
+      ]
+    },
+    {
+      "dataset": "rounakbanik/pokemon",
+      "path": "/home/runner/.cache/kagglehub/datasets/rounakbanik/pokemon/versions/1",
+      "symlink": "data/kaggle/rounakbanik_pokemon",
+      "files": 1,
+      "csv_files": 1,
+      "json_files": 0,
+      "estimated_records": 801,
+      "size_bytes": 160616,
+      "size_mb": 0.15317535400390625,
+      "file_list": [
+        {
+          "name": "pokemon.csv",
+          "path": "pokemon.csv",
+          "size_bytes": 160616,
+          "records": 801
+        }
+      ]
+    }
+  ],
+  "total_size_gb": 0.021838262677192688,
+  "largest_datasets": [
+    {
+      "dataset": "dannielr/marvel-superheroes",
+      "path": "/home/runner/.cache/kagglehub/datasets/dannielr/marvel-superheroes/versions/3",
+      "symlink": "data/kaggle/dannielr_marvel-superheroes",
+      "files": 8,
+      "csv_files": 7,
+      "json_files": 0,
+      "estimated_records": 184353,
+      "size_bytes": 17687076,
+      "size_mb": 16.86771011352539,
+      "file_list": [
+        {
+          "name": "characters.csv",
+          "path": "characters.csv",
+          "size_bytes": 26208,
+          "records": 1170
+        },
+        {
+          "name": "charactersToComics.csv",
+          "path": "charactersToComics.csv",
+          "size_bytes": 1108970,
+          "records": 75257
+        },
+        {
+          "name": "charcters_stats.csv",
+          "path": "charcters_stats.csv",
+          "size_bytes": 21925,
+          "records": 611
+        },
+        {
+          "name": "comics.csv",
+          "path": "comics.csv",
+          "size_bytes": 12521759,
+          "records": 66266
+        },
+        {
+          "name": "marvel_characters_info.csv",
+          "path": "marvel_characters_info.csv",
+          "size_bytes": 46272,
+          "records": 734
+        },
+        {
+          "name": "marvel_dc_characters.csv",
+          "path": "marvel_dc_characters.csv",
+          "size_bytes": 3289643,
+          "records": 39648
+        },
+        {
+          "name": "superheroes_power_matrix.csv",
+          "path": "superheroes_power_matrix.csv",
+          "size_bytes": 672299,
+          "records": 667
+        }
+      ]
+    },
+    {
+      "dataset": "fivethirtyeight/fivethirtyeight-comic-characters-dataset",
+      "path": "/home/runner/.cache/kagglehub/datasets/fivethirtyeight/fivethirtyeight-comic-characters-dataset/versions/111",
+      "symlink": "data/kaggle/fivethirtyeight_fivethirtyeight-comic-characters-dataset",
+      "files": 3,
+      "csv_files": 2,
+      "json_files": 0,
+      "estimated_records": 23272,
+      "size_bytes": 3512221,
+      "size_mb": 3.349514961242676,
+      "file_list": [
+        {
+          "name": "dc-wikia-data.csv",
+          "path": "dc-wikia-data.csv",
+          "size_bytes": 1105600,
+          "records": 6896
+        },
+        {
+          "name": "marvel-wikia-data.csv",
+          "path": "marvel-wikia-data.csv",
+          "size_bytes": 2406621,
+          "records": 16376
+        }
+      ]
+    },
+    {
+      "dataset": "arunasivapragasam/dc-comics",
+      "path": "/home/runner/.cache/kagglehub/datasets/arunasivapragasam/dc-comics/versions/3",
+      "symlink": "data/kaggle/arunasivapragasam_dc-comics",
+      "files": 1,
+      "csv_files": 1,
+      "json_files": 0,
+      "estimated_records": 6896,
+      "size_bytes": 1104274,
+      "size_mb": 1.0531177520751953,
+      "file_list": [
+        {
+          "name": "dc-comics.csv",
+          "path": "dc-comics.csv",
+          "size_bytes": 1104274,
+          "records": 6896
+        }
+      ]
+    },
+    {
+      "dataset": "mylesoneill/game-of-thrones",
+      "path": "/home/runner/.cache/kagglehub/datasets/mylesoneill/game-of-thrones/versions/1",
+      "symlink": "data/kaggle/mylesoneill_game-of-thrones",
+      "files": 3,
+      "csv_files": 3,
+      "json_files": 0,
+      "estimated_records": 2901,
+      "size_bytes": 262969,
+      "size_mb": 0.25078678131103516,
+      "file_list": [
+        {
+          "name": "battles.csv",
+          "path": "battles.csv",
+          "size_bytes": 8550,
+          "records": 38
+        },
+        {
+          "name": "character-deaths.csv",
+          "path": "character-deaths.csv",
+          "size_bytes": 38873,
+          "records": 917
+        },
+        {
+          "name": "character-predictions.csv",
+          "path": "character-predictions.csv",
+          "size_bytes": 215546,
+          "records": 1946
+        }
+      ]
+    },
+    {
+      "dataset": "claudiodavi/superhero-set",
+      "path": "/home/runner/.cache/kagglehub/datasets/claudiodavi/superhero-set/versions/1",
+      "symlink": "data/kaggle/claudiodavi_superhero-set",
+      "files": 2,
+      "csv_files": 2,
+      "json_files": 0,
+      "estimated_records": 1401,
+      "size_bytes": 721500,
+      "size_mb": 0.6880760192871094,
+      "file_list": [
+        {
+          "name": "heroes_information.csv",
+          "path": "heroes_information.csv",
+          "size_bytes": 49195,
+          "records": 734
+        },
+        {
+          "name": "super_hero_powers.csv",
+          "path": "super_hero_powers.csv",
+          "size_bytes": 672305,
+          "records": 667
+        }
+      ]
+    },
+    {
+      "dataset": "rounakbanik/pokemon",
+      "path": "/home/runner/.cache/kagglehub/datasets/rounakbanik/pokemon/versions/1",
+      "symlink": "data/kaggle/rounakbanik_pokemon",
+      "files": 1,
+      "csv_files": 1,
+      "json_files": 0,
+      "estimated_records": 801,
+      "size_bytes": 160616,
+      "size_mb": 0.15317535400390625,
+      "file_list": [
+        {
+          "name": "pokemon.csv",
+          "path": "pokemon.csv",
+          "size_bytes": 160616,
+          "records": 801
+        }
+      ]
+    }
+  ]
+}

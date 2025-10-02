@@ -1,0 +1,59 @@
+{
+  "downloaded": [
+    "dannielr/marvel-superheroes",
+    "rounakbanik/pokemon",
+    "arunasivapragasam/dc-comics",
+    "mylesoneill/game-of-thrones",
+    "fivethirtyeight/fivethirtyeight-comic-characters-dataset",
+    "claudiodavi/superhero-set"
+  ],
+  "dataset_paths": {
+    "arunasivapragasam/dc-comics": "/home/runner/.cache/kagglehub/datasets/arunasivapragasam/dc-comics/versions/3",
+    "fivethirtyeight/fivethirtyeight-comic-characters-dataset": "/home/runner/.cache/kagglehub/datasets/fivethirtyeight/fivethirtyeight-comic-characters-dataset/versions/111",
+    "dannielr/marvel-superheroes": "/home/runner/.cache/kagglehub/datasets/dannielr/marvel-superheroes/versions/3",
+    "claudiodavi/superhero-set": "/home/runner/.cache/kagglehub/datasets/claudiodavi/superhero-set/versions/1",
+    "rounakbanik/pokemon": "/home/runner/.cache/kagglehub/datasets/rounakbanik/pokemon/versions/1",
+    "mylesoneill/game-of-thrones": "/home/runner/.cache/kagglehub/datasets/mylesoneill/game-of-thrones/versions/1"
+  },
+  "failed": [
+    {
+      "dataset": "mmmarchetti/dc-characters-dataset",
+      "error": "403 Client Error.\n\nYou don't have permission to access resource at URL: https://www.kaggle.com/datasets/mmmarchetti/dc-characters-dataset. The server reported the following issues: Permission 'dataset",
+      "timestamp": "2025-10-02T19:01:45.713343"
+    },
+    {
+      "dataset": "jonathanbesomi/comic-characters-dataset",
+      "error": "403 Client Error.\n\nYou don't have permission to access resource at URL: https://www.kaggle.com/datasets/jonathanbesomi/comic-characters-dataset. The server reported the following issues: Permission 'd",
+      "timestamp": "2025-10-02T19:01:47.609613"
+    },
+    {
+      "dataset": "deepcontractor/dc-wikia-data",
+      "error": "403 Client Error.\n\nYou don't have permission to access resource at URL: https://www.kaggle.com/datasets/deepcontractor/dc-wikia-data. The server reported the following issues: Permission 'datasets.get",
+      "timestamp": "2025-10-02T19:01:47.697509"
+    },
+    {
+      "dataset": "deepcontractor/marvel-wikia-data",
+      "error": "403 Client Error.\n\nYou don't have permission to access resource at URL: https://www.kaggle.com/datasets/deepcontractor/marvel-wikia-data. The server reported the following issues: Permission 'datasets",
+      "timestamp": "2025-10-02T19:01:47.797008"
+    },
+    {
+      "dataset": "psycon/comic-book-sales-data",
+      "error": "403 Client Error.\n\nYou don't have permission to access resource at URL: https://www.kaggle.com/datasets/psycon/comic-book-sales-data. The server reported the following issues: Permission 'datasets.get",
+      "timestamp": "2025-10-02T19:01:47.902646"
+    }
+  ],
+  "datasets_by_category": {
+    "high-value": [
+      "arunasivapragasam/dc-comics",
+      "fivethirtyeight/fivethirtyeight-comic-characters-dataset",
+      "dannielr/marvel-superheroes",
+      "claudiodavi/superhero-set",
+      "rounakbanik/pokemon",
+      "mylesoneill/game-of-thrones"
+    ]
+  },
+  "total_files": 0,
+  "total_records_estimated": 0,
+  "last_updated": "2025-10-02T19:01:49.001859",
+  "version": "2.0"
+}
