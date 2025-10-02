@@ -450,8 +450,14 @@ export class PriceStreamingService {
     this.connectedClients.add(ws);
     console.log(`📡 Client connected. Total clients: ${this.connectedClients.size}`);
     
-    // Send initial market data snapshot immediately
-    this.sendInitialMarketSnapshot(ws);
+    // Wait 500ms for connection to stabilize before sending snapshot
+    setTimeout(() => {
+      if (ws.readyState === 1) { // Still open
+        this.sendInitialMarketSnapshot(ws);
+      } else {
+        console.warn('⚠️ WebSocket closed before snapshot could be sent');
+      }
+    }, 500);
   }
   
   /**
