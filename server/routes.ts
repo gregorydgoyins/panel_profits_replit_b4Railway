@@ -27,6 +27,7 @@ import { registerStoryMarketRoutes } from "./routes/storyMarketRoutes.js";
 import shadowRoutes from "./routes/shadowRoutes.js";
 import journalRoutes from "./routes/journalRoutes.js";
 import warfareRoutes from "./routes/warfareRoutes.js";
+import pineconeRoutes from "./routes/pinecone.js";
 import { marketSimulation, orderMatching } from "./marketSimulation.js";
 import { leaderboardService } from "./leaderboardService.js";
 import { priceStreamingService } from "./services/priceStreamingService.js";
@@ -1677,6 +1678,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Data import routes (Marvel vs DC dataset)
   app.use("/api/import", dataImportRoutes);
+
+  // Pinecone vector search routes
+  app.use("/api/pinecone", pineconeRoutes);
 
   // Houses System Routes (Seven Mythological Houses)
   app.use("/api/houses", housesRoutes);

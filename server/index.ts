@@ -5,6 +5,7 @@ import { initializeWebSocketProtocolOverride, applyEmergencyProtocolOverride } f
 import { phase1Services } from "./phase1ScheduledServices.js";
 import { phase2Services } from "./phase2ScheduledServices.js";
 import { pineconeService } from "./services/pineconeService";
+import { openaiService } from "./services/openaiService";
 
 
 const app = express();
@@ -82,12 +83,24 @@ app.use((req, res, next) => {
     reusePort: true,
   }, async () => {
     log(`serving on port ${port}`);
+    console.log('=== SERVER STARTUP SEQUENCE BEGINNING ===');
     
     // PINECONE INTEGRATION: Connect to vector database
+    console.log('🔗 About to initialize Pinecone...');
     try {
-      await pineconeService.init();
+      const result = await pineconeService.init();
+      console.log('✅ Pinecone initialization complete, result:', result ? 'success' : 'skipped/failed');
     } catch (error) {
-      console.error('Failed to initialize Pinecone:', error);
+      console.error('❌ Failed to initialize Pinecone:', error);
+      console.error('Error stack:', error instanceof Error ? error.stack : 'no stack');
+    }
+
+    // OPENAI INTEGRATION: Initialize embedding service
+    try {
+      await openaiService.init();
+      console.log('✅ OpenAI service initialized');
+    } catch (error) {
+      console.error('❌ Failed to initialize OpenAI:', error);
     }
     
     // PHASE 1 INTEGRATION: Start all scheduled services for living financial simulation
