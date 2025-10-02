@@ -177,6 +177,14 @@ class WebSocketService {
       case 'market_data':
         this.emit('marketData', message.data);
         break;
+      case 'market_data_snapshot':
+        // Handle array of market data from initial snapshot
+        if (Array.isArray(message.data)) {
+          message.data.forEach((marketData: any) => {
+            this.emit('marketData', marketData);
+          });
+        }
+        break;
       case 'portfolio_update':
         this.emit('portfolioUpdate', message.data);
         break;

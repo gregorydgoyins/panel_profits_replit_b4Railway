@@ -459,44 +459,40 @@ export class PriceStreamingService {
    */
   private sendInitialMarketSnapshot(ws: WebSocket): void {
     try {
-      // Get all asset stream data and convert to market data updates
-      const marketDataUpdates = Array.from(this.assetStreams.entries())
-        .slice(0, 20) // Send top 20 assets initially to avoid overwhelming the connection
+      // Get all asset stream data and convert to market data array  
+      const marketDataArray = Array.from(this.assetStreams.entries())
+        .slice(0, 10) // Send top 10 assets initially (testing message size)
         .map(([assetId, streamData]) => {
           const change = streamData.currentPrice - streamData.dayOpen;
           const changePercent = streamData.dayOpen > 0 ? (change / streamData.dayOpen) * 100 : 0;
           
           return {
-            type: 'market_data',
-            data: {
-              assetId,
-              symbol: streamData.asset.symbol,
-              currentPrice: streamData.currentPrice,
-              change,
-              changePercent,
-              volume: streamData.volume24h,
-              timestamp: new Date().toISOString()
-            }
+            assetId,
+            symbol: streamData.asset.symbol,
+            currentPrice: streamData.currentPrice,
+            change,
+            changePercent,
+            volume: streamData.volume24h,
+            timestamp: new Date().toISOString()
           };
         });
       
-      // Send all updates in batches to avoid overwhelming the connection
-      const batchSize = 10;
-      for (let i = 0; i < marketDataUpdates.length; i += batchSize) {
-        const batch = marketDataUpdates.slice(i, i + batchSize);
+      // Send ALL market data in a SINGLE message with an array
+      if (ws.readyState === 1) { // WebSocket.OPEN
+        const snapshotMessage = {
+          type: 'market_data_snapshot',
+          data: marketDataArray
+        };
         
-        if (ws.readyState === 1) { // WebSocket.OPEN
-          // Send each message in the batch with a small delay
-          for (const update of batch) {
-            ws.send(JSON.stringify(update));
-          }
-        } else {
-          console.warn('WebSocket closed during snapshot send');
-          break;
-        }
+        const messageString = JSON.stringify(snapshotMessage);
+        const messageSizeKB = (messageString.length / 1024).toFixed(2);
+        
+        console.log(`📊 Sending snapshot: ${marketDataArray.length} assets, ${messageSizeKB}KB`);
+        ws.send(messageString);
+        console.log(`✅ Snapshot sent successfully`);
+      } else {
+        console.warn('WebSocket not open, cannot send snapshot');
       }
-      
-      console.log(`📊 Sent initial snapshot of ${marketDataUpdates.length} assets to new client`);
     } catch (error) {
       console.error('❌ Error sending initial market snapshot:', error);
     }
