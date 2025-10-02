@@ -1060,6 +1060,13 @@ export const assetCurrentPrices = pgTable("asset_current_prices", {
   // Volatility and risk metrics
   volatility: decimal("volatility", { precision: 8, scale: 2 }), // Price volatility percentage
   beta: decimal("beta", { precision: 3, scale: 2 }), // Beta relative to market
+  // Weighted Market Cap fields for share-based pricing
+  totalMarketValue: decimal("total_market_value", { precision: 20, scale: 2 }), // Sum of (census_count × price) across all grades
+  totalFloat: bigint("total_float", { mode: "number" }), // Total shares available (census × shares_per_copy)
+  sharesPerCopy: integer("shares_per_copy").default(100), // How many shares per physical comic (default 100)
+  censusDistribution: jsonb("census_distribution"), // Grade distribution: [{grade: "CGC 9.8", count: 100, price: 50000}]
+  scarcityModifier: decimal("scarcity_modifier", { precision: 5, scale: 4 }).default("1.0000"), // FloatScarcityMod: 0.90 - 1.10
+  averageComicValue: decimal("average_comic_value", { precision: 15, scale: 2 }), // Average value per comic across all grades
   updatedAt: timestamp("updated_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
 });
