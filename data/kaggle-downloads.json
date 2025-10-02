@@ -1,0 +1,14 @@
+[
+  {
+    "dataset": "fivethirtyeight/fivethirtyeight-comic-characters-dataset",
+    "path": "/home/runner/.cache/kagglehub/datasets/fivethirtyeight/fivethirtyeight-comic-characters-dataset/versions/111"
+  },
+  {
+    "dataset": "dannielr/marvel-superheroes",
+    "path": "/home/runner/.cache/kagglehub/datasets/dannielr/marvel-superheroes/versions/3"
+  },
+  {
+    "dataset": "claudiodavi/superhero-set",
+    "path": "/home/runner/.cache/kagglehub/datasets/claudiodavi/superhero-set/versions/1"
+  }
+]
