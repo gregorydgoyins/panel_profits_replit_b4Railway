@@ -121,6 +121,30 @@ export class PineconeAssetExpansionService {
   }
 
   /**
+   * Parse character incarnation details
+   * Example: "Captain America (House of M)" → { base: "Captain America", variant: "House of M" }
+   */
+  parseCharacterIncarnation(name: string): {
+    baseName: string;
+    variant: string | null;
+    fullName: string;
+  } {
+    const match = name.match(/^(.+?)\s*\(([^)]+)\)$/);
+    if (match) {
+      return {
+        baseName: match[1].trim(),
+        variant: match[2].trim(),
+        fullName: name
+      };
+    }
+    return {
+      baseName: name,
+      variant: null,
+      fullName: name
+    };
+  }
+
+  /**
    * Extract creator name from filename
    */
   extractCreatorName(filename: string): string {
@@ -129,16 +153,32 @@ export class PineconeAssetExpansionService {
 
   /**
    * Generate asset symbol from name
+   * For variants, includes variant suffix: "CAP.HOM" for "Captain America (House of M)"
    */
-  generateAssetSymbol(name: string): string {
-    // Take first letters of each word, max 5 chars
-    const words = name.split(' ').filter(w => w.length > 0);
-    const symbol = words
+  generateAssetSymbol(name: string, variant?: string | null): string {
+    // Parse base name and variant if not provided
+    const parsed = variant !== undefined ? 
+      { baseName: name, variant } : 
+      this.parseCharacterIncarnation(name);
+
+    // Generate base symbol from first letters
+    const words = parsed.baseName.split(' ').filter(w => w.length > 0);
+    let baseSymbol = words
       .map(w => w[0].toUpperCase())
       .join('')
       .substring(0, 5);
     
-    return symbol || 'ASSET';
+    // If variant exists, add variant suffix
+    if (parsed.variant) {
+      const variantWords = parsed.variant.split(' ').filter(w => w.length > 0);
+      const variantSuffix = variantWords
+        .map(w => w[0].toUpperCase())
+        .join('')
+        .substring(0, 3);
+      baseSymbol = `${baseSymbol}.${variantSuffix}`;
+    }
+    
+    return baseSymbol || 'ASSET';
   }
 
   /**
@@ -155,23 +195,31 @@ export class PineconeAssetExpansionService {
   }> {
     console.log('🔄 Transforming Pinecone records into tradeable assets...');
 
-    // Transform characters
-    const characterAssets = records.characters.map(record => ({
-      type: 'character',
-      name: record.metadata.filename 
+    // Transform characters (with incarnation support)
+    const characterAssets = records.characters.map(record => {
+      const fullName = record.metadata.filename 
         ? this.extractCharacterName(record.metadata.filename)
-        : record.id,
-      symbol: record.metadata.filename
-        ? this.generateAssetSymbol(this.extractCharacterName(record.metadata.filename))
-        : this.generateAssetSymbol(record.id),
-      category: 'CHARACTER',
-      metadata: {
-        pineconeId: record.id,
-        filepath: record.metadata.filepath,
-        processedDate: record.metadata.processed_date,
-        publisher: record.metadata.publisher || 'Marvel'
-      }
-    }));
+        : record.id;
+      
+      const incarnation = this.parseCharacterIncarnation(fullName);
+      
+      return {
+        type: 'character',
+        name: incarnation.fullName,
+        baseName: incarnation.baseName,
+        variant: incarnation.variant,
+        symbol: this.generateAssetSymbol(incarnation.baseName, incarnation.variant),
+        category: 'CHARACTER',
+        metadata: {
+          pineconeId: record.id,
+          filepath: record.metadata.filepath,
+          processedDate: record.metadata.processed_date,
+          publisher: record.metadata.publisher || 'Marvel',
+          isIncarnation: !!incarnation.variant,
+          baseCharacter: incarnation.baseName
+        }
+      };
+    });
 
     // Transform creators
     const creatorAssets = records.creators.map(record => ({
