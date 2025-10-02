@@ -28,7 +28,7 @@ class EntitySeedingService {
   }
 
   /**
-   * Calculate realistic pricing based on entity type and metadata
+   * Calculate realistic pricing based on entity type and metadata (fallback method)
    */
   private calculateEntityPrice(entity: any, type: string): number {
     let basePrice = 100; // Starting point
@@ -73,7 +73,65 @@ class EntitySeedingService {
   }
 
   /**
+   * Get real market price for a character from PriceCharting, with fallback to calculated
+   */
+  private async getCharacterPrice(characterName: string, entity: any): Promise<{ price: number; source: string }> {
+    try {
+      const realPrice = await priceChartingService.getPriceForCharacter(characterName);
+      if (realPrice > 0) {
+        console.log(`   💰 Using real PriceCharting price for ${characterName}: $${realPrice}`);
+        return { price: realPrice, source: 'pricecharting' };
+      }
+    } catch (error) {
+      console.warn(`   ⚠️  PriceCharting lookup failed for ${characterName}, using calculated price`);
+    }
+    
+    const calculatedPrice = this.calculateEntityPrice(entity, 'character');
+    console.log(`   📊 Using calculated price for ${characterName}: $${calculatedPrice}`);
+    return { price: calculatedPrice, source: 'calculated' };
+  }
+
+  /**
+   * Get real market price for a creator from PriceCharting, with fallback to calculated
+   */
+  private async getCreatorPrice(creatorName: string, entity: any): Promise<{ price: number; source: string }> {
+    try {
+      const realPrice = await priceChartingService.getPriceForCreator(creatorName);
+      if (realPrice > 0) {
+        console.log(`   💰 Using real PriceCharting price for ${creatorName}: $${realPrice}`);
+        return { price: realPrice, source: 'pricecharting' };
+      }
+    } catch (error) {
+      console.warn(`   ⚠️  PriceCharting lookup failed for ${creatorName}, using calculated price`);
+    }
+    
+    const calculatedPrice = this.calculateEntityPrice(entity, 'creator');
+    console.log(`   📊 Using calculated price for ${creatorName}: $${calculatedPrice}`);
+    return { price: calculatedPrice, source: 'calculated' };
+  }
+
+  /**
+   * Get real market price for a franchise from PriceCharting, with fallback to calculated
+   */
+  private async getFranchisePrice(franchiseName: string, entity: any): Promise<{ price: number; source: string }> {
+    try {
+      const realPrice = await priceChartingService.getPriceForSeries(franchiseName);
+      if (realPrice > 0) {
+        console.log(`   💰 Using real PriceCharting price for ${franchiseName}: $${realPrice}`);
+        return { price: realPrice, source: 'pricecharting' };
+      }
+    } catch (error) {
+      console.warn(`   ⚠️  PriceCharting lookup failed for ${franchiseName}, using calculated price`);
+    }
+    
+    const calculatedPrice = this.calculateEntityPrice(entity, 'franchise');
+    console.log(`   📊 Using calculated price for ${franchiseName}: $${calculatedPrice}`);
+    return { price: calculatedPrice, source: 'calculated' };
+  }
+
+  /**
    * Seed major publishers from Comic Vine
+   * Note: Uses calculated prices (publishers don't have direct PriceCharting data)
    */
   async seedPublishers(): Promise<void> {
     console.log('🏢 Mining publishers from Comic Vine...');
@@ -94,6 +152,7 @@ class EntitySeedingService {
         }
 
         const symbol = this.generateSymbol(pub.name, 'publisher');
+        // Publishers use calculated pricing (no direct PriceCharting data available)
         const price = this.calculateEntityPrice(pub, 'publisher');
 
         // Check if already exists
@@ -131,7 +190,7 @@ class EntitySeedingService {
           percentChange: '0'
         });
 
-        console.log(`   ✅ Created publisher: ${pub.name} (${symbol}) @ $${price}`);
+        console.log(`   ✅ Created publisher: ${pub.name} (${symbol}) @ $${price} [calculated]`);
       }
     } catch (error) {
       console.error('❌ Error seeding publishers:', error);
@@ -164,14 +223,16 @@ class EntitySeedingService {
         const type = 'character';
         const suffix = isVillain ? 'VILLAIN' : 'HERO';
         const symbol = `${char.name.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6)}.${suffix}`;
-        const price = this.calculateEntityPrice(char, type);
-
+        
         // Check if already exists
         const existing = await storage.getAssetBySymbol(symbol);
         if (existing) {
           console.log(`   ♻️  Character already exists: ${char.name}`);
           continue;
         }
+
+        // Get real price from PriceCharting with fallback to calculated
+        const { price, source } = await this.getCharacterPrice(char.name, char);
 
         // Create character asset
         await storage.createAsset({
@@ -188,7 +249,8 @@ class EntitySeedingService {
             powers: char.powers,
             aliases: char.aliases,
             origin: char.origin,
-            alignment: isVillain ? 'villain' : 'hero'
+            alignment: isVillain ? 'villain' : 'hero',
+            pricingSource: source
           }
         });
 
@@ -206,7 +268,7 @@ class EntitySeedingService {
           percentChange: '0'
         });
 
-        console.log(`   ✅ Created character: ${char.name} (${symbol}) @ $${price}`);
+        console.log(`   ✅ Created character: ${char.name} (${symbol}) @ $${price} [${source}]`);
       }
     } catch (error) {
       console.error('❌ Error seeding characters:', error);
@@ -229,14 +291,16 @@ class EntitySeedingService {
 
       for (const creator of prolificCreators) {
         const symbol = this.generateSymbol(creator.name, 'creator');
-        const price = this.calculateEntityPrice(creator, 'creator');
-
+        
         // Check if already exists
         const existing = await storage.getAssetBySymbol(symbol);
         if (existing) {
           console.log(`   ♻️  Creator already exists: ${creator.name}`);
           continue;
         }
+
+        // Get real price from PriceCharting with fallback to calculated
+        const { price, source } = await this.getCreatorPrice(creator.name, creator);
 
         // Create creator asset
         await storage.createAsset({
@@ -250,7 +314,8 @@ class EntitySeedingService {
             birthDate: creator.birthDate,
             hometown: creator.hometown,
             country: creator.country,
-            aliases: creator.aliases
+            aliases: creator.aliases,
+            pricingSource: source
           }
         });
 
@@ -268,7 +333,7 @@ class EntitySeedingService {
           percentChange: '0'
         });
 
-        console.log(`   ✅ Created creator: ${creator.name} (${symbol}) @ $${price}`);
+        console.log(`   ✅ Created creator: ${creator.name} (${symbol}) @ $${price} [${source}]`);
       }
     } catch (error) {
       console.error('❌ Error seeding creators:', error);
@@ -293,14 +358,16 @@ class EntitySeedingService {
         // Cast to any since fetchComicVineVolumes returns transformed camelCase objects
         const series = seriesData as any;
         const symbol = `${series.name.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6)}.FRNCH`;
-        const price = this.calculateEntityPrice(series, 'franchise');
-
+        
         // Check if already exists
         const existing = await storage.getAssetBySymbol(symbol);
         if (existing) {
           console.log(`   ♻️  Franchise already exists: ${series.name}`);
           continue;
         }
+
+        // Get real price from PriceCharting with fallback to calculated
+        const { price, source } = await this.getFranchisePrice(series.name, series);
 
         // Create franchise asset
         await storage.createAsset({
@@ -315,7 +382,8 @@ class EntitySeedingService {
             startYear: series.startYear,
             issueCount: series.issueCount,
             firstIssue: series.firstIssue,
-            lastIssue: series.lastIssue
+            lastIssue: series.lastIssue,
+            pricingSource: source
           }
         });
 
@@ -333,7 +401,7 @@ class EntitySeedingService {
           percentChange: '0'
         });
 
-        console.log(`   ✅ Created franchise: ${series.name} (${symbol}) @ $${price}`);
+        console.log(`   ✅ Created franchise: ${series.name} (${symbol}) @ $${price} [${source}]`);
       }
     } catch (error) {
       console.error('❌ Error seeding franchises:', error);
@@ -427,30 +495,70 @@ class EntitySeedingService {
             const existing = await storage.getAssetBySymbol(symbol);
             if (existing) continue;
 
-            // Get best price (CGC graded preferred)
-            const price = priceChartingService.getBestPrice(comic);
+            // Get comprehensive pricing by grade from PriceCharting
+            const pricesByGrade = await priceChartingService.getComicPricesByGrade(comic['product-name']);
+            
+            let price: number;
+            let gradeData: any = {};
+            let pricingSource = 'pricecharting';
+
+            if (pricesByGrade && pricesByGrade.grades.length > 0) {
+              // Use real PriceCharting prices by grade
+              console.log(`   💰 Using real PriceCharting grades for: ${comic['product-name']}`);
+              
+              // Build grade data from PriceCharting response
+              for (const gradeInfo of pricesByGrade.grades) {
+                if (gradeInfo.available && gradeInfo.price) {
+                  const gradeKey = gradeInfo.grade.toLowerCase().replace(/[^a-z0-9]/g, '');
+                  gradeData[gradeKey] = gradeInfo.price;
+                }
+              }
+              
+              // Use ungraded price as base, or lowest available grade
+              const ungradedPrice = pricesByGrade.grades.find(g => g.grade === 'Ungraded' && g.available);
+              if (ungradedPrice?.price) {
+                price = ungradedPrice.price;
+              } else {
+                // Use lowest available grade as fallback
+                const lowestGrade = pricesByGrade.grades.find(g => g.available && g.price);
+                price = lowestGrade?.price || 0;
+              }
+            } else {
+              // Fallback to getBestPrice if getComicPricesByGrade doesn't return data
+              console.log(`   📊 Using calculated price for: ${comic['product-name']}`);
+              price = priceChartingService.getBestPrice(comic);
+              pricingSource = 'calculated';
+              
+              // Still store the grade breakdown from the original product data
+              gradeData = {
+                ungraded: comic['loose-price'] ? comic['loose-price'] / 100 : null,
+                cgc40: comic['cib-price'] ? comic['cib-price'] / 100 : null,
+                cgc60: comic['new-price'] ? comic['new-price'] / 100 : null,
+                cgc80: comic['graded-price'] ? comic['graded-price'] / 100 : null,
+                cgc92: comic['box-only-price'] ? comic['box-only-price'] / 100 : null,
+                cgc98: comic['manual-only-price'] ? comic['manual-only-price'] / 100 : null,
+                cgc100: comic['bgs-10-price'] ? comic['bgs-10-price'] / 100 : null,
+              };
+            }
+
             if (price === 0) continue;
 
-            // Create comic asset
+            // Create comic asset with full grade pricing
             await storage.createAsset({
               symbol,
               name: comic['product-name'],
               type: 'comic',
-              description: `${priceChartingService.extractSeriesName(comic['console-name'])} - Real market pricing`,
+              description: `${priceChartingService.extractSeriesName(comic['console-name'])} - Real market pricing from PriceCharting`,
               imageUrl: null,
               metadata: {
                 series: priceChartingService.extractSeriesName(comic['console-name']),
                 publisher: comic['publisher-name'] || (seriesName.includes('Spider-Man') || seriesName.includes('X-Men') ? 'Marvel' : 'DC'),
                 releaseDate: comic['release-date'],
-                grading: {
-                  ungraded: comic['loose-price'] ? comic['loose-price'] / 100 : null,
-                  cgc40: comic['cib-price'] ? comic['cib-price'] / 100 : null,
-                  cgc60: comic['new-price'] ? comic['new-price'] / 100 : null,
-                  cgc80: comic['graded-price'] ? comic['graded-price'] / 100 : null,
-                  cgc92: comic['box-only-price'] ? comic['box-only-price'] / 100 : null,
-                  cgc98: comic['manual-only-price'] ? comic['manual-only-price'] / 100 : null,
-                  cgc100: comic['bgs-10-price'] ? comic['bgs-10-price'] / 100 : null,
-                }
+                productId: pricesByGrade?.productId || comic.id,
+                grading: gradeData,
+                pricingSource,
+                bestGrade: pricesByGrade?.bestGrade,
+                highestPrice: pricesByGrade?.highestPrice
               }
             });
 
@@ -468,7 +576,7 @@ class EntitySeedingService {
               percentChange: '0'
             });
 
-            console.log(`   ✅ Created: ${comic['product-name']} @ $${price}`);
+            console.log(`   ✅ Created: ${comic['product-name']} @ $${price} [${pricingSource}]${pricesByGrade?.bestGrade ? ` | Best: ${pricesByGrade.bestGrade} @ $${pricesByGrade.highestPrice}` : ''}`);
           }
         }
       }

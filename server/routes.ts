@@ -3609,6 +3609,108 @@ Respond with valid JSON in this exact format:
     }
   });
 
+  // Price History Routes - Historical pricing data for graded comics
+  
+  // Get price history for specific asset and grade
+  app.get('/api/price-history/:assetId', async (req: any, res) => {
+    try {
+      const { assetId } = req.params;
+      const { grade, days } = req.query;
+
+      if (!grade) {
+        return res.status(400).json({ error: 'Grade parameter is required' });
+      }
+
+      const daysNum = days ? parseInt(days as string) : 30;
+      if (isNaN(daysNum) || daysNum <= 0) {
+        return res.status(400).json({ error: 'Days must be a positive number' });
+      }
+
+      const pricePoints = await storage.getPriceHistory(assetId, grade as string, daysNum);
+
+      if (pricePoints.length === 0) {
+        return res.json({
+          assetId,
+          grade,
+          pricePoints: [],
+          stats: {
+            percentChange: 0,
+            high: 0,
+            low: 0
+          }
+        });
+      }
+
+      const prices = pricePoints.map(p => parseFloat(p.price));
+      const currentPrice = prices[0];
+      const oldestPrice = prices[prices.length - 1];
+      const high = Math.max(...prices);
+      const low = Math.min(...prices);
+      const percentChange = oldestPrice > 0 ? ((currentPrice - oldestPrice) / oldestPrice) * 100 : 0;
+
+      res.json({
+        assetId,
+        grade,
+        pricePoints: pricePoints.map(p => ({
+          date: p.snapshotDate,
+          price: parseFloat(p.price)
+        })),
+        stats: {
+          percentChange: parseFloat(percentChange.toFixed(2)),
+          high: parseFloat(high.toFixed(2)),
+          low: parseFloat(low.toFixed(2))
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching price history:', error);
+      res.status(500).json({ error: 'Failed to fetch price history' });
+    }
+  });
+
+  // Get latest prices for all grades of an asset
+  app.get('/api/price-history/:assetId/grades', async (req: any, res) => {
+    try {
+      const { assetId } = req.params;
+
+      const latestPrices = await storage.getLatestPricesByGrade(assetId);
+
+      res.json({
+        assetId,
+        grades: latestPrices.map(p => ({
+          grade: p.grade,
+          price: parseFloat(p.price),
+          lastUpdated: p.snapshotDate
+        }))
+      });
+    } catch (error) {
+      console.error('Error fetching latest prices by grade:', error);
+      res.status(500).json({ error: 'Failed to fetch latest prices by grade' });
+    }
+  });
+
+  // Get price trends for an asset over a specified timeframe
+  app.get('/api/price-history/:assetId/trends/:timeframe', async (req: any, res) => {
+    try {
+      const { assetId, timeframe } = req.params;
+
+      if (!['30d', '90d', '1y'].includes(timeframe)) {
+        return res.status(400).json({ 
+          error: 'Invalid timeframe. Must be one of: 30d, 90d, 1y' 
+        });
+      }
+
+      const trends = await storage.getPriceTrends(
+        assetId, 
+        timeframe as '30d' | '90d' | '1y'
+      );
+
+      res.json(trends);
+    } catch (error) {
+      console.error('Error fetching price trends:', error);
+      res.status(500).json({ error: 'Failed to fetch price trends' });
+    }
+  });
+
   // Initialize WebSocket notification service for real-time notifications
   console.log('🔔 Initializing WebSocket notification service...');
   wsNotificationService.initialize(httpServer, '/ws/notifications');

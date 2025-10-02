@@ -209,6 +209,21 @@ export const marketData = pgTable("market_data", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Price History - Historical price snapshots with CGC grading support
+export const priceHistory = pgTable("price_history", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  assetId: varchar("asset_id").notNull().references(() => assets.id),
+  grade: text("grade").notNull(), // 'ungraded', 'cgc-4.0', 'cgc-4.5', 'cgc-6.0', 'cgc-6.5', 'cgc-8.0', 'cgc-8.5', 'cgc-9.2', 'cgc-9.8', 'cgc-10.0'
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  source: text("source").notNull(), // 'pricecharting', 'calculated', 'market'
+  snapshotDate: timestamp("snapshot_date").notNull(),
+  metadata: jsonb("metadata"), // Additional data like sales volume, market conditions, etc.
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_price_history_asset_grade_date").on(table.assetId, table.grade, table.snapshotDate),
+  index("idx_price_history_snapshot_date").on(table.snapshotDate),
+]);
+
 // Portfolio holdings for users
 export const portfolios = pgTable("portfolios", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -527,6 +542,11 @@ export const insertMarketDataSchema = createInsertSchema(marketData).omit({
   createdAt: true,
 });
 
+export const insertPriceHistorySchema = createInsertSchema(priceHistory).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertPortfolioSchema = createInsertSchema(portfolios).omit({
   id: true,
   createdAt: true,
@@ -705,6 +725,9 @@ export type InsertAsset = z.infer<typeof insertAssetSchema>;
 
 export type MarketData = typeof marketData.$inferSelect;
 export type InsertMarketData = z.infer<typeof insertMarketDataSchema>;
+
+export type PriceHistory = typeof priceHistory.$inferSelect;
+export type InsertPriceHistory = z.infer<typeof insertPriceHistorySchema>;
 
 export type Portfolio = typeof portfolios.$inferSelect;
 export type InsertPortfolio = z.infer<typeof insertPortfolioSchema>;

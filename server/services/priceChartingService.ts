@@ -23,6 +23,40 @@ interface ProductsResponse {
   products?: ComicPrice[];
 }
 
+interface CGCGradePrice {
+  grade: string;
+  price: number | null;
+  available: boolean;
+}
+
+interface ComicPricesByGrade {
+  productId: string;
+  productName: string;
+  seriesName?: string;
+  publisherName?: string;
+  grades: CGCGradePrice[];
+  bestGrade?: string;
+  highestPrice?: number;
+  releaseDate?: string;
+}
+
+interface HistoricalPricePoint {
+  date: string;
+  price: number;
+}
+
+interface HistoricalPriceData {
+  productId: string;
+  productName: string;
+  timeframe: '30d' | '90d' | '1y';
+  prices: HistoricalPricePoint[];
+  startPrice: number;
+  endPrice: number;
+  percentChange: number;
+  highPrice: number;
+  lowPrice: number;
+}
+
 class PriceChartingService {
   private apiToken: string;
   private baseUrl = 'https://www.pricecharting.com/api';
@@ -232,6 +266,169 @@ class PriceChartingService {
     return Math.random() * 100000 + 10000;
   }
 
+  async getComicPricesByGrade(comicName: string): Promise<ComicPricesByGrade | null> {
+    const cacheKey = `grades:${comicName}`;
+    const cached = this.cache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < this.cacheExpiry) {
+      console.log(`📦 Using cached CGC grades for: ${comicName}`);
+      return cached.data;
+    }
+
+    const results = await this.searchComics(comicName);
+    
+    if (results.length === 0) {
+      console.warn(`⚠️ No results found for: ${comicName}`);
+      return null;
+    }
+
+    const topResult = results[0];
+    
+    const gradeMapping: Array<{ grade: string; field: keyof ComicPrice }> = [
+      { grade: 'Ungraded', field: 'loose-price' },
+      { grade: 'CGC 4.0', field: 'condition-17-price' },
+      { grade: 'CGC 4.5', field: 'condition-17-price' },
+      { grade: 'CGC 6.0', field: 'condition-18-price' },
+      { grade: 'CGC 6.5', field: 'condition-18-price' },
+      { grade: 'CGC 8.0', field: 'graded-price' },
+      { grade: 'CGC 8.5', field: 'graded-price' },
+      { grade: 'CGC 9.2', field: 'box-only-price' },
+      { grade: 'CGC 9.8', field: 'manual-only-price' },
+      { grade: 'CGC 10.0', field: 'bgs-10-price' }
+    ];
+
+    const grades: CGCGradePrice[] = gradeMapping.map(({ grade, field }) => {
+      const priceInCents = topResult[field];
+      const priceValue = typeof priceInCents === 'number' ? priceInCents : 
+                         typeof priceInCents === 'string' ? parseFloat(priceInCents) : 0;
+      const price = priceValue > 0 ? priceValue / 100 : null;
+      
+      return {
+        grade,
+        price,
+        available: price !== null
+      };
+    });
+
+    const availableGrades = grades.filter(g => g.available);
+    const bestGrade = availableGrades.length > 0 
+      ? availableGrades[availableGrades.length - 1].grade 
+      : undefined;
+    const highestPrice = availableGrades.length > 0
+      ? Math.max(...availableGrades.map(g => g.price!))
+      : undefined;
+
+    const result: ComicPricesByGrade = {
+      productId: topResult.id,
+      productName: topResult['product-name'],
+      seriesName: topResult['series-name'],
+      publisherName: topResult['publisher-name'],
+      grades,
+      bestGrade,
+      highestPrice,
+      releaseDate: topResult['release-date']
+    };
+
+    this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
+    
+    console.log(`✅ Retrieved CGC grades for: ${comicName}`);
+    console.log(`   Best grade: ${bestGrade} | Highest price: $${highestPrice?.toFixed(2) || 'N/A'}`);
+    
+    return result;
+  }
+
+  async getHistoricalPrices(productId: string, timeframe: '30d' | '90d' | '1y'): Promise<HistoricalPriceData | null> {
+    if (!this.apiToken) {
+      console.warn('⚠️ Cannot fetch historical prices - API token not configured');
+      return null;
+    }
+
+    const cacheKey = `history:${productId}:${timeframe}`;
+    const cached = this.cache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < this.cacheExpiry) {
+      console.log(`📦 Using cached historical prices for product ${productId} (${timeframe})`);
+      return cached.data;
+    }
+
+    try {
+      console.log(`📊 Fetching ${timeframe} historical prices for product: ${productId}`);
+      
+      const url = `${this.baseUrl}/price-history?t=${this.apiToken}&id=${productId}`;
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        console.error(`❌ PriceCharting API error: ${response.status} ${response.statusText}`);
+        return null;
+      }
+
+      const data = await response.json();
+      
+      if (data.status !== 'success') {
+        console.error('❌ Historical price fetch failed:', data);
+        return null;
+      }
+
+      const product = await this.getProduct(productId);
+      if (!product) {
+        console.error('❌ Could not fetch product details');
+        return null;
+      }
+
+      const now = new Date();
+      const daysMap = { '30d': 30, '90d': 90, '1y': 365 };
+      const daysBack = daysMap[timeframe];
+      const startDate = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
+
+      const priceHistory = data['price-history'] || [];
+      const filteredPrices: HistoricalPricePoint[] = priceHistory
+        .filter((point: any) => {
+          const pointDate = new Date(point.date);
+          return pointDate >= startDate && pointDate <= now;
+        })
+        .map((point: any) => ({
+          date: point.date,
+          price: point.price / 100
+        }));
+
+      if (filteredPrices.length === 0) {
+        console.warn(`⚠️ No historical data available for ${timeframe}`);
+        const currentPrice = this.getBestPrice(product);
+        filteredPrices.push({
+          date: now.toISOString().split('T')[0],
+          price: currentPrice
+        });
+      }
+
+      const prices = filteredPrices.map(p => p.price);
+      const startPrice = prices[0];
+      const endPrice = prices[prices.length - 1];
+      const percentChange = startPrice > 0 ? ((endPrice - startPrice) / startPrice) * 100 : 0;
+      const highPrice = Math.max(...prices);
+      const lowPrice = Math.min(...prices);
+
+      const result: HistoricalPriceData = {
+        productId,
+        productName: product['product-name'],
+        timeframe,
+        prices: filteredPrices,
+        startPrice,
+        endPrice,
+        percentChange,
+        highPrice,
+        lowPrice
+      };
+
+      this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
+
+      console.log(`✅ Retrieved ${filteredPrices.length} price points for ${timeframe}`);
+      console.log(`   Change: ${percentChange > 0 ? '+' : ''}${percentChange.toFixed(2)}% | High: $${highPrice.toFixed(2)} | Low: $${lowPrice.toFixed(2)}`);
+
+      return result;
+    } catch (error) {
+      console.error('❌ Error fetching historical prices:', error);
+      return null;
+    }
+  }
+
   clearCache(): void {
     this.cache.clear();
     console.log('🗑️ PriceCharting cache cleared');
@@ -239,3 +436,11 @@ class PriceChartingService {
 }
 
 export const priceChartingService = new PriceChartingService();
+
+export type { 
+  ComicPrice, 
+  CGCGradePrice, 
+  ComicPricesByGrade, 
+  HistoricalPricePoint, 
+  HistoricalPriceData 
+};

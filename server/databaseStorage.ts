@@ -2,7 +2,7 @@ import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
 import { eq, and, desc, ilike, sql, inArray } from 'drizzle-orm';
 import {
-  assets, marketData, portfolios, holdings, marketInsights, marketIndices,
+  assets, marketData, priceHistory, portfolios, holdings, marketInsights, marketIndices,
   marketIndexData, watchlists, watchlistAssets, orders, marketEvents,
   beatTheAIChallenge, beatTheAIPrediction, beatTheAILeaderboard,
   comicGradingPredictions, users, comicSeries, comicIssues, comicCreators, featuredComics,
@@ -38,6 +38,7 @@ import {
 } from '@shared/schema.js';
 import type {
   User, InsertUser, UpsertUser, Asset, InsertAsset, MarketData, InsertMarketData,
+  PriceHistory, InsertPriceHistory,
   Portfolio, InsertPortfolio, Holding, InsertHolding, MarketInsight, InsertMarketInsight,
   MarketIndex, InsertMarketIndex, MarketIndexData, InsertMarketIndexData,
   Watchlist, InsertWatchlist, WatchlistAsset, InsertWatchlistAsset,
@@ -295,6 +296,103 @@ export class DatabaseStorage implements IStorage {
     
     const result = await db.insert(marketData).values(marketDataList).returning();
     return result;
+  }
+
+  // Price history (graded comic book pricing)
+  async createPriceHistory(data: InsertPriceHistory): Promise<PriceHistory> {
+    const [result] = await db.insert(priceHistory).values(data).returning();
+    return result;
+  }
+
+  async getPriceHistory(assetId: string, grade: string, days: number): Promise<PriceHistory[]> {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+    
+    return await db
+      .select()
+      .from(priceHistory)
+      .where(
+        and(
+          eq(priceHistory.assetId, assetId),
+          eq(priceHistory.grade, grade),
+          sql`${priceHistory.snapshotDate} >= ${cutoffDate}`
+        )
+      )
+      .orderBy(desc(priceHistory.snapshotDate));
+  }
+
+  async getLatestPricesByGrade(assetId: string): Promise<PriceHistory[]> {
+    const latestPrices = await db
+      .select()
+      .from(priceHistory)
+      .where(eq(priceHistory.assetId, assetId))
+      .orderBy(desc(priceHistory.snapshotDate));
+    
+    const gradeMap = new Map<string, PriceHistory>();
+    for (const price of latestPrices) {
+      if (!gradeMap.has(price.grade)) {
+        gradeMap.set(price.grade, price);
+      }
+    }
+    
+    return Array.from(gradeMap.values());
+  }
+
+  async getPriceTrends(assetId: string, timeframe: '30d' | '90d' | '1y'): Promise<{
+    assetId: string;
+    timeframe: string;
+    percentChange: number;
+    priceChange: number;
+    high: number;
+    low: number;
+    average: number;
+  }> {
+    const days = timeframe === '30d' ? 30 : timeframe === '90d' ? 90 : 365;
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+    
+    const prices = await db
+      .select()
+      .from(priceHistory)
+      .where(
+        and(
+          eq(priceHistory.assetId, assetId),
+          sql`${priceHistory.snapshotDate} >= ${cutoffDate}`
+        )
+      )
+      .orderBy(desc(priceHistory.snapshotDate));
+
+    if (prices.length === 0) {
+      return {
+        assetId,
+        timeframe,
+        percentChange: 0,
+        priceChange: 0,
+        high: 0,
+        low: 0,
+        average: 0,
+      };
+    }
+
+    const priceValues = prices.map(p => parseFloat(p.price));
+    const currentPrice = priceValues[0];
+    const oldestPrice = priceValues[priceValues.length - 1];
+    const high = Math.max(...priceValues);
+    const low = Math.min(...priceValues);
+    const average = priceValues.reduce((sum, val) => sum + val, 0) / priceValues.length;
+    
+    const priceChange = currentPrice - oldestPrice;
+    const percentChange = oldestPrice > 0 ? (priceChange / oldestPrice) * 100 : 0;
+
+    return {
+      assetId,
+      timeframe,
+      percentChange: parseFloat(percentChange.toFixed(2)),
+      priceChange: parseFloat(priceChange.toFixed(2)),
+      high: parseFloat(high.toFixed(2)),
+      low: parseFloat(low.toFixed(2)),
+      average: parseFloat(average.toFixed(2)),
+    };
   }
 
   // Portfolio management

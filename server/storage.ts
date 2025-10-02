@@ -87,7 +87,9 @@ import {
   type NarrativeEvent, type InsertNarrativeEvent,
   // Hidden Alignment Tracking Types
   type AlignmentScore, type InsertAlignmentScore,
-  type UserDecision, type InsertUserDecision
+  type UserDecision, type InsertUserDecision,
+  // Price History Types
+  type PriceHistory, type InsertPriceHistory
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -122,6 +124,20 @@ export interface IStorage {
   createMarketData(marketData: InsertMarketData): Promise<MarketData>;
   getBulkLatestMarketData(assetIds: string[], timeframe?: string): Promise<MarketData[]>;
   createBulkMarketData(marketDataList: InsertMarketData[]): Promise<MarketData[]>;
+
+  // Price history (graded comic book pricing)
+  createPriceHistory(data: InsertPriceHistory): Promise<PriceHistory>;
+  getPriceHistory(assetId: string, grade: string, days: number): Promise<PriceHistory[]>;
+  getLatestPricesByGrade(assetId: string): Promise<PriceHistory[]>;
+  getPriceTrends(assetId: string, timeframe: '30d' | '90d' | '1y'): Promise<{
+    assetId: string;
+    timeframe: string;
+    percentChange: number;
+    priceChange: number;
+    high: number;
+    low: number;
+    average: number;
+  }>;
 
   // Portfolio management
   getPortfolio(id: string): Promise<Portfolio | undefined>;
