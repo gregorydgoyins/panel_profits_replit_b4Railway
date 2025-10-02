@@ -113,7 +113,7 @@ export interface IStorage {
   // Asset management
   getAsset(id: string): Promise<Asset | undefined>;
   getAssetBySymbol(symbol: string): Promise<Asset | undefined>;
-  getAssets(filters?: { type?: string; search?: string; publisher?: string }): Promise<Asset[]>;
+  getAssets(filters?: { type?: string; search?: string; publisher?: string; limit?: number; offset?: number }): Promise<Asset[]>;
   createAsset(asset: InsertAsset): Promise<Asset>;
   updateAsset(id: string, asset: Partial<InsertAsset>): Promise<Asset | undefined>;
   deleteAsset(id: string): Promise<boolean>;
@@ -1228,7 +1228,7 @@ export class MemStorage implements IStorage {
     return Array.from(this.assets.values()).find(asset => asset.symbol === symbol);
   }
 
-  async getAssets(filters?: { type?: string; search?: string; publisher?: string }): Promise<Asset[]> {
+  async getAssets(filters?: { type?: string; search?: string; publisher?: string; limit?: number; offset?: number }): Promise<Asset[]> {
     let assets = Array.from(this.assets.values());
     
     if (filters?.type) {
@@ -1251,7 +1251,11 @@ export class MemStorage implements IStorage {
       });
     }
     
-    return assets;
+    // Apply limit with default of 100
+    const limit = filters?.limit ?? 100;
+    const offset = filters?.offset ?? 0;
+    
+    return assets.slice(offset, offset + limit);
   }
 
   async createAsset(insertAsset: InsertAsset): Promise<Asset> {

@@ -143,7 +143,7 @@ export class PriceStreamingService {
   private async initializeAssetStreams(): Promise<void> {
     try {
       console.log('  📦 Loading assets for streaming...');
-      const assets = await storage.getAssets();
+      const assets = await storage.getAssets({ limit: 100 });
       console.log(`  📦 Loaded ${assets.length} assets`);
       
       // Load all prices at once for fast lookup

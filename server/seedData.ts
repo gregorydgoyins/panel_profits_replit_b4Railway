@@ -244,7 +244,7 @@ export async function generateHistoricalData(): Promise<void> {
   console.log('📈 Generating historical market data...');
   
   try {
-    const assets = await storage.getAssets();
+    const assets = await storage.getAssets({ limit: 100 });
     const timeframes = ['1m', '5m', '15m', '1h', '4h', '1d'];
     
     for (const asset of assets.slice(0, 5)) { // Only for seed assets

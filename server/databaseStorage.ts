@@ -198,7 +198,7 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
-  async getAssets(filters?: { type?: string; search?: string; publisher?: string }): Promise<Asset[]> {
+  async getAssets(filters?: { type?: string; search?: string; publisher?: string; limit?: number; offset?: number }): Promise<Asset[]> {
     let query = db.select().from(assets);
     
     const conditions = [];
@@ -223,6 +223,15 @@ export class DatabaseStorage implements IStorage {
     
     if (conditions.length > 0) {
       query = query.where(and(...conditions));
+    }
+    
+    // Apply limit with default of 100 to prevent overwhelming the database
+    const limit = filters?.limit ?? 100;
+    query = query.limit(limit);
+    
+    // Apply offset for pagination if provided
+    if (filters?.offset) {
+      query = query.offset(filters.offset);
     }
     
     return await query.orderBy(desc(assets.createdAt));

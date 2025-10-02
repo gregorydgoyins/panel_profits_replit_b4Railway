@@ -568,7 +568,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const type = req.query.type as string;
       const search = req.query.search as string;
       const publisher = req.query.publisher as string;
-      const assets = await storage.getAssets({ type, search, publisher });
+      const limit = parseInt(req.query.limit as string) || 100;
+      const offset = parseInt(req.query.offset as string) || 0;
+      const assets = await storage.getAssets({ type, search, publisher, limit, offset });
       res.json(assets);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch assets" });
@@ -604,8 +606,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const limit = parseInt(req.query.limit as string) || 12;
       
-      // Fetch character assets with latest market data
-      const characters = await storage.getAssets({ type: 'CHARACTER' });
+      // Fetch character assets with latest market data (limit to 100 to avoid overflow)
+      const characters = await storage.getAssets({ type: 'CHARACTER', limit: 100 });
       
       // Get latest prices for characters that have them
       const charactersWithPrices = await Promise.all(
@@ -2508,8 +2510,8 @@ Respond with valid JSON in this exact format:
       const assetIds = req.query.assetIds as string;
       
       if (!assetIds) {
-        // Get all asset prices
-        const assets = await storage.getAssets();
+        // Get asset prices (limit to 100 to avoid overflow)
+        const assets = await storage.getAssets({ limit: 100 });
         const allAssetIds = assets.map(asset => asset.id);
         const prices = await storage.getAssetCurrentPrices(allAssetIds);
         
