@@ -54,6 +54,30 @@ class PineconeAssetSeederService {
   }
 
   /**
+   * Extract price from asset pricing metadata
+   * For comics with CGC grades: Use highestPrice from pricing.grades
+   * For characters/creators: Use pricing.currentPrice
+   */
+  private extractPriceFromAsset(asset: any): number {
+    if (!asset.pricing) {
+      return 100; // Default fallback price
+    }
+
+    // For comics with CGC grade pricing
+    if (asset.type === 'comic' && asset.pricing.highestPrice) {
+      return asset.pricing.highestPrice;
+    }
+
+    // For characters and creators
+    if (asset.pricing.currentPrice) {
+      return asset.pricing.currentPrice;
+    }
+
+    // Fallback
+    return 100;
+  }
+
+  /**
    * Process a batch of assets - check duplicates and insert
    */
   private async processBatch(assets: any[], batchNumber: number, totalBatches: number): Promise<{
@@ -89,6 +113,28 @@ class PineconeAssetSeederService {
 
         // Insert into database
         await storage.createAsset(assetData);
+        
+        // Retrieve the created asset to get its ID (UUID)
+        const createdAsset = await storage.getAssetBySymbol(asset.symbol);
+        if (!createdAsset) {
+          throw new Error(`Failed to retrieve created asset: ${asset.symbol}`);
+        }
+        
+        // Create market_data entry for trading system using asset.id (UUID), not symbol
+        const price = this.extractPriceFromAsset(asset);
+        await storage.createMarketData({
+          assetId: createdAsset.id,
+          timeframe: '1d',
+          periodStart: new Date(),
+          open: price.toString(),
+          high: (price * 1.02).toString(),
+          low: (price * 0.98).toString(),
+          close: price.toString(),
+          volume: Math.floor(1000 + Math.random() * 4000),
+          change: '0',
+          percentChange: '0'
+        });
+        
         inserted++;
 
         // Log progress every 10 assets

@@ -3,6 +3,7 @@ import { pineconeService } from "../services/pineconeService";
 import { openaiService } from "../services/openaiService";
 import { pineconeAssetExpansion } from "../services/pineconeAssetExpansion";
 import { pineconeAssetSeeder } from "../services/pineconeAssetSeeder";
+import { pineconeMarketDataMigration } from "../services/pineconeMarketDataMigration";
 
 const router = Router();
 
@@ -187,6 +188,40 @@ router.post("/seed-assets", async (req, res) => {
       errors: 1,
       processingTime: 0,
       errorDetails: [error instanceof Error ? error.message : "Seeding failed"]
+    });
+  }
+});
+
+/**
+ * Migrate market_data for existing Pinecone assets
+ * POST /api/pinecone/migrate-market-data
+ * 
+ * Finds all assets with metadata.pineconeId and creates market_data entries
+ * for those that don't have them yet, using pricing from asset metadata.
+ * 
+ * Returns: {
+ *   processed: number,    // Total Pinecone assets checked
+ *   created: number,      // New market_data entries created
+ *   skipped: number,      // Assets that already had market_data
+ *   errors: number,       // Number of failures
+ *   errorDetails?: string[]
+ * }
+ */
+router.post("/migrate-market-data", async (req, res) => {
+  try {
+    console.log('🔄 Starting Pinecone market_data migration...');
+    
+    const result = await pineconeMarketDataMigration.migrateMarketData();
+    
+    res.json(result);
+  } catch (error) {
+    console.error('❌ Market data migration error:', error);
+    res.status(500).json({ 
+      processed: 0,
+      created: 0,
+      skipped: 0,
+      errors: 1,
+      errorDetails: [error instanceof Error ? error.message : "Migration failed"]
     });
   }
 });
