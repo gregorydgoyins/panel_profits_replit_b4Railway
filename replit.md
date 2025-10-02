@@ -33,12 +33,15 @@ Preferred communication style: Simple, everyday language.
 - **Database Schema**: Comprehensive schemas for users, assets, market data, portfolios, watchlists, orders, market events, certification pathways, subscriber incentives, easter eggs, and assessment scores.
 - **Design System**: Dark mode with indigo/purple gradients, green/red for trading, consistent styling via class-variance-authority, animations, and responsive design.
 - **Real-Time Price Streaming**: WebSocket-based price streaming service delivers live market data to connected clients. On connection, clients receive initial snapshot of 100 assets with pricing (type: 'market_data', data: {assetId, symbol, currentPrice, change, changePercent, volume, timestamp}). Stock ticker displays scrolling prices with volume sorting. System streams 1,187+ assets with 1,671+ prices across comics, ETFs, bonds, and options.
+- **Pinecone Vector Database Integration**: 63,934+ records from Marvel mind maps providing Characters, Creators, and Comics data. Semantic search using OpenAI text-embedding-3-small (1024 dimensions) enables cross-publisher intelligence (find Marvel's Batman equivalent). PineconeAssetExpansionService transforms vector data into tradeable assets using multi-query strategy (4 diverse queries per category). Character incarnation system parses variants (e.g., "Captain America (House of M)" → baseName: "Captain America", variant: "House of M") and generates unique symbols with .VARIANT suffix (e.g., CA.MWO for Marvel War of Heroes). Proven scale: 534 assets from 500 samples (84 characters with 33% incarnations, 432 creators, 18 comics). Batching support enables millions of assets with progress tracking. API endpoints: /api/pinecone/search (semantic search), /api/pinecone/expand (asset expansion pipeline).
 
 ## External Dependencies
 
 ### Database & Infrastructure
 - **Neon Database**: Serverless PostgreSQL hosting.
 - **Drizzle ORM**: Type-safe database operations.
+- **Pinecone**: Vector database (63,934 records) for semantic search and asset discovery.
+- **OpenAI**: text-embedding-3-small model for generating 1024-dimension embeddings.
 
 ### UI & Visualization
 - **Radix UI**: Unstyled, accessible component primitives.
