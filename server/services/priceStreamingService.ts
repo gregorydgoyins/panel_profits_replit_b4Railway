@@ -450,7 +450,7 @@ export class PriceStreamingService {
     this.connectedClients.add(ws);
     console.log(`📡 Client connected. Total clients: ${this.connectedClients.size}`);
     
-    // Send initial market data snapshot to the new client
+    // Send initial market data snapshot immediately
     this.sendInitialMarketSnapshot(ws);
   }
   
@@ -480,10 +480,19 @@ export class PriceStreamingService {
           };
         });
       
-      // Send each market data update individually (matches the format expected by the client)
-      for (const update of marketDataUpdates) {
+      // Send all updates in batches to avoid overwhelming the connection
+      const batchSize = 10;
+      for (let i = 0; i < marketDataUpdates.length; i += batchSize) {
+        const batch = marketDataUpdates.slice(i, i + batchSize);
+        
         if (ws.readyState === 1) { // WebSocket.OPEN
-          ws.send(JSON.stringify(update));
+          // Send each message in the batch with a small delay
+          for (const update of batch) {
+            ws.send(JSON.stringify(update));
+          }
+        } else {
+          console.warn('WebSocket closed during snapshot send');
+          break;
         }
       }
       

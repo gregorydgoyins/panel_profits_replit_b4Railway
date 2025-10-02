@@ -2824,27 +2824,8 @@ Respond with valid JSON in this exact format:
     
     marketDataClients.add(ws);
     
-    // Add client to price streaming service
+    // Add client to price streaming service (this will send initial snapshot)
     priceStreamingService.addClient(ws);
-    
-    // Send initial market overview
-    marketSimulation.getMarketOverview().then(overview => {
-      if (ws.readyState !== 1) {
-        console.warn(`⚠️ WebSocket not in OPEN state (${ws.readyState}), skipping market overview send`);
-        return;
-      }
-      
-      const message = {
-        type: 'market_overview',
-        data: overview,
-        timestamp: new Date().toISOString()
-      };
-      
-      console.log(`📤 Sending initial market overview to client (${JSON.stringify(message).length} bytes)`);
-      safeWebSocketSend(ws, message);
-    }).catch(error => {
-      console.error('❌ Error getting market overview:', error);
-    });
     
     ws.on('message', (message) => {
       try {
