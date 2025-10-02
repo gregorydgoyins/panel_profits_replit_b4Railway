@@ -449,6 +449,48 @@ export class PriceStreamingService {
   addClient(ws: WebSocket): void {
     this.connectedClients.add(ws);
     console.log(`📡 Client connected. Total clients: ${this.connectedClients.size}`);
+    
+    // Send initial market data snapshot to the new client
+    this.sendInitialMarketSnapshot(ws);
+  }
+  
+  /**
+   * Send initial market data snapshot to a newly connected client
+   */
+  private sendInitialMarketSnapshot(ws: WebSocket): void {
+    try {
+      // Get all asset stream data and convert to market data updates
+      const marketDataUpdates = Array.from(this.assetStreams.entries())
+        .slice(0, 100) // Send top 100 assets initially
+        .map(([assetId, streamData]) => {
+          const change = streamData.currentPrice - streamData.dayOpen;
+          const changePercent = streamData.dayOpen > 0 ? (change / streamData.dayOpen) * 100 : 0;
+          
+          return {
+            type: 'market_data',
+            data: {
+              assetId,
+              symbol: streamData.asset.symbol,
+              currentPrice: streamData.currentPrice,
+              change,
+              changePercent,
+              volume: streamData.volume24h,
+              timestamp: new Date().toISOString()
+            }
+          };
+        });
+      
+      // Send each market data update individually (matches the format expected by the client)
+      for (const update of marketDataUpdates) {
+        if (ws.readyState === 1) { // WebSocket.OPEN
+          ws.send(JSON.stringify(update));
+        }
+      }
+      
+      console.log(`📊 Sent initial snapshot of ${marketDataUpdates.length} assets to new client`);
+    } catch (error) {
+      console.error('❌ Error sending initial market snapshot:', error);
+    }
   }
 
   /**
