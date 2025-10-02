@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { pineconeService } from "../services/pineconeService";
 import { openaiService } from "../services/openaiService";
+import { pineconeAssetExpansion } from "../services/pineconeAssetExpansion";
 
 const router = Router();
 
@@ -94,6 +95,29 @@ router.post("/fetch", async (req, res) => {
   } catch (error) {
     console.error('Pinecone fetch error:', error);
     res.status(500).json({ error: "Fetch failed" });
+  }
+});
+
+/**
+ * Expand Pinecone records into tradeable assets
+ * POST /api/pinecone/expand
+ * Body: { samplesPerCategory?: number }
+ */
+router.post("/expand", async (req, res) => {
+  try {
+    const { samplesPerCategory = 50 } = req.body;
+    
+    console.log(`🚀 Starting asset expansion with ${samplesPerCategory} samples per category...`);
+    
+    const result = await pineconeAssetExpansion.expandAssetDatabase(samplesPerCategory);
+    
+    res.json(result);
+  } catch (error) {
+    console.error('Asset expansion error:', error);
+    res.status(500).json({ 
+      success: false,
+      error: error instanceof Error ? error.message : "Expansion failed" 
+    });
   }
 });
 
