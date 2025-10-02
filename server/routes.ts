@@ -2813,8 +2813,8 @@ Respond with valid JSON in this exact format:
   wss.on('connection', (ws, req) => {
     console.log('📡 New WebSocket client connected for market data');
     
-    // Apply WebSocket close code sanitization to this connection
-    patchWebSocketWithSanitization(ws);
+    // TEMPORARILY DISABLED: Test if sanitization patch is causing immediate disconnect
+    // patchWebSocketWithSanitization(ws);
     
     // Setup heartbeat to keep connection alive
     (ws as any).isAlive = true;
@@ -2862,6 +2862,24 @@ Respond with valid JSON in this exact format:
             }
           }
           console.log(`📊 Client subscribed to ${data.assetIds.length} assets`);
+        }
+        
+        // Handle subscribe to top assets by volume
+        if (data.type === 'subscribe_top_assets') {
+          const count = typeof data.count === 'number' ? data.count : 100;
+          console.log(`📊 Client requesting top ${count} assets by volume`);
+          
+          // Get top assets and send as snapshot
+          priceStreamingService.sendMarketSnapshot(ws, count);
+          
+          // Also subscribe client to these assets for ongoing updates
+          const topAssets = priceStreamingService.getTopAssetsByVolume(count);
+          for (const asset of topAssets) {
+            ws.assetSubscriptions = ws.assetSubscriptions || new Set();
+            ws.assetSubscriptions.add(asset.assetId);
+            priceStreamingService.subscribeToAsset(ws, asset.assetId);
+          }
+          console.log(`📊 Client subscribed to top ${count} assets for live updates`);
         }
         
         // Handle ping/pong for connection keepalive

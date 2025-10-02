@@ -224,7 +224,8 @@ export class PriceStreamingService {
     const marketHours = this.getMarketHours();
     const updates: PriceUpdate[] = [];
     
-    for (const [assetId, streamData] of this.assetStreams) {
+    // Convert Map to array for iteration (fixes LSP error)
+    for (const [assetId, streamData] of Array.from(this.assetStreams.entries())) {
       // Skip if no subscribers for this asset
       const subscribers = this.assetSubscriptions.get(assetId);
       if (!subscribers || subscribers.size === 0) continue;
@@ -357,7 +358,8 @@ export class PriceStreamingService {
    * Generate and broadcast order book updates
    */
   private generateAndBroadcastOrderBooks(): void {
-    for (const [assetId, streamData] of this.assetStreams) {
+    // Convert Map to array for iteration (fixes LSP error)
+    for (const [assetId, streamData] of Array.from(this.assetStreams.entries())) {
       // Skip if no subscribers
       const subscribers = this.assetSubscriptions.get(assetId);
       if (!subscribers || subscribers.size === 0) continue;
@@ -449,61 +451,69 @@ export class PriceStreamingService {
   addClient(ws: WebSocket): void {
     this.connectedClients.add(ws);
     console.log(`📡 Client connected. Total clients: ${this.connectedClients.size}`);
-    console.log(`📡 WebSocket readyState: ${ws.readyState}`);
-    
-    // DEBUGGING: Don't send snapshot yet - just keep connection open
-    setTimeout(() => {
-      console.log(`📡 After 500ms, WebSocket readyState: ${ws.readyState}`);
-      if (ws.readyState === 1) {
-        console.log('✅ Connection still open after 500ms!');
-        // this.sendInitialMarketSnapshot(ws);
-      } else {
-        console.warn('⚠️ WebSocket closed before snapshot could be sent');
-      }
-    }, 500);
+    console.log(`📡 Connection idle - waiting for client subscription`);
   }
   
   /**
-   * Send initial market data snapshot to a newly connected client
+   * Get top assets by volume for subscription requests
+   * Returns top N most actively traded assets
    */
-  private sendInitialMarketSnapshot(ws: WebSocket): void {
-    try {
-      // Get all asset stream data and convert to market data array  
-      const marketDataArray = Array.from(this.assetStreams.entries())
-        .slice(0, 10) // Send top 10 assets initially (testing message size)
-        .map(([assetId, streamData]) => {
-          const change = streamData.currentPrice - streamData.dayOpen;
-          const changePercent = streamData.dayOpen > 0 ? (change / streamData.dayOpen) * 100 : 0;
-          
-          return {
-            assetId,
-            symbol: streamData.asset.symbol,
-            currentPrice: streamData.currentPrice,
-            change,
-            changePercent,
-            volume: streamData.volume24h,
-            timestamp: new Date().toISOString()
-          };
-        });
-      
-      // Send ALL market data in a SINGLE message with an array
-      if (ws.readyState === 1) { // WebSocket.OPEN
-        const snapshotMessage = {
-          type: 'market_data_snapshot',
-          data: marketDataArray
+  getTopAssetsByVolume(count: number = 100): any[] {
+    return Array.from(this.assetStreams.entries())
+      .sort(([, a], [, b]) => b.volume24h - a.volume24h)
+      .slice(0, count)
+      .map(([assetId, streamData]) => {
+        const change = streamData.currentPrice - streamData.dayOpen;
+        const changePercent = streamData.dayOpen > 0 ? (change / streamData.dayOpen) * 100 : 0;
+        
+        return {
+          assetId,
+          symbol: streamData.asset.symbol,
+          currentPrice: streamData.currentPrice,
+          change,
+          changePercent,
+          volume: streamData.volume24h,
+          timestamp: new Date().toISOString()
         };
-        
-        const messageString = JSON.stringify(snapshotMessage);
-        const messageSizeKB = (messageString.length / 1024).toFixed(2);
-        
-        console.log(`📊 Sending snapshot: ${marketDataArray.length} assets, ${messageSizeKB}KB`);
+      });
+  }
+
+  /**
+   * Send market data snapshot to a client (called via subscription)
+   * Sends top N most actively traded assets
+   */
+  sendMarketSnapshot(ws: WebSocket, count: number = 100): void {
+    try {
+      // Get top N assets by volume
+      const marketDataArray = this.getTopAssetsByVolume(count);
+      
+      // Verify WebSocket is still open before sending
+      if (ws.readyState !== 1) { // WebSocket.OPEN = 1
+        console.warn('⚠️ WebSocket not open (readyState: ' + ws.readyState + '), cannot send snapshot');
+        return;
+      }
+      
+      const snapshotMessage = {
+        type: 'market_data_snapshot',
+        data: marketDataArray
+      };
+      
+      const messageString = JSON.stringify(snapshotMessage);
+      const messageSizeKB = (messageString.length / 1024).toFixed(2);
+      
+      console.log(`📊 Sending snapshot: ${marketDataArray.length} assets, ${messageSizeKB}KB`);
+      
+      // Wrap send in try-catch for proper error handling
+      try {
         ws.send(messageString);
-        console.log(`✅ Snapshot sent successfully`);
-      } else {
-        console.warn('WebSocket not open, cannot send snapshot');
+        console.log(`✅ Snapshot sent successfully to client`);
+      } catch (sendError) {
+        console.error('❌ Error sending snapshot to client:', sendError);
+        // Remove client if send fails
+        this.removeClient(ws);
       }
     } catch (error) {
-      console.error('❌ Error sending initial market snapshot:', error);
+      console.error('❌ Error preparing market snapshot:', error);
     }
   }
 
@@ -513,8 +523,8 @@ export class PriceStreamingService {
   removeClient(ws: WebSocket): void {
     this.connectedClients.delete(ws);
     
-    // Remove from all asset subscriptions
-    for (const [assetId, subscribers] of this.assetSubscriptions) {
+    // Remove from all asset subscriptions (convert Map to array for iteration - fixes LSP error)
+    for (const [assetId, subscribers] of Array.from(this.assetSubscriptions.entries())) {
       subscribers.delete(ws);
       if (subscribers.size === 0) {
         this.assetSubscriptions.delete(assetId);
@@ -569,12 +579,13 @@ export class PriceStreamingService {
     if (!subscribers) return;
     
     const messageStr = JSON.stringify(message);
-    for (const client of subscribers) {
+    // Convert Set to array for iteration (fixes LSP error)
+    for (const client of Array.from(subscribers)) {
       if (client.readyState === 1) { // WebSocket.OPEN
         try {
           client.send(messageStr);
         } catch (error) {
-          console.error('Error broadcasting to client:', error);
+          console.error('❌ Error broadcasting to client:', error);
           this.removeClient(client);
         }
       }
@@ -586,12 +597,13 @@ export class PriceStreamingService {
    */
   private broadcastToAll(message: any): void {
     const messageStr = JSON.stringify(message);
-    for (const client of this.connectedClients) {
+    // Convert Set to array for iteration (fixes LSP error)
+    for (const client of Array.from(this.connectedClients)) {
       if (client.readyState === 1) { // WebSocket.OPEN
         try {
           client.send(messageStr);
         } catch (error) {
-          console.error('Error broadcasting to client:', error);
+          console.error('❌ Error broadcasting to client:', error);
           this.removeClient(client);
         }
       }
@@ -607,7 +619,8 @@ export class PriceStreamingService {
     totalSubscriptions: number;
   } {
     let totalSubscriptions = 0;
-    for (const subscribers of this.assetSubscriptions.values()) {
+    // Convert Map values to array for iteration (fixes LSP error)
+    for (const subscribers of Array.from(this.assetSubscriptions.values())) {
       totalSubscriptions += subscribers.size;
     }
     

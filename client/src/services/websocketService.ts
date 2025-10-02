@@ -124,11 +124,32 @@ class WebSocketService {
       this.ws = new WebSocket(wsUrl);
 
       this.ws.onopen = () => {
-        console.log('✅ WebSocket connected successfully');
+        console.log('✅ WebSocket connected successfully, readyState:', this.ws?.readyState);
         this.isConnecting = false;
         this.reconnectAttempts = 0;
         this.startHeartbeat();
-        this.emit('connection', { status: 'connected' });
+        
+        // Use requestAnimationFrame to ensure WebSocket is fully ready before sending
+        requestAnimationFrame(() => {
+          if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+            console.log('📡 Subscribing to top 100 assets... readyState:', this.ws.readyState);
+            try {
+              const message = JSON.stringify({
+                type: 'subscribe_top_assets',
+                count: 100
+              });
+              console.log('📡 Sending subscription message:', message);
+              this.ws.send(message);
+              console.log('✅ Subscription request sent successfully');
+            } catch (error) {
+              console.error('❌ Error sending subscription:', error);
+            }
+          } else {
+            console.warn('⚠️ WebSocket not open in requestAnimationFrame, readyState:', this.ws?.readyState);
+          }
+          
+          this.emit('connection', { status: 'connected' });
+        });
       };
 
       this.ws.onmessage = (event) => {
@@ -149,13 +170,15 @@ class WebSocketService {
         this.stopHeartbeat();
         this.emit('connection', { status: 'disconnected' });
         
-        // Only reconnect on abnormal closures (not 1000) and not on Vite HMR issues (1006)
-        // 1006 is typically Vite HMR - don't aggressively reconnect
-        if (event.code !== 1000 && event.code !== 1006 && this.reconnectAttempts < this.maxReconnectAttempts) {
+        // Reconnect on abnormal closures (not 1000 - normal closure)
+        // For code 1006 (abnormal closure), try to reconnect a few times
+        if (event.code !== 1000 && this.reconnectAttempts < this.maxReconnectAttempts) {
+          console.log(`🔄 Connection closed abnormally (code: ${event.code}), will attempt reconnect...`);
           this.scheduleReconnect();
-        } else if (event.code === 1006 && this.reconnectAttempts === 0) {
-          // On first 1006 error, try once more after longer delay
-          console.log('⚠️ WebSocket closed abnormally (HMR issue) - will not auto-reconnect');
+        } else if (event.code === 1000) {
+          console.log('✅ WebSocket closed normally');
+        } else {
+          console.log('❌ Max reconnection attempts reached for abnormal closure');
         }
       };
 
@@ -278,11 +301,17 @@ class WebSocketService {
    */
   subscribeToAsset(assetId: string): void {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify({
-        type: 'subscribe_asset',
-        assetId: assetId
-      }));
-      console.log('📡 Subscribed to asset updates:', assetId);
+      try {
+        this.ws.send(JSON.stringify({
+          type: 'subscribe_asset',
+          assetId: assetId
+        }));
+        console.log('📡 Subscribed to asset updates:', assetId);
+      } catch (error) {
+        console.error('❌ Error subscribing to asset:', error);
+      }
+    } else {
+      console.warn('⚠️ WebSocket not open, cannot subscribe to asset');
     }
   }
   
@@ -291,11 +320,17 @@ class WebSocketService {
    */
   subscribeToAssets(assetIds: string[]): void {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify({
-        type: 'subscribe_assets',
-        assetIds: assetIds
-      }));
-      console.log(`📡 Subscribed to ${assetIds.length} assets`);
+      try {
+        this.ws.send(JSON.stringify({
+          type: 'subscribe_assets',
+          assetIds: assetIds
+        }));
+        console.log(`📡 Subscribed to ${assetIds.length} assets`);
+      } catch (error) {
+        console.error('❌ Error subscribing to assets:', error);
+      }
+    } else {
+      console.warn('⚠️ WebSocket not open, cannot subscribe to assets (readyState:', this.ws?.readyState, ')');
     }
   }
 
@@ -317,11 +352,17 @@ class WebSocketService {
    */
   subscribeToPortfolio(portfolioId: string): void {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify({
-        type: 'subscribe_portfolio',
-        data: { portfolioId }
-      }));
-      console.log('📡 Subscribed to portfolio updates:', portfolioId);
+      try {
+        this.ws.send(JSON.stringify({
+          type: 'subscribe_portfolio',
+          data: { portfolioId }
+        }));
+        console.log('📡 Subscribed to portfolio updates:', portfolioId);
+      } catch (error) {
+        console.error('❌ Error subscribing to portfolio:', error);
+      }
+    } else {
+      console.warn('⚠️ WebSocket not open, cannot subscribe to portfolio');
     }
   }
 
