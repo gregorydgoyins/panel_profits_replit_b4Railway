@@ -61,7 +61,7 @@ interface PricingResult {
   };
 }
 
-class UnifiedPricingEngine {
+export class UnifiedPricingEngine {
   private readonly MIN_PRICE = 50;
   private readonly MAX_PRICE = 6000;
   
@@ -400,6 +400,114 @@ class UnifiedPricingEngine {
    */
   getCreatorTierInfo(tier: number): string {
     return this.creatorTiers[tier]?.description || 'Unknown tier';
+  }
+
+  /**
+   * Generate Pokemon pricing
+   */
+  generatePokemonPricing(data: { name: string; type1: string; type2?: string; evolution?: string }) {
+    // Determine tier based on evolution status and type
+    let tier: 1 | 2 | 3 | 4 = 3;
+    if (data.evolution && data.evolution !== data.name) {
+      // Has evolution - higher tier
+      tier = 2;
+    }
+    if (data.type2) {
+      // Dual type - slightly higher value
+      tier = Math.max(1, tier - 1) as 1 | 2 | 3 | 4;
+    }
+
+    return this.calculatePrice({
+      assetType: 'character',
+      name: data.name,
+      era: 'modern',
+      franchiseTier: tier,
+      keyAppearances: 0
+    });
+  }
+
+  /**
+   * Generate Funko Pop pricing
+   */
+  generateFunkoPricing(data: { title: string; retailPrice: number; franchise: string; interests: string[] }) {
+    // Determine tier based on franchise and interests
+    let tier: 1 | 2 | 3 | 4 = 4;
+    
+    const popularFranchises = ['Marvel', 'DC Comics', 'Star Wars', 'Disney', 'Harry Potter'];
+    if (popularFranchises.some(f => data.franchise.includes(f))) {
+      tier = 2;
+    }
+    
+    if (data.interests.includes('Ad Icons') || data.interests.includes('Icons')) {
+      tier = 1;
+    }
+
+    // Use retail price to influence market value
+    const baseValue = data.retailPrice * 10000; // Scale up retail price
+
+    return this.calculatePrice({
+      assetType: 'character',
+      name: data.title,
+      era: 'modern',
+      franchiseTier: tier,
+      keyAppearances: Math.floor(data.retailPrice / 5)
+    });
+  }
+
+  /**
+   * Generate Manga pricing
+   */
+  generateMangaPricing(data: { title: string; salesMillions?: number; volumes?: number; rating?: number; year?: number }) {
+    const year = data.year || 2000;
+    const era = this.determineEra(year, true);
+    
+    // Determine tier based on sales
+    let tier: 1 | 2 | 3 | 4 = 3;
+    if (data.salesMillions) {
+      if (data.salesMillions > 100) tier = 1; // 100M+ (One Piece, Dragon Ball)
+      else if (data.salesMillions > 20) tier = 2; // 20M+ 
+      else if (data.salesMillions > 5) tier = 3; // 5M+
+      else tier = 4;
+    } else if (data.rating) {
+      if (data.rating > 8.5) tier = 2;
+      else if (data.rating > 7.5) tier = 3;
+      else tier = 4;
+    }
+
+    return this.calculatePrice({
+      assetType: 'manga',
+      name: data.title,
+      era,
+      region: 'japan',
+      franchiseTier: tier,
+      keyAppearances: data.volumes || 0
+    });
+  }
+
+  /**
+   * Generate Movie pricing
+   */
+  generateMoviePricing(data: { title: string; imdbScore: number; metascore: number; usaGross: number; category: string }) {
+    // Determine tier based on box office and scores
+    let tier: 1 | 2 | 3 | 4 = 3;
+    
+    if (data.usaGross > 500000000) tier = 1; // $500M+ blockbuster
+    else if (data.usaGross > 200000000) tier = 2; // $200M+ hit
+    else if (data.usaGross > 100000000) tier = 3; // $100M+ success
+    else tier = 4;
+
+    // Adjust based on scores
+    if (data.imdbScore > 8.0 || data.metascore > 80) {
+      tier = Math.max(1, tier - 1) as 1 | 2 | 3 | 4;
+    }
+
+    return this.calculatePrice({
+      assetType: 'comic',
+      name: data.title,
+      era: 'modern',
+      franchiseTier: tier,
+      keyAppearances: Math.floor(data.usaGross / 10000000) // Use gross as popularity proxy
+    });
   }
 }
 
