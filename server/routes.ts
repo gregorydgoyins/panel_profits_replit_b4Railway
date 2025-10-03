@@ -73,7 +73,7 @@ import {
   assets as assetsTable
 } from "@shared/schema";
 import { z } from "zod";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { entitySeedingService } from "./services/entitySeedingService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
