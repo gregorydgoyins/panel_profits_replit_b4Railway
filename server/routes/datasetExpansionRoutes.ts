@@ -4,6 +4,7 @@ import { FunkoExpansionService } from '../services/funkoExpansion';
 import { MangaExpansionService } from '../services/mangaExpansion';
 import { MovieExpansionService } from '../services/movieExpansion';
 import { LeagueOfComicGeeksExpansionService } from '../services/leagueOfComicGeeksExpansion';
+import { KaggleRound2ExpansionService } from '../services/kaggleRound2Expansion';
 
 const router = Router();
 
@@ -11,6 +12,7 @@ const pokemonService = new PokemonExpansionService();
 const funkoService = new FunkoExpansionService();
 const mangaService = new MangaExpansionService();
 const movieService = new MovieExpansionService();
+const kaggleR2Service = new KaggleRound2ExpansionService();
 const leagueService = process.env.LEAGUE_OF_COMIC_GEEKS_SESSION 
   ? new LeagueOfComicGeeksExpansionService(process.env.LEAGUE_OF_COMIC_GEEKS_SESSION)
   : null;
@@ -77,6 +79,16 @@ router.post('/league/expand-all', async (req, res) => {
       return res.status(400).json({ error: 'LEAGUE_OF_COMIC_GEEKS_SESSION not configured' });
     }
     const result = await leagueService.expandAssets();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+  }
+});
+
+// Kaggle Round 2 expansion (indie comics, dbz, anime, genshin, honkai)
+router.post('/kaggle-round-2/expand-all', async (req, res) => {
+  try {
+    const result = await kaggleR2Service.processAll();
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });

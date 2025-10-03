@@ -222,7 +222,7 @@ class TierClassificationService {
    * Check if character name indicates a variant
    */
   private isVariantCharacter(name: string): boolean {
-    if (!name) return false;
+    if (!name || typeof name !== 'string') return false;
     
     const variantIndicators = [
       'ultimate', 'house of m', '2099', 'noir', 'zombies',
