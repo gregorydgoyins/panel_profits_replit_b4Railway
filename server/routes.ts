@@ -31,6 +31,7 @@ import pineconeRoutes from "./routes/pinecone.js";
 import comicVineRoutes from "./routes/comicVineRoutes.js";
 import marvelRoutes from "./routes/marvelRoutes.js";
 import dcRoutes from "./routes/dcRoutes.js";
+import kaggleComicsRoutes from "./routes/kaggleComicsRoutes.js";
 import { marketSimulation, orderMatching } from "./marketSimulation.js";
 import { leaderboardService } from "./leaderboardService.js";
 import { priceStreamingService } from "./services/priceStreamingService.js";
@@ -1821,6 +1822,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // DC multi-source expansion routes (Metron + GCD)
   app.use("/api/dc", dcRoutes);
+
+  // Kaggle Comics expansion routes (Marvel + DC datasets)
+  app.use("/api/kaggle-comics", kaggleComicsRoutes);
 
   // Houses System Routes (Seven Mythological Houses)
   app.use("/api/houses", housesRoutes);
