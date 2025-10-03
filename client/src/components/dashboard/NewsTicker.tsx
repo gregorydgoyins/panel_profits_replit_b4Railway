@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { ExternalLink } from 'lucide-react';
 import { useState } from 'react';
+import { usePollingInterval } from '@/hooks/usePollingInterval';
 
 interface NewsItem {
   id: string;
@@ -12,12 +13,21 @@ interface NewsItem {
 
 export function NewsTicker() {
   const [isPaused, setIsPaused] = useState(false);
+  const pollingInterval = usePollingInterval();
   
-  // Fetch real news from RSS feeds
-  const { data: news = [], isLoading } = useQuery<NewsItem[]>({
-    queryKey: ['/api/news/rss'],
-    refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes
+  // Fetch real news from RSS feeds with tier-based polling
+  const { data: news = [], isLoading, error } = useQuery<NewsItem[]>({
+    queryKey: ['/api/news/rss', `tier-${pollingInterval}`],
+    refetchInterval: pollingInterval,
+    refetchIntervalInBackground: true,
+    staleTime: 0, // Always fetch fresh data on interval
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
+  
+  if (error) {
+    console.error('Failed to fetch news:', error);
+  }
   
   // Duplicate news items for seamless loop
   const tickerItems = news.length > 0 ? [...news, ...news] : [];
