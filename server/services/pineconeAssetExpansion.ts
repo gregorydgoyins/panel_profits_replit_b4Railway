@@ -254,9 +254,9 @@ export class PineconeAssetExpansionService {
   /**
    * Generate asset symbol from name
    * For variants, includes variant suffix: "CAP.HOM" for "Captain America (House of M)"
-   * Adds unique suffix to prevent collisions
+   * Adds deterministic hash suffix to prevent collisions while maintaining idempotency
    */
-  generateAssetSymbol(name: string, variant?: string | null): string {
+  generateAssetSymbol(name: string, variant?: string | null, pineconeId?: string): string {
     // Parse base name and variant if not provided
     const parsed = variant !== undefined ? 
       { baseName: name, variant } : 
@@ -279,9 +279,17 @@ export class PineconeAssetExpansionService {
       baseSymbol = `${baseSymbol}.${variantSuffix}`;
     }
     
-    // Add unique 6-character suffix to prevent collisions
-    const uniqueSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
-    return `${baseSymbol || 'ASSET'}.${uniqueSuffix}`;
+    // Add deterministic hash suffix to prevent collisions
+    // Uses normalized name + variant + pineconeId for deterministic uniqueness
+    const hashInput = `${parsed.baseName.toLowerCase()}|${parsed.variant?.toLowerCase() || ''}|${pineconeId || ''}`;
+    let hash = 0;
+    for (let i = 0; i < hashInput.length; i++) {
+      hash = ((hash << 5) - hash) + hashInput.charCodeAt(i);
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    const hashSuffix = Math.abs(hash).toString(36).substring(0, 6).toUpperCase();
+    
+    return `${baseSymbol || 'ASSET'}.${hashSuffix}`;
   }
 
   /**
@@ -312,7 +320,7 @@ export class PineconeAssetExpansionService {
         name: incarnation.fullName,
         baseName: incarnation.baseName,
         variant: incarnation.variant,
-        symbol: this.generateAssetSymbol(incarnation.baseName, incarnation.variant),
+        symbol: this.generateAssetSymbol(incarnation.baseName, incarnation.variant, record.id),
         category: 'CHARACTER',
         metadata: {
           pineconeId: record.id,
@@ -332,8 +340,8 @@ export class PineconeAssetExpansionService {
         ? this.extractCreatorName(record.metadata.filename)
         : record.id,
       symbol: record.metadata.filename
-        ? this.generateAssetSymbol(this.extractCreatorName(record.metadata.filename))
-        : this.generateAssetSymbol(record.id),
+        ? this.generateAssetSymbol(this.extractCreatorName(record.metadata.filename), null, record.id)
+        : this.generateAssetSymbol(record.id, null, record.id),
       category: 'CREATOR',
       metadata: {
         pineconeId: record.id,
@@ -348,8 +356,8 @@ export class PineconeAssetExpansionService {
       type: 'comic',
       name: record.metadata.name || record.id,
       symbol: record.metadata.name
-        ? this.generateAssetSymbol(record.metadata.name)
-        : this.generateAssetSymbol(record.id),
+        ? this.generateAssetSymbol(record.metadata.name, null, record.id)
+        : this.generateAssetSymbol(record.id, null, record.id),
       category: 'COMIC',
       metadata: {
         pineconeId: record.id,
