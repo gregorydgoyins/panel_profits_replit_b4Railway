@@ -601,19 +601,27 @@ export class PineconeAssetExpansionService {
 
       console.log(`📦 Retrieved ${allVectors.length} vectors from Pinecone`);
 
-      // Step 2: Separate by category
+      // Debug: Log sample metadata to understand structure
+      if (allVectors.length > 0) {
+        console.log('🔍 Sample vector metadata:', JSON.stringify(allVectors[0].metadata, null, 2));
+        console.log('🔍 Sample vector ID:', allVectors[0].id);
+      }
+
+      // Step 2: Separate by category using ID prefixes
       const characters: PineconeRecord[] = [];
       const creators: PineconeRecord[] = [];
       const comics: PineconeRecord[] = [];
 
       for (const vector of allVectors) {
-        const category = vector.metadata?.category;
+        const id = vector.id || '';
+        const metadata = vector.metadata || {};
         
-        if (category === 'Characters') {
+        // Use ID prefixes to categorize (characters_, creators_, comics_, stories_)
+        if (id.startsWith('characters_')) {
           characters.push({ id: vector.id, metadata: vector.metadata });
-        } else if (category === 'Creators') {
+        } else if (id.startsWith('creators_')) {
           creators.push({ id: vector.id, metadata: vector.metadata });
-        } else if (vector.metadata?.type === 'comics' || vector.id.startsWith('comics_')) {
+        } else if (id.startsWith('comics_') || id.startsWith('stories_')) {
           comics.push({ id: vector.id, metadata: vector.metadata });
         }
       }

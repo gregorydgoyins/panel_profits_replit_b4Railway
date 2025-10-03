@@ -201,8 +201,8 @@ class PineconeService {
         return [];
       }
 
-      // Step 2: Fetch in batches of 1000
-      const batchSize = 1000;
+      // Step 2: Fetch in batches of 100 (URL length limit)
+      const batchSize = 100;
       const allVectors: any[] = [];
       
       for (let i = 0; i < allIds.length; i += batchSize) {

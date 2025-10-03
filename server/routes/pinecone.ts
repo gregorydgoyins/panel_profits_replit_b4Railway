@@ -4,6 +4,7 @@ import { openaiService } from "../services/openaiService";
 import { pineconeAssetExpansion } from "../services/pineconeAssetExpansion";
 import { pineconeAssetSeeder } from "../services/pineconeAssetSeeder";
 import { pineconeMarketDataMigration } from "../services/pineconeMarketDataMigration";
+import { assetInsertionService } from "../services/assetInsertionService";
 
 const router = Router();
 
@@ -246,9 +247,7 @@ router.post("/seed-all-vectors", async (req, res) => {
 
     console.log(`💾 Starting bulk insertion of ${allAssets.length} assets...`);
     
-    // Import assetInsertionService here to avoid circular dependency
-    const { assetInsertionService } = await import('../services/assetInsertionService');
-    const insertionResult = await assetInsertionService.bulkInsertAssets(allAssets, batchSize);
+    const insertionResult = await assetInsertionService.insertPricedAssets(allAssets, batchSize);
 
     const processingTime = Date.now() - startTime;
     
