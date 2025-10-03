@@ -360,10 +360,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* News Ticker */}
-      <NewsTicker />
-
-      {/* Stock Ticker - DISABLED - Will re-enable after asset expansion */}
+      {/* All tickers DISABLED per user request - stopping everything */}
+      {/* <NewsTicker /> */}
       {/* <StockTicker /> */}
 
       {/* World Clocks - Global market hours under stock ticker */}
