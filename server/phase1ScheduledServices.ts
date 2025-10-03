@@ -260,7 +260,7 @@ export class Phase1ScheduledServices {
             const shortfall = maintenanceMargin - marginEquity;
             
             // Update account status and issue margin call
-            await storage.updateMarginAccount(account.id, {
+            await storage.updateMarginAccount(account.userId, account.portfolioId, {
               marginCallDate: new Date(),
               marginCallAmount: shortfall.toString(),
               accountStatus: 'margin_call'

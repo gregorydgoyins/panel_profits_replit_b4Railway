@@ -10,8 +10,8 @@ echo ""
 while true; do
   echo "$(date '+%H:%M:%S') ✅ Starting cover-beast..."
   
-  # Start cover-beast in background
-  npx tsx scripts/cover-beast.ts > data/beast.log 2>&1 &
+  # Start cover-beast in background (from project root)
+  npx tsx scripts/cover-beast.ts > /tmp/beast.log 2>&1 &
   BEAST_PID=$!
   
   echo "$(date '+%H:%M:%S') 📋 PID: $BEAST_PID"
