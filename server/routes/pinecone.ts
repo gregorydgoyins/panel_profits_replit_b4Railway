@@ -5,6 +5,7 @@ import { pineconeAssetExpansion } from "../services/pineconeAssetExpansion";
 import { pineconeAssetSeeder } from "../services/pineconeAssetSeeder";
 import { pineconeMarketDataMigration } from "../services/pineconeMarketDataMigration";
 import { assetInsertionService } from "../services/assetInsertionService";
+import { kaggleAssetExpansion } from "../services/kaggleAssetExpansion";
 
 const router = Router();
 
@@ -313,6 +314,65 @@ router.post("/migrate-market-data", async (req, res) => {
       skipped: 0,
       errors: 1,
       errorDetails: [error instanceof Error ? error.message : "Migration failed"]
+    });
+  }
+});
+
+/**
+ * Kaggle asset expansion - Process ALL 23,272 characters exhaustively
+ * POST /api/kaggle/expand-all
+ * 
+ * Mines FiveThirtyEight dataset (marvel-characters.csv + dc-characters.csv)
+ * to create tradeable assets from characters, teams, series, and creators.
+ * 
+ * Expected yield: 100K-300K assets from character metadata extraction
+ * 
+ * Returns: {
+ *   charactersProcessed: number,
+ *   teamsGenerated: number,
+ *   seriesGenerated: number,
+ *   totalAssetsGenerated: number,
+ *   insertionResults: { inserted, skipped, errors },
+ *   processingTime: string,
+ *   errors: string[]
+ * }
+ */
+router.post("/kaggle/expand-all", async (req, res) => {
+  try {
+    console.log('═══════════════════════════════════════');
+    console.log('🚀 KAGGLE EXPANSION: Processing ALL 23,272 characters');
+    console.log('═══════════════════════════════════════');
+    
+    const startTime = Date.now();
+    const result = await kaggleAssetExpansion.expandAllCharacters();
+    const processingTime = Date.now() - startTime;
+    
+    console.log('✅ KAGGLE EXPANSION COMPLETE');
+    console.log(`📊 Characters: ${result.charactersProcessed}`);
+    console.log(`📊 Teams: ${result.teamsGenerated}`);
+    console.log(`📊 Series: ${result.seriesGenerated}`);
+    console.log(`📊 Total assets: ${result.totalAssetsGenerated}`);
+    console.log(`✅ Inserted: ${result.insertionResults.inserted}`);
+    console.log(`⏭️  Skipped: ${result.insertionResults.skipped}`);
+    console.log(`❌ Errors: ${result.insertionResults.errors}`);
+    console.log(`⏱️  Time: ${(processingTime / 1000).toFixed(2)}s`);
+    console.log('═══════════════════════════════════════');
+    
+    res.json({
+      success: true,
+      ...result,
+      processingTime
+    });
+  } catch (error) {
+    console.error('❌ Kaggle expansion error:', error);
+    res.status(500).json({
+      success: false,
+      charactersProcessed: 0,
+      teamsGenerated: 0,
+      seriesGenerated: 0,
+      totalAssetsGenerated: 0,
+      insertionResults: { inserted: 0, skipped: 0, errors: 1 },
+      errors: [error instanceof Error ? error.message : 'Unknown error']
     });
   }
 });
