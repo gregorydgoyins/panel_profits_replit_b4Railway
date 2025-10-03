@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { useLocation } from 'wouter';
+import { usePollingInterval } from '@/hooks/usePollingInterval';
 
 interface TickerAsset {
   assetId: string;
@@ -32,15 +33,23 @@ export function StockTicker() {
   const [isPaused, setIsPaused] = useState(false);
   const [, setLocation] = useLocation();
   
-  // Poll market data snapshot endpoint
-  // TODO: Make refetchInterval configurable based on subscription tier
-  // Free: 300000 (5min), Basic: 60000 (1min), Premium: 15000 (15s), Pro: 5000 (5s)
-  const { data: snapshot, isLoading } = useQuery<MarketSnapshot>({
-    queryKey: ['/api/market-data/snapshot'],
-    refetchInterval: 60000, // 1 minute polling (Basic tier default)
+  // Get polling interval based on subscription tier
+  const pollingInterval = usePollingInterval();
+  
+  // Poll market data snapshot endpoint with tier-based delays
+  const { data: snapshot, isLoading, error } = useQuery<MarketSnapshot>({
+    queryKey: ['/api/market-data/snapshot', `tier-${pollingInterval}`], // Separate cache per tier
+    refetchInterval: pollingInterval,
     refetchIntervalInBackground: true,
     staleTime: 0, // Always fetch fresh data on interval
+    retry: 3, // Retry failed requests
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
+
+  // Log errors for debugging
+  if (error) {
+    console.error('Failed to fetch market snapshot:', error);
+  }
 
   // Convert snapshot data to TickerAsset format
   const topAssets = useMemo((): TickerAsset[] => {

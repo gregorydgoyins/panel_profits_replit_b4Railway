@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocation } from 'wouter';
+import { usePollingInterval } from '@/hooks/usePollingInterval';
 
 interface Position {
   id: string;
@@ -38,6 +39,7 @@ export function PositionMonitorWidget() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [sortBy, setSortBy] = useState<SortOption>('pnlPercent');
+  const pollingInterval = usePollingInterval();
 
   const { data: userPortfolios } = useQuery<any[]>({
     queryKey: ['/api/portfolios', 'user', user?.id],
@@ -46,11 +48,17 @@ export function PositionMonitorWidget() {
 
   const defaultPortfolio = userPortfolios?.[0];
 
-  const { data: holdings = [], isLoading } = useQuery<any[]>({
-    queryKey: ['/api/portfolios', defaultPortfolio?.id, 'holdings'],
+  const { data: holdings = [], isLoading, error } = useQuery<any[]>({
+    queryKey: ['/api/portfolios', defaultPortfolio?.id, 'holdings', `tier-${pollingInterval}`],
     enabled: !!defaultPortfolio?.id,
-    refetchInterval: 60000, // Poll every minute for price updates
+    refetchInterval: pollingInterval,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
+
+  if (error) {
+    console.error('Failed to fetch holdings:', error);
+  }
 
   // Transform to positions (data already includes current prices from API)
   const positions: Position[] = useMemo(() => {

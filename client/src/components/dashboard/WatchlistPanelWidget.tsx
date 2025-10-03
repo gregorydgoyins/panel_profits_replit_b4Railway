@@ -12,6 +12,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useLocation } from 'wouter';
+import { usePollingInterval } from '@/hooks/usePollingInterval';
 
 interface WatchlistAsset {
   id: string;
@@ -29,11 +30,18 @@ export function WatchlistPanelWidget() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [searchTerm, setSearchTerm] = useState('');
+  const pollingInterval = usePollingInterval();
 
-  const { data: watchlists, isLoading } = useQuery<any[]>({ 
-    queryKey: ['/api/watchlists'],
-    refetchInterval: 60000 // Poll every minute for updates
+  const { data: watchlists, isLoading, error } = useQuery<any[]>({ 
+    queryKey: ['/api/watchlists', `tier-${pollingInterval}`],
+    refetchInterval: pollingInterval,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
+
+  if (error) {
+    console.error('Failed to fetch watchlists:', error);
+  }
 
   const currentWatchlist = watchlists?.[0];
 
