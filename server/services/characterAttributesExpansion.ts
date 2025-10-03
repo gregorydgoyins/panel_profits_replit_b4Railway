@@ -44,6 +44,21 @@ interface SuperheroRow {
 }
 
 export class CharacterAttributesExpansionService {
+  private safeParseArray(value: string | null | undefined): string[] {
+    if (!value || value === '[]' || value === "['']") return [];
+    try {
+      // Handle Python-style lists with single quotes
+      const cleaned = value
+        .replace(/\['/g, '["')
+        .replace(/'\]/g, '"]')
+        .replace(/', '/g, '", "')
+        .replace(/','/g, '","');
+      return JSON.parse(cleaned);
+    } catch {
+      return [];
+    }
+  }
+
   async processSuperheroesDataset(csvPath: string): Promise<{ updated: number; notFound: number; errors: number }> {
     const csvContent = readFileSync(csvPath, 'utf-8');
     const records: SuperheroRow[] = parse(csvContent, {
@@ -89,12 +104,12 @@ export class CharacterAttributesExpansionService {
           },
           
           // Powers
-          superpowers: row.superpowers ? JSON.parse(row.superpowers.replace(/'/g, '"')) : [],
+          superpowers: this.safeParseArray(row.superpowers),
           powers: powers,
           
           // Identity
-          alterEgos: row.alter_egos ? JSON.parse(row.alter_egos.replace(/'/g, '"')) : [],
-          aliases: row.aliases ? JSON.parse(row.aliases.replace(/'/g, '"')) : [],
+          alterEgos: this.safeParseArray(row.alter_egos),
+          aliases: this.safeParseArray(row.aliases),
           
           // Background
           placeOfBirth: row.place_of_birth || null,
@@ -105,7 +120,7 @@ export class CharacterAttributesExpansionService {
           // Occupation & Affiliations
           occupation: row.occupation || null,
           base: row.base || null,
-          teams: row.teams ? JSON.parse(row.teams.replace(/'/g, '"')) : [],
+          teams: this.safeParseArray(row.teams),
           relatives: row.relatives || null,
           
           // Physical
