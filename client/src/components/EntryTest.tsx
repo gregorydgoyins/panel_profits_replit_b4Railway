@@ -38,13 +38,8 @@ export default function EntryTest({ onComplete }: EntryTestProps) {
     { responses: Array<{ scenarioId: string; choiceId: string; responseTime: number }> }
   >({
     mutationFn: async (testData) => {
-      return apiRequest('/api/entry-test/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(testData),
-      });
+      const response = await apiRequest('POST', '/api/entry-test/submit', testData);
+      return response.json();
     },
     onSuccess: (data) => {
       onComplete({
