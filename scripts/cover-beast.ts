@@ -3,33 +3,33 @@ import { db } from '../server/databaseStorage.js';
 import { assets } from '../shared/schema.js';
 import { sql, isNull } from 'drizzle-orm';
 
-// KEEP ALIVE
 setInterval(() => {}, 1000);
 
 async function beastMode() {
-  console.log('🦁 COVER BEAST MODE - AGGRESSIVE FETCHING\n');
+  console.log('🦁 COVER BEAST - BATCHED SQL (FIXED)\n');
   
   let total = 0;
   const start = Date.now();
   
   while (true) {
     try {
-      // Get batch without covers
       const batch = await db.select()
         .from(assets)
         .where(isNull(assets.coverImageUrl))
-        .limit(200);
+        .limit(500);
       
       if (batch.length === 0) {
-        console.log('✅ ALL ASSETS HAVE COVERS! Waiting...');
+        console.log('✅ ALL COVERED!');
         await new Promise(r => setTimeout(r, 30000));
         continue;
       }
       
-      // Process batch FAST
-      const updates: Promise<any>[] = [];
+      // Build CASE statement with properly quoted IDs
+      const cases: string[] = [];
+      const ids: string[] = [];
       
       for (const a of batch) {
+        ids.push(`'${a.id}'`);
         let url: string;
         
         if (a.type === 'character') {
@@ -42,28 +42,29 @@ async function beastMode() {
           url = `https://via.placeholder.com/400x600/801336/ee4540?text=${txt}`;
         }
         
-        updates.push(
-          db.update(assets)
-            .set({ coverImageUrl: url })
-            .where(sql`id = ${a.id}`)
-        );
+        cases.push(`WHEN '${a.id}' THEN '${url.replace(/'/g, "''")}'`);
       }
       
-      await Promise.all(updates);
-      total += batch.length;
+      const updateSQL = `
+        UPDATE assets 
+        SET cover_image_url = CASE id 
+          ${cases.join(' ')}
+        END
+        WHERE id IN (${ids.join(',')})
+      `;
       
+      await db.execute(sql.raw(updateSQL));
+      
+      total += batch.length;
       const rate = (total / ((Date.now() - start) / 1000)).toFixed(1);
-      console.log(`🔥 ${total.toLocaleString()} covers | ${rate}/s | Batch: ${batch.length}`);
+      const mb = (process.memoryUsage().rss / 1024 / 1024).toFixed(0);
+      console.log(`🔥 ${total.toLocaleString()} | ${rate}/s | ${mb}MB | ${batch.length}`);
       
     } catch (e: any) {
-      console.error(`❌ ERROR: ${e.message}`);
+      console.error(`❌ ${e.message}`);
       await new Promise(r => setTimeout(r, 3000));
     }
   }
 }
 
-// START
-beastMode().catch(err => {
-  console.error(`FATAL: ${err.message}`);
-  console.error(err.stack);
-});
+beastMode();
