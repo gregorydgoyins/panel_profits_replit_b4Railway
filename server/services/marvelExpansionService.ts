@@ -300,35 +300,41 @@ export class MarvelExpansionService {
     
     // Classify tier based on appearance count
     const appearanceCount = character.comics.available + character.stories.available;
-    const tier = tierClassificationService.classifyCharacter({
+    const classification = tierClassificationService.classifyCharacter({
       name,
       appearances: appearanceCount,
-      franchise: 'Marvel',
       publisher: 'Marvel'
     });
+    const tier = classification.tier;
 
     // Build image URL
     const imageUrl = character.thumbnail && character.thumbnail.path !== 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available'
       ? `${character.thumbnail.path}.${character.thumbnail.extension}`
       : undefined;
 
+    // Determine era from modified date
+    const debutYear = new Date(character.modified).getFullYear();
+    const era = debutYear <= 1955 ? 'golden' as const :
+                debutYear <= 1970 ? 'silver' as const :
+                debutYear <= 1985 ? 'bronze' as const : 'modern' as const;
+
     // Generate pricing using unified engine
-    const pricing = await unifiedPricingEngine.calculateAssetPrice({
-      type: 'character',
+    const pricingResult = unifiedPricingEngine.calculatePrice({
+      assetType: 'character',
       name,
-      publisher: 'Marvel',
-      tier,
-      appearances: appearanceCount,
-      debutYear: new Date(character.modified).getFullYear(),
-      franchise: 'Marvel',
-      metadata: {
-        marvelId: character.id,
-        comics: character.comics.available,
-        series: character.series.available,
-        stories: character.stories.available,
-        events: character.events.available
-      }
+      era,
+      franchiseTier: tier,
+      keyAppearances: appearanceCount
     });
+    
+    const pricing = {
+      currentPrice: pricingResult.sharePrice,
+      totalMarketValue: pricingResult.totalMarketValue,
+      totalFloat: pricingResult.totalFloat,
+      source: 'marvel',
+      lastUpdated: new Date().toISOString(),
+      breakdown: pricingResult.breakdown
+    };
 
     return {
       type: 'character',
@@ -365,36 +371,37 @@ export class MarvelExpansionService {
     const onsaleDate = comic.dates.find(d => d.type === 'onsaleDate');
     const debutYear = onsaleDate ? new Date(onsaleDate.date).getFullYear() : new Date().getFullYear();
     
-    // Determine tier based on creators and format
-    const tier = tierClassificationService.classifyComic({
-      title: name,
-      debutYear,
-      publisher: 'Marvel',
-      format: comic.format,
-      creators: comic.creators.items.map(c => ({ name: c.name, role: c.role }))
-    });
+    // Determine era from debut year
+    const era = debutYear <= 1955 ? 'golden' as const :
+                debutYear <= 1970 ? 'silver' as const :
+                debutYear <= 1985 ? 'bronze' as const : 'modern' as const;
+    
+    // Simple tier assignment based on format and creators (1-4)
+    const tier = (comic.format === 'Comic' && comic.creators.available > 3) ? 1 :
+                 (comic.creators.available > 2) ? 2 :
+                 (comic.creators.available > 0) ? 3 : 4;
 
     const imageUrl = comic.thumbnail && comic.thumbnail.path !== 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available'
       ? `${comic.thumbnail.path}.${comic.thumbnail.extension}`
       : undefined;
 
-    const pricing = await unifiedPricingEngine.calculateAssetPrice({
-      type: 'comic',
+    const pricingResult = unifiedPricingEngine.calculatePrice({
+      assetType: 'comic',
       name,
-      variant,
-      publisher: 'Marvel',
-      tier,
-      debutYear,
-      franchise: 'Marvel',
-      metadata: {
-        marvelId: comic.id,
-        issueNumber: comic.issueNumber,
-        format: comic.format,
-        pageCount: comic.pageCount,
-        creators: comic.creators.available,
-        characters: comic.characters.available
-      }
+      era,
+      franchiseTier: tier,
+      isVariant: !!variant,
+      variantOf: variant ? name : undefined
     });
+    
+    const pricing = {
+      currentPrice: pricingResult.sharePrice,
+      totalMarketValue: pricingResult.totalMarketValue,
+      totalFloat: pricingResult.totalFloat,
+      source: 'marvel',
+      lastUpdated: new Date().toISOString(),
+      breakdown: pricingResult.breakdown
+    };
 
     return {
       type: 'comic',
@@ -437,29 +444,31 @@ export class MarvelExpansionService {
     
     // Classify tier based on work count
     const workCount = creator.comics.available + creator.series.available;
-    const tier = tierClassificationService.classifyCreator({
-      name,
-      worksCount: workCount,
-      publisher: 'Marvel'
+    const classification = tierClassificationService.classifyCreator({
+      name
     });
+    const tier = classification.tier;
 
     const imageUrl = creator.thumbnail && creator.thumbnail.path !== 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available'
       ? `${creator.thumbnail.path}.${creator.thumbnail.extension}`
       : undefined;
 
-    const pricing = await unifiedPricingEngine.calculateAssetPrice({
-      type: 'creator',
+    const pricingResult = unifiedPricingEngine.calculatePrice({
+      assetType: 'creator',
       name,
-      publisher: 'Marvel',
-      tier,
-      metadata: {
-        marvelId: creator.id,
-        comics: creator.comics.available,
-        series: creator.series.available,
-        stories: creator.stories.available,
-        events: creator.events.available
-      }
+      era: 'modern', // Default to modern for creators
+      creatorTier: tier,
+      roleWeightedAppearances: classification.roleWeightedAppearances
     });
+    
+    const pricing = {
+      currentPrice: pricingResult.sharePrice,
+      totalMarketValue: pricingResult.totalMarketValue,
+      totalFloat: pricingResult.totalFloat,
+      source: 'marvel',
+      lastUpdated: new Date().toISOString(),
+      breakdown: pricingResult.breakdown
+    };
 
     return {
       type: 'creator',
@@ -544,7 +553,7 @@ export class MarvelExpansionService {
 
         // Bulk insert
         if (assets.length > 0) {
-          const result = await assetInsertionService.insertAssets(assets);
+          const result = await assetInsertionService.insertPricedAssets(assets);
           progress.inserted += result.inserted;
           progress.skipped += result.skipped;
           progress.errors += result.errors;
@@ -635,7 +644,7 @@ export class MarvelExpansionService {
         }
 
         if (assets.length > 0) {
-          const result = await assetInsertionService.insertAssets(assets);
+          const result = await assetInsertionService.insertPricedAssets(assets);
           progress.inserted += result.inserted;
           progress.skipped += result.skipped;
           progress.errors += result.errors;
@@ -726,7 +735,7 @@ export class MarvelExpansionService {
         }
 
         if (assets.length > 0) {
-          const result = await assetInsertionService.insertAssets(assets);
+          const result = await assetInsertionService.insertPricedAssets(assets);
           progress.inserted += result.inserted;
           progress.skipped += result.skipped;
           progress.errors += result.errors;
