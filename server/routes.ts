@@ -3030,6 +3030,55 @@ Respond with valid JSON in this exact format:
   (marketSimulation as any).broadcastUpdate = broadcastMarketUpdate;
 
   // ================================
+  // SSE (Server-Sent Events) FALLBACK FOR MARKET DATA
+  // Fallback for when WebSocket connections fail
+  // ================================
+  
+  app.get('/api/market-data/stream', (req, res) => {
+    console.log('📡 New SSE client connected for market data');
+    
+    // Set headers for SSE
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no'); // Disable buffering for nginx
+    
+    // Send initial comment to establish connection
+    res.write(': SSE connection established\n\n');
+    
+    // Send initial market snapshot
+    const initialSnapshot = priceStreamingService.getTopAssetsByVolume(100);
+    res.write(`event: snapshot\n`);
+    res.write(`data: ${JSON.stringify({ type: 'market_data_snapshot', data: initialSnapshot })}\n\n`);
+    
+    // Create update interval for this client
+    const updateInterval = setInterval(() => {
+      try {
+        // Send market updates every 2 seconds
+        const updates = priceStreamingService.getTopAssetsByVolume(100);
+        res.write(`event: update\n`);
+        res.write(`data: ${JSON.stringify({ type: 'market_data_snapshot', data: updates })}\n\n`);
+      } catch (error) {
+        console.error('Error sending SSE update:', error);
+        clearInterval(updateInterval);
+      }
+    }, 2000); // Update every 2 seconds
+    
+    // Send keepalive ping every 30 seconds
+    const pingInterval = setInterval(() => {
+      res.write(': keepalive\n\n');
+    }, 30000);
+    
+    // Clean up on client disconnect
+    req.on('close', () => {
+      console.log('📡 SSE client disconnected');
+      clearInterval(updateInterval);
+      clearInterval(pingInterval);
+      res.end();
+    });
+  });
+
+  // ================================
   // CAREER PATHWAY CERTIFICATION ROUTES
   // ================================
 

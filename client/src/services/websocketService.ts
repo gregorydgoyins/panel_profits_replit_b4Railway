@@ -93,6 +93,8 @@ type WebSocketEventCallback = (data: any) => void;
 
 class WebSocketService {
   private ws: WebSocket | null = null;
+  private eventSource: EventSource | null = null;
+  private useSSE: boolean = false;
   private reconnectInterval: number = 5000; // 5 seconds
   private maxReconnectAttempts: number = 3; // Reduced from 10 to 3
   private reconnectAttempts: number = 0;
@@ -126,7 +128,7 @@ class WebSocketService {
       this.ws.onopen = () => {
         console.log('✅ WebSocket connected successfully, readyState:', this.ws?.readyState);
         this.isConnecting = false;
-        this.reconnectAttempts = 0;
+        // Don't reset reconnectAttempts here - only reset after successful data exchange
         this.startHeartbeat();
         
         // Use requestAnimationFrame to ensure WebSocket is fully ready before sending
@@ -159,6 +161,8 @@ class WebSocketService {
           console.log('📨 Message type:', message.type);
           this.handleMessage(message);
           console.log('✅ Message handled');
+          // Reset reconnect attempts after successfully receiving data
+          this.reconnectAttempts = 0;
         } catch (error) {
           console.error('❌ Error with WebSocket message:', error, 'Data:', event.data.substring(0, 300));
         }
@@ -178,7 +182,8 @@ class WebSocketService {
         } else if (event.code === 1000) {
           console.log('✅ WebSocket closed normally');
         } else {
-          console.log('❌ Max reconnection attempts reached for abnormal closure');
+          console.log('❌ Max WebSocket reconnection attempts reached, falling back to SSE...');
+          this.connectSSE();
         }
       };
 
@@ -293,6 +298,57 @@ class WebSocketService {
     if (this.heartbeatInterval) {
       clearInterval(this.heartbeatInterval);
       this.heartbeatInterval = null;
+    }
+  }
+
+  /**
+   * Connect using SSE (Server-Sent Events) as WebSocket fallback
+   */
+  private connectSSE(): void {
+    if (this.eventSource) {
+      return; // Already connected via SSE
+    }
+
+    this.useSSE = true;
+    const sseUrl = `/api/market-data/stream`;
+    
+    console.log('📡 Connecting to SSE:', sseUrl);
+    
+    try {
+      this.eventSource = new EventSource(sseUrl);
+      
+      this.eventSource.addEventListener('snapshot', (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          console.log('📨 SSE snapshot received, assets:', message.data?.length);
+          this.handleMessage(message);
+          this.emit('connection', { status: 'connected', method: 'sse' });
+        } catch (error) {
+          console.error('❌ Error parsing SSE snapshot:', error);
+        }
+      });
+      
+      this.eventSource.addEventListener('update', (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          this.handleMessage(message);
+        } catch (error) {
+          console.error('❌ Error parsing SSE update:', error);
+        }
+      });
+      
+      this.eventSource.onerror = (error) => {
+        console.error('❌ SSE error:', error);
+        // Don't close the EventSource - let the browser auto-retry
+        // Only log the error and emit status
+        this.emit('connection', { status: 'error', error, method: 'sse' });
+      };
+      
+      console.log('✅ SSE fallback connected successfully');
+      
+    } catch (error) {
+      console.error('❌ Failed to create SSE connection:', error);
+      this.emit('connection', { status: 'error', error, method: 'sse' });
     }
   }
 
@@ -430,6 +486,11 @@ class WebSocketService {
       this.ws.close(1000, 'Manual disconnect');
       this.ws = null;
     }
+    if (this.eventSource) {
+      this.eventSource.close();
+      this.eventSource = null;
+    }
+    this.useSSE = false;
   }
 
   /**
