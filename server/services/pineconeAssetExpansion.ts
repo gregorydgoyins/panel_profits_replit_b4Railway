@@ -409,6 +409,7 @@ export class PineconeAssetExpansionService {
         symbol: this.generateAssetSymbol(incarnation.baseName, incarnation.variant, record.id),
         category: 'CHARACTER',
         metadata: {
+          source: 'pinecone',
           pineconeId: record.id,
           filepath: record.metadata.filepath,
           processedDate: record.metadata.processed_date,
@@ -430,6 +431,7 @@ export class PineconeAssetExpansionService {
         : this.generateAssetSymbol(record.id, null, record.id),
       category: 'CREATOR',
       metadata: {
+        source: 'pinecone',
         pineconeId: record.id,
         filepath: record.metadata.filepath,
         processedDate: record.metadata.processed_date,
@@ -446,6 +448,7 @@ export class PineconeAssetExpansionService {
         : this.generateAssetSymbol(record.id, null, record.id),
       category: 'COMIC',
       metadata: {
+        source: 'pinecone',
         pineconeId: record.id,
         description: record.metadata.description,
         publisher: record.metadata.publisher,
