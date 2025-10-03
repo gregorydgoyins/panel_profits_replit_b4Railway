@@ -68,7 +68,9 @@ import {
   subscriberIncentiveHistory,
   easterEggDefinitions,
   easterEggUserProgress,
-  easterEggUnlocks
+  easterEggUnlocks,
+  npcTraderActivityLog,
+  assets as assetsTable
 } from "@shared/schema";
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
@@ -1575,6 +1577,118 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(updates);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch market updates" });
+    }
+  });
+
+  // Institutional Order Flow - Live NPC trading activity
+  app.get("/api/institutional/order-flow", async (req, res) => {
+    try {
+      const timeWindow = req.query.timeWindow ? parseInt(req.query.timeWindow as string) : 300; // 5 minutes default
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
+      
+      // Query recent NPC trading activity
+      const recentActivity = await db
+        .select({
+          assetId: npcTraderActivityLog.assetId,
+          action: npcTraderActivityLog.action,
+          quantity: npcTraderActivityLog.quantity,
+          price: npcTraderActivityLog.price,
+          timestamp: npcTraderActivityLog.timestamp,
+          assetName: assetsTable.name,
+          assetSymbol: assetsTable.symbol,
+          assetType: assetsTable.type
+        })
+        .from(npcTraderActivityLog)
+        .leftJoin(assetsTable, eq(npcTraderActivityLog.assetId, assetsTable.id))
+        .where(
+          and(
+            sql`${npcTraderActivityLog.timestamp} >= NOW() - INTERVAL '${sql.raw(timeWindow.toString())} seconds'`,
+            sql`${npcTraderActivityLog.action} IN ('buy', 'sell')`
+          )
+        )
+        .orderBy(sql`${npcTraderActivityLog.timestamp} DESC`)
+        .limit(500);
+
+      // Aggregate by asset
+      const assetFlow = new Map<string, {
+        assetId: string;
+        symbol: string;
+        name: string;
+        type: string;
+        buyVolume: number;
+        sellVolume: number;
+        buyOrders: number;
+        sellOrders: number;
+        netFlow: number;
+        pressure: number; // -100 to 100, selling to buying pressure
+        totalVolume: number;
+        avgBuyPrice: number;
+        avgSellPrice: number;
+        lastActivity: Date;
+      }>();
+
+      for (const activity of recentActivity) {
+        if (!activity.assetId) continue;
+        
+        const key = activity.assetId;
+        if (!assetFlow.has(key)) {
+          assetFlow.set(key, {
+            assetId: activity.assetId,
+            symbol: activity.assetSymbol || 'UNKNOWN',
+            name: activity.assetName || 'Unknown Asset',
+            type: activity.assetType || 'unknown',
+            buyVolume: 0,
+            sellVolume: 0,
+            buyOrders: 0,
+            sellOrders: 0,
+            netFlow: 0,
+            pressure: 0,
+            totalVolume: 0,
+            avgBuyPrice: 0,
+            avgSellPrice: 0,
+            lastActivity: activity.timestamp || new Date()
+          });
+        }
+
+        const flow = assetFlow.get(key)!;
+        const qty = activity.quantity || 0;
+        const price = parseFloat(activity.price || '0');
+
+        if (activity.action === 'buy') {
+          flow.buyVolume += qty;
+          flow.buyOrders++;
+          flow.avgBuyPrice = ((flow.avgBuyPrice * (flow.buyOrders - 1)) + price) / flow.buyOrders;
+        } else if (activity.action === 'sell') {
+          flow.sellVolume += qty;
+          flow.sellOrders++;
+          flow.avgSellPrice = ((flow.avgSellPrice * (flow.sellOrders - 1)) + price) / flow.sellOrders;
+        }
+
+        flow.totalVolume = flow.buyVolume + flow.sellVolume;
+        flow.netFlow = flow.buyVolume - flow.sellVolume;
+        flow.pressure = flow.totalVolume > 0 
+          ? ((flow.buyVolume - flow.sellVolume) / flow.totalVolume) * 100 
+          : 0;
+        
+        if (activity.timestamp > flow.lastActivity) {
+          flow.lastActivity = activity.timestamp;
+        }
+      }
+
+      // Convert to array and sort by total volume
+      const flowData = Array.from(assetFlow.values())
+        .sort((a, b) => b.totalVolume - a.totalVolume)
+        .slice(0, limit);
+
+      res.json({
+        timeWindow,
+        totalAssets: flowData.length,
+        totalActivity: recentActivity.length,
+        data: flowData
+      });
+    } catch (error) {
+      console.error("Error fetching institutional order flow:", error);
+      res.status(500).json({ error: "Failed to fetch order flow data" });
     }
   });
 
