@@ -2870,12 +2870,29 @@ Respond with valid JSON in this exact format:
     
     marketDataClients.add(ws);
     
-    // Add client to price streaming service (this will send initial snapshot)
+    // Add client to price streaming service
     priceStreamingService.addClient(ws);
+    
+    // Send market snapshot repeatedly until client is ready
+    let snapshotAttempts = 0;
+    const maxAttempts = 10;
+    const snapshotInterval = setInterval(() => {
+      snapshotAttempts++;
+      if (ws.readyState === 1) { // OPEN
+        console.log(`📊 Sending snapshot attempt ${snapshotAttempts}`);
+        priceStreamingService.sendMarketSnapshot(ws, 100);
+        clearInterval(snapshotInterval);
+      } else if (snapshotAttempts >= maxAttempts || ws.readyState === 3) { // CLOSED
+        console.log(`❌ Failed to send snapshot after ${snapshotAttempts} attempts, readyState: ${ws.readyState}`);
+        clearInterval(snapshotInterval);
+      }
+    }, 50); // Try every 50ms
     
     ws.on('message', (message) => {
       try {
+        console.log('📨 Received WebSocket message:', message.toString().substring(0, 100));
         const data = JSON.parse(message.toString());
+        console.log('📋 Parsed message type:', data.type);
         
         // Handle client subscriptions to specific assets
         if (data.type === 'subscribe_asset') {

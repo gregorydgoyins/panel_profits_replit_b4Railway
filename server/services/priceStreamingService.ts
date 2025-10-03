@@ -477,12 +477,15 @@ export class PriceStreamingService {
    */
   sendMarketSnapshot(ws: WebSocket, count: number = 100): void {
     try {
+      console.log(`📊 Preparing market snapshot for ${count} assets...`);
+      
       // Get top N assets by volume
       const marketDataArray = this.getTopAssetsByVolume(count);
+      console.log(`✅ Got ${marketDataArray.length} assets for snapshot`);
       
       // Verify WebSocket is still open before sending
       if (ws.readyState !== 1) { // WebSocket.OPEN = 1
-        console.warn('⚠️ WebSocket not open (readyState: ' + ws.readyState + '), cannot send snapshot');
+        console.warn(`⚠️ WebSocket not open (readyState: ${ws.readyState}), cannot send snapshot`);
         return;
       }
       
@@ -494,7 +497,7 @@ export class PriceStreamingService {
       const messageString = JSON.stringify(snapshotMessage);
       const messageSizeKB = (messageString.length / 1024).toFixed(2);
       
-      console.log(`📊 Sending snapshot: ${marketDataArray.length} assets, ${messageSizeKB}KB`);
+      console.log(`📤 Sending snapshot: ${marketDataArray.length} assets, ${messageSizeKB}KB to client (readyState: ${ws.readyState})`);
       
       // Wrap send in try-catch for proper error handling
       try {
@@ -507,6 +510,7 @@ export class PriceStreamingService {
       }
     } catch (error) {
       console.error('❌ Error preparing market snapshot:', error);
+      console.error('Stack trace:', error);
     }
   }
 
