@@ -44,6 +44,9 @@ import { useEasterEggNotifications } from '@/hooks/useEasterEggNotifications';
 import InvestmentClubsPage from '@/pages/InvestmentClubsPage';
 import InvestmentClubDetailPage from '@/pages/InvestmentClubDetailPage';
 
+// Advanced Analytics
+import AdvancedAnalytics from '@/pages/AdvancedAnalytics';
+
 function Router() {
   const { isAuthenticated } = useAuth();
 
@@ -74,6 +77,7 @@ function Router() {
       <Route path="/easter-eggs" component={EasterEggsPage} />
       <Route path="/investment-clubs" component={InvestmentClubsPage} />
       <Route path="/investment-clubs/:id" component={InvestmentClubDetailPage} />
+      <Route path="/analytics" component={AdvancedAnalytics} />
       <Route path="/settings" component={SettingsPage} />
       <Route component={NotFound} />
     </Switch>

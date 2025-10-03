@@ -5,7 +5,7 @@ import {
   Users, Building, Zap, BookOpen, Calendar, Settings, HelpCircle,
   ChevronLeft, ChevronRight, Trophy, Camera, Heart, Crown, Shield,
   Swords, Scroll, GraduationCap, Target, Sparkles, Gem, Workflow, PenTool,
-  Swords as SwordsIcon, LogOut, Handshake
+  Swords as SwordsIcon, LogOut, Handshake, Activity
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -56,6 +56,7 @@ export function NavigationSidebar() {
     if (location === '/houses/dashboard') return 'house-dashboard';
     if (location === '/houses/competition') return 'house-competition';
     if (location === '/integrations' || location === '/divine-connections') return 'divine-connections';
+    if (location === '/analytics') return 'analytics';
     if (location === '/news') return 'news';
     if (location === '/calendar') return 'calendar';
     if (location === '/settings') return 'settings';
@@ -94,6 +95,7 @@ export function NavigationSidebar() {
   const navigationItems: NavigationItem[] = [
     // Main Navigation
     { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/', category: 'main' },
+    { id: 'analytics', label: 'Advanced Analytics', icon: Activity, path: '/analytics', category: 'main', badge: 'NEW' },
     { id: 'ai-studio', label: 'AI Studio', icon: Brain, path: '/ai-studio', category: 'main', badge: 'PRO' },
     { id: 'beat-ai', label: 'Beat the AI', icon: Trophy, path: '/beat-ai', category: 'main', badge: 'HOT' },
     { id: 'ai-grading', label: 'AI Grading', icon: Camera, path: '/grading', category: 'main', badge: 'NEW' },

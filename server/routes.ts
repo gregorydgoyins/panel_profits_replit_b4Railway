@@ -34,6 +34,7 @@ import dcRoutes from "./routes/dcRoutes.js";
 import kaggleComicsRoutes from "./routes/kaggleComicsRoutes.js";
 import characterAttributesRoutes from "./routes/characterAttributesRoutes.js";
 import datasetExpansionRoutes from "./routes/datasetExpansionRoutes.js";
+import analyticsRoutes from "./routes/analyticsRoutes.js";
 import { marketSimulation, orderMatching } from "./marketSimulation.js";
 import { leaderboardService } from "./leaderboardService.js";
 import { priceStreamingService } from "./services/priceStreamingService.js";
@@ -1864,6 +1865,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Dataset expansion routes (Pokemon, Funko, Manga, Movies)
   app.use("/api/datasets", datasetExpansionRoutes);
 
+  // Advanced analytics routes (Quantum Momentum, Whale Tracker, etc.)
+  app.use("/api/analytics", analyticsRoutes);
 
   // ================================
   // EXTERNAL SCRAPER ROUTES
