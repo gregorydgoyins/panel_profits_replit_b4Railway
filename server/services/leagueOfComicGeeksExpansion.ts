@@ -47,9 +47,10 @@ export class LeagueOfComicGeeksExpansionService {
         const html = await response.text();
         
         // Extract comic data from HTML
-        const comicMatches = html.matchAll(/data-comic-id="(\d+)"[^>]*>.*?<div class="title">([^<]+)</g);
+        const comicRegex = /data-comic-id="(\d+)"[^>]*>.*?<div class="title">([^<]+)/g;
+        const matches = Array.from(html.matchAll(comicRegex));
         
-        for (const match of comicMatches) {
+        for (const match of matches) {
           const [_, id, title] = match;
           comics.push({
             id: parseInt(id),
