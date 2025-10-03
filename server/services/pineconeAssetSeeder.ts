@@ -1,10 +1,12 @@
 import { pineconeAssetExpansion } from './pineconeAssetExpansion';
-import { storage } from '../storage';
+import { assetInsertionService } from './assetInsertionService';
 import type { InsertAsset } from '@shared/schema';
 
 /**
  * Pinecone Asset Seeding Service
  * Populates the database with millions of tradeable assets from Pinecone expansion
+ * 
+ * SCALE UPDATE: Uses bulk insertion service for high-speed asset creation
  */
 
 interface SeederOptions {
@@ -29,129 +31,6 @@ class PineconeAssetSeederService {
    */
   private sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  /**
-   * Map expanded asset to database schema
-   */
-  private mapAssetToSchema(asset: any): InsertAsset {
-    return {
-      symbol: asset.symbol,
-      name: asset.name,
-      type: asset.type,
-      description: asset.description || asset.metadata?.description || `${asset.type} asset from Pinecone`,
-      imageUrl: asset.imageUrl || undefined,
-      metadata: {
-        ...asset.metadata,
-        pineconeId: asset.metadata?.pineconeId,
-        pricing: asset.pricing,
-        variant: asset.variant,
-        baseName: asset.baseName,
-        category: asset.category,
-        publisher: asset.metadata?.publisher
-      }
-    };
-  }
-
-  /**
-   * Extract price from asset pricing metadata
-   * For comics with CGC grades: Use highestPrice from pricing.grades
-   * For characters/creators: Use pricing.currentPrice
-   */
-  private extractPriceFromAsset(asset: any): number {
-    if (!asset.pricing) {
-      return 100; // Default fallback price
-    }
-
-    // For comics with CGC grade pricing
-    if (asset.type === 'comic' && asset.pricing.highestPrice) {
-      return asset.pricing.highestPrice;
-    }
-
-    // For characters and creators
-    if (asset.pricing.currentPrice) {
-      return asset.pricing.currentPrice;
-    }
-
-    // Fallback
-    return 100;
-  }
-
-  /**
-   * Process a batch of assets - check duplicates and insert
-   */
-  private async processBatch(assets: any[], batchNumber: number, totalBatches: number): Promise<{
-    inserted: number;
-    skipped: number;
-    errors: number;
-    errorDetails: string[];
-  }> {
-    let inserted = 0;
-    let skipped = 0;
-    let errors = 0;
-    const errorDetails: string[] = [];
-
-    console.log(`\n📦 Processing batch ${batchNumber}/${totalBatches} (${assets.length} assets)...`);
-
-    for (let i = 0; i < assets.length; i++) {
-      const asset = assets[i];
-      
-      try {
-        // Check for duplicates by symbol
-        const existing = await storage.getAssetBySymbol(asset.symbol);
-        
-        if (existing) {
-          skipped++;
-          if (i % 10 === 0) {
-            console.log(`   ⏭️  Skipped ${skipped} duplicates so far...`);
-          }
-          continue;
-        }
-
-        // Map to database schema
-        const assetData = this.mapAssetToSchema(asset);
-
-        // Insert into database
-        await storage.createAsset(assetData);
-        
-        // Retrieve the created asset to get its ID (UUID)
-        const createdAsset = await storage.getAssetBySymbol(asset.symbol);
-        if (!createdAsset) {
-          throw new Error(`Failed to retrieve created asset: ${asset.symbol}`);
-        }
-        
-        // Create market_data entry for trading system using asset.id (UUID), not symbol
-        const price = this.extractPriceFromAsset(asset);
-        await storage.createMarketData({
-          assetId: createdAsset.id,
-          timeframe: '1d',
-          periodStart: new Date(),
-          open: price.toString(),
-          high: (price * 1.02).toString(),
-          low: (price * 0.98).toString(),
-          close: price.toString(),
-          volume: Math.floor(1000 + Math.random() * 4000),
-          change: '0',
-          percentChange: '0'
-        });
-        
-        inserted++;
-
-        // Log progress every 10 assets
-        if (inserted % 10 === 0) {
-          console.log(`   ✅ Inserted ${inserted} assets...`);
-        }
-      } catch (error) {
-        errors++;
-        const errorMsg = `Failed to process ${asset.type} "${asset.name}" (${asset.symbol}): ${error instanceof Error ? error.message : 'Unknown error'}`;
-        errorDetails.push(errorMsg);
-        console.error(`   ❌ ${errorMsg}`);
-      }
-    }
-
-    console.log(`📊 Batch ${batchNumber} complete: ${inserted} inserted, ${skipped} skipped, ${errors} errors`);
-
-    return { inserted, skipped, errors, errorDetails };
   }
 
   /**
@@ -213,36 +92,21 @@ class PineconeAssetSeederService {
       console.log(`   🎨 Creators: ${expansionResult.assets.creatorAssets.length}`);
       console.log(`   📚 Comics: ${expansionResult.assets.comicAssets.length}`);
 
-      // Step 2: Process in batches
-      console.log('\n💾 Step 2: Inserting assets into database...');
-      const batches = Math.ceil(totalProcessed / batchSize);
-      let lastProgressPercent = 0;
-
-      for (let i = 0; i < batches; i++) {
-        const start = i * batchSize;
-        const end = Math.min(start + batchSize, totalProcessed);
-        const batch = allAssets.slice(start, end);
-
-        // Process batch
-        const result = await this.processBatch(batch, i + 1, batches);
-        
-        totalInserted += result.inserted;
-        totalSkipped += result.skipped;
-        totalErrors += result.errors;
-        allErrorDetails.push(...result.errorDetails);
-
-        // Log progress milestones (every 10%)
-        const progressPercent = Math.floor(((i + 1) / batches) * 100);
-        if (progressPercent >= lastProgressPercent + 10) {
-          console.log(`\n📈 Progress: ${progressPercent}% complete (${totalInserted + totalSkipped + totalErrors}/${totalProcessed} processed)`);
-          lastProgressPercent = progressPercent;
-        }
-
-        // Rate limiting between batches
-        if (i < batches - 1) {
-          await this.sleep(100);
-        }
-      }
+      // Step 2: Bulk insert assets into database
+      console.log('\n💾 Step 2: Bulk inserting assets into database...');
+      console.log(`   Using high-speed bulk insertion (${batchSize} assets per batch)`);
+      
+      const insertionResult = await assetInsertionService.insertPricedAssets(allAssets, batchSize);
+      
+      totalInserted = insertionResult.inserted;
+      totalSkipped = insertionResult.skipped;
+      totalErrors = insertionResult.errors;
+      allErrorDetails.push(...insertionResult.errorMessages);
+      
+      console.log(`\n💫 Bulk insertion complete!`);
+      console.log(`   ✅ Inserted: ${totalInserted}`);
+      console.log(`   ⏭️  Skipped: ${totalSkipped}`);
+      console.log(`   ❌ Errors: ${totalErrors}`);
 
       // Step 3: Report results
       const processingTime = Date.now() - startTime;
