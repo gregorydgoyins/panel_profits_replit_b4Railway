@@ -577,6 +577,113 @@ export class PineconeAssetExpansionService {
       };
     }
   }
+
+  /**
+   * EXHAUSTIVE EXPANSION: Mine ALL 63,934+ Pinecone vectors
+   * Uses listPaginated() to fetch every single vector ID, then processes them all
+   */
+  async expandAllVectorsExhaustively() {
+    console.log('🔥 STARTING EXHAUSTIVE PINECONE MINING - ALL 63,934+ VECTORS');
+    console.log('⚠️  This will process EVERY vector in Pinecone exhaustively');
+
+    try {
+      // Step 1: Fetch ALL vectors with metadata
+      const allVectors = await pineconeService.fetchAllVectorsExhaustively();
+      
+      if (allVectors.length === 0) {
+        console.error('❌ No vectors returned from Pinecone');
+        return {
+          success: false,
+          totalAssets: 0,
+          error: 'No vectors found'
+        };
+      }
+
+      console.log(`📦 Retrieved ${allVectors.length} vectors from Pinecone`);
+
+      // Step 2: Separate by category
+      const characters: PineconeRecord[] = [];
+      const creators: PineconeRecord[] = [];
+      const comics: PineconeRecord[] = [];
+
+      for (const vector of allVectors) {
+        const category = vector.metadata?.category;
+        
+        if (category === 'Characters') {
+          characters.push({ id: vector.id, metadata: vector.metadata });
+        } else if (category === 'Creators') {
+          creators.push({ id: vector.id, metadata: vector.metadata });
+        } else if (vector.metadata?.type === 'comics' || vector.id.startsWith('comics_')) {
+          comics.push({ id: vector.id, metadata: vector.metadata });
+        }
+      }
+
+      console.log(`📊 Categorized vectors:`);
+      console.log(`   👥 Characters: ${characters.length}`);
+      console.log(`   🎨 Creators: ${creators.length}`);
+      console.log(`   📚 Comics: ${comics.length}`);
+
+      // Step 3: Transform to tradeable assets
+      console.log('🔄 Transforming vectors into tradeable assets...');
+      const assets = await this.transformRecordsToAssets({
+        characters,
+        creators,
+        comics
+      });
+
+      // Step 4: Calculate pricing for all assets
+      console.log('💰 Calculating mathematical pricing for assets...');
+      const enrichedCharacters = await Promise.all(
+        assets.characterAssets.map(asset => this.enrichAssetWithPricing(asset))
+      );
+      const enrichedCreators = await Promise.all(
+        assets.creatorAssets.map(asset => this.enrichAssetWithPricing(asset))
+      );
+      const enrichedComics = await Promise.all(
+        assets.comicAssets.map(asset => this.enrichAssetWithPricing(asset))
+      );
+
+      const totalAssets = enrichedCharacters.length + enrichedCreators.length + enrichedComics.length;
+      const priced = enrichedCharacters.concat(enrichedCreators, enrichedComics).filter(a => a.pricing);
+      const fallback = totalAssets - priced.length;
+
+      console.log('✅ Pricing calculation complete:');
+      console.log(`   📊 Mathematical prices: ${priced.length} assets`);
+      console.log(`   📊 Fallback prices: ${fallback} assets`);
+      if (priced.length > 0) {
+        const avgPrice = priced.reduce((sum, a) => sum + a.pricing.currentPrice, 0) / priced.length;
+        console.log(`   💵 Average share price: $${avgPrice.toFixed(2)}`);
+      }
+
+      console.log('📈 EXHAUSTIVE EXPANSION COMPLETE');
+      console.log(`📦 Total Assets Generated: ${totalAssets}`);
+      console.log(`👥 Characters: ${enrichedCharacters.length}`);
+      console.log(`🎨 Creators: ${enrichedCreators.length}`);
+      console.log(`📚 Comics: ${enrichedComics.length}`);
+
+      return {
+        success: true,
+        totalAssets,
+        assets: {
+          characterAssets: enrichedCharacters,
+          creatorAssets: enrichedCreators,
+          comicAssets: enrichedComics
+        },
+        records: {
+          characters,
+          creators,
+          comics
+        }
+      };
+    } catch (error) {
+      console.error('❌ Exhaustive expansion failed:', error);
+      return {
+        success: false,
+        totalAssets: 0,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
 }
 
 export const pineconeAssetExpansion = new PineconeAssetExpansionService();

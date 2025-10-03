@@ -133,6 +133,106 @@ class PineconeService {
       return null;
     }
   }
+
+  /**
+   * Exhaustively list ALL vector IDs using pagination
+   * Returns all 63,934+ vector IDs from the index
+   */
+  async listAllVectorIds(namespace?: string, prefix: string = ''): Promise<string[]> {
+    if (!this.client) {
+      console.warn('⚠️ Pinecone not initialized');
+      return [];
+    }
+
+    try {
+      const index = this.client.index(this.indexName);
+      const ns = namespace ? index.namespace(namespace) : index;
+      
+      const allIds: string[] = [];
+      let paginationToken: string | undefined = undefined;
+      let pageCount = 0;
+
+      console.log('🔄 Starting exhaustive vector ID listing...');
+
+      do {
+        const results = await ns.listPaginated({
+          prefix,
+          limit: 100,
+          paginationToken
+        });
+
+        const ids = results.vectors?.map((v: any) => v.id) || [];
+        allIds.push(...ids);
+        pageCount++;
+
+        if (pageCount % 10 === 0) {
+          console.log(`   📦 Fetched ${allIds.length} IDs so far (${pageCount} pages)...`);
+        }
+
+        paginationToken = results.pagination?.next;
+      } while (paginationToken);
+
+      console.log(`✅ Exhaustive listing complete: ${allIds.length} total vector IDs`);
+      return allIds;
+    } catch (error) {
+      console.error('❌ Pinecone list error:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Fetch all vectors exhaustively with metadata
+   * Fetches in batches of 1000 IDs at a time
+   */
+  async fetchAllVectorsExhaustively(namespace?: string): Promise<any[]> {
+    if (!this.client) {
+      console.warn('⚠️ Pinecone not initialized');
+      return [];
+    }
+
+    try {
+      console.log('🚀 Starting exhaustive vector fetch...');
+      
+      // Step 1: Get all vector IDs
+      const allIds = await this.listAllVectorIds(namespace);
+      console.log(`📊 Total vectors to fetch: ${allIds.length}`);
+
+      if (allIds.length === 0) {
+        return [];
+      }
+
+      // Step 2: Fetch in batches of 1000
+      const batchSize = 1000;
+      const allVectors: any[] = [];
+      
+      for (let i = 0; i < allIds.length; i += batchSize) {
+        const batchIds = allIds.slice(i, i + batchSize);
+        console.log(`   📦 Fetching batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(allIds.length / batchSize)} (${batchIds.length} vectors)...`);
+        
+        const records = await this.fetchVectors(batchIds, namespace);
+        
+        if (records) {
+          const vectorArray = Object.entries(records).map(([id, data]: [string, any]) => ({
+            id,
+            metadata: data.metadata || {},
+            values: data.values
+          }));
+          allVectors.push(...vectorArray);
+        }
+
+        // Small delay to avoid rate limiting
+        if (i + batchSize < allIds.length) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      }
+
+      console.log(`✅ Exhaustive fetch complete: ${allVectors.length} vectors with metadata`);
+      return allVectors;
+    } catch (error) {
+      console.error('❌ Exhaustive fetch error:', error);
+      return [];
+    }
+  }
 }
 
 export const pineconeService = new PineconeService();

@@ -193,6 +193,98 @@ router.post("/seed-assets", async (req, res) => {
 });
 
 /**
+ * EXHAUSTIVELY mine ALL 63,934+ Pinecone vectors
+ * POST /api/pinecone/seed-all-vectors
+ * Body: { batchSize?: number }
+ * 
+ * This endpoint:
+ * 1. Lists ALL vector IDs using listPaginated()
+ * 2. Fetches all vectors with metadata
+ * 3. Transforms them into tradeable assets with pricing
+ * 4. Bulk inserts into database
+ * 
+ * Returns: {
+ *   success: boolean,
+ *   totalProcessed: number,
+ *   inserted: number,
+ *   skipped: number,
+ *   errors: number,
+ *   processingTime: number
+ * }
+ */
+router.post("/seed-all-vectors", async (req, res) => {
+  try {
+    const { batchSize = 100 } = req.body;
+    
+    console.log('🔥 STARTING EXHAUSTIVE PINECONE MINING');
+    console.log(`   Processing ALL 63,934+ vectors exhaustively`);
+    const startTime = Date.now();
+    
+    // Step 1: Exhaustively mine all vectors
+    const expansionResult = await pineconeAssetExpansion.expandAllVectorsExhaustively();
+    
+    if (!expansionResult.success) {
+      return res.status(500).json({
+        success: false,
+        totalProcessed: 0,
+        inserted: 0,
+        skipped: 0,
+        errors: 1,
+        processingTime: Date.now() - startTime,
+        errorDetails: [expansionResult.error || 'Expansion failed']
+      });
+    }
+
+    console.log(`✅ Expansion complete: ${expansionResult.totalAssets} assets ready for seeding`);
+
+    // Step 2: Combine all assets for bulk insertion
+    const allAssets = [
+      ...expansionResult.assets.characterAssets,
+      ...expansionResult.assets.creatorAssets,
+      ...expansionResult.assets.comicAssets
+    ];
+
+    console.log(`💾 Starting bulk insertion of ${allAssets.length} assets...`);
+    
+    // Import assetInsertionService here to avoid circular dependency
+    const { assetInsertionService } = await import('../services/assetInsertionService');
+    const insertionResult = await assetInsertionService.bulkInsertAssets(allAssets, batchSize);
+
+    const processingTime = Date.now() - startTime;
+    
+    console.log('═══════════════════════════════════════');
+    console.log('✅ EXHAUSTIVE PINECONE MINING COMPLETE');
+    console.log(`📊 Total processed: ${allAssets.length}`);
+    console.log(`✅ Inserted: ${insertionResult.inserted}`);
+    console.log(`⏭️  Skipped: ${insertionResult.skipped}`);
+    console.log(`❌ Errors: ${insertionResult.errors}`);
+    console.log(`⏱️  Time: ${(processingTime / 1000).toFixed(2)}s`);
+    console.log('═══════════════════════════════════════');
+
+    res.json({
+      success: true,
+      totalProcessed: allAssets.length,
+      inserted: insertionResult.inserted,
+      skipped: insertionResult.skipped,
+      errors: insertionResult.errors,
+      processingTime,
+      errorDetails: insertionResult.errorMessages.length > 0 ? insertionResult.errorMessages.slice(0, 10) : undefined
+    });
+  } catch (error) {
+    console.error('❌ Exhaustive mining error:', error);
+    res.status(500).json({
+      success: false,
+      totalProcessed: 0,
+      inserted: 0,
+      skipped: 0,
+      errors: 1,
+      processingTime: 0,
+      errorDetails: [error instanceof Error ? error.message : 'Unknown error']
+    });
+  }
+});
+
+/**
  * Migrate market_data for existing Pinecone assets
  * POST /api/pinecone/migrate-market-data
  * 
