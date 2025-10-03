@@ -189,22 +189,28 @@ class PriceChartingService {
     const results = await this.searchComics(characterName);
     
     if (results.length === 0) {
-      return this.estimateCharacterValue(characterName);
+      return this.calculateWeightedAssetPrice('modern', 100000);
     }
 
-    // Get top 3 most valuable appearances
+    // Get top 3 issues to calculate base market value
     const topIssues = results
-      .map(r => this.getBestPrice(r))
-      .sort((a, b) => b - a)
+      .map(r => ({ price: this.getBestPrice(r), date: r['release-date'] }))
+      .sort((a, b) => b.price - a.price)
       .slice(0, 3);
 
-    if (topIssues.length === 0) {
-      return this.estimateCharacterValue(characterName);
+    if (topIssues.length === 0 || topIssues[0].price === 0) {
+      return this.calculateWeightedAssetPrice('modern', 100000);
     }
 
-    // Character value = average of top 3 key issues
-    const avgValue = topIssues.reduce((sum, price) => sum + price, 0) / topIssues.length;
-    return Math.round(avgValue);
+    // Calculate average market value from top appearances
+    const avgPrice = topIssues.reduce((sum, issue) => sum + issue.price, 0) / topIssues.length;
+    const totalMarketValue = avgPrice * 100000; // Multiply to get total market value
+    
+    // Determine era from first major appearance
+    const era = this.determineEraFromDate(topIssues[0].date);
+    
+    // Use weighted formula: sharePrice = marketValue / (totalSupply * sharesPerUnit)
+    return this.calculateWeightedAssetPrice(era, totalMarketValue);
   }
 
   async getPriceForSeries(seriesName: string): Promise<number> {
@@ -232,21 +238,78 @@ class PriceChartingService {
     const results = await this.searchComics(creatorName);
     
     if (results.length === 0) {
-      return this.estimateCreatorValue(creatorName);
+      return this.calculateWeightedAssetPrice('bronze', 50000);
     }
 
-    // Creator value = average of their top 5 works
+    // Get creator's top 5 works to calculate base market value
     const topWorks = results
-      .map(r => this.getBestPrice(r))
-      .sort((a, b) => b - a)
+      .map(r => ({ price: this.getBestPrice(r), date: r['release-date'] }))
+      .sort((a, b) => b.price - a.price)
       .slice(0, 5);
 
-    if (topWorks.length === 0) {
-      return this.estimateCreatorValue(creatorName);
+    if (topWorks.length === 0 || topWorks[0].price === 0) {
+      return this.calculateWeightedAssetPrice('bronze', 50000);
     }
 
-    const avgValue = topWorks.reduce((sum, price) => sum + price, 0) / topWorks.length;
-    return Math.round(avgValue * 3); // Creator multiplier
+    // Calculate average market value from top works
+    const avgPrice = topWorks.reduce((sum, work) => sum + work.price, 0) / topWorks.length;
+    const totalMarketValue = avgPrice * 75000; // Creator multiplier for total market value
+    
+    // Determine era from peak work
+    const era = this.determineEraFromDate(topWorks[0].date);
+    
+    // Use weighted formula: sharePrice = marketValue / (totalSupply * sharesPerUnit)
+    return this.calculateWeightedAssetPrice(era, totalMarketValue);
+  }
+
+  /**
+   * Determine era from release date
+   */
+  private determineEraFromDate(releaseDate?: string): 'golden' | 'silver' | 'bronze' | 'modern' {
+    if (!releaseDate) return 'modern';
+    
+    const year = new Date(releaseDate).getFullYear();
+    if (year < 1956) return 'golden';
+    if (year < 1970) return 'silver';
+    if (year < 1985) return 'bronze';
+    return 'modern';
+  }
+
+  /**
+   * Calculate asset price using weighted market cap formula
+   * Formula: sharePrice = totalMarketValue / (totalSupply * sharesPerUnit)
+   * Ensures prices stay within $50-$6,000 range
+   * Golden Age = fewer shares (higher price per share)
+   * Modern = more shares (lower price per share)
+   */
+  private calculateWeightedAssetPrice(
+    era: 'golden' | 'silver' | 'bronze' | 'modern',
+    baseMarketValue: number
+  ): number {
+    // Supply estimation based on era (matching comic formula)
+    const supplyByEra = {
+      golden: 3000,    // Scarce, high-value Golden Age
+      silver: 5000,    // Silver Age
+      bronze: 10000,   // Bronze Age
+      modern: 20000    // Modern Age - most abundant
+    };
+
+    const sharesPerUnit = 100; // Same as comics: each unit = 100 shares
+    const totalSupply = supplyByEra[era];
+    const totalFloat = totalSupply * sharesPerUnit;
+    
+    // Apply scarcity modifier (0.90 - 1.10) based on era
+    const scarcityModifier = era === 'golden' ? 1.10 : 
+                             era === 'silver' ? 1.05 :
+                             era === 'bronze' ? 1.00 : 0.95;
+    
+    const adjustedMarketValue = baseMarketValue * scarcityModifier;
+    const sharePrice = adjustedMarketValue / totalFloat;
+    
+    // Enforce $50-$6,000 range (no asset can exceed Action Comics #1 logic)
+    const constrainedPrice = Math.max(50, Math.min(6000, sharePrice));
+    
+    return Math.round(constrainedPrice);
   }
 
   private estimateCharacterValue(name: string): number {
