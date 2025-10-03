@@ -254,6 +254,7 @@ export class PineconeAssetExpansionService {
   /**
    * Generate asset symbol from name
    * For variants, includes variant suffix: "CAP.HOM" for "Captain America (House of M)"
+   * Adds unique suffix to prevent collisions
    */
   generateAssetSymbol(name: string, variant?: string | null): string {
     // Parse base name and variant if not provided
@@ -278,7 +279,9 @@ export class PineconeAssetExpansionService {
       baseSymbol = `${baseSymbol}.${variantSuffix}`;
     }
     
-    return baseSymbol || 'ASSET';
+    // Add unique 6-character suffix to prevent collisions
+    const uniqueSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
+    return `${baseSymbol || 'ASSET'}.${uniqueSuffix}`;
   }
 
   /**
