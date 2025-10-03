@@ -142,7 +142,7 @@ export class AssetInsertionService {
       try {
         const insertedAssets = await db.insert(assets)
           .values(assetRecords)
-          .onConflictDoNothing({ target: assets.symbol })
+          .onConflictDoNothing()
           .returning({ id: assets.id, symbol: assets.symbol });
 
         result.inserted = insertedAssets.length;
@@ -176,7 +176,7 @@ export class AssetInsertionService {
         if (priceRecords.length > 0) {
           await db.insert(assetCurrentPrices)
             .values(priceRecords)
-            .onConflictDoNothing({ target: assetCurrentPrices.assetId });
+            .onConflictDoNothing();
         }
 
       } catch (error) {
