@@ -32,6 +32,7 @@ import comicVineRoutes from "./routes/comicVineRoutes.js";
 import marvelRoutes from "./routes/marvelRoutes.js";
 import dcRoutes from "./routes/dcRoutes.js";
 import kaggleComicsRoutes from "./routes/kaggleComicsRoutes.js";
+import characterAttributesRoutes from "./routes/characterAttributesRoutes.js";
 import { marketSimulation, orderMatching } from "./marketSimulation.js";
 import { leaderboardService } from "./leaderboardService.js";
 import { priceStreamingService } from "./services/priceStreamingService.js";
@@ -1825,6 +1826,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Kaggle Comics expansion routes (Marvel + DC datasets)
   app.use("/api/kaggle-comics", kaggleComicsRoutes);
+
+  // Character Attributes enhancement routes (Superheroes NLP dataset)
+  app.use("/api/character-attributes", characterAttributesRoutes);
 
   // Houses System Routes (Seven Mythological Houses)
   app.use("/api/houses", housesRoutes);
