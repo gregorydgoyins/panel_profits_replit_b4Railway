@@ -30,7 +30,8 @@ import warfareRoutes from "./routes/warfareRoutes.js";
 import pineconeRoutes from "./routes/pinecone.js";
 import comicVineRoutes from "./routes/comicVineRoutes.js";
 import marvelRoutes from "./routes/marvelRoutes.js";
-import { marketSimulation, orderMatching} from "./marketSimulation.js";
+import dcRoutes from "./routes/dcRoutes.js";
+import { marketSimulation, orderMatching } from "./marketSimulation.js";
 import { leaderboardService } from "./leaderboardService.js";
 import { priceStreamingService } from "./services/priceStreamingService.js";
 import { narrativeEventService } from "./services/narrativeEventService.js";
@@ -1817,6 +1818,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Marvel API expansion routes
   app.use("/api/marvel", marvelRoutes);
+
+  // DC multi-source expansion routes (Metron + GCD)
+  app.use("/api/dc", dcRoutes);
 
   // Houses System Routes (Seven Mythological Houses)
   app.use("/api/houses", housesRoutes);
