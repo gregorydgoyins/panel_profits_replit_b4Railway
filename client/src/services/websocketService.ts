@@ -104,7 +104,8 @@ class WebSocketService {
   private reconnectTimeout: NodeJS.Timeout | null = null;
 
   constructor() {
-    this.connect();
+    // DISABLED: Market data now uses polling instead of WebSocket
+    // this.connect();
   }
 
   /**
