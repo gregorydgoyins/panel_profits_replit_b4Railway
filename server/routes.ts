@@ -570,6 +570,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ================================
+  // MARKET DATA POLLING ENDPOINT
+  // Simple REST endpoint for market data snapshots (replaces WebSocket)
+  // ================================
+  app.get('/api/market-data/snapshot', async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 100;
+      const sortBy = (req.query.sortBy as string) || 'volume'; // volume, price, change
+      
+      // Get top assets from price streaming service
+      const snapshot = priceStreamingService.getTopAssetsByVolume(limit);
+      
+      // Optionally re-sort based on query param
+      if (sortBy === 'price') {
+        snapshot.sort((a, b) => b.currentPrice - a.currentPrice);
+      } else if (sortBy === 'change') {
+        snapshot.sort((a, b) => Math.abs(b.changePercent) - Math.abs(a.changePercent));
+      }
+      
+      res.json({
+        timestamp: new Date().toISOString(),
+        count: snapshot.length,
+        data: snapshot
+      });
+    } catch (error) {
+      console.error('Error generating market snapshot:', error);
+      res.status(500).json({ error: 'Failed to generate market snapshot' });
+    }
+  });
+
   // Asset Management Routes
   app.get("/api/assets", async (req, res) => {
     try {
@@ -2991,10 +3021,18 @@ Respond with valid JSON in this exact format:
 
   const httpServer = createServer(app);
   
-  // Start the price streaming service
+  // ================================
+  // POLLING-BASED MARKET DATA API
+  // Simple REST endpoint for market data snapshots (replaces WebSocket)
+  // ================================
+  
+  // Start the price streaming service (for data generation only)
   await priceStreamingService.start();
-  console.log('💹 Price streaming service started');
+  console.log('💹 Price streaming service started (polling mode)');
 
+  // DISABLED: WebSocket real-time streaming (replaced with polling)
+  // Keeping code commented for reference in case we want to re-enable later
+  /*
   // Setup WebSocket for real-time market data
   // Try simple server mode with path - client monkey-patch is now disabled
   const wss = new WebSocketServer({ 
@@ -3178,10 +3216,12 @@ Respond with valid JSON in this exact format:
   
   // Store the broadcast function for use in market simulation
   (marketSimulation as any).broadcastUpdate = broadcastMarketUpdate;
+  */
+  // END OF DISABLED WEBSOCKET CODE
 
   // ================================
   // SSE (Server-Sent Events) FALLBACK FOR MARKET DATA
-  // Fallback for when WebSocket connections fail
+  // Kept as alternative streaming option if needed
   // ================================
   
   app.get('/api/market-data/stream', (req, res) => {
