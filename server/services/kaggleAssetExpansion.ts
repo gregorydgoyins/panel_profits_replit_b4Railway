@@ -401,7 +401,12 @@ class KaggleAssetExpansionService {
         console.log(`💾 Bulk inserting ${allGeneratedAssets.length} assets...`);
         const insertResult = await assetInsertionService.insertPricedAssets(allGeneratedAssets);
         
-        result.totalAssetsGenerated = insertResult.inserted;
+        // Preserve totalAssetsGenerated (don't overwrite with inserted count)
+        result.insertionResult = {
+          inserted: insertResult.inserted,
+          skipped: insertResult.skipped,
+          errors: insertResult.errors
+        };
         console.log(`✅ Inserted: ${insertResult.inserted}, Skipped: ${insertResult.skipped}, Errors: ${insertResult.errors}`);
       }
 
@@ -456,6 +461,9 @@ class KaggleAssetExpansionService {
   }
 }
 
+// Export singleton instance
+export const kaggleAssetExpansion = new KaggleAssetExpansionService();
+
 // Types
 interface ParsedCharacter {
   id: string;
@@ -500,7 +508,10 @@ interface ExpansionResult {
   teamsGenerated: number;
   seriesGenerated: number;
   totalAssetsGenerated: number;
+  insertionResult: {
+    inserted: number;
+    skipped: number;
+    errors: number;
+  };
   errors: string[];
 }
-
-export const kaggleAssetExpansionService = new KaggleAssetExpansionService();

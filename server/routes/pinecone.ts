@@ -344,7 +344,7 @@ router.post("/kaggle/expand-all", async (req, res) => {
     console.log('═══════════════════════════════════════');
     
     const startTime = Date.now();
-    const result = await kaggleAssetExpansion.expandAllCharacters();
+    const result = await kaggleAssetExpansion.expandAllKaggleAssets();
     const processingTime = Date.now() - startTime;
     
     console.log('✅ KAGGLE EXPANSION COMPLETE');
@@ -352,15 +352,21 @@ router.post("/kaggle/expand-all", async (req, res) => {
     console.log(`📊 Teams: ${result.teamsGenerated}`);
     console.log(`📊 Series: ${result.seriesGenerated}`);
     console.log(`📊 Total assets: ${result.totalAssetsGenerated}`);
-    console.log(`✅ Inserted: ${result.insertionResults.inserted}`);
-    console.log(`⏭️  Skipped: ${result.insertionResults.skipped}`);
-    console.log(`❌ Errors: ${result.insertionResults.errors}`);
+    console.log(`✅ Inserted: ${result.insertionResult?.inserted || 0}`);
+    console.log(`⏭️  Skipped: ${result.insertionResult?.skipped || 0}`);
+    console.log(`❌ Errors: ${result.insertionResult?.errors || 0}`);
     console.log(`⏱️  Time: ${(processingTime / 1000).toFixed(2)}s`);
     console.log('═══════════════════════════════════════');
     
     res.json({
       success: true,
-      ...result,
+      charactersProcessed: result.charactersProcessed,
+      teamsGenerated: result.teamsGenerated,
+      seriesGenerated: result.seriesGenerated,
+      totalAssetsGenerated: result.totalAssetsGenerated,
+      inserted: result.insertionResult?.inserted || 0,
+      skipped: result.insertionResult?.skipped || 0,
+      errors: result.errors.length,
       processingTime
     });
   } catch (error) {
