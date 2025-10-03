@@ -361,8 +361,8 @@ export default function DashboardPage() {
       {/* News Ticker */}
       <NewsTicker />
 
-      {/* Stock Ticker - Live asset prices directly under news ticker */}
-      <StockTicker />
+      {/* Stock Ticker - DISABLED - Will re-enable after asset expansion */}
+      {/* <StockTicker /> */}
 
       {/* World Clocks - Global market hours under stock ticker */}
       <div className="max-w-7xl mx-auto px-6 pt-4">
