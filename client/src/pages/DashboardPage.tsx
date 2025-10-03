@@ -41,6 +41,7 @@ import { NewsTicker } from '@/components/dashboard/NewsTicker';
 import { StockTicker } from '@/components/dashboard/StockTicker';
 import { ComicCoverCardsWidget } from '@/components/dashboard/ComicCoverCardsWidget';
 import { InstitutionalOrderFlowWidget } from '@/components/dashboard/InstitutionalOrderFlowWidget';
+import { AssetGrowthWidget } from '@/components/dashboard/AssetGrowthWidget';
 import { ComicHeatMapWidget } from '@/components/dashboard/ComicHeatMapWidget';
 import { ComicSentimentWidget } from '@/components/dashboard/ComicSentimentWidget';
 import { WorldClocksWidget } from '@/components/dashboard/WorldClocksWidget';
@@ -605,7 +606,15 @@ export default function DashboardPage() {
             <PublisherBondsWidget />
           </MosaicItem>
 
-          {/* Institutional Flow & Dark Pools */}
+          {/* Asset Growth & Institutional Flow */}
+          <MosaicItem span={1}>
+            <AssetGrowthWidget />
+          </MosaicItem>
+          <MosaicItem span={2}>
+            <InstitutionalOrderFlowWidget />
+          </MosaicItem>
+
+          {/* Dark Pools & Trading Flow */}
           <MosaicItem span={1}>
             <UnusualActivityWidget />
           </MosaicItem>
@@ -614,9 +623,6 @@ export default function DashboardPage() {
           </MosaicItem>
           <MosaicItem span={1}>
             <OrderBookWidget />
-          </MosaicItem>
-          <MosaicItem span={2}>
-            <InstitutionalOrderFlowWidget />
           </MosaicItem>
 
           {/* AI Tools - Final Row */}

@@ -1580,6 +1580,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Asset Growth Metrics - NEW assets tracking
+  app.get("/api/growth/metrics", async (req, res) => {
+    try {
+      const { getAssetGrowthMetrics } = await import('./services/assetGrowthMetrics.js');
+      const metrics = await getAssetGrowthMetrics();
+      res.json(metrics);
+    } catch (error) {
+      console.error("Error fetching growth metrics:", error);
+      res.status(500).json({ error: "Failed to fetch growth metrics" });
+    }
+  });
+
   // Institutional Order Flow - Live NPC trading activity
   app.get("/api/institutional/order-flow", async (req, res) => {
     try {
