@@ -1,7 +1,7 @@
 import { pineconeService } from './pineconeService';
 import { openaiService } from './openaiService';
-import { priceChartingService } from './priceChartingService';
-import type { ComicPricesByGrade } from './priceChartingService';
+import { unifiedPricingEngine } from './unifiedPricingEngine';
+import { tierClassificationService } from './tierClassificationService';
 import crypto from 'crypto';
 
 /**
@@ -33,90 +33,171 @@ export class PineconeAssetExpansionService {
   }
 
   /**
-   * Enrich asset with real market pricing data
-   * Handles API failures gracefully with fallback to estimates
+   * Parse metadata from Pinecone description to extract pricing inputs
+   * Looks for appearance counts, franchise indicators, etc.
+   */
+  private parseMetadata(description: string | undefined): {
+    appearances: number;
+    keyAppearances: number;
+    franchiseTier: number;
+  } {
+    // Default values
+    let appearances = 50;
+    let keyAppearances = 10;
+    let franchiseTier = 2;
+
+    if (!description) return { appearances, keyAppearances, franchiseTier };
+
+    // Extract appearance counts from description
+    const appearanceMatch = description.match(/(\d+)\s*appearance/i);
+    if (appearanceMatch) {
+      appearances = parseInt(appearanceMatch[1], 10);
+      keyAppearances = Math.floor(appearances * 0.2); // Assume 20% are key
+    }
+
+    // Look for franchise indicators
+    if (/(flagship|main|original|first|primary)/i.test(description)) {
+      franchiseTier = 1;
+    } else if (/(variant|alternate|incarnation|version)/i.test(description)) {
+      franchiseTier = 2;
+    }
+
+    return { appearances, keyAppearances, franchiseTier };
+  }
+
+  /**
+   * Determine era from character/comic name and metadata
+   * Golden: 1938-1956, Silver: 1956-1970, Bronze: 1970-1985, Modern: 1985+
+   */
+  private determineEra(name: string, metadata: any): 'golden' | 'silver' | 'bronze' | 'modern' {
+    // Check for era indicators in name
+    if (/(golden age|1940s|1950s)/i.test(name)) return 'golden';
+    if (/(silver age|1960s)/i.test(name)) return 'silver';
+    if (/(bronze age|1970s|1980s)/i.test(name)) return 'bronze';
+    if (/(modern|2000s|2010s)/i.test(name)) return 'modern';
+
+    // Default to silver age for Marvel characters (most Pinecone data is silver/bronze era)
+    return 'silver';
+  }
+
+  /**
+   * Enrich asset with mathematical pricing using unified pricing engine
+   * No API calls - pure mathematical formula based on metadata
    */
   async enrichAssetWithPricing(asset: any): Promise<any> {
     try {
-      let pricing: {
-        currentPrice: number;
-        source: string;
-        lastUpdated: string;
-        grades?: any;
-        highestPrice?: number;
-        bestGrade?: string;
-      } | null = null;
-
       if (asset.type === 'character') {
         const characterName = asset.baseName || asset.name;
-        console.log(`💰 Fetching price for character: ${characterName}`);
+        const parsedMeta = this.parseMetadata(asset.metadata?.description);
+        const era = this.determineEra(asset.name, asset.metadata);
         
-        const price = await priceChartingService.getPriceForCharacter(characterName);
-        
-        pricing = {
-          currentPrice: price,
-          source: 'pricecharting',
-          lastUpdated: new Date().toISOString()
+        // Classify tier using tier classification service
+        const classification = tierClassificationService.classifyCharacter({
+          name: characterName,
+          publisher: asset.metadata?.publisher,
+          appearances: parsedMeta.appearances,
+          isVariant: !!asset.variant
+        });
+
+        const pricingResult = unifiedPricingEngine.calculatePrice({
+          assetType: 'character',
+          name: characterName,
+          era,
+          keyAppearances: parsedMeta.keyAppearances,
+          franchiseTier: classification.tier,
+          isVariant: classification.isVariant
+        });
+
+        return {
+          ...asset,
+          pricing: {
+            currentPrice: pricingResult.sharePrice,
+            totalMarketValue: pricingResult.totalMarketValue,
+            totalFloat: pricingResult.totalFloat,
+            source: 'mathematical',
+            lastUpdated: new Date().toISOString(),
+            breakdown: pricingResult.breakdown
+          },
+          tier: classification.tier
         };
-        
-        console.log(`   ✅ Character price: $${price.toLocaleString()}`);
       } 
       else if (asset.type === 'creator') {
-        console.log(`💰 Fetching price for creator: ${asset.name}`);
+        const parsedMeta = this.parseMetadata(asset.metadata?.description);
         
-        const price = await priceChartingService.getPriceForCreator(asset.name);
-        
-        pricing = {
-          currentPrice: price,
-          source: 'pricecharting',
-          lastUpdated: new Date().toISOString()
+        // Classify tier using tier classification service (includes role weighting)
+        const classification = tierClassificationService.classifyCreator({
+          name: asset.name,
+          appearances: parsedMeta.appearances
+        });
+
+        const pricingResult = unifiedPricingEngine.calculatePrice({
+          assetType: 'creator',
+          name: asset.name,
+          era: 'silver',
+          roleWeightedAppearances: classification.roleWeightedAppearances,
+          creatorTier: classification.tier
+        });
+
+        return {
+          ...asset,
+          pricing: {
+            currentPrice: pricingResult.sharePrice,
+            totalMarketValue: pricingResult.totalMarketValue,
+            totalFloat: pricingResult.totalFloat,
+            source: 'mathematical',
+            lastUpdated: new Date().toISOString(),
+            breakdown: pricingResult.breakdown
+          },
+          tier: classification.tier
         };
-        
-        console.log(`   ✅ Creator price: $${price.toLocaleString()}`);
       } 
       else if (asset.type === 'comic') {
-        console.log(`💰 Fetching CGC prices for comic: ${asset.name}`);
-        
-        const gradeData: ComicPricesByGrade | null = await priceChartingService.getComicPricesByGrade(asset.name);
-        
-        if (gradeData) {
-          pricing = {
-            currentPrice: gradeData.highestPrice || 0,
-            source: 'pricecharting',
+        const era = this.determineEra(asset.name, asset.metadata);
+        const parsedMeta = this.parseMetadata(asset.metadata?.description);
+
+        const pricingResult = unifiedPricingEngine.calculatePrice({
+          assetType: 'comic',
+          name: asset.name,
+          era,
+          keyAppearances: parsedMeta.keyAppearances,
+          franchiseTier: parsedMeta.franchiseTier as 1 | 2 | 3 | 4
+        });
+
+        return {
+          ...asset,
+          pricing: {
+            currentPrice: pricingResult.sharePrice,
+            totalMarketValue: pricingResult.totalMarketValue,
+            totalFloat: pricingResult.totalFloat,
+            source: 'mathematical',
             lastUpdated: new Date().toISOString(),
-            grades: gradeData.grades,
-            highestPrice: gradeData.highestPrice,
-            bestGrade: gradeData.bestGrade
-          };
-          
-          console.log(`   ✅ Comic highest price: $${gradeData.highestPrice?.toLocaleString() || 'N/A'} (${gradeData.bestGrade})`);
-        } else {
-          const estimatedPrice = Math.random() * 5000 + 500;
-          pricing = {
-            currentPrice: Math.round(estimatedPrice),
-            source: 'estimate',
-            lastUpdated: new Date().toISOString()
-          };
-          console.log(`   ⚠️ Using estimated price: $${pricing.currentPrice.toLocaleString()}`);
-        }
+            breakdown: pricingResult.breakdown
+          }
+        };
       }
 
-      return {
-        ...asset,
-        pricing
-      };
+      return asset;
     } catch (error) {
-      console.warn(`⚠️ Failed to fetch pricing for ${asset.type} "${asset.name}":`, error instanceof Error ? error.message : 'Unknown error');
+      console.warn(`⚠️ Failed to price ${asset.type} "${asset.name}":`, error instanceof Error ? error.message : 'Unknown error');
       
-      const fallbackPrice = asset.type === 'character' ? Math.random() * 10000 + 1000 :
-                            asset.type === 'creator' ? Math.random() * 25000 + 5000 :
-                            Math.random() * 5000 + 500;
-      
+      // Fallback to default tier 2 pricing
+      const fallbackResult = unifiedPricingEngine.calculatePrice({
+        assetType: asset.type === 'creator' ? 'creator' : 'character',
+        name: asset.name,
+        era: 'silver',
+        keyAppearances: 10,
+        franchiseTier: asset.type === 'creator' ? undefined : 2,
+        creatorTier: asset.type === 'creator' ? 2 : undefined,
+        roleWeightedAppearances: asset.type === 'creator' ? 50 : undefined
+      });
+
       return {
         ...asset,
         pricing: {
-          currentPrice: Math.round(fallbackPrice),
-          source: 'estimate',
+          currentPrice: fallbackResult.sharePrice,
+          totalMarketValue: fallbackResult.totalMarketValue,
+          totalFloat: fallbackResult.totalFloat,
+          source: 'mathematical_fallback',
           lastUpdated: new Date().toISOString()
         }
       };
@@ -375,33 +456,28 @@ export class PineconeAssetExpansionService {
 
     console.log(`✅ Transformed ${characterAssets.length} characters, ${creatorAssets.length} creators, ${comicAssets.length} comics`);
 
-    // Step 2: Enrich with pricing data (with rate limiting)
-    console.log('💰 Enriching assets with real market pricing...');
+    // Step 2: Enrich with mathematical pricing (instant - no API calls)
+    console.log('💰 Calculating mathematical pricing for assets...');
     
     const allAssets = [...characterAssets, ...creatorAssets, ...comicAssets];
-    const enrichedAssets: any[] = [];
     
-    for (let i = 0; i < allAssets.length; i++) {
-      const asset = allAssets[i];
-      
-      const enrichedAsset = await this.enrichAssetWithPricing(asset);
-      enrichedAssets.push(enrichedAsset);
-      
-      if (i < allAssets.length - 1) {
-        await this.sleep(100);
-      }
-    }
+    // Parallel pricing calculation (no API limits - pure math)
+    const enrichedAssets = await Promise.all(
+      allAssets.map(asset => this.enrichAssetWithPricing(asset))
+    );
 
     const enrichedCharacters = enrichedAssets.filter(a => a.type === 'character');
     const enrichedCreators = enrichedAssets.filter(a => a.type === 'creator');
     const enrichedComics = enrichedAssets.filter(a => a.type === 'comic');
 
-    const pricedCount = enrichedAssets.filter(a => a.pricing?.source === 'pricecharting').length;
-    const estimatedCount = enrichedAssets.filter(a => a.pricing?.source === 'estimate').length;
+    const mathematicalCount = enrichedAssets.filter(a => a.pricing?.source === 'mathematical').length;
+    const fallbackCount = enrichedAssets.filter(a => a.pricing?.source === 'mathematical_fallback').length;
+    const avgPrice = enrichedAssets.reduce((sum, a) => sum + (a.pricing?.currentPrice || 0), 0) / enrichedAssets.length;
 
-    console.log(`✅ Pricing enrichment complete:`);
-    console.log(`   📊 Real prices: ${pricedCount} assets`);
-    console.log(`   📊 Estimated prices: ${estimatedCount} assets`);
+    console.log(`✅ Pricing calculation complete:`);
+    console.log(`   📊 Mathematical prices: ${mathematicalCount} assets`);
+    console.log(`   📊 Fallback prices: ${fallbackCount} assets`);
+    console.log(`   💵 Average share price: $${avgPrice.toFixed(2)}`);
 
     return {
       characterAssets: enrichedCharacters,
