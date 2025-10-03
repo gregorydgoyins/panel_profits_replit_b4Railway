@@ -1864,6 +1864,175 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Dataset expansion routes (Pokemon, Funko, Manga, Movies)
   app.use("/api/datasets", datasetExpansionRoutes);
 
+
+  // ================================
+  // EXTERNAL SCRAPER ROUTES
+  // Expand asset database from external comic book APIs
+  // ================================
+  
+  // Superhero API expansion routes
+  const { SuperheroApiExpansionService } = await import('./services/superheroApiExpansion.js');
+  
+  app.post("/api/scrapers/superhero/expand-all", async (req, res) => {
+    try {
+      console.log('🦸 Starting Superhero API full expansion...');
+      const results = await SuperheroApiExpansionService.expandAll();
+      res.json({
+        success: true,
+        message: `Superhero API expansion complete`,
+        ...results
+      });
+    } catch (error) {
+      console.error('Superhero API expansion failed:', error);
+      res.status(500).json({ error: "Failed to expand from Superhero API" });
+    }
+  });
+  
+  app.get("/api/scrapers/superhero/search/:name", async (req, res) => {
+    try {
+      const results = await SuperheroApiExpansionService.searchCharacter(req.params.name);
+      res.json(results);
+    } catch (error) {
+      console.error('Superhero API search failed:', error);
+      res.status(500).json({ error: "Failed to search Superhero API" });
+    }
+  });
+  
+  app.get("/api/scrapers/superhero/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const character = await SuperheroApiExpansionService.fetchCharacterById(id);
+      if (!character) {
+        return res.status(404).json({ error: "Character not found" });
+      }
+      res.json(character);
+    } catch (error) {
+      console.error('Superhero API fetch failed:', error);
+      res.status(500).json({ error: "Failed to fetch character" });
+    }
+  });
+  
+  // Metron DB expansion routes (Python wrapper)
+  const { exec } = await import('child_process');
+  const { promisify } = await import('util');
+  const execAsync = promisify(exec);
+  
+  app.post("/api/scrapers/metron/recent", async (req, res) => {
+    try {
+      const days = req.body.days || 7;
+      console.log(`📖 Fetching Metron issues from past ${days} days...`);
+      
+      const { stdout, stderr } = await execAsync(
+        `python3 server/services/metronExpansion.py recent ${days}`
+      );
+      
+      if (stderr && !stderr.includes('WARNING')) {
+        console.error('Metron stderr:', stderr);
+      }
+      
+      const issues = JSON.parse(stdout);
+      res.json({
+        success: true,
+        count: issues.length,
+        issues
+      });
+    } catch (error) {
+      console.error('Metron expansion failed:', error);
+      res.status(500).json({ error: "Failed to fetch from Metron DB" });
+    }
+  });
+  
+  app.get("/api/scrapers/metron/series/:name", async (req, res) => {
+    try {
+      console.log(`📖 Fetching Metron series: ${req.params.name}`);
+      
+      const { stdout, stderr } = await execAsync(
+        `python3 server/services/metronExpansion.py series "${req.params.name}"`
+      );
+      
+      if (stderr && !stderr.includes('WARNING')) {
+        console.error('Metron stderr:', stderr);
+      }
+      
+      const series = JSON.parse(stdout);
+      if (!series) {
+        return res.status(404).json({ error: "Series not found" });
+      }
+      res.json(series);
+    } catch (error) {
+      console.error('Metron series fetch failed:', error);
+      res.status(500).json({ error: "Failed to fetch series" });
+    }
+  });
+  
+  // Grand Comic Database expansion routes
+  const { GcdExpansionService } = await import('./services/gcdExpansion.js');
+  
+  app.post("/api/scrapers/gcd/process-dump", async (req, res) => {
+    try {
+      const dumpPath = req.body.dumpPath;
+      console.log('📚 Processing GCD database dump...');
+      const results = await GcdExpansionService.processDump(dumpPath);
+      res.json({
+        success: true,
+        message: 'GCD dump processing complete',
+        ...results
+      });
+    } catch (error) {
+      console.error('GCD processing failed:', error);
+      res.status(500).json({ error: "Failed to process GCD dump" });
+    }
+  });
+  
+  app.get("/api/scrapers/gcd/setup", async (req, res) => {
+    const instructions = GcdExpansionService.getSetupInstructions();
+    res.json({
+      instructions,
+      dumpUrl: 'https://www.comics.org/download/',
+      license: 'CC BY-SA 4.0',
+      attribution: 'Grand Comics Database™'
+    });
+  });
+  
+  // Scraper status endpoint
+  app.get("/api/scrapers/status", async (req, res) => {
+    const superheroToken = process.env.SUPERHERO_API_TOKEN ? '✅ Configured' : '❌ Missing';
+    const metronUsername = process.env.METRON_USERNAME ? '✅ Configured' : '❌ Missing';
+    const metronPassword = process.env.METRON_PASSWORD ? '✅ Configured' : '❌ Missing';
+    const gcdPath = process.env.GCD_DUMP_PATH ? '✅ Configured' : '⚠️  Optional';
+    
+    res.json({
+      scrapers: {
+        superhero_api: {
+          status: superheroToken,
+          endpoint: 'https://superheroapi.com',
+          expansion_route: '/api/scrapers/superhero/expand-all',
+          coverage: '~731 characters (Marvel, DC, and more)'
+        },
+        metron_db: {
+          status: metronUsername === '✅ Configured' && metronPassword === '✅ Configured' ? '✅ Configured' : '❌ Incomplete',
+          endpoint: 'https://metron.cloud',
+          expansion_route: '/api/scrapers/metron/recent',
+          coverage: 'Community-driven comic database with REST API',
+          rate_limit: '30 req/min, 10K req/day'
+        },
+        grand_comic_database: {
+          status: gcdPath,
+          endpoint: 'https://www.comics.org',
+          expansion_route: '/api/scrapers/gcd/process-dump',
+          coverage: 'Comprehensive comic database (requires manual dump download)',
+          license: 'CC BY-SA 4.0'
+        }
+      },
+      total_assets: (await storage.getAssets()).length,
+      setup_urls: {
+        superhero_api: 'https://www.superheroapi.com/',
+        metron_db: 'https://metron.cloud/',
+        gcd: 'https://www.comics.org/download/'
+      }
+    });
+  });
+
   // Houses System Routes (Seven Mythological Houses)
   app.use("/api/houses", housesRoutes);
   app.use(sevenHousesRoutes);
