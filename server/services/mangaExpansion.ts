@@ -56,8 +56,10 @@ export class MangaExpansionService {
     const startTime = Date.now();
 
     for (const row of records) {
-      const symbol = this.generateSymbol(row['Manga series'], 'bestselling');
-      const salesMillions = parseFloat(row['Approximate sales in million(s)']) || 0;
+      try {
+        const mangaTitle = row['Manga series'] || 'Unknown';
+        const symbol = this.generateSymbol(mangaTitle, 'bestselling');
+        const salesMillions = parseFloat(row['Approximate sales in million(s)']) || 0;
       
       const metadata = {
         authors: row['Author(s)'],
@@ -72,30 +74,33 @@ export class MangaExpansionService {
         source: 'kaggle_manga_bestselling'
       };
 
-      const pricingResult = this.pricingEngine.generateMangaPricing({
-        title: row['Manga series'],
-        salesMillions,
-        volumes: parseInt(row['No. of collected volumes']) || 0
-      });
+        const pricingResult = this.pricingEngine.generateMangaPricing({
+          title: mangaTitle,
+          salesMillions,
+          volumes: parseInt(row['No. of collected volumes']) || 0
+        });
 
-      const asset = {
-        symbol,
-        name: row['Manga series'],
-        type: 'comic',
-        description: `${row['Manga series']} by ${row['Author(s)']} - ${salesMillions}M+ copies sold`,
-        imageUrl: null,
-        metadata,
-        pricing: {
-          currentPrice: pricingResult.sharePrice,
-          totalMarketValue: pricingResult.totalMarketValue,
-          totalFloat: pricingResult.totalFloat,
-          source: 'kaggle_manga_bestselling',
-          lastUpdated: new Date().toISOString(),
-          breakdown: pricingResult.breakdown
-        }
-      };
+        const asset = {
+          symbol,
+          name: mangaTitle,
+          type: 'comic',
+          description: `${mangaTitle} by ${row['Author(s)']} - ${salesMillions}M+ copies sold`,
+          imageUrl: null,
+          metadata,
+          pricing: {
+            currentPrice: pricingResult.sharePrice,
+            totalMarketValue: pricingResult.totalMarketValue,
+            totalFloat: pricingResult.totalFloat,
+            source: 'kaggle_manga_bestselling',
+            lastUpdated: new Date().toISOString(),
+            breakdown: pricingResult.breakdown
+          }
+        };
 
-      assetsToInsert.push(asset);
+        assetsToInsert.push(asset);
+      } catch (error) {
+        console.error(`Error processing manga ${row['Manga series']}:`, error);
+      }
     }
 
     const result = await this.assetInsertion.insertPricedAssets(assetsToInsert);

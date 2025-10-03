@@ -206,6 +206,7 @@ class TierClassificationService {
     };
     
     const weights = roles.map(role => {
+      if (!role) return 0.5;
       const roleLower = role.toLowerCase();
       for (const [key, weight] of Object.entries(roleWeights)) {
         if (roleLower.includes(key)) return weight;
@@ -221,6 +222,8 @@ class TierClassificationService {
    * Check if character name indicates a variant
    */
   private isVariantCharacter(name: string): boolean {
+    if (!name) return false;
+    
     const variantIndicators = [
       'ultimate', 'house of m', '2099', 'noir', 'zombies',
       'earth-', 'prime', 'earth 2', 'new 52', 'rebirth',
@@ -259,6 +262,7 @@ class TierClassificationService {
    * Normalize creator/character name for matching
    */
   private normalizeCredit(name: string): string {
+    if (!name) return '';
     return name
       .toLowerCase()
       .trim()
