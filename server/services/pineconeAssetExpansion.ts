@@ -2,6 +2,7 @@ import { pineconeService } from './pineconeService';
 import { openaiService } from './openaiService';
 import { priceChartingService } from './priceChartingService';
 import type { ComicPricesByGrade } from './priceChartingService';
+import crypto from 'crypto';
 
 /**
  * Pinecone Asset Expansion Service
@@ -255,6 +256,7 @@ export class PineconeAssetExpansionService {
    * Generate asset symbol from name
    * For variants, includes variant suffix: "CAP.HOM" for "Captain America (House of M)"
    * Adds deterministic hash suffix to prevent collisions while maintaining idempotency
+   * Uses crypto hash for strong collision resistance at scale
    */
   generateAssetSymbol(name: string, variant?: string | null, pineconeId?: string): string {
     // Parse base name and variant if not provided
@@ -279,15 +281,18 @@ export class PineconeAssetExpansionService {
       baseSymbol = `${baseSymbol}.${variantSuffix}`;
     }
     
-    // Add deterministic hash suffix to prevent collisions
-    // Uses normalized name + variant + pineconeId for deterministic uniqueness
+    // Add deterministic crypto hash suffix for strong collision resistance
+    // Uses SHA-256 with fixed 11-char base-36 suffix (36^11 ≈ 131 quadrillion unique values)
+    // Input: normalized name + variant + pineconeId for deterministic uniqueness
     const hashInput = `${parsed.baseName.toLowerCase()}|${parsed.variant?.toLowerCase() || ''}|${pineconeId || ''}`;
-    let hash = 0;
-    for (let i = 0; i < hashInput.length; i++) {
-      hash = ((hash << 5) - hash) + hashInput.charCodeAt(i);
-      hash = hash & hash; // Convert to 32-bit integer
-    }
-    const hashSuffix = Math.abs(hash).toString(36).substring(0, 6).toUpperCase();
+    const hash = crypto.createHash('sha256').update(hashInput).digest('hex');
+    // Use BigInt to map full hash into 36^11 symbol space (≈56.5 bits for 131Q range)
+    // Take first 16 hex chars (64 bits) and reduce modulo 36^11 for uniform distribution
+    // Provides <0.01% collision probability at 1M assets, <0.04% at 10M assets
+    const hashBigInt = BigInt('0x' + hash.substring(0, 16));
+    const symbolSpace = BigInt(36 ** 11); // 131,621,703,842,267,136
+    const hashMod = hashBigInt % symbolSpace;
+    const hashSuffix = hashMod.toString(36).toUpperCase().padStart(11, '0');
     
     return `${baseSymbol || 'ASSET'}.${hashSuffix}`;
   }
