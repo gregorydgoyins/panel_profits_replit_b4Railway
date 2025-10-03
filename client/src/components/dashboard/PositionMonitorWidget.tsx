@@ -16,7 +16,6 @@ import {
   Target, ArrowUpDown, DollarSign, TrendingDown as Loss, TrendingUp as Profit
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useWebSocket } from '@/hooks/useWebSocket';
 import { useLocation } from 'wouter';
 
 interface Position {
@@ -50,20 +49,13 @@ export function PositionMonitorWidget() {
   const { data: holdings = [], isLoading } = useQuery<any[]>({
     queryKey: ['/api/portfolios', defaultPortfolio?.id, 'holdings'],
     enabled: !!defaultPortfolio?.id,
-    refetchInterval: 30000,
+    refetchInterval: 60000, // Poll every minute for price updates
   });
 
-  // Get real-time prices via WebSocket
-  const assetIds = holdings.map((h: any) => h.assetId);
-  const { getRealTimePrice, isConnected } = useWebSocket({
-    subscribeTo: { assets: assetIds }
-  });
-
-  // Transform to positions with real-time prices
+  // Transform to positions (data already includes current prices from API)
   const positions: Position[] = useMemo(() => {
     return holdings.map((holding: any) => {
-      const realtimeData = getRealTimePrice(holding.assetId);
-      const currentPrice = realtimeData?.price || parseFloat(holding.currentPrice || '0');
+      const currentPrice = parseFloat(holding.currentPrice || '0');
       const entryPrice = parseFloat(holding.avgPrice || '0');
       const quantity = parseFloat(holding.quantity || '0');
       const totalValue = currentPrice * quantity;
@@ -84,7 +76,7 @@ export function PositionMonitorWidget() {
         pnlPercent,
       };
     });
-  }, [holdings, getRealTimePrice]);
+  }, [holdings]);
 
   // Sort positions
   const sortedPositions = useMemo(() => {
@@ -173,14 +165,8 @@ export function PositionMonitorWidget() {
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <DollarSign className="w-5 h-5 text-green-500" />
-            <CardTitle>Position Monitor - Real-Time P&L</CardTitle>
+            <CardTitle>Position Monitor - P&L Tracker</CardTitle>
             <Badge variant="outline">{positions.length} positions</Badge>
-            {isConnected && (
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                Live
-              </Badge>
-            )}
           </div>
           <div className="flex items-center gap-2">
             <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>

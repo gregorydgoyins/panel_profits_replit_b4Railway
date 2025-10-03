@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest, queryClient } from '@/lib/queryClient';
-import { useWebSocket } from '@/hooks/useWebSocket';
 import { useLocation } from 'wouter';
 
 interface WatchlistAsset {
@@ -33,38 +32,27 @@ export function WatchlistPanelWidget() {
 
   const { data: watchlists, isLoading } = useQuery<any[]>({ 
     queryKey: ['/api/watchlists'],
-    refetchInterval: 60000
+    refetchInterval: 60000 // Poll every minute for updates
   });
 
   const currentWatchlist = watchlists?.[0];
-  
-  // Get real-time prices via WebSocket
-  const assetIds = currentWatchlist?.assets?.map((a: any) => a.assetId) || [];
-  const { getRealTimePrice, isConnected } = useWebSocket({
-    subscribeTo: { assets: assetIds }
-  });
 
-  // Transform watchlist assets with real-time data
+  // Transform watchlist assets (data already includes current prices from API)
   const watchlistAssets: WatchlistAsset[] = useMemo(() => {
     if (!currentWatchlist?.assets) return [];
     
-    return currentWatchlist.assets.map((asset: any) => {
-      const realtimeData = getRealTimePrice(asset.assetId);
-      const currentPrice = realtimeData?.price || parseFloat(asset.currentPrice || '0');
-      
-      return {
-        id: asset.id,
-        assetId: asset.assetId,
-        symbol: asset.assetSymbol || 'N/A',
-        name: asset.assetName || 'Unknown Asset',
-        type: asset.assetType as any,
-        currentPrice,
-        dayChange: parseFloat(asset.dayChange || '0'),
-        dayChangePercent: parseFloat(asset.dayChangePercent || '0'),
-        volume: parseFloat(asset.volume || '0'),
-      };
-    });
-  }, [currentWatchlist, getRealTimePrice]);
+    return currentWatchlist.assets.map((asset: any) => ({
+      id: asset.id,
+      assetId: asset.assetId,
+      symbol: asset.assetSymbol || 'N/A',
+      name: asset.assetName || 'Unknown Asset',
+      type: asset.assetType as any,
+      currentPrice: parseFloat(asset.currentPrice || '0'),
+      dayChange: parseFloat(asset.dayChange || '0'),
+      dayChangePercent: parseFloat(asset.dayChangePercent || '0'),
+      volume: parseFloat(asset.volume || '0'),
+    }));
+  }, [currentWatchlist]);
 
   const filteredAssets = useMemo(() => {
     return watchlistAssets.filter(asset =>
@@ -164,12 +152,6 @@ export function WatchlistPanelWidget() {
             <Eye className="w-5 h-5 text-purple-500" />
             <CardTitle>Watchlist Panel</CardTitle>
             <Badge variant="outline">{watchlistAssets.length}</Badge>
-            {isConnected && (
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                Live
-              </Badge>
-            )}
           </div>
           <Button variant="outline" size="sm" data-testid="button-add-to-watchlist">
             <Plus className="w-4 h-4 mr-1" />

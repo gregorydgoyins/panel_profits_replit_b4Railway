@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
-import { useWebSocket } from '@/hooks/useWebSocket';
+import { useQuery } from '@tanstack/react-query';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { useLocation } from 'wouter';
 
@@ -13,32 +13,51 @@ interface TickerAsset {
   assetType?: string;
 }
 
+interface MarketSnapshot {
+  timestamp: string;
+  count: number;
+  data: {
+    assetId: string;
+    symbol: string;
+    currentPrice: number;
+    change: number;
+    changePercent: number;
+    volume: number;
+    timestamp: string;
+  }[];
+}
+
 export function StockTicker() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [, setLocation] = useLocation();
   
-  // Connect to WebSocket for live market data
-  const { marketData, isConnected } = useWebSocket();
+  // Poll market data snapshot endpoint
+  // TODO: Make refetchInterval configurable based on subscription tier
+  // Free: 300000 (5min), Basic: 60000 (1min), Premium: 15000 (15s), Pro: 5000 (5s)
+  const { data: snapshot, isLoading } = useQuery<MarketSnapshot>({
+    queryKey: ['/api/market-data/snapshot'],
+    refetchInterval: 60000, // 1 minute polling (Basic tier default)
+    refetchIntervalInBackground: true,
+    staleTime: 0, // Always fetch fresh data on interval
+  });
 
-  // Convert marketData Map to array and sort by volume, take top 20
+  // Convert snapshot data to TickerAsset format
   const topAssets = useMemo((): TickerAsset[] => {
-    if (!marketData || marketData.size === 0) return [];
+    if (!snapshot?.data) return [];
     
-    const assets = Array.from(marketData.values())
-      .map(data => ({
-        assetId: data.assetId,
-        symbol: data.symbol,
-        name: data.symbol, // Use symbol as name fallback
-        currentPrice: data.currentPrice,
-        changePercent: data.changePercent,
-        volume: data.volume || 0,
+    return snapshot.data
+      .map(item => ({
+        assetId: item.assetId,
+        symbol: item.symbol,
+        name: item.symbol, // Use symbol as name fallback
+        currentPrice: item.currentPrice,
+        changePercent: item.changePercent,
+        volume: item.volume || 0,
       }))
       .sort((a, b) => b.volume - a.volume) // Sort by volume descending
       .slice(0, 20); // Take top 20
-    
-    return assets;
-  }, [marketData]);
+  }, [snapshot]);
 
   // Auto-scroll animation
   useEffect(() => {
@@ -70,7 +89,6 @@ export function StockTicker() {
 
   const handleAssetClick = (asset: TickerAsset) => {
     // Navigate to trading page with the asset pre-selected
-    // You can update this to match your routing structure
     setLocation(`/trading?asset=${asset.assetId}`);
   };
 
@@ -81,15 +99,15 @@ export function StockTicker() {
     return `$${price.toFixed(2)}`;
   };
 
-  // Show loading state while connecting
-  if (!isConnected) {
+  // Show loading state while fetching initial data
+  if (isLoading && !snapshot) {
     return (
       <div 
         className="w-full bg-card/80 border-b border-border/50 h-10 flex items-center justify-center backdrop-blur-sm"
         data-testid="stock-ticker-loading"
       >
         <div className="text-muted-foreground text-xs font-mono uppercase tracking-wider">
-          Connecting to market feed...
+          Loading market feed...
         </div>
       </div>
     );
@@ -205,11 +223,11 @@ export function StockTicker() {
         </div>
       </div>
 
-      {/* Connection status indicator (only shown when paused) */}
-      {isPaused && (
+      {/* Polling status indicator (only shown when paused) */}
+      {isPaused && snapshot && (
         <div className="absolute top-0 right-0 px-2 py-1 bg-card/95 border-l border-b border-border/50 backdrop-blur-sm">
           <span className="text-xs text-muted-foreground font-mono uppercase tracking-wider">
-            Paused • Click to trade
+            Paused • Last update: {new Date(snapshot.timestamp).toLocaleTimeString()}
           </span>
         </div>
       )}
