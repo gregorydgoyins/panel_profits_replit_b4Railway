@@ -10,58 +10,58 @@
 /* ═══════════════════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* PURPLE-THEMED INSTITUTIONAL PALETTE */
-  --background: 270 35% 8%; /* Deep purple-black base */
-  --foreground: 280 10% 95%; /* Off-white with purple tint */
+  /* INSTITUTIONAL COLOR PALETTE - MINIMAL & PROFESSIONAL */
+  --background: 0 0% 0%; /* #000000 - Pure black */
+  --foreground: 0 0% 100%; /* #FFFFFF - Pure white */
   
-  --border: 270 25% 20%; /* Purple-tinted borders */
+  --border: 0 0% 14%; /* #232323 - Subtle dark grey borders */
   
-  --card: 270 20% 14%; /* Purple-grey card */
-  --card-foreground: 280 10% 90%; /* Light purple-tinted text */
-  --card-border: 270 25% 22%; /* Lighter purple border */
+  --card: 0 0% 7%; /* #121212 - Slightly elevated dark */
+  --card-foreground: 0 0% 90%; /* #E5E5E5 - Light grey text */
+  --card-border: 0 0% 14%; /* Subtle borders */
   
-  --sidebar: 270 30% 10%; /* Dark purple sidebar */
-  --sidebar-foreground: 280 10% 85%; /* Purple-tinted text */
-  --sidebar-border: 270 25% 20%; /* Purple boundary */
-  --sidebar-primary: 270 60% 55%; /* Vibrant purple */
+  --sidebar: 0 0% 5%; /* #0D0D0D - Near black */
+  --sidebar-foreground: 0 0% 85%; /* #D9D9D9 - Muted white */
+  --sidebar-border: 0 0% 14%; /* Dark grey boundary */
+  --sidebar-primary: 215 14% 34%; /* #4B5563 - Muted grey-blue */
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 270 25% 16%; /* Dark purple accent */
-  --sidebar-accent-foreground: 280 10% 90%;
-  --sidebar-ring: 270 60% 55%; /* Purple ring */
+  --sidebar-accent: 0 0% 10%; /* Dark grey accent */
+  --sidebar-accent-foreground: 0 0% 90%;
+  --sidebar-ring: 215 14% 34%; /* Muted accent */
   
-  --popover: 270 20% 14%; /* Purple popover */
-  --popover-foreground: 280 10% 90%;
-  --popover-border: 270 25% 20%;
+  --popover: 0 0% 7%; /* Dark popover */
+  --popover-foreground: 0 0% 90%;
+  --popover-border: 0 0% 14%;
   
-  --primary: 270 60% 55%; /* Vibrant purple primary */
+  --primary: 215 14% 34%; /* #4B5563 - Muted grey-blue */
   --primary-foreground: 0 0% 100%;
   
-  --secondary: 270 20% 16%; /* Dark purple-grey */
-  --secondary-foreground: 280 10% 90%;
+  --secondary: 0 0% 10%; /* #1A1A1A - Dark grey */
+  --secondary-foreground: 0 0% 90%;
   
-  --muted: 270 15% 18%; /* Muted purple */
-  --muted-foreground: 270 10% 60%; /* Muted purple text */
+  --muted: 0 0% 10%; /* Dark grey */
+  --muted-foreground: 0 0% 60%; /* Muted text */
   
-  --accent: 270 60% 55%; /* Purple accent */
+  --accent: 215 14% 34%; /* Muted grey-blue accent */
   --accent-foreground: 0 0% 100%;
   
-  --destructive: 0 72% 43%; /* Warning red */
+  --destructive: 0 72% 43%; /* #DC2626 - Warning red (only for losses/errors) */
   --destructive-foreground: 0 0% 100%;
   
-  --input: 270 20% 14%;
-  --ring: 30 90% 55%; /* Orange glow ring */
+  --input: 0 0% 7%;
+  --ring: 215 14% 34%;
   
-  /* Chart colors - purple-themed palette */
-  --chart-1: 280 20% 85%; /* Light purple */
-  --chart-2: 270 60% 55%; /* Vibrant purple */
-  --chart-3: 260 40% 45%; /* Medium purple */
-  --chart-4: 30 90% 55%; /* Orange accent */
-  --chart-5: 280 15% 65%; /* Soft purple */
+  /* Chart colors - institutional palette */
+  --chart-1: 0 0% 100%; /* White */
+  --chart-2: 215 14% 34%; /* Muted grey-blue */
+  --chart-3: 0 0% 40%; /* Medium grey */
+  --chart-4: 0 72% 43%; /* Warning red */
+  --chart-5: 0 0% 60%; /* Light grey */
   
-  /* Orange/amber glow shadows */
-  --shadow-sm: 0 1px 2px rgba(255, 140, 0, 0.3);
-  --shadow-md: 0 2px 4px rgba(255, 140, 0, 0.4);
-  --shadow-lg: 0 4px 8px rgba(255, 140, 0, 0.5);
+  /* Subtle shadows for depth */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.5);
   
   /* Typography */
   --font-primary: 'Hind', sans-serif;
@@ -76,15 +76,15 @@
   --category-portfolio: 45 100% 50%; /* Gold */
   --category-news: 0 0% 100%; /* White */
   --category-learn: 180 100% 50%; /* Cyan */
-  --category-markets: 30 90% 55%; /* Orange glow */
+  --category-markets: 25 95% 53%; /* Orange */
   --category-research: 320 85% 60%; /* Pink/Magenta */
   --category-analytics: 140 70% 45%; /* Green */
   
   /* Header Label Colors */
   --header-navbar: 270 80% 60%; /* Purple - matches dashboard */
-  --header-welcome: 30 90% 55%; /* Orange glow */
+  --header-welcome: 45 100% 50%; /* Gold - matches portfolio */
   --header-stk-updates: 210 100% 50%; /* Blue - matches trading */
-  --header-breaking-news: 30 85% 60%; /* Orange accent */
+  --header-breaking-news: 0 0% 100%; /* White - matches news */
 }
 
 .light {
