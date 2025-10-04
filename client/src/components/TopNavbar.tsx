@@ -99,10 +99,16 @@ export function TopNavbar() {
         </Link>
       </div>
 
+      {/* Separator 1 */}
+      <div className="h-6 w-0.5 bg-gradient-to-b from-purple-500 to-indigo-500 flex-shrink-0" data-testid="separator-1" />
+
       {/* Group 2: All Navigation Buttons */}
       <div className="hidden md:flex items-center gap-1 flex-shrink-0">
         {navItems.map(renderNavItem)}
       </div>
+
+      {/* Separator 2 */}
+      <div className="h-6 w-0.5 bg-gradient-to-b from-purple-500 to-indigo-500 flex-shrink-0" data-testid="separator-2" />
 
       {/* Group 3: Notification, Settings, Profile Icons */}
       <div className="flex items-center gap-1 flex-shrink-0">
