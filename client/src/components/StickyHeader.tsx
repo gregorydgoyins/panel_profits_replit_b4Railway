@@ -189,8 +189,8 @@ export function StickyHeader() {
         </div>
       </div>
 
-      {/* Row 3: Stock Ticker */}
-      <div className="h-9 bg-black border-b border-gray-800 overflow-hidden relative">
+      {/* Row 3: Stock Ticker - HIDDEN UNTIL NOMENCLATURE AND ANIMATION VERIFIED */}
+      <div className="h-9 bg-black border-b border-gray-800 overflow-hidden relative hidden">
         <div className="h-full flex items-center">
           {/* Label Box */}
           <div className="absolute left-0 top-0 h-full px-4 bg-black border-r border-gray-800 flex items-center z-10">
@@ -210,28 +210,32 @@ export function StickyHeader() {
           {/* Scrolling Content */}
           <div className="h-full flex items-center pl-40">
             {tickerAssets && tickerAssets.length > 0 ? (
-              <div className="animate-marquee whitespace-nowrap">
-                <span 
-                  className="text-sm inline-flex items-center gap-6"
-                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                  data-testid="text-stock-ticker"
-                >
-                  {tickerAssets.map((asset, idx) => (
-                    <Link key={idx} href={`/asset/${asset.symbol}`}>
-                      <a 
-                        className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity"
-                        data-testid={`link-ticker-${asset.symbol.toLowerCase()}`}
-                      >
-                        <span className="text-gray-400">{asset.symbol}</span>
-                        <span className="text-white">${asset.currentPrice.toFixed(2)}</span>
-                        <span className={asset.change >= 0 ? 'text-green-500' : 'text-red-500'}>
-                          {asset.change >= 0 ? <TrendingUp className="w-3 h-3 inline" /> : <TrendingDown className="w-3 h-3 inline" />}
-                          {asset.changePercent >= 0 ? '+' : ''}{asset.changePercent.toFixed(2)}%
-                        </span>
-                      </a>
-                    </Link>
-                  ))}
-                </span>
+              <div key="ticker-wrapper" className="animate-marquee whitespace-nowrap">
+                {/* Duplicate content for seamless looping */}
+                {[0, 1].map((iteration) => (
+                  <span 
+                    key={iteration}
+                    className="text-sm inline-flex items-center gap-6 pr-6"
+                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                    data-testid={iteration === 0 ? "text-stock-ticker" : undefined}
+                  >
+                    {tickerAssets.map((asset, idx) => (
+                      <Link key={`${iteration}-${idx}`} href={`/asset/${asset.symbol}`}>
+                        <a 
+                          className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity"
+                          data-testid={iteration === 0 ? `link-ticker-${asset.symbol.toLowerCase()}` : undefined}
+                        >
+                          <span className="text-gray-400">{asset.symbol}</span>
+                          <span className="text-white">${asset.currentPrice.toFixed(2)}</span>
+                          <span className={asset.change >= 0 ? 'text-green-500' : 'text-red-500'}>
+                            {asset.change >= 0 ? <TrendingUp className="w-3 h-3 inline" /> : <TrendingDown className="w-3 h-3 inline" />}
+                            {asset.changePercent >= 0 ? '+' : ''}{asset.changePercent.toFixed(2)}%
+                          </span>
+                        </a>
+                      </Link>
+                    ))}
+                  </span>
+                ))}
               </div>
             ) : (
               <div className="animate-marquee whitespace-nowrap">

@@ -134,7 +134,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Market Ticker - Returns top movers for ticker display
   app.get('/api/market/ticker', async (req: any, res) => {
     try {
-      // Get top 100 assets with comic type for proper ticker formatting
+      // Get comics with proper series names (major franchises for ticker display)
       const topMovers = await db
         .select({
           symbol: assetsTable.symbol,
@@ -146,8 +146,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         })
         .from(assetsTable)
         .innerJoin(assetCurrentPrices, eq(assetsTable.id, assetCurrentPrices.assetId))
-        .where(sql`${assetCurrentPrices.currentPrice} IS NOT NULL AND ${assetsTable.type} = 'comic'`)
-        .orderBy(sql`${assetCurrentPrices.dayChangePercent} DESC`)
+        .where(sql`
+          ${assetCurrentPrices.currentPrice} IS NOT NULL 
+          AND ${assetsTable.type} = 'comic'
+          AND (
+            ${assetsTable.name} LIKE '%Spider-Man%'
+            OR ${assetsTable.name} LIKE '%Batman%'
+            OR ${assetsTable.name} LIKE '%Superman%'
+            OR ${assetsTable.name} LIKE '%Wonder Woman%'
+            OR ${assetsTable.name} LIKE '%X-Men%'
+            OR ${assetsTable.name} LIKE '%Avengers%'
+            OR ${assetsTable.name} LIKE '%Justice League%'
+            OR ${assetsTable.name} LIKE '%Flash%'
+            OR ${assetsTable.name} LIKE '%Captain America%'
+            OR ${assetsTable.name} LIKE '%Iron Man%'
+            OR ${assetsTable.name} LIKE '%Hulk%'
+            OR ${assetsTable.name} LIKE '%Thor%'
+            OR ${assetsTable.name} LIKE '%Fantastic Four%'
+            OR ${assetsTable.name} LIKE '%Daredevil%'
+            OR ${assetsTable.name} LIKE '%Deadpool%'
+            OR ${assetsTable.name} LIKE '%Wolverine%'
+            OR ${assetsTable.name} LIKE '%Green Lantern%'
+            OR ${assetsTable.name} LIKE '%Aquaman%'
+          )
+        `)
+        .orderBy(sql`RANDOM()`)
         .limit(100);
       
       // Format symbols using ticker nomenclature and convert decimals to numbers
