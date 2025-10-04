@@ -260,7 +260,7 @@ export function WorldClocksWidget() {
                     : market.status === 'after-hours'
                     ? 'rgba(234, 179, 8, 0.7)'
                     : 'rgba(239, 68, 68, 0.7)';
-                  e.currentTarget.style.boxShadow = `inset 0 0 20px ${glowColor}, inset 0 0 40px ${glowColor}`;
+                  e.currentTarget.style.boxShadow = `0 0 20px ${glowColor}, 0 0 40px ${glowColor}`;
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.boxShadow = '';
@@ -301,7 +301,7 @@ export function WorldClocksWidget() {
                     : market.status === 'after-hours'
                     ? 'rgba(234, 179, 8, 0.7)'
                     : 'rgba(239, 68, 68, 0.7)';
-                  e.currentTarget.style.boxShadow = `inset 0 0 20px ${glowColor}, inset 0 0 40px ${glowColor}`;
+                  e.currentTarget.style.boxShadow = `0 0 20px ${glowColor}, 0 0 40px ${glowColor}`;
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.boxShadow = '';
