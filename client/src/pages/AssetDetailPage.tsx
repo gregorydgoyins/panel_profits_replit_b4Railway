@@ -13,6 +13,7 @@ interface Asset {
   symbol: string;
   name: string;
   category: string;
+  type: string;
   publisher?: string;
   creators?: string[];
   firstAppearance?: string;
@@ -27,6 +28,14 @@ interface Asset {
   marketCap?: number;
   high52Week?: number;
   low52Week?: number;
+  // Comprehensive Bio Fields
+  biography?: string;
+  keyWorks?: string[];
+  relatedAssetIds?: string[];
+  franchiseTags?: string[];
+  teamTags?: string[];
+  publisherTags?: string[];
+  notableAppearances?: string[];
 }
 
 export default function AssetDetailPage() {
@@ -202,7 +211,7 @@ export default function AssetDetailPage() {
       </div>
 
       {/* Bio & Details Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Description */}
         <Card>
           <CardHeader>
@@ -278,6 +287,176 @@ export default function AssetDetailPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Extended Bio Section */}
+      {asset.biography && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+              Biography
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p 
+              className="text-gray-300 leading-relaxed whitespace-pre-wrap"
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+              data-testid="text-biography"
+            >
+              {asset.biography}
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Key Works & Notable Appearances */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {asset.keyWorks && asset.keyWorks.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                Key Works
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2">
+                {asset.keyWorks.map((work, idx) => (
+                  <li 
+                    key={idx} 
+                    className="text-sm text-gray-300 flex items-start gap-2"
+                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                  >
+                    <span className="text-primary mt-1">•</span>
+                    <span>{work}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
+
+        {asset.notableAppearances && asset.notableAppearances.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                Notable Appearances
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2">
+                {asset.notableAppearances.map((appearance, idx) => (
+                  <li 
+                    key={idx} 
+                    className="text-sm text-gray-300 flex items-start gap-2"
+                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                  >
+                    <span className="text-primary mt-1">•</span>
+                    <span>{appearance}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* Tags: Franchises, Teams, Publishers */}
+      {((asset.franchiseTags && asset.franchiseTags.length > 0) || 
+        (asset.teamTags && asset.teamTags.length > 0) || 
+        (asset.publisherTags && asset.publisherTags.length > 0)) && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+              Associations
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {asset.franchiseTags && asset.franchiseTags.length > 0 && (
+              <div>
+                <p 
+                  className="text-xs text-gray-500 mb-2"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                >
+                  Franchises
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {asset.franchiseTags.map((tag, idx) => (
+                    <Badge key={idx} variant="outline" data-testid={`badge-franchise-${idx}`}>
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {asset.teamTags && asset.teamTags.length > 0 && (
+              <div>
+                <p 
+                  className="text-xs text-gray-500 mb-2"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                >
+                  Teams
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {asset.teamTags.map((tag, idx) => (
+                    <Badge key={idx} variant="secondary" data-testid={`badge-team-${idx}`}>
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {asset.publisherTags && asset.publisherTags.length > 0 && (
+              <div>
+                <p 
+                  className="text-xs text-gray-500 mb-2"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                >
+                  Publishers
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {asset.publisherTags.map((tag, idx) => (
+                    <Badge key={idx} variant="default" data-testid={`badge-publisher-${idx}`}>
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Related Assets */}
+      {asset.relatedAssetIds && asset.relatedAssetIds.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+              Related Assets
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {asset.relatedAssetIds.map((relatedId, idx) => (
+                <Button
+                  key={idx}
+                  variant="outline"
+                  size="sm"
+                  className="justify-start"
+                  asChild
+                  data-testid={`button-related-asset-${idx}`}
+                >
+                  <Link href={`/asset/${relatedId}`}>
+                    <a style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                      {relatedId}
+                    </a>
+                  </Link>
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
