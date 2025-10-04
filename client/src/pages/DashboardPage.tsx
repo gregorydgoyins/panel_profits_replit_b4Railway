@@ -8,6 +8,7 @@ import {
   ArrowUpRight, ArrowDownRight, Plus, Star
 } from 'lucide-react';
 import { Link } from 'wouter';
+import { WorldClocksWidget } from '@/components/dashboard/WorldClocksWidget';
 
 interface Asset {
   id: string;
@@ -150,6 +151,9 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* World Clocks - Global Market Hours */}
+      <WorldClocksWidget />
 
       {/* Featured Comic Covers */}
       {featuredCovers && featuredCovers.length > 0 && (
