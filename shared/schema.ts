@@ -177,6 +177,15 @@ export const assets = pgTable("assets", {
   coverImageUrl: text("cover_image_url"),
   metadata: jsonb("metadata"), // Additional asset-specific data
   
+  // Comprehensive Bio Fields
+  biography: text("biography"), // Detailed history and background
+  keyWorks: text("key_works").array(), // Notable creations or appearances
+  relatedAssetIds: text("related_asset_ids").array(), // Connected assets (variants, team members, etc.)
+  franchiseTags: text("franchise_tags").array(), // Franchises (Marvel Cinematic Universe, Batman Family, etc.)
+  teamTags: text("team_tags").array(), // Teams for characters (Avengers, Justice League, etc.)
+  publisherTags: text("publisher_tags").array(), // Publishers (Marvel, DC, Image, etc.)
+  notableAppearances: text("notable_appearances").array(), // Key storylines and events
+  
   // Seven Houses control
   houseId: varchar("house_id").references(() => sevenHouses.id), // Which house controls this asset
   houseInfluencePercent: decimal("house_influence_percent", { precision: 5, scale: 2 }).default("0.00"), // 0-100%
