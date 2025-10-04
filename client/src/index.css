@@ -162,7 +162,7 @@
   
   /* Exception: Ticker marquee animations */
   .animate-marquee {
-    animation: marquee 30s linear infinite !important;
+    animation: marquee 60s linear infinite !important;
   }
   
   .animate-marquee-slow {
