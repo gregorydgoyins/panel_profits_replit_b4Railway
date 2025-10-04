@@ -29,17 +29,21 @@ interface NavItem {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   glowClass: string;
+  categoryColor: string;
+  hoverTextClass: string;
+  activeBgClass: string;
+  activeTextClass: string;
 }
 
 const navItems: NavItem[] = [
-  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, glowClass: 'rim-glow-dashboard' },
-  { path: '/trading', label: 'Trading', icon: TrendingUp, glowClass: 'rim-glow-trading' },
-  { path: '/portfolio', label: 'Portfolio', icon: Briefcase, glowClass: 'rim-glow-portfolio' },
-  { path: '/news', label: 'News', icon: Newspaper, glowClass: 'rim-glow-news' },
-  { path: '/learn', label: 'Learn', icon: GraduationCap, glowClass: 'rim-glow-learn' },
-  { path: '/markets', label: 'Markets', icon: Globe, glowClass: 'rim-glow-markets' },
-  { path: '/research', label: 'Research', icon: BookOpen, glowClass: 'rim-glow-research' },
-  { path: '/analytics', label: 'Analytics', icon: BarChart3, glowClass: 'rim-glow-analytics' },
+  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, glowClass: 'rim-glow-dashboard', categoryColor: 'hsl(270 80% 60%)', hoverTextClass: 'hover:text-[hsl(270,80%,60%)]', activeBgClass: 'bg-[hsl(270,80%,60%)]', activeTextClass: 'text-white' },
+  { path: '/trading', label: 'Trading', icon: TrendingUp, glowClass: 'rim-glow-trading', categoryColor: 'hsl(210 100% 50%)', hoverTextClass: 'hover:text-[hsl(210,100%,50%)]', activeBgClass: 'bg-[hsl(210,100%,50%)]', activeTextClass: 'text-white' },
+  { path: '/portfolio', label: 'Portfolio', icon: Briefcase, glowClass: 'rim-glow-portfolio', categoryColor: 'hsl(45 100% 50%)', hoverTextClass: 'hover:text-[hsl(45,100%,50%)]', activeBgClass: 'bg-[hsl(45,100%,50%)]', activeTextClass: 'text-black' },
+  { path: '/news', label: 'News', icon: Newspaper, glowClass: 'rim-glow-news', categoryColor: 'hsl(0 0% 100%)', hoverTextClass: 'hover:text-white', activeBgClass: 'bg-white', activeTextClass: 'text-black' },
+  { path: '/learn', label: 'Learn', icon: GraduationCap, glowClass: 'rim-glow-learn', categoryColor: 'hsl(180 100% 50%)', hoverTextClass: 'hover:text-[hsl(180,100%,50%)]', activeBgClass: 'bg-[hsl(180,100%,50%)]', activeTextClass: 'text-white' },
+  { path: '/markets', label: 'Markets', icon: Globe, glowClass: 'rim-glow-markets', categoryColor: 'hsl(25 95% 53%)', hoverTextClass: 'hover:text-[hsl(25,95%,53%)]', activeBgClass: 'bg-[hsl(25,95%,53%)]', activeTextClass: 'text-white' },
+  { path: '/research', label: 'Research', icon: BookOpen, glowClass: 'rim-glow-research', categoryColor: 'hsl(320 85% 60%)', hoverTextClass: 'hover:text-[hsl(320,85%,60%)]', activeBgClass: 'bg-[hsl(320,85%,60%)]', activeTextClass: 'text-white' },
+  { path: '/analytics', label: 'Analytics', icon: BarChart3, glowClass: 'rim-glow-analytics', categoryColor: 'hsl(140 70% 45%)', hoverTextClass: 'hover:text-[hsl(140,70%,45%)]', activeBgClass: 'bg-[hsl(140,70%,45%)]', activeTextClass: 'text-white' },
 ];
 
 export function TopNavbar() {
@@ -61,23 +65,23 @@ export function TopNavbar() {
   const renderNavItem = (item: NavItem) => {
     const Icon = item.icon;
     const isActive = location === item.path || location.startsWith(item.path + '/');
+    const groupHoverClass = item.hoverTextClass.replace('hover:', 'group-hover:');
     
     return (
       <Link key={item.path} href={item.path}>
         <button
           className={`
-            inline-flex items-center gap-2 px-3 h-8 rounded-sm
-            ${isActive ? 'bg-gray-800' : 'bg-transparent'}
-            hover:bg-gray-900
+            group inline-flex items-center gap-2 px-3 h-8 rounded-sm
+            ${isActive ? `${item.activeBgClass} ${item.activeTextClass}` : 'bg-transparent'}
             transition-all duration-200
             ${item.glowClass}
             ${isActive ? `${item.glowClass}-active` : ''}
           `}
           data-testid={`link-nav-${item.label.toLowerCase()}`}
         >
-          <Icon className="w-4 h-4 text-foreground" />
+          <Icon className={`w-4 h-4 ${isActive ? item.activeTextClass : `text-foreground ${groupHoverClass}`}`} />
           <span 
-            className="font-bold text-sm text-foreground"
+            className={`font-bold text-sm ${isActive ? item.activeTextClass : `text-foreground ${groupHoverClass}`}`}
             style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
           >
             {item.label}
