@@ -95,7 +95,10 @@ export default function DashboardPage() {
       {/* Hero Section: Portfolio Stats + Featured Comic */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Portfolio Value */}
-        <Card className="bg-gradient-to-br from-gray-900 to-black border-2 border-blue-500">
+        <Card 
+          className="bg-gradient-to-br from-gray-900 to-black border-2 border-dashed border-blue-500"
+          style={{ boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.3), 0 0 12px rgba(59, 130, 246, 0.5)' }}
+        >
           <CardHeader className="pb-2">
             <CardTitle 
               className="text-sm font-medium text-gray-400"
@@ -122,7 +125,10 @@ export default function DashboardPage() {
         </Card>
 
         {/* Cash Balance */}
-        <Card className="bg-gradient-to-br from-gray-900 to-black border-2 border-blue-500">
+        <Card 
+          className="bg-gradient-to-br from-gray-900 to-black border-2 border-dashed border-blue-500"
+          style={{ boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.3), 0 0 12px rgba(59, 130, 246, 0.5)' }}
+        >
           <CardHeader className="pb-2">
             <CardTitle 
               className="text-sm font-medium text-gray-400"
@@ -146,7 +152,10 @@ export default function DashboardPage() {
         </Card>
 
         {/* Total Assets */}
-        <Card className="bg-gradient-to-br from-gray-900 to-black border-2 border-blue-500">
+        <Card 
+          className="bg-gradient-to-br from-gray-900 to-black border-2 border-dashed border-blue-500"
+          style={{ boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.3), 0 0 12px rgba(59, 130, 246, 0.5)' }}
+        >
           <CardHeader className="pb-2">
             <CardTitle 
               className="text-sm font-medium text-gray-400"
