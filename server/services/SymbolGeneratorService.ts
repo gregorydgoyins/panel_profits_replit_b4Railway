@@ -15,8 +15,11 @@ class SymbolGeneratorService {
    * Clean and abbreviate a name for symbol use
    */
   private cleanAndAbbreviate(name: string, maxLength: number = 8): string {
-    // Remove special characters, keep only alphanumeric
-    const cleaned = name.toUpperCase().replace(/[^A-Z0-9\s]/g, '');
+    // Replace hyphens, slashes, and other punctuation with spaces FIRST (to preserve word boundaries)
+    const spacedName = name.replace(/[-\/\.]/g, ' ');
+    
+    // Remove special characters, keep only alphanumeric and spaces
+    const cleaned = spacedName.toUpperCase().replace(/[^A-Z0-9\s]/g, '');
     
     // Split into words
     const words = cleaned.split(/\s+/).filter(w => w.length > 0);
@@ -160,10 +163,11 @@ class SymbolGeneratorService {
    * Format: CHARNAME or CHARNAME.VARIANT
    */
   generateHeroSymbol(name: string, metadata?: any): string {
-    const abbrev = this.cleanAndAbbreviate(name, 10);
-    
-    // If character has a variant (e.g., "Spider-Man (Miles Morales)")
+    // Extract variant first before abbreviating (e.g., "Spider-Man (Miles Morales)")
     const variantMatch = name.match(/\(([^)]+)\)/);
+    const baseName = variantMatch ? name.replace(/\s*\([^)]+\)/, '').trim() : name;
+    const abbrev = this.cleanAndAbbreviate(baseName, 10);
+    
     if (variantMatch) {
       const variant = this.cleanAndAbbreviate(variantMatch[1], 4);
       return `${abbrev}.${variant}`;
@@ -183,10 +187,11 @@ class SymbolGeneratorService {
    * Format: VNAME
    */
   generateVillainSymbol(name: string, metadata?: any): string {
-    const abbrev = this.cleanAndAbbreviate(name, 10);
-    
-    // If villain has a variant (e.g., "Joker (Earth-2)")
+    // Extract variant first before abbreviating
     const variantMatch = name.match(/\(([^)]+)\)/);
+    const baseName = variantMatch ? name.replace(/\s*\([^)]+\)/, '').trim() : name;
+    const abbrev = this.cleanAndAbbreviate(baseName, 10);
+    
     if (variantMatch) {
       const variant = this.cleanAndAbbreviate(variantMatch[1], 4);
       return `${abbrev}.${variant}`;
@@ -200,7 +205,10 @@ class SymbolGeneratorService {
    * Format: SNAME or HERO.SNAME
    */
   generateSidekickSymbol(name: string, metadata?: any): string {
-    const abbrev = this.cleanAndAbbreviate(name, 8);
+    // Extract variant first before abbreviating
+    const variantMatch = name.match(/\(([^)]+)\)/);
+    const baseName = variantMatch ? name.replace(/\s*\([^)]+\)/, '').trim() : name;
+    const abbrev = this.cleanAndAbbreviate(baseName, 8);
     
     // If we know the associated hero, prefix with hero name
     if (metadata?.associatedHero || metadata?.mentor) {
@@ -210,7 +218,6 @@ class SymbolGeneratorService {
     }
     
     // If variant in name (e.g., "Robin (Dick Grayson)")
-    const variantMatch = name.match(/\(([^)]+)\)/);
     if (variantMatch) {
       const variant = this.cleanAndAbbreviate(variantMatch[1], 3);
       return `${abbrev}.${variant}`;
@@ -241,12 +248,11 @@ class SymbolGeneratorService {
    * Format: OWNER.GADGET
    */
   generateGadgetSymbol(name: string, metadata?: any): string {
-    const gadgetAbbrev = this.cleanAndAbbreviate(name, 8);
-    
-    // Extract owner from metadata or name
+    // Extract owner from metadata first
     const owner = metadata?.owner || metadata?.character;
     if (owner) {
       const ownerAbbrev = this.cleanAndAbbreviate(owner, 6);
+      const gadgetAbbrev = this.cleanAndAbbreviate(name, 8);
       return `${ownerAbbrev}.${gadgetAbbrev}`;
     }
     
@@ -255,11 +261,12 @@ class SymbolGeneratorService {
     if (ownerMatch) {
       const ownerAbbrev = this.cleanAndAbbreviate(ownerMatch[1], 6);
       const cleanGadget = name.replace(/^[A-Za-z]+'s\s+/, '');
-      const newGadgetAbbrev = this.cleanAndAbbreviate(cleanGadget, 8);
-      return `${ownerAbbrev}.${newGadgetAbbrev}`;
+      const gadgetAbbrev = this.cleanAndAbbreviate(cleanGadget, 8);
+      return `${ownerAbbrev}.${gadgetAbbrev}`;
     }
     
-    return gadgetAbbrev;
+    // Fallback: just gadget name
+    return this.cleanAndAbbreviate(name, 10);
   }
 
   /**
@@ -411,10 +418,36 @@ class SymbolGeneratorService {
         return this.generateComicSymbol(name, metadata);
       case 'character':
         return this.generateCharacterSymbol(name, metadata);
+      case 'hero':
+        return this.generateHeroSymbol(name, metadata);
+      case 'villain':
+        return this.generateVillainSymbol(name, metadata);
+      case 'sidekick':
+        return this.generateSidekickSymbol(name, metadata);
+      case 'henchman':
+      case 'hench':
+        return this.generateHenchmanSymbol(name, metadata);
       case 'creator':
+      case 'artist':
+      case 'writer':
         return this.generateCreatorSymbol(name, metadata);
       case 'publisher':
         return this.generatePublisherSymbol(name, metadata);
+      case 'gadget':
+      case 'weapon':
+      case 'item':
+        return this.generateGadgetSymbol(name, metadata);
+      case 'location':
+      case 'city':
+        return this.generateLocationSymbol(name, metadata);
+      case 'hideout':
+      case 'base':
+      case 'lair':
+        return this.generateHideoutSymbol(name, metadata);
+      case 'fund':
+        return this.generateFundSymbol(name, metadata);
+      case 'etf':
+        return this.generateETFSymbol(name, metadata);
       default:
         // Fallback for unknown types
         return this.cleanAndAbbreviate(name, 10);
