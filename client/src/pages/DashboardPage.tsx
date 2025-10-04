@@ -8,7 +8,7 @@ import {
   ArrowUpRight, ArrowDownRight, Plus, Star, Activity,
   Briefcase, Coins, BarChart3, PieChart, CreditCard,
   ShoppingCart, Target, Award, Trophy, TrendingDownIcon,
-  Calculator, LineChart
+  Calculator, LineChart, Minus
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { WorldClocksWidget } from '@/components/dashboard/WorldClocksWidget';
@@ -122,7 +122,7 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="bg-[#252B3C] p-4 rounded-lg">
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               {/* Portfolio Value */}
               <div
                 className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
@@ -130,19 +130,24 @@ export default function DashboardPage() {
                 style={selectedBox === 'portfolio-value' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-portfolio-value"
               >
-                <Briefcase className="w-5 h-5 text-indigo-400 flex-shrink-0" />
-                <div className="flex items-baseline gap-2 flex-1 min-w-0">
-                  <span 
-                    className="text-sm font-bold text-white truncate"
-                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                    data-testid="text-portfolio-value"
-                  >
-                    ${portfolioValue.toLocaleString()}
+                <Briefcase className="w-8 h-8 text-indigo-400 flex-shrink-0" />
+                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                    Portfolio Value
                   </span>
-                  <span className={`text-xs flex items-center gap-0.5 flex-shrink-0 ${portfolioChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    {portfolioChange >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                    {portfolioChangePercent >= 0 ? '+' : ''}{portfolioChangePercent.toFixed(2)}%
-                  </span>
+                  <div className="flex items-baseline gap-2">
+                    <span 
+                      className="text-sm font-bold text-white truncate"
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      data-testid="text-portfolio-value"
+                    >
+                      ${portfolioValue.toLocaleString()}
+                    </span>
+                    <span className={`text-xs flex items-center gap-0.5 flex-shrink-0 ${portfolioChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {portfolioChange >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                      {portfolioChangePercent >= 0 ? '+' : ''}{portfolioChangePercent.toFixed(2)}%
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -153,14 +158,24 @@ export default function DashboardPage() {
                 style={selectedBox === 'cash-balance' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-cash-balance"
               >
-                <Coins className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                <span 
-                  className="text-sm font-bold text-white truncate"
-                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                  data-testid="text-cash-balance"
-                >
-                  ${cashBalance.toLocaleString()}
-                </span>
+                <Coins className="w-8 h-8 text-emerald-400 flex-shrink-0" />
+                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                    Available Cash
+                  </span>
+                  <div className="flex items-baseline gap-2">
+                    <span 
+                      className="text-sm font-bold text-white truncate"
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      data-testid="text-cash-balance"
+                    >
+                      ${cashBalance.toLocaleString()}
+                    </span>
+                    <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
+                      <Minus className="w-3 h-3" />
+                    </span>
+                  </div>
+                </div>
               </div>
 
             {/* Total Assets */}
@@ -170,14 +185,24 @@ export default function DashboardPage() {
                 style={selectedBox === 'total-assets' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-total-assets"
               >
-                <BarChart3 className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                <span 
-                  className="text-sm font-bold text-white truncate"
-                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                  data-testid="text-total-assets"
-                >
-                  {(marketData?.totalAssets || 0).toLocaleString()}
-                </span>
+                <BarChart3 className="w-8 h-8 text-blue-400 flex-shrink-0" />
+                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                    Market Assets
+                  </span>
+                  <div className="flex items-baseline gap-2">
+                    <span 
+                      className="text-sm font-bold text-white truncate"
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      data-testid="text-total-assets"
+                    >
+                      {(marketData?.totalAssets || 0).toLocaleString()}
+                    </span>
+                    <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
+                      <Minus className="w-3 h-3" />
+                    </span>
+                  </div>
+                </div>
               </div>
 
             {/* Day P&L */}
@@ -187,18 +212,23 @@ export default function DashboardPage() {
                 style={selectedBox === 'day-pl' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-day-pl"
               >
-                <PieChart className="w-5 h-5 text-purple-400 flex-shrink-0" />
-                <div className="flex items-baseline gap-2 flex-1 min-w-0">
-                  <span 
-                    className={`text-sm font-bold truncate ${dayPL >= 0 ? 'text-green-500' : 'text-red-500'}`}
-                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                    data-testid="text-day-pl"
-                  >
-                    {dayPL >= 0 ? '+' : ''}${dayPL.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                <PieChart className="w-8 h-8 text-purple-400 flex-shrink-0" />
+                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                    Day P&L
                   </span>
-                  <span className={`text-xs flex items-center gap-0.5 flex-shrink-0 ${dayPL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    {dayPL >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                  </span>
+                  <div className="flex items-baseline gap-2">
+                    <span 
+                      className={`text-sm font-bold truncate ${dayPL >= 0 ? 'text-green-500' : 'text-red-500'}`}
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      data-testid="text-day-pl"
+                    >
+                      {dayPL >= 0 ? '+' : ''}${dayPL.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                    <span className={`text-xs flex items-center gap-0.5 flex-shrink-0 ${dayPL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {dayPL >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -209,18 +239,23 @@ export default function DashboardPage() {
                 style={selectedBox === 'total-return' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-total-return"
               >
-                <TrendingUp className="w-5 h-5 text-cyan-400 flex-shrink-0" />
-                <div className="flex items-baseline gap-2 flex-1 min-w-0">
-                  <span 
-                    className={`text-sm font-bold truncate ${totalReturn >= 0 ? 'text-green-500' : 'text-red-500'}`}
-                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                    data-testid="text-total-return"
-                  >
-                    {totalReturn >= 0 ? '+' : ''}{totalReturn.toFixed(2)}%
+                <TrendingUp className="w-8 h-8 text-cyan-400 flex-shrink-0" />
+                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                    Total Return
                   </span>
-                  <span className={`text-xs flex items-center gap-0.5 flex-shrink-0 ${totalReturn >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    {totalReturn >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                  </span>
+                  <div className="flex items-baseline gap-2">
+                    <span 
+                      className={`text-sm font-bold truncate ${totalReturn >= 0 ? 'text-green-500' : 'text-red-500'}`}
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      data-testid="text-total-return"
+                    >
+                      {totalReturn >= 0 ? '+' : ''}{totalReturn.toFixed(2)}%
+                    </span>
+                    <span className={`text-xs flex items-center gap-0.5 flex-shrink-0 ${totalReturn >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {totalReturn >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -231,14 +266,24 @@ export default function DashboardPage() {
                 style={selectedBox === 'buying-power' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-buying-power"
               >
-                <CreditCard className="w-5 h-5 text-amber-400 flex-shrink-0" />
-                <span 
-                  className="text-sm font-bold text-white truncate"
-                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                  data-testid="text-buying-power"
-                >
-                  ${buyingPower.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                </span>
+                <CreditCard className="w-8 h-8 text-amber-400 flex-shrink-0" />
+                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                    Buying Power
+                  </span>
+                  <div className="flex items-baseline gap-2">
+                    <span 
+                      className="text-sm font-bold text-white truncate"
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      data-testid="text-buying-power"
+                    >
+                      ${buyingPower.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    </span>
+                    <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
+                      <Minus className="w-3 h-3" />
+                    </span>
+                  </div>
+                </div>
               </div>
 
             {/* Open Orders */}
@@ -248,14 +293,24 @@ export default function DashboardPage() {
                 style={selectedBox === 'open-orders' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-open-orders"
               >
-                <ShoppingCart className="w-5 h-5 text-rose-400 flex-shrink-0" />
-                <span 
-                  className="text-sm font-bold text-white truncate"
-                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                  data-testid="text-open-orders"
-                >
-                  {openOrders}
-                </span>
+                <ShoppingCart className="w-8 h-8 text-rose-400 flex-shrink-0" />
+                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                    Open Orders
+                  </span>
+                  <div className="flex items-baseline gap-2">
+                    <span 
+                      className="text-sm font-bold text-white truncate"
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      data-testid="text-open-orders"
+                    >
+                      {openOrders}
+                    </span>
+                    <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
+                      <Minus className="w-3 h-3" />
+                    </span>
+                  </div>
+                </div>
               </div>
 
             {/* Active Positions */}
@@ -265,14 +320,24 @@ export default function DashboardPage() {
                 style={selectedBox === 'active-positions' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-active-positions"
               >
-                <Target className="w-5 h-5 text-teal-400 flex-shrink-0" />
-                <span 
-                  className="text-sm font-bold text-white truncate"
-                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                  data-testid="text-active-positions"
-                >
-                  {portfolioHoldingsCount}
-                </span>
+                <Target className="w-8 h-8 text-teal-400 flex-shrink-0" />
+                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                    Active Positions
+                  </span>
+                  <div className="flex items-baseline gap-2">
+                    <span 
+                      className="text-sm font-bold text-white truncate"
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      data-testid="text-active-positions"
+                    >
+                      {portfolioHoldingsCount}
+                    </span>
+                    <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
+                      <Minus className="w-3 h-3" />
+                    </span>
+                  </div>
+                </div>
               </div>
 
             {/* Win Rate */}
@@ -282,14 +347,24 @@ export default function DashboardPage() {
                 style={selectedBox === 'win-rate' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-win-rate"
               >
-                <Award className="w-5 h-5 text-lime-400 flex-shrink-0" />
-                <span 
-                  className="text-sm font-bold text-white truncate"
-                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                  data-testid="text-win-rate"
-                >
-                  {winRate.toFixed(1)}%
-                </span>
+                <Award className="w-8 h-8 text-lime-400 flex-shrink-0" />
+                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                    Win Rate
+                  </span>
+                  <div className="flex items-baseline gap-2">
+                    <span 
+                      className="text-sm font-bold text-white truncate"
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      data-testid="text-win-rate"
+                    >
+                      {winRate.toFixed(1)}%
+                    </span>
+                    <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
+                      <Minus className="w-3 h-3" />
+                    </span>
+                  </div>
+                </div>
               </div>
 
             {/* Best Performer */}
@@ -299,30 +374,40 @@ export default function DashboardPage() {
                 style={selectedBox === 'best-performer' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-best-performer"
               >
-                <Trophy className="w-5 h-5 text-yellow-400 flex-shrink-0" />
-                <div className="flex items-baseline gap-2 flex-1 min-w-0">
-                  {bestPerformer ? (
-                    <>
-                      <span 
-                        className="text-sm font-bold text-white truncate"
-                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                        data-testid="text-best-performer"
-                      >
-                        {bestPerformer.symbol}
-                      </span>
-                      <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-green-500">
-                        <ArrowUpRight className="w-3 h-3" /> +{bestPerformer.changePercent?.toFixed(2)}%
-                      </span>
-                    </>
-                  ) : (
-                    <span 
-                      className="text-sm font-bold text-gray-500 truncate"
-                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                      data-testid="text-best-performer"
-                    >
-                      --
-                    </span>
-                  )}
+                <Trophy className="w-8 h-8 text-yellow-400 flex-shrink-0" />
+                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                    Best Performer
+                  </span>
+                  <div className="flex items-baseline gap-2">
+                    {bestPerformer ? (
+                      <>
+                        <span 
+                          className="text-sm font-bold text-white truncate"
+                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                          data-testid="text-best-performer"
+                        >
+                          {bestPerformer.symbol}
+                        </span>
+                        <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-green-500">
+                          <ArrowUpRight className="w-3 h-3" /> +{bestPerformer.changePercent?.toFixed(2)}%
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span 
+                          className="text-sm font-bold text-gray-500 truncate"
+                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                          data-testid="text-best-performer"
+                        >
+                          --
+                        </span>
+                        <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
+                          <Minus className="w-3 h-3" />
+                        </span>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -333,30 +418,40 @@ export default function DashboardPage() {
                 style={selectedBox === 'worst-performer' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-worst-performer"
               >
-                <TrendingDownIcon className="w-5 h-5 text-orange-400 flex-shrink-0" />
-                <div className="flex items-baseline gap-2 flex-1 min-w-0">
-                  {worstPerformer ? (
-                    <>
-                      <span 
-                        className="text-sm font-bold text-white truncate"
-                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                        data-testid="text-worst-performer"
-                      >
-                        {worstPerformer.symbol}
-                      </span>
-                      <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-red-500">
-                        <ArrowDownRight className="w-3 h-3" /> {worstPerformer.changePercent?.toFixed(2)}%
-                      </span>
-                    </>
-                  ) : (
-                    <span 
-                      className="text-sm font-bold text-gray-500 truncate"
-                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                      data-testid="text-worst-performer"
-                    >
-                      --
-                    </span>
-                  )}
+                <TrendingDownIcon className="w-8 h-8 text-orange-400 flex-shrink-0" />
+                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                    Worst Performer
+                  </span>
+                  <div className="flex items-baseline gap-2">
+                    {worstPerformer ? (
+                      <>
+                        <span 
+                          className="text-sm font-bold text-white truncate"
+                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                          data-testid="text-worst-performer"
+                        >
+                          {worstPerformer.symbol}
+                        </span>
+                        <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-red-500">
+                          <ArrowDownRight className="w-3 h-3" /> {worstPerformer.changePercent?.toFixed(2)}%
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span 
+                          className="text-sm font-bold text-gray-500 truncate"
+                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                          data-testid="text-worst-performer"
+                        >
+                          --
+                        </span>
+                        <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
+                          <Minus className="w-3 h-3" />
+                        </span>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -367,14 +462,24 @@ export default function DashboardPage() {
                 style={selectedBox === 'total-account' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-total-account-value"
               >
-                <Calculator className="w-5 h-5 text-green-400 flex-shrink-0" />
-                <span 
-                  className="text-sm font-bold text-white truncate"
-                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                  data-testid="text-total-account-value"
-                >
-                  ${marketCap.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                </span>
+                <Calculator className="w-8 h-8 text-green-400 flex-shrink-0" />
+                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                    Total Account
+                  </span>
+                  <div className="flex items-baseline gap-2">
+                    <span 
+                      className="text-sm font-bold text-white truncate"
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      data-testid="text-total-account-value"
+                    >
+                      ${marketCap.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    </span>
+                    <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
+                      <Minus className="w-3 h-3" />
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
