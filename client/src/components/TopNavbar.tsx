@@ -1,0 +1,166 @@
+import { Link, useLocation } from 'wouter';
+import { 
+  LayoutDashboard, 
+  TrendingUp, 
+  Briefcase, 
+  BarChart3,
+  User,
+  Bell,
+  Settings,
+  LogOut,
+  Menu
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/hooks/useAuth';
+
+interface NavItem {
+  path: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+const navItems: NavItem[] = [
+  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/trading', label: 'Trading', icon: TrendingUp },
+  { path: '/portfolio', label: 'Portfolio', icon: Briefcase },
+  { path: '/analytics', label: 'Analytics', icon: BarChart3 },
+];
+
+export function TopNavbar() {
+  const [location] = useLocation();
+  const { user } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
+  return (
+    <nav className="h-14 px-6 bg-black/90 backdrop-blur-sm border-b border-gray-800 flex items-center justify-between">
+      {/* Logo & Brand */}
+      <div className="flex items-center gap-8">
+        <Link href="/dashboard">
+          <a 
+            className="text-xl font-bold text-white hover:text-gray-300 transition-colors"
+            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+            data-testid="link-logo"
+          >
+            PANEL PROFITS
+          </a>
+        </Link>
+
+        {/* Main Navigation */}
+        <div className="hidden md:flex items-center gap-1">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location === item.path || location.startsWith(item.path + '/');
+            
+            return (
+              <Link key={item.path} href={item.path}>
+                <a>
+                  <Button
+                    variant={isActive ? 'secondary' : 'ghost'}
+                    size="sm"
+                    className={`gap-2 ${isActive ? 'bg-gray-800' : ''}`}
+                    data-testid={`link-nav-${item.label.toLowerCase()}`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span 
+                      className="font-medium"
+                      style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                    >
+                      {item.label}
+                    </span>
+                  </Button>
+                </a>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Right Section: Notifications + User Menu */}
+      <div className="flex items-center gap-3">
+        {/* Notifications */}
+        <Button 
+          variant="ghost" 
+          size="icon"
+          data-testid="button-notifications"
+        >
+          <Bell className="w-5 h-5" />
+        </Button>
+
+        {/* User Menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="gap-2"
+              data-testid="button-user-menu"
+            >
+              <User className="w-4 h-4" />
+              <span 
+                className="hidden md:inline font-medium"
+                style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+              >
+                {user?.username || 'User'}
+              </span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem asChild>
+              <Link href="/profile">
+                <a className="flex items-center gap-2 w-full" data-testid="link-profile">
+                  <User className="w-4 h-4" />
+                  <span>Profile</span>
+                </a>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/settings">
+                <a className="flex items-center gap-2 w-full" data-testid="link-settings">
+                  <Settings className="w-4 h-4" />
+                  <span>Settings</span>
+                </a>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              onClick={handleLogout}
+              className="text-red-500 focus:text-red-500"
+              data-testid="button-logout"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              <span>Logout</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Mobile Menu */}
+        <Button 
+          variant="ghost" 
+          size="icon"
+          className="md:hidden"
+          data-testid="button-mobile-menu"
+        >
+          <Menu className="w-5 h-5" />
+        </Button>
+      </div>
+    </nav>
+  );
+}

@@ -7,7 +7,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { NotificationSystemProvider } from '@/components/notifications/NotificationSystemProvider';
 import { HouseThemeProvider } from '@/contexts/HouseThemeContext';
 import { LandingPage } from '@/components/LandingPage';
-import { NavigationSidebar } from '@/components/NavigationSidebar';
+import { StickyHeader } from '@/components/StickyHeader';
+import { TopNavbar } from '@/components/TopNavbar';
 import { EntryTestGuard } from '@/components/EntryTestGuard';
 import KnowledgeTestGuard from '@/components/KnowledgeTestGuard';
 import NotFound from '@/pages/not-found';
@@ -141,18 +142,17 @@ function AuthenticatedLayout() {
           <KnowledgeTestGuard>
             <EasterEggMonitor />
             <div className="min-h-screen bg-background text-foreground">
-              <div className="flex h-screen">
-                {/* Professional sidebar navigation */}
-                <div className="flex-shrink-0">
-                  <NavigationSidebar />
-                </div>
+              <div className="flex flex-col h-screen">
+                {/* 3-row sticky header */}
+                <StickyHeader />
                 
-                {/* Main content area - optimized for desktop */}
-                <div className="flex-1 flex flex-col overflow-hidden">
-                  <main className="flex-1 overflow-y-auto p-6">
-                    <Router />
-                  </main>
-                </div>
+                {/* Top navigation bar */}
+                <TopNavbar />
+                
+                {/* Main content area */}
+                <main className="flex-1 overflow-y-auto p-6">
+                  <Router />
+                </main>
               </div>
             </div>
           </KnowledgeTestGuard>

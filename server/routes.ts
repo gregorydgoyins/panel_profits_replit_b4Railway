@@ -99,6 +99,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Market Status - Returns current market status
+  app.get('/api/market/status', async (req: any, res) => {
+    try {
+      const now = new Date();
+      const hours = now.getHours();
+      const day = now.getDay();
+      
+      // Market open 9:30 AM - 4:00 PM EST Monday-Friday
+      let status: 'open' | 'closed' | 'pre-market' | 'after-hours' = 'closed';
+      
+      if (day >= 1 && day <= 5) { // Monday-Friday
+        if (hours >= 9 && hours < 16) {
+          status = 'open';
+        } else if (hours >= 4 && hours < 9) {
+          status = 'pre-market';
+        } else if (hours >= 16 || hours < 4) {
+          status = 'after-hours';
+        }
+      }
+      
+      res.json({
+        status,
+        nextChange: status === 'open' ? '4:00 PM EST' : '9:30 AM EST'
+      });
+    } catch (error) {
+      console.error("Error fetching market status:", error);
+      res.status(500).json({ message: "Failed to fetch market status" });
+    }
+  });
+
+  // Market Ticker - Returns top movers for ticker display
+  app.get('/api/market/ticker', async (req: any, res) => {
+    try {
+      // Get top 20 assets by volume and price movement
+      const topMovers = await db
+        .select({
+          symbol: assetsTable.symbol,
+          name: assetsTable.name,
+          currentPrice: assetsTable.currentPrice,
+          change: assetsTable.change,
+          changePercent: assetsTable.changePercent,
+        })
+        .from(assetsTable)
+        .where(sql`${assetsTable.currentPrice} IS NOT NULL`)
+        .orderBy(sql`${assetsTable.changePercent} DESC`)
+        .limit(20);
+      
+      res.json(topMovers);
+    } catch (error) {
+      console.error("Error fetching ticker data:", error);
+      res.status(500).json({ message: "Failed to fetch ticker data" });
+    }
+  });
+
   // Entity Mining & Seeding - Mine comic book universe for tradable assets
   app.post('/api/admin/seed-entities', async (req: any, res) => {
     try {
