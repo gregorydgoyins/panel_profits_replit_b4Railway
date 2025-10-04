@@ -148,37 +148,37 @@ export function StickyHeader() {
                 data-testid="text-news-ticker"
               >
                 <Link href="/news/marvel-phase-6">
-                  <a className="hover:text-white transition-colors" data-testid="link-news-marvel-phase-6">
+                  <a className="underline hover:text-white transition-colors" data-testid="link-news-marvel-phase-6">
                     BREAKING: Marvel announces Phase 6 slate - collector interest surging
                   </a>
                 </Link>
                 <span>•</span>
                 <Link href="/news/superman-ath">
-                  <a className="hover:text-white transition-colors" data-testid="link-news-superman-ath">
+                  <a className="underline hover:text-white transition-colors" data-testid="link-news-superman-ath">
                     ALERT: Golden Age Superman #1 reaches new all-time high
                   </a>
                 </Link>
                 <span>•</span>
                 <Link href="/news/dc-restructuring">
-                  <a className="hover:text-white transition-colors" data-testid="link-news-dc-restructuring">
+                  <a className="underline hover:text-white transition-colors" data-testid="link-news-dc-restructuring">
                     UPDATE: DC Restructuring complete - institutional investors bullish
                   </a>
                 </Link>
                 <span>•</span>
                 <Link href="/news/amazing-fantasy-variant">
-                  <a className="hover:text-white transition-colors" data-testid="link-news-amazing-fantasy-variant">
+                  <a className="underline hover:text-white transition-colors" data-testid="link-news-amazing-fantasy-variant">
                     EXCLUSIVE: Rare Amazing Fantasy #15 variant discovered - market impact expected
                   </a>
                 </Link>
                 <span>•</span>
                 <Link href="/news/alex-ross-auction">
-                  <a className="hover:text-white transition-colors" data-testid="link-news-alex-ross-auction">
+                  <a className="underline hover:text-white transition-colors" data-testid="link-news-alex-ross-auction">
                     RECORD: Alex Ross original art auction breaks records
                   </a>
                 </Link>
                 <span>•</span>
                 <Link href="/news/comic-con-attendance">
-                  <a className="hover:text-white transition-colors" data-testid="link-news-comic-con-attendance">
+                  <a className="underline hover:text-white transition-colors" data-testid="link-news-comic-con-attendance">
                     DATA: Comic-Con attendance up 300% - signaling strong market demand
                   </a>
                 </Link>
