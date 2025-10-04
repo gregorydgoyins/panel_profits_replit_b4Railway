@@ -396,7 +396,7 @@
 /* Enable ticker animations - Bloomberg-style: barely moving */
 .animate-ticker {
   animation-name: ticker !important;
-  animation-duration: 180s !important;
+  animation-duration: 120s !important;
   animation-timing-function: linear !important;
   animation-iteration-count: infinite !important;
   animation-delay: 0s !important;
