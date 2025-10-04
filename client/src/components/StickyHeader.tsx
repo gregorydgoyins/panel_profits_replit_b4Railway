@@ -93,7 +93,7 @@ export function StickyHeader() {
       {/* Row 2: News Ticker */}
       <div className="h-8 bg-gradient-to-r from-gray-950 to-gray-900 border-b border-gray-900 overflow-hidden">
         <div className="h-full flex items-center">
-          <div className="animate-marquee whitespace-nowrap">
+          <div className="animate-marquee-slow whitespace-nowrap">
             <span 
               className="text-sm text-gray-300 inline-flex items-center gap-8"
               style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
@@ -144,7 +144,7 @@ export function StickyHeader() {
       <div className="h-8 bg-black border-b border-gray-800 overflow-hidden">
         <div className="h-full flex items-center">
           {tickerAssets && tickerAssets.length > 0 ? (
-            <div className="animate-marquee-slow whitespace-nowrap">
+            <div className="animate-marquee whitespace-nowrap">
               <span 
                 className="text-sm inline-flex items-center gap-6"
                 style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 500 }}
@@ -168,7 +168,7 @@ export function StickyHeader() {
               </span>
             </div>
           ) : (
-            <div className="animate-marquee-slow whitespace-nowrap">
+            <div className="animate-marquee whitespace-nowrap">
               <span 
                 className="text-sm text-gray-500"
                 style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}

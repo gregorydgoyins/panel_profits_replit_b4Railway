@@ -105,12 +105,87 @@ class SymbolGeneratorService {
   }
 
   /**
-   * Generate symbol for a character asset
+   * Detect if character is a villain based on metadata
+   */
+  private isVillain(metadata?: any): boolean {
+    if (!metadata) return false;
+    
+    const role = metadata.role?.toLowerCase() || '';
+    const alignment = metadata.alignment?.toLowerCase() || '';
+    const type = metadata.type?.toLowerCase() || '';
+    const tags = metadata.tags || [];
+    
+    return role.includes('villain') || 
+           alignment.includes('evil') || 
+           alignment.includes('bad') ||
+           type.includes('villain') ||
+           tags.some((t: string) => t.toLowerCase().includes('villain'));
+  }
+
+  /**
+   * Detect if character is a sidekick based on metadata
+   */
+  private isSidekick(metadata?: any): boolean {
+    if (!metadata) return false;
+    
+    const role = metadata.role?.toLowerCase() || '';
+    const type = metadata.type?.toLowerCase() || '';
+    const tags = metadata.tags || [];
+    const relationship = metadata.relationship?.toLowerCase() || '';
+    
+    return role.includes('sidekick') || 
+           type.includes('sidekick') ||
+           relationship.includes('sidekick') ||
+           tags.some((t: string) => t.toLowerCase().includes('sidekick'));
+  }
+
+  /**
+   * Generate symbol for a character asset (auto-detects hero/villain/sidekick)
    */
   generateCharacterSymbol(name: string, metadata?: any): string {
+    // Route to specialized handlers if detected
+    if (this.isVillain(metadata)) {
+      return this.generateVillainSymbol(name, metadata);
+    }
+    if (this.isSidekick(metadata)) {
+      return this.generateSidekickSymbol(name, metadata);
+    }
+    
+    // Default hero handling
+    return this.generateHeroSymbol(name, metadata);
+  }
+
+  /**
+   * Generate symbol for a hero asset
+   * Format: CHARNAME or CHARNAME.VARIANT
+   */
+  generateHeroSymbol(name: string, metadata?: any): string {
     const abbrev = this.cleanAndAbbreviate(name, 10);
     
     // If character has a variant (e.g., "Spider-Man (Miles Morales)")
+    const variantMatch = name.match(/\(([^)]+)\)/);
+    if (variantMatch) {
+      const variant = this.cleanAndAbbreviate(variantMatch[1], 4);
+      return `${abbrev}.${variant}`;
+    }
+    
+    // Check for universe/franchise prefix
+    if (metadata?.universe || metadata?.franchise) {
+      const prefix = this.cleanAndAbbreviate(metadata.universe || metadata.franchise, 3);
+      return `${prefix}.${abbrev}`;
+    }
+    
+    return abbrev;
+  }
+
+  /**
+   * Generate symbol for a villain asset
+   * Format: VNAME
+   */
+  generateVillainSymbol(name: string, metadata?: any): string {
+    const abbrev = this.cleanAndAbbreviate(name, 10);
+    
+    // If villain has a variant (e.g., "Joker (Earth-2)")
     const variantMatch = name.match(/\(([^)]+)\)/);
     if (variantMatch) {
       const variant = this.cleanAndAbbreviate(variantMatch[1], 4);
@@ -121,10 +196,172 @@ class SymbolGeneratorService {
   }
 
   /**
+   * Generate symbol for a sidekick asset
+   * Format: SNAME or HERO.SNAME
+   */
+  generateSidekickSymbol(name: string, metadata?: any): string {
+    const abbrev = this.cleanAndAbbreviate(name, 8);
+    
+    // If we know the associated hero, prefix with hero name
+    if (metadata?.associatedHero || metadata?.mentor) {
+      const heroName = metadata.associatedHero || metadata.mentor;
+      const heroAbbrev = this.cleanAndAbbreviate(heroName, 6);
+      return `${heroAbbrev}.${abbrev}`;
+    }
+    
+    // If variant in name (e.g., "Robin (Dick Grayson)")
+    const variantMatch = name.match(/\(([^)]+)\)/);
+    if (variantMatch) {
+      const variant = this.cleanAndAbbreviate(variantMatch[1], 3);
+      return `${abbrev}.${variant}`;
+    }
+    
+    return abbrev;
+  }
+
+  /**
+   * Generate symbol for a henchman asset
+   * Format: VILLAIN.HENCH or HENCHNAME
+   */
+  generateHenchmanSymbol(name: string, metadata?: any): string {
+    const abbrev = this.cleanAndAbbreviate(name, 8);
+    
+    // If we know the associated villain, prefix with villain name
+    if (metadata?.villain || metadata?.boss) {
+      const villainName = metadata.villain || metadata.boss;
+      const villainAbbrev = this.cleanAndAbbreviate(villainName, 6);
+      return `${villainAbbrev}.${abbrev}`;
+    }
+    
+    return abbrev;
+  }
+
+  /**
+   * Generate symbol for a gadget asset
+   * Format: OWNER.GADGET
+   */
+  generateGadgetSymbol(name: string, metadata?: any): string {
+    const gadgetAbbrev = this.cleanAndAbbreviate(name, 8);
+    
+    // Extract owner from metadata or name
+    const owner = metadata?.owner || metadata?.character;
+    if (owner) {
+      const ownerAbbrev = this.cleanAndAbbreviate(owner, 6);
+      return `${ownerAbbrev}.${gadgetAbbrev}`;
+    }
+    
+    // Try to extract from name (e.g., "Batman's Batmobile")
+    const ownerMatch = name.match(/^([A-Za-z]+)'s/);
+    if (ownerMatch) {
+      const ownerAbbrev = this.cleanAndAbbreviate(ownerMatch[1], 6);
+      const cleanGadget = name.replace(/^[A-Za-z]+'s\s+/, '');
+      const newGadgetAbbrev = this.cleanAndAbbreviate(cleanGadget, 8);
+      return `${ownerAbbrev}.${newGadgetAbbrev}`;
+    }
+    
+    return gadgetAbbrev;
+  }
+
+  /**
+   * Generate symbol for a location asset
+   * Format: CITYNAME or LOC.NAME
+   */
+  generateLocationSymbol(name: string, metadata?: any): string {
+    const abbrev = this.cleanAndAbbreviate(name, 10);
+    
+    // If it's a well-known location, use simple abbreviation
+    return abbrev;
+  }
+
+  /**
+   * Generate symbol for a hideout asset
+   * Format: OWNER.HIDEOUT
+   */
+  generateHideoutSymbol(name: string, metadata?: any): string {
+    const hideoutAbbrev = this.cleanAndAbbreviate(name, 8);
+    
+    // Extract owner from metadata or name
+    const owner = metadata?.owner || metadata?.character;
+    if (owner) {
+      const ownerAbbrev = this.cleanAndAbbreviate(owner, 6);
+      return `${ownerAbbrev}.${hideoutAbbrev}`;
+    }
+    
+    // Try to extract from name (e.g., "Batcave")
+    const commonPrefixes = ['bat', 'super', 'spider', 'iron', 'wonder'];
+    for (const prefix of commonPrefixes) {
+      if (name.toLowerCase().startsWith(prefix)) {
+        const ownerAbbrev = prefix.toUpperCase();
+        return `${ownerAbbrev}.${hideoutAbbrev}`;
+      }
+    }
+    
+    return hideoutAbbrev;
+  }
+
+  /**
+   * Generate symbol for a fund asset
+   * Format: THEME.FND
+   */
+  generateFundSymbol(name: string, metadata?: any): string {
+    // Remove "Fund" from the name to get theme
+    const themeName = name.replace(/\s*fund\s*$/i, '').trim();
+    const themeAbbrev = this.cleanAndAbbreviate(themeName, 12);
+    
+    return `${themeAbbrev}.FND`;
+  }
+
+  /**
+   * Generate symbol for an ETF asset
+   * Format: THEME.ETF
+   */
+  generateETFSymbol(name: string, metadata?: any): string {
+    // Remove "ETF" from the name to get theme
+    const themeName = name.replace(/\s*etf\s*$/i, '').trim();
+    const themeAbbrev = this.cleanAndAbbreviate(themeName, 12);
+    
+    return `${themeAbbrev}.ETF`;
+  }
+
+  /**
+   * Parse creator name into LASTNAME_FIRSTNAME format
+   */
+  private parseCreatorName(name: string): string {
+    // Remove any parenthetical info
+    const cleanName = name.replace(/\([^)]*\)/g, '').trim();
+    
+    // Split by comma first (e.g., "Lee, Stan")
+    if (cleanName.includes(',')) {
+      const parts = cleanName.split(',').map(p => p.trim());
+      const lastName = this.cleanAndAbbreviate(parts[0], 8);
+      const firstName = parts[1] ? this.cleanAndAbbreviate(parts[1], 6) : '';
+      return firstName ? `${lastName}_${firstName}` : lastName;
+    }
+    
+    // Split by space (e.g., "Stan Lee")
+    const words = cleanName.split(/\s+/).filter(w => w.length > 0);
+    
+    if (words.length === 0) {
+      return this.cleanAndAbbreviate(name, 10);
+    }
+    
+    if (words.length === 1) {
+      return this.cleanAndAbbreviate(words[0], 10);
+    }
+    
+    // Assume last word is last name, first word is first name
+    const firstName = this.cleanAndAbbreviate(words[0], 6);
+    const lastName = this.cleanAndAbbreviate(words[words.length - 1], 8);
+    
+    return `${lastName}_${firstName}`;
+  }
+
+  /**
    * Generate symbol for a creator asset
+   * Format: LASTNAME_FIRSTNAME.PUBLISHER.YEAR
    */
   generateCreatorSymbol(name: string, metadata?: any): string {
-    const nameAbbrev = this.cleanAndAbbreviate(name, 8);
+    const nameFormatted = this.parseCreatorName(name);
     
     // Try to extract year from metadata
     let year = metadata?.birthYear || metadata?.debutYear || metadata?.year;
@@ -140,22 +377,22 @@ class SymbolGeneratorService {
     // Get publisher from metadata
     let publisher = metadata?.publisher || metadata?.primaryPublisher;
     if (publisher) {
-      const pubAbbrev = this.cleanAndAbbreviate(publisher, 6);
+      const pubAbbrev = this.cleanAndAbbreviate(publisher, 8);
       
       if (year) {
-        return `${nameAbbrev}.${year}.${pubAbbrev}`;
+        return `${nameFormatted}.${pubAbbrev}.${year}`;
       }
       
-      return `${nameAbbrev}.${pubAbbrev}`;
+      return `${nameFormatted}.${pubAbbrev}`;
     }
     
     // If we have year but no publisher
     if (year) {
-      return `${nameAbbrev}.${year}`;
+      return `${nameFormatted}.${year}`;
     }
     
     // Fallback: just name
-    return nameAbbrev;
+    return nameFormatted;
   }
 
   /**
