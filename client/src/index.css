@@ -174,7 +174,7 @@
 @layer components {
   /* Exception: Ticker marquee animations - must override global animation disable */
   .animate-marquee {
-    animation: marquee 60s linear infinite !important;
+    animation: marquee 540s linear infinite !important;
     will-change: transform;
   }
   
