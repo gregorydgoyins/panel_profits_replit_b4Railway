@@ -4315,6 +4315,29 @@ Respond with valid JSON in this exact format:
     }
   });
 
+  // Creator Affiliation Routes
+  app.post('/api/creators/expand/stan-lee', async (req, res) => {
+    try {
+      const { creatorAffiliationService } = await import('./services/creatorAffiliationService');
+      const result = await creatorAffiliationService.expandStanLee();
+      res.json({ success: true, ...result });
+    } catch (error) {
+      console.error('Stan Lee expansion error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/creators/expand/jack-kirby', async (req, res) => {
+    try {
+      const { creatorAffiliationService } = await import('./services/creatorAffiliationService');
+      const result = await creatorAffiliationService.expandJackKirby();
+      res.json({ success: true, ...result });
+    } catch (error) {
+      console.error('Jack Kirby expansion error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Initialize WebSocket notification service for real-time notifications
   console.log('🔔 Initializing WebSocket notification service...');
   wsNotificationService.initialize(httpServer, '/ws/notifications');
