@@ -256,11 +256,11 @@ export function WorldClocksWidget() {
                 className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border bg-slate-600/35 hover-elevate transition-all"
                 onMouseEnter={(e) => {
                   const glowColor = market.status === 'open' 
-                    ? 'rgba(34, 197, 94, 0.7)' 
+                    ? 'rgba(34, 197, 94, 0.8)' 
                     : market.status === 'after-hours'
-                    ? 'rgba(234, 179, 8, 0.7)'
-                    : 'rgba(239, 68, 68, 0.7)';
-                  e.currentTarget.style.boxShadow = `0 0 20px ${glowColor}, 0 0 40px ${glowColor}`;
+                    ? 'rgba(234, 179, 8, 0.8)'
+                    : 'rgba(239, 68, 68, 0.8)';
+                  e.currentTarget.style.boxShadow = `0 0 8px ${glowColor}, 0 0 15px ${glowColor}`;
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.boxShadow = '';
@@ -297,11 +297,11 @@ export function WorldClocksWidget() {
                 className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border bg-slate-600/35 hover-elevate transition-all"
                 onMouseEnter={(e) => {
                   const glowColor = market.status === 'open' 
-                    ? 'rgba(34, 197, 94, 0.7)' 
+                    ? 'rgba(34, 197, 94, 0.8)' 
                     : market.status === 'after-hours'
-                    ? 'rgba(234, 179, 8, 0.7)'
-                    : 'rgba(239, 68, 68, 0.7)';
-                  e.currentTarget.style.boxShadow = `0 0 20px ${glowColor}, 0 0 40px ${glowColor}`;
+                    ? 'rgba(234, 179, 8, 0.8)'
+                    : 'rgba(239, 68, 68, 0.8)';
+                  e.currentTarget.style.boxShadow = `0 0 8px ${glowColor}, 0 0 15px ${glowColor}`;
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.boxShadow = '';
