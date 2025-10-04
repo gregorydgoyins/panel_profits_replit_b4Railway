@@ -30,10 +30,13 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-const navItems: NavItem[] = [
+const leftNavItems: NavItem[] = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/trading', label: 'Trading', icon: TrendingUp },
   { path: '/portfolio', label: 'Portfolio', icon: Briefcase },
+];
+
+const rightNavItems: NavItem[] = [
   { path: '/news', label: 'News', icon: Newspaper },
   { path: '/learn', label: 'Learn', icon: GraduationCap },
   { path: '/markets', label: 'Markets', icon: Globe },
@@ -57,53 +60,66 @@ export function TopNavbar() {
     }
   };
 
+  const renderNavItem = (item: NavItem) => {
+    const Icon = item.icon;
+    const isActive = location === item.path || location.startsWith(item.path + '/');
+    
+    return (
+      <Link key={item.path} href={item.path}>
+        <Button
+          variant={isActive ? 'secondary' : 'ghost'}
+          size="sm"
+          className={`gap-2 ${isActive ? 'bg-gray-800' : ''}`}
+          data-testid={`link-nav-${item.label.toLowerCase()}`}
+          asChild
+        >
+          <a>
+            <Icon className="w-4 h-4" />
+            <span 
+              className="font-normal text-sm"
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+            >
+              {item.label}
+            </span>
+          </a>
+        </Button>
+      </Link>
+    );
+  };
+
   return (
-    <nav className="h-14 px-6 bg-black/90 backdrop-blur-sm border-b border-gray-800 flex items-center justify-between">
-      {/* Logo & Brand */}
-      <div className="flex items-center gap-8">
+    <nav className="h-14 px-4 bg-black/90 backdrop-blur-sm border-b border-gray-800 flex items-center">
+      {/* Left Section: Logo + First 3 Nav Items (1/6 width) */}
+      <div className="flex items-center gap-2 flex-shrink-0" style={{ width: '16.66%' }}>
         <Link href="/dashboard">
           <a 
-            className="text-base font-normal text-white hover:text-gray-300 transition-colors whitespace-nowrap"
+            className="text-sm font-normal text-white hover:text-gray-300 transition-colors whitespace-nowrap"
             style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             data-testid="link-logo"
           >
             PANEL PROFITS
           </a>
         </Link>
-
-        {/* Main Navigation */}
+        
+        <div className="h-6 w-px bg-gray-700" />
+        
         <div className="hidden md:flex items-center gap-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location === item.path || location.startsWith(item.path + '/');
-            
-            return (
-              <Link key={item.path} href={item.path}>
-                <Button
-                  variant={isActive ? 'secondary' : 'ghost'}
-                  size="sm"
-                  className={`gap-2 ${isActive ? 'bg-gray-800' : ''}`}
-                  data-testid={`link-nav-${item.label.toLowerCase()}`}
-                  asChild
-                >
-                  <a>
-                    <Icon className="w-4 h-4" />
-                    <span 
-                      className="font-normal"
-                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                    >
-                      {item.label}
-                    </span>
-                  </a>
-                </Button>
-              </Link>
-            );
-          })}
+          {leftNavItems.map(renderNavItem)}
         </div>
       </div>
 
-      {/* Right Section: Notifications + User + Settings */}
-      <div className="flex items-center gap-2">
+      {/* Center Spacer */}
+      <div className="flex-1" />
+
+      {/* Right Section: Remaining Nav Items + Action Buttons (1/6 width) */}
+      <div className="flex items-center gap-2 justify-end flex-shrink-0" style={{ width: '16.66%' }}>
+        {/* Right Nav Items */}
+        <div className="hidden md:flex items-center gap-1">
+          {rightNavItems.map(renderNavItem)}
+        </div>
+        
+        <div className="h-6 w-px bg-gray-700 mx-2" />
+        
         {/* Notifications */}
         <Button 
           variant="ghost" 
