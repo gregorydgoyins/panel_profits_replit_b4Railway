@@ -35,6 +35,7 @@ interface Asset {
 
 interface MarketOverview {
   totalAssets: number;
+  totalVolume?: number;
   topGainers: Asset[];
   topLosers: Asset[];
 }
@@ -90,10 +91,14 @@ export default function DashboardPage() {
   const portfolioChangePercent = portfolio?.dayChangePercent || 0;
   const cashBalance = portfolio?.cashBalance || 100000;
 
+  const portfolioHoldingsCount = portfolio?.holdings?.length || 0;
+  const totalMarketVolume = marketData?.totalVolume || 0;
+  const portfolioDiversityScore = portfolio?.diversityScore || 0;
+
   return (
     <div className="space-y-4">
-      {/* Hero Section: Portfolio Stats + Featured Comic */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      {/* Hero Section: Portfolio Stats Grid (3x2) */}
+      <div className="grid grid-cols-3 gap-4">
         {/* Portfolio Value */}
         <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
           <CardHeader className="pb-2">
@@ -164,6 +169,79 @@ export default function DashboardPage() {
                 data-testid="text-total-assets"
               >
                 {(marketData?.totalAssets || 0).toLocaleString()}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Portfolio Holdings */}
+        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+          <CardHeader className="pb-2">
+            <CardTitle 
+              className="text-sm font-medium text-gray-400"
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+            >
+              Portfolio Holdings
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-baseline gap-2">
+              <Star className="w-5 h-5 text-gray-400" />
+              <span 
+                className="text-3xl font-bold text-white"
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                data-testid="text-holdings-count"
+              >
+                {portfolioHoldingsCount}
+              </span>
+              <span className="text-sm text-gray-500">positions</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Market Volume */}
+        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+          <CardHeader className="pb-2">
+            <CardTitle 
+              className="text-sm font-medium text-gray-400"
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+            >
+              Market Volume
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-baseline gap-2">
+              <TrendingUp className="w-5 h-5 text-gray-400" />
+              <span 
+                className="text-3xl font-bold text-white"
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                data-testid="text-market-volume"
+              >
+                ${totalMarketVolume.toLocaleString()}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Portfolio Diversity */}
+        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+          <CardHeader className="pb-2">
+            <CardTitle 
+              className="text-sm font-medium text-gray-400"
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+            >
+              Diversity Score
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-baseline gap-2">
+              <DollarSign className="w-5 h-5 text-gray-400" />
+              <span 
+                className="text-3xl font-bold text-white"
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                data-testid="text-diversity-score"
+              >
+                {portfolioDiversityScore.toFixed(1)}%
               </span>
             </div>
           </CardContent>

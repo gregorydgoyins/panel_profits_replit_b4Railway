@@ -1197,7 +1197,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/portfolios/user/:userId", async (req, res) => {
     try {
       const portfolios = await storage.getUserPortfolios(req.params.userId);
-      res.json(portfolios);
+      
+      if (portfolios && portfolios.length > 0) {
+        const portfolio = portfolios[0];
+        
+        // Get holdings
+        const holdings = await storage.getHoldings(portfolio.id);
+        
+        // Calculate diversity score
+        let diversityScore = 0;
+        if (holdings && holdings.length > 0) {
+          const totalValue = portfolio.totalValue || 0;
+          
+          if (totalValue > 0) {
+            // Calculate Herfindahl-Hirschman Index (HHI) for diversity
+            // Lower HHI = more diverse
+            const marketShares = holdings.map(h => {
+              const holdingValue = h.quantity * (h.currentPrice || 0);
+              return Math.pow((holdingValue / totalValue) * 100, 2);
+            });
+            
+            const hhi = marketShares.reduce((sum, share) => sum + share, 0);
+            // Convert HHI to diversity score (0-100, higher = more diverse)
+            diversityScore = Math.max(0, 100 - (hhi / 100));
+          }
+        }
+        
+        res.json({
+          ...portfolio,
+          holdings,
+          diversityScore
+        });
+      } else {
+        res.json(portfolios);
+      }
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch portfolios" });
     }
@@ -2983,9 +3016,23 @@ Respond with valid JSON in this exact format:
   app.get("/api/market/overview", async (req, res) => {
     try {
       const overview = await marketSimulation.getMarketOverview();
+      
+      // Calculate total market volume
+      const recentMarketData = await db
+        .select({
+          totalVolume: sql<number>`COALESCE(SUM(CAST(${marketData.volume} AS DECIMAL)), 0)`
+        })
+        .from(marketData)
+        .where(sql`${marketData.timestamp} >= NOW() - INTERVAL '24 hours'`);
+      
+      const totalVolume = recentMarketData[0]?.totalVolume || 0;
+      
       res.json({
         success: true,
-        data: overview
+        data: {
+          ...overview,
+          totalVolume
+        }
       });
     } catch (error) {
       console.error('Error fetching market overview:', error);
