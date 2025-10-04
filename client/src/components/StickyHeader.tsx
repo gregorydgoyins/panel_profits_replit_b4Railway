@@ -140,7 +140,7 @@ export function StickyHeader() {
           {/* Label Box */}
           <div className="absolute left-0 top-0 h-full px-4 bg-gray-950 border-r border-gray-800 flex items-center z-10">
             <span 
-              className="text-xs font-bold uppercase tracking-wider whitespace-nowrap"
+              className="text-xs uppercase whitespace-nowrap"
               style={{ 
                 fontFamily: 'Hind, sans-serif', 
                 fontWeight: 300,
@@ -208,7 +208,7 @@ export function StickyHeader() {
           {/* Label Box */}
           <div className="absolute left-0 top-0 h-full px-4 bg-black border-r border-gray-800 flex items-center z-10">
             <span 
-              className="text-xs font-bold uppercase tracking-wider whitespace-nowrap"
+              className="text-xs uppercase whitespace-nowrap"
               style={{ 
                 fontFamily: 'Hind, sans-serif', 
                 fontWeight: 300,
