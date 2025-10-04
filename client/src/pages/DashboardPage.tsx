@@ -132,7 +132,7 @@ export default function DashboardPage() {
               >
                 <Briefcase className="w-8 h-8 text-indigo-400 flex-shrink-0" />
                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                  <span className="text-xs text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
                     Portfolio Value
                   </span>
                   <div className="flex items-baseline gap-2">
@@ -160,7 +160,7 @@ export default function DashboardPage() {
               >
                 <Coins className="w-8 h-8 text-emerald-400 flex-shrink-0" />
                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                  <span className="text-xs text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
                     Available Cash
                   </span>
                   <div className="flex items-baseline gap-2">
@@ -187,7 +187,7 @@ export default function DashboardPage() {
               >
                 <BarChart3 className="w-8 h-8 text-blue-400 flex-shrink-0" />
                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                  <span className="text-xs text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
                     Market Assets
                   </span>
                   <div className="flex items-baseline gap-2">
@@ -214,7 +214,7 @@ export default function DashboardPage() {
               >
                 <PieChart className="w-8 h-8 text-purple-400 flex-shrink-0" />
                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                  <span className="text-xs text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
                     Day P&L
                   </span>
                   <div className="flex items-baseline gap-2">
@@ -241,7 +241,7 @@ export default function DashboardPage() {
               >
                 <TrendingUp className="w-8 h-8 text-cyan-400 flex-shrink-0" />
                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                  <span className="text-xs text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
                     Total Return
                   </span>
                   <div className="flex items-baseline gap-2">
@@ -268,7 +268,7 @@ export default function DashboardPage() {
               >
                 <CreditCard className="w-8 h-8 text-amber-400 flex-shrink-0" />
                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                  <span className="text-xs text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
                     Buying Power
                   </span>
                   <div className="flex items-baseline gap-2">
@@ -295,7 +295,7 @@ export default function DashboardPage() {
               >
                 <ShoppingCart className="w-8 h-8 text-rose-400 flex-shrink-0" />
                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                  <span className="text-xs text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
                     Open Orders
                   </span>
                   <div className="flex items-baseline gap-2">
@@ -322,7 +322,7 @@ export default function DashboardPage() {
               >
                 <Target className="w-8 h-8 text-teal-400 flex-shrink-0" />
                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                  <span className="text-xs text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
                     Active Positions
                   </span>
                   <div className="flex items-baseline gap-2">
@@ -349,7 +349,7 @@ export default function DashboardPage() {
               >
                 <Award className="w-8 h-8 text-lime-400 flex-shrink-0" />
                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                  <span className="text-xs text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
                     Win Rate
                   </span>
                   <div className="flex items-baseline gap-2">
@@ -376,7 +376,7 @@ export default function DashboardPage() {
               >
                 <Trophy className="w-8 h-8 text-yellow-400 flex-shrink-0" />
                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                  <span className="text-xs text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
                     Best Performer
                   </span>
                   <div className="flex items-baseline gap-2">
@@ -420,7 +420,7 @@ export default function DashboardPage() {
               >
                 <TrendingDownIcon className="w-8 h-8 text-orange-400 flex-shrink-0" />
                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                  <span className="text-xs text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
                     Worst Performer
                   </span>
                   <div className="flex items-baseline gap-2">
@@ -464,7 +464,7 @@ export default function DashboardPage() {
               >
                 <Calculator className="w-8 h-8 text-green-400 flex-shrink-0" />
                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <span className="text-[10px] text-gray-400" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                  <span className="text-xs text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
                     Total Account
                   </span>
                   <div className="flex items-baseline gap-2">
