@@ -100,7 +100,11 @@ export function TopNavbar() {
       </div>
 
       {/* Separator 1 */}
-      <div className="h-6 w-0.5 bg-gradient-to-b from-purple-500 to-indigo-500 flex-shrink-0" data-testid="separator-1" />
+      <div className="flex items-center gap-1 flex-shrink-0">
+        <div className="w-1.5 h-1.5 rounded-full bg-purple-500" data-testid="separator-1-dot-1" />
+        <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" data-testid="separator-1-dot-2" />
+        <div className="w-1.5 h-1.5 rounded-full bg-purple-500" data-testid="separator-1-dot-3" />
+      </div>
 
       {/* Group 2: All Navigation Buttons */}
       <div className="hidden md:flex items-center gap-1 flex-shrink-0">
@@ -108,7 +112,11 @@ export function TopNavbar() {
       </div>
 
       {/* Separator 2 */}
-      <div className="h-6 w-0.5 bg-gradient-to-b from-purple-500 to-indigo-500 flex-shrink-0" data-testid="separator-2" />
+      <div className="flex items-center gap-1 flex-shrink-0">
+        <div className="w-1.5 h-1.5 rounded-full bg-purple-500" data-testid="separator-2-dot-1" />
+        <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" data-testid="separator-2-dot-2" />
+        <div className="w-1.5 h-1.5 rounded-full bg-purple-500" data-testid="separator-2-dot-3" />
+      </div>
 
       {/* Group 3: Notification, Settings, Profile Icons */}
       <div className="flex items-center gap-1 flex-shrink-0">
