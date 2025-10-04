@@ -237,7 +237,7 @@ export function WorldClocksWidget() {
   const bottomRowMarkets = markets.slice(4);
 
   return (
-    <Card className="bg-amber-50/10 dark:bg-amber-950/20" data-testid="widget-world-clocks">
+    <Card className="!bg-amber-100/40 dark:!bg-amber-900/30" data-testid="widget-world-clocks">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
           <Globe className="w-4 h-4" />
