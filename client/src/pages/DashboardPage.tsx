@@ -95,7 +95,7 @@ export default function DashboardPage() {
       {/* Hero Section: Portfolio Stats + Featured Comic */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Portfolio Value */}
-        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+        <Card className="bg-gradient-to-br from-gray-900 to-black border-2 border-blue-500">
           <CardHeader className="pb-2">
             <CardTitle 
               className="text-sm font-medium text-gray-400"
@@ -122,7 +122,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* Cash Balance */}
-        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+        <Card className="bg-gradient-to-br from-gray-900 to-black border-2 border-blue-500">
           <CardHeader className="pb-2">
             <CardTitle 
               className="text-sm font-medium text-gray-400"
@@ -146,7 +146,7 @@ export default function DashboardPage() {
         </Card>
 
         {/* Total Assets */}
-        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+        <Card className="bg-gradient-to-br from-gray-900 to-black border-2 border-blue-500">
           <CardHeader className="pb-2">
             <CardTitle 
               className="text-sm font-medium text-gray-400"
