@@ -134,24 +134,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Market Ticker - Returns top movers for ticker display
   app.get('/api/market/ticker', async (req: any, res) => {
     try {
-      // Get top 20 assets by volume and price movement
+      // Get top 100 assets with comic type for proper ticker formatting
       const topMovers = await db
         .select({
           symbol: assetsTable.symbol,
           name: assetsTable.name,
+          type: assetsTable.type,
           currentPrice: assetCurrentPrices.currentPrice,
           change: assetCurrentPrices.dayChange,
           changePercent: assetCurrentPrices.dayChangePercent,
         })
         .from(assetsTable)
         .innerJoin(assetCurrentPrices, eq(assetsTable.id, assetCurrentPrices.assetId))
-        .where(sql`${assetCurrentPrices.currentPrice} IS NOT NULL`)
+        .where(sql`${assetCurrentPrices.currentPrice} IS NOT NULL AND ${assetsTable.type} = 'comic'`)
         .orderBy(sql`${assetCurrentPrices.dayChangePercent} DESC`)
-        .limit(20);
+        .limit(100);
       
-      // Convert decimal strings to numbers
+      // Format symbols using ticker nomenclature and convert decimals to numbers
+      const { formatTickerSymbol } = await import('./utils/tickerFormatter');
       const formattedMovers = topMovers.map(asset => ({
-        symbol: asset.symbol,
+        symbol: formatTickerSymbol(asset.symbol, asset.name),
         name: asset.name,
         currentPrice: parseFloat(asset.currentPrice),
         change: parseFloat(asset.change || '0'),
