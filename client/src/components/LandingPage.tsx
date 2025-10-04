@@ -127,7 +127,7 @@ export function LandingPage() {
 
           {/* Entry button */}
           <div className="space-y-4">
-            <Link href="/auth">
+            <Link href="/intro">
               <Button 
                 className="w-full h-12 text-base tracking-wider uppercase bg-white text-black hover:bg-gray-100 font-bold"
                 style={{ fontFamily: 'Space Grotesk, sans-serif' }}

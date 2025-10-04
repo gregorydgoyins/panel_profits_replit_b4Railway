@@ -15,6 +15,7 @@ import NotFound from '@/pages/not-found';
 // Essential pages only for Phase 0
 // Auth
 import AuthPage from '@/pages/auth';
+import ComicIntro from '@/pages/ComicIntro';
 import EntryTestPage from '@/pages/EntryTestPage';
 import KnowledgeTestPage from '@/pages/KnowledgeTestPage';
 
@@ -55,6 +56,7 @@ function Router() {
     return (
       <Switch>
         <Route path="/" component={LandingPage} />
+        <Route path="/intro" component={ComicIntro} />
         <Route path="/auth" component={AuthPage} />
         <Route component={LandingPage} />
       </Switch>
