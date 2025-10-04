@@ -36,14 +36,14 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, glowClass: 'rim-glow-dashboard', categoryColor: 'hsl(270 80% 60%)', hoverTextClass: 'hover:text-[hsl(270,80%,60%)]', activeBgClass: 'bg-[hsl(270,80%,60%)]', activeTextClass: 'text-white' },
-  { path: '/trading', label: 'Trading', icon: TrendingUp, glowClass: 'rim-glow-trading', categoryColor: 'hsl(210 100% 50%)', hoverTextClass: 'hover:text-[hsl(210,100%,50%)]', activeBgClass: 'bg-[hsl(210,100%,50%)]', activeTextClass: 'text-white' },
-  { path: '/portfolio', label: 'Portfolio', icon: Briefcase, glowClass: 'rim-glow-portfolio', categoryColor: 'hsl(45 100% 50%)', hoverTextClass: 'hover:text-[hsl(45,100%,50%)]', activeBgClass: 'bg-[hsl(45,100%,50%)]', activeTextClass: 'text-black' },
-  { path: '/news', label: 'News', icon: Newspaper, glowClass: 'rim-glow-news', categoryColor: 'hsl(0 0% 100%)', hoverTextClass: 'hover:text-white', activeBgClass: 'bg-white', activeTextClass: 'text-black' },
-  { path: '/learn', label: 'Learn', icon: GraduationCap, glowClass: 'rim-glow-learn', categoryColor: 'hsl(180 100% 50%)', hoverTextClass: 'hover:text-[hsl(180,100%,50%)]', activeBgClass: 'bg-[hsl(180,100%,50%)]', activeTextClass: 'text-white' },
-  { path: '/markets', label: 'Markets', icon: Globe, glowClass: 'rim-glow-markets', categoryColor: 'hsl(25 95% 53%)', hoverTextClass: 'hover:text-[hsl(25,95%,53%)]', activeBgClass: 'bg-[hsl(25,95%,53%)]', activeTextClass: 'text-white' },
-  { path: '/research', label: 'Research', icon: BookOpen, glowClass: 'rim-glow-research', categoryColor: 'hsl(320 85% 60%)', hoverTextClass: 'hover:text-[hsl(320,85%,60%)]', activeBgClass: 'bg-[hsl(320,85%,60%)]', activeTextClass: 'text-white' },
-  { path: '/analytics', label: 'Analytics', icon: BarChart3, glowClass: 'rim-glow-analytics', categoryColor: 'hsl(140 70% 45%)', hoverTextClass: 'hover:text-[hsl(140,70%,45%)]', activeBgClass: 'bg-[hsl(140,70%,45%)]', activeTextClass: 'text-white' },
+  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, glowClass: 'rim-glow-dashboard', categoryColor: '#FE4365', hoverTextClass: 'hover:text-[#FE4365]', activeBgClass: 'bg-[#FE4365]', activeTextClass: 'text-white' },
+  { path: '/trading', label: 'Trading', icon: TrendingUp, glowClass: 'rim-glow-trading', categoryColor: '#45ADA8', hoverTextClass: 'hover:text-[#45ADA8]', activeBgClass: 'bg-[#45ADA8]', activeTextClass: 'text-white' },
+  { path: '/portfolio', label: 'Portfolio', icon: Briefcase, glowClass: 'rim-glow-portfolio', categoryColor: '#F9D423', hoverTextClass: 'hover:text-[#F9D423]', activeBgClass: 'bg-[#F9D423]', activeTextClass: 'text-black' },
+  { path: '/news', label: 'News', icon: Newspaper, glowClass: 'rim-glow-news', categoryColor: '#EC2049', hoverTextClass: 'hover:text-[#EC2049]', activeBgClass: 'bg-[#EC2049]', activeTextClass: 'text-white' },
+  { path: '/learn', label: 'Learn', icon: GraduationCap, glowClass: 'rim-glow-learn', categoryColor: '#FF4F50', hoverTextClass: 'hover:text-[#FF4F50]', activeBgClass: 'bg-[#FF4F50]', activeTextClass: 'text-white' },
+  { path: '/markets', label: 'Markets', icon: Globe, glowClass: 'rim-glow-markets', categoryColor: '#E8175D', hoverTextClass: 'hover:text-[#E8175D]', activeBgClass: 'bg-[#E8175D]', activeTextClass: 'text-white' },
+  { path: '/research', label: 'Research', icon: BookOpen, glowClass: 'rim-glow-research', categoryColor: '#A8E6CE', hoverTextClass: 'hover:text-[#A8E6CE]', activeBgClass: 'bg-[#A8E6CE]', activeTextClass: 'text-black' },
+  { path: '/analytics', label: 'Analytics', icon: BarChart3, glowClass: 'rim-glow-analytics', categoryColor: '#E84A5F', hoverTextClass: 'hover:text-[#E84A5F]', activeBgClass: 'bg-[#E84A5F]', activeTextClass: 'text-white' },
 ];
 
 export function TopNavbar() {

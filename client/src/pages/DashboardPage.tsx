@@ -107,15 +107,19 @@ export default function DashboardPage() {
   return (
     <div className="space-y-4">
       {/* Hero Section: Portfolio Stats Grid (3x3) */}
-      <Card className="border-0" style={{ backgroundColor: 'hsl(270, 40%, 30%)' }}>
+      <Card className="border-0" style={{ backgroundColor: '#2A363B' }}>
         <CardContent className="p-6">
-          <div className="p-6 rounded-lg" style={{ backgroundColor: 'hsl(270, 35%, 22%)' }}>
+          <div className="p-6 rounded-lg" style={{ backgroundColor: '#1a2226' }}>
             <div className="grid grid-cols-3 gap-6">
               {/* Portfolio Value */}
               <Card 
-                className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+                className="border-2 hover-elevate cursor-pointer transition-all"
                 onClick={() => setSelectedBox(selectedBox === 'portfolio-value' ? null : 'portfolio-value')}
-                style={selectedBox === 'portfolio-value' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+                style={{
+                  background: 'linear-gradient(135deg, #FE4365 0%, #FC9D9A 100%)',
+                  borderColor: '#F9CDAD',
+                  ...(selectedBox === 'portfolio-value' ? { boxShadow: '0 0 0 3px #FE4365, 0 0 20px rgba(254, 67, 101, 0.9), 0 0 40px rgba(254, 67, 101, 0.6)' } : {})
+                }}
               >
               <CardHeader className="pb-2">
                 <CardTitle 
@@ -144,9 +148,13 @@ export default function DashboardPage() {
 
             {/* Cash Balance */}
             <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              className="border-2 hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'cash-balance' ? null : 'cash-balance')}
-              style={selectedBox === 'cash-balance' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+              style={{
+                background: 'linear-gradient(135deg, #9DE0AD 0%, #45ADA8 100%)',
+                borderColor: '#E5FCC2',
+                ...(selectedBox === 'cash-balance' ? { boxShadow: '0 0 0 3px #9DE0AD, 0 0 20px rgba(157, 224, 173, 0.9), 0 0 40px rgba(157, 224, 173, 0.6)' } : {})
+              }}
             >
               <CardHeader className="pb-2">
                 <CardTitle 
@@ -172,9 +180,13 @@ export default function DashboardPage() {
 
             {/* Total Assets */}
             <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              className="border-2 hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'total-assets' ? null : 'total-assets')}
-              style={selectedBox === 'total-assets' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+              style={{
+                background: 'linear-gradient(135deg, #F9D423 0%, #FC9F3A 100%)',
+                borderColor: '#EDE574',
+                ...(selectedBox === 'total-assets' ? { boxShadow: '0 0 0 3px #F9D423, 0 0 20px rgba(249, 212, 35, 0.9), 0 0 40px rgba(249, 212, 35, 0.6)' } : {})
+              }}
             >
               <CardHeader className="pb-2">
                 <CardTitle 
@@ -200,9 +212,13 @@ export default function DashboardPage() {
 
             {/* Day P&L */}
             <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              className="border-2 hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'day-pl' ? null : 'day-pl')}
-              style={selectedBox === 'day-pl' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+              style={{
+                background: 'linear-gradient(135deg, #EC2049 0%, #F26B38 100%)',
+                borderColor: '#F7DB4F',
+                ...(selectedBox === 'day-pl' ? { boxShadow: '0 0 0 3px #EC2049, 0 0 20px rgba(236, 32, 73, 0.9), 0 0 40px rgba(236, 32, 73, 0.6)' } : {})
+              }}
             >
               <CardHeader className="pb-2">
                 <CardTitle 
@@ -230,9 +246,13 @@ export default function DashboardPage() {
 
             {/* Total Return */}
             <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              className="border-2 hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'total-return' ? null : 'total-return')}
-              style={selectedBox === 'total-return' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+              style={{
+                background: 'linear-gradient(135deg, #FFD423 0%, #FF4F50 100%)',
+                borderColor: '#EDE574',
+                ...(selectedBox === 'total-return' ? { boxShadow: '0 0 0 3px #FFD423, 0 0 20px rgba(255, 212, 35, 0.9), 0 0 40px rgba(255, 212, 35, 0.6)' } : {})
+              }}
             >
               <CardHeader className="pb-2">
                 <CardTitle 
@@ -257,9 +277,13 @@ export default function DashboardPage() {
 
             {/* Buying Power */}
             <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              className="border-2 hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'buying-power' ? null : 'buying-power')}
-              style={selectedBox === 'buying-power' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+              style={{
+                background: 'linear-gradient(135deg, #CC527A 0%, #E8175D 100%)',
+                borderColor: '#A8A7A7',
+                ...(selectedBox === 'buying-power' ? { boxShadow: '0 0 0 3px #CC527A, 0 0 20px rgba(204, 82, 122, 0.9), 0 0 40px rgba(204, 82, 122, 0.6)' } : {})
+              }}
             >
               <CardHeader className="pb-2">
                 <CardTitle 
@@ -285,9 +309,13 @@ export default function DashboardPage() {
 
             {/* Open Orders */}
             <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              className="border-2 hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'open-orders' ? null : 'open-orders')}
-              style={selectedBox === 'open-orders' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+              style={{
+                background: 'linear-gradient(135deg, #A8E6CE 0%, #DCEDC2 100%)',
+                borderColor: '#FFD3B5',
+                ...(selectedBox === 'open-orders' ? { boxShadow: '0 0 0 3px #A8E6CE, 0 0 20px rgba(168, 230, 206, 0.9), 0 0 40px rgba(168, 230, 206, 0.6)' } : {})
+              }}
             >
               <CardHeader className="pb-2">
                 <CardTitle 
@@ -313,9 +341,13 @@ export default function DashboardPage() {
 
             {/* Active Positions */}
             <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              className="border-2 hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'active-positions' ? null : 'active-positions')}
-              style={selectedBox === 'active-positions' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+              style={{
+                background: 'linear-gradient(135deg, #99B898 0%, #FECEAB 100%)',
+                borderColor: '#FF847C',
+                ...(selectedBox === 'active-positions' ? { boxShadow: '0 0 0 3px #99B898, 0 0 20px rgba(153, 184, 152, 0.9), 0 0 40px rgba(153, 184, 152, 0.6)' } : {})
+              }}
             >
               <CardHeader className="pb-2">
                 <CardTitle 
@@ -341,9 +373,13 @@ export default function DashboardPage() {
 
             {/* Win Rate */}
             <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              className="border-2 hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'win-rate' ? null : 'win-rate')}
-              style={selectedBox === 'win-rate' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+              style={{
+                background: 'linear-gradient(135deg, #F88195 0%, #F67280 100%)',
+                borderColor: '#C06084',
+                ...(selectedBox === 'win-rate' ? { boxShadow: '0 0 0 3px #F88195, 0 0 20px rgba(248, 129, 149, 0.9), 0 0 40px rgba(248, 129, 149, 0.6)' } : {})
+              }}
             >
               <CardHeader className="pb-2">
                 <CardTitle 
@@ -369,9 +405,13 @@ export default function DashboardPage() {
 
             {/* Best Performer */}
             <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              className="border-2 hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'best-performer' ? null : 'best-performer')}
-              style={selectedBox === 'best-performer' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+              style={{
+                background: 'linear-gradient(135deg, #83AF9B 0%, #C8C6A9 100%)',
+                borderColor: '#F9CDAD',
+                ...(selectedBox === 'best-performer' ? { boxShadow: '0 0 0 3px #83AF9B, 0 0 20px rgba(131, 175, 155, 0.9), 0 0 40px rgba(131, 175, 155, 0.6)' } : {})
+              }}
             >
               <CardHeader className="pb-2">
                 <CardTitle 
@@ -405,9 +445,13 @@ export default function DashboardPage() {
 
             {/* Worst Performer */}
             <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              className="border-2 hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'worst-performer' ? null : 'worst-performer')}
-              style={selectedBox === 'worst-performer' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+              style={{
+                background: 'linear-gradient(135deg, #E84A5F 0%, #2A363B 100%)',
+                borderColor: '#99B898',
+                ...(selectedBox === 'worst-performer' ? { boxShadow: '0 0 0 3px #E84A5F, 0 0 20px rgba(232, 74, 95, 0.9), 0 0 40px rgba(232, 74, 95, 0.6)' } : {})
+              }}
             >
               <CardHeader className="pb-2">
                 <CardTitle 
@@ -441,9 +485,13 @@ export default function DashboardPage() {
 
             {/* Market Cap */}
             <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              className="border-2 hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'total-account' ? null : 'total-account')}
-              style={selectedBox === 'total-account' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+              style={{
+                background: 'linear-gradient(135deg, #355C7D 0%, #6C5B7B 100%)',
+                borderColor: '#C06084',
+                ...(selectedBox === 'total-account' ? { boxShadow: '0 0 0 3px #355C7D, 0 0 20px rgba(53, 92, 125, 0.9), 0 0 40px rgba(53, 92, 125, 0.6)' } : {})
+              }}
             >
               <CardHeader className="pb-2">
                 <CardTitle 
