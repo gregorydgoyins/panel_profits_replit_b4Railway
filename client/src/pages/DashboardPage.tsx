@@ -117,27 +117,27 @@ export default function DashboardPage() {
                 onClick={() => setSelectedBox(selectedBox === 'portfolio-value' ? null : 'portfolio-value')}
                 style={selectedBox === 'portfolio-value' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
               >
-              <CardHeader className="pb-0">
-                <CardTitle 
-                  className="text-xs font-medium text-gray-400"
-                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                >
-                  Portfolio Value
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-1 pb-2">
-                <div className="flex items-baseline gap-1">
+              <CardContent className="p-2">
+                <div className="flex flex-col gap-1">
                   <span 
-                    className="text-lg font-bold text-white"
+                    className="text-[10px] font-medium text-gray-400"
                     style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                    data-testid="text-portfolio-value"
                   >
-                    ${portfolioValue.toLocaleString()}
+                    Portfolio Value
                   </span>
-                  <span className={`text-xs font-medium flex items-center gap-0.5 ${portfolioChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    {portfolioChange >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                    {portfolioChangePercent >= 0 ? '+' : ''}{portfolioChangePercent.toFixed(2)}%
-                  </span>
+                  <div className="flex items-baseline gap-1">
+                    <span 
+                      className="text-sm font-bold text-white"
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      data-testid="text-portfolio-value"
+                    >
+                      ${portfolioValue.toLocaleString()}
+                    </span>
+                    <span className={`text-[10px] font-medium flex items-center gap-0.5 ${portfolioChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {portfolioChange >= 0 ? <ArrowUpRight className="w-2 h-2" /> : <ArrowDownRight className="w-2 h-2" />}
+                      {portfolioChangePercent >= 0 ? '+' : ''}{portfolioChangePercent.toFixed(2)}%
+                    </span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -148,24 +148,24 @@ export default function DashboardPage() {
               onClick={() => setSelectedBox(selectedBox === 'cash-balance' ? null : 'cash-balance')}
               style={selectedBox === 'cash-balance' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
-              <CardHeader className="pb-0">
-                <CardTitle 
-                  className="text-xs font-medium text-gray-400"
-                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                >
-                  Available Cash
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-1 pb-2">
-                <div className="flex items-baseline gap-1">
-                  <Wallet className="w-4 h-4 text-gray-400" />
+              <CardContent className="p-2">
+                <div className="flex flex-col gap-1">
                   <span 
-                    className="text-lg font-bold text-white"
+                    className="text-[10px] font-medium text-gray-400"
                     style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                    data-testid="text-cash-balance"
                   >
-                    ${cashBalance.toLocaleString()}
+                    Available Cash
                   </span>
+                  <div className="flex items-baseline gap-1">
+                    <Wallet className="w-3 h-3 text-gray-400" />
+                    <span 
+                      className="text-sm font-bold text-white"
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      data-testid="text-cash-balance"
+                    >
+                      ${cashBalance.toLocaleString()}
+                    </span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -176,24 +176,24 @@ export default function DashboardPage() {
               onClick={() => setSelectedBox(selectedBox === 'total-assets' ? null : 'total-assets')}
               style={selectedBox === 'total-assets' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
-              <CardHeader className="pb-0">
-                <CardTitle 
-                  className="text-xs font-medium text-gray-400"
-                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                >
-                  Market Assets
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-1 pb-2">
-                <div className="flex items-baseline gap-1">
-                  <Eye className="w-4 h-4 text-gray-400" />
+              <CardContent className="p-2">
+                <div className="flex flex-col gap-1">
                   <span 
-                    className="text-lg font-bold text-white"
+                    className="text-[10px] font-medium text-gray-400"
                     style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                    data-testid="text-total-assets"
                   >
-                    {(marketData?.totalAssets || 0).toLocaleString()}
+                    Market Assets
                   </span>
+                  <div className="flex items-baseline gap-1">
+                    <Eye className="w-3 h-3 text-gray-400" />
+                    <span 
+                      className="text-sm font-bold text-white"
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      data-testid="text-total-assets"
+                    >
+                      {(marketData?.totalAssets || 0).toLocaleString()}
+                    </span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -204,26 +204,26 @@ export default function DashboardPage() {
               onClick={() => setSelectedBox(selectedBox === 'day-pl' ? null : 'day-pl')}
               style={selectedBox === 'day-pl' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
-              <CardHeader className="pb-0">
-                <CardTitle 
-                  className="text-xs font-medium text-gray-400"
-                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                >
-                  Day P&L
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-1 pb-2">
-                <div className="flex items-baseline gap-1">
+              <CardContent className="p-2">
+                <div className="flex flex-col gap-1">
                   <span 
-                    className={`text-lg font-bold ${dayPL >= 0 ? 'text-green-500' : 'text-red-500'}`}
+                    className="text-[10px] font-medium text-gray-400"
                     style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                    data-testid="text-day-pl"
                   >
-                    {dayPL >= 0 ? '+' : ''}${dayPL.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    Day P&L
                   </span>
-                  <span className={`text-xs flex items-center gap-0.5 ${dayPL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    {dayPL >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                  </span>
+                  <div className="flex items-baseline gap-1">
+                    <span 
+                      className={`text-sm font-bold ${dayPL >= 0 ? 'text-green-500' : 'text-red-500'}`}
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      data-testid="text-day-pl"
+                    >
+                      {dayPL >= 0 ? '+' : ''}${dayPL.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                    <span className={`text-[10px] flex items-center gap-0.5 ${dayPL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {dayPL >= 0 ? <ArrowUpRight className="w-2 h-2" /> : <ArrowDownRight className="w-2 h-2" />}
+                    </span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -234,23 +234,23 @@ export default function DashboardPage() {
               onClick={() => setSelectedBox(selectedBox === 'total-return' ? null : 'total-return')}
               style={selectedBox === 'total-return' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
-              <CardHeader className="pb-0">
-                <CardTitle 
-                  className="text-xs font-medium text-gray-400"
-                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                >
-                  Total Return
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-1 pb-2">
-                <div className="flex items-baseline gap-1">
+              <CardContent className="p-2">
+                <div className="flex flex-col gap-1">
                   <span 
-                    className={`text-lg font-bold ${totalReturn >= 0 ? 'text-green-500' : 'text-red-500'}`}
+                    className="text-[10px] font-medium text-gray-400"
                     style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                    data-testid="text-total-return"
                   >
-                    {totalReturn >= 0 ? '+' : ''}{totalReturn.toFixed(2)}%
+                    Total Return
                   </span>
+                  <div className="flex items-baseline gap-1">
+                    <span 
+                      className={`text-sm font-bold ${totalReturn >= 0 ? 'text-green-500' : 'text-red-500'}`}
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      data-testid="text-total-return"
+                    >
+                      {totalReturn >= 0 ? '+' : ''}{totalReturn.toFixed(2)}%
+                    </span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -261,24 +261,24 @@ export default function DashboardPage() {
               onClick={() => setSelectedBox(selectedBox === 'buying-power' ? null : 'buying-power')}
               style={selectedBox === 'buying-power' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
-              <CardHeader className="pb-0">
-                <CardTitle 
-                  className="text-xs font-medium text-gray-400"
-                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                >
-                  Buying Power
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-1 pb-2">
-                <div className="flex items-baseline gap-1">
-                  <DollarSign className="w-4 h-4 text-gray-400" />
+              <CardContent className="p-2">
+                <div className="flex flex-col gap-1">
                   <span 
-                    className="text-lg font-bold text-white"
+                    className="text-[10px] font-medium text-gray-400"
                     style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                    data-testid="text-buying-power"
                   >
-                    ${buyingPower.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    Buying Power
                   </span>
+                  <div className="flex items-baseline gap-1">
+                    <DollarSign className="w-3 h-3 text-gray-400" />
+                    <span 
+                      className="text-sm font-bold text-white"
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      data-testid="text-buying-power"
+                    >
+                      ${buyingPower.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    </span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -289,24 +289,24 @@ export default function DashboardPage() {
               onClick={() => setSelectedBox(selectedBox === 'open-orders' ? null : 'open-orders')}
               style={selectedBox === 'open-orders' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
-              <CardHeader className="pb-0">
-                <CardTitle 
-                  className="text-xs font-medium text-gray-400"
-                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                >
-                  Open Orders
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-1 pb-2">
-                <div className="flex items-baseline gap-1">
-                  <Activity className="w-4 h-4 text-gray-400" />
+              <CardContent className="p-2">
+                <div className="flex flex-col gap-1">
                   <span 
-                    className="text-lg font-bold text-white"
+                    className="text-[10px] font-medium text-gray-400"
                     style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                    data-testid="text-open-orders"
                   >
-                    {openOrders}
+                    Open Orders
                   </span>
+                  <div className="flex items-baseline gap-1">
+                    <Activity className="w-3 h-3 text-gray-400" />
+                    <span 
+                      className="text-sm font-bold text-white"
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      data-testid="text-open-orders"
+                    >
+                      {openOrders}
+                    </span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -317,24 +317,24 @@ export default function DashboardPage() {
               onClick={() => setSelectedBox(selectedBox === 'active-positions' ? null : 'active-positions')}
               style={selectedBox === 'active-positions' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
-              <CardHeader className="pb-0">
-                <CardTitle 
-                  className="text-xs font-medium text-gray-400"
-                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                >
-                  Active Positions
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-1 pb-2">
-                <div className="flex items-baseline gap-1">
-                  <Star className="w-4 h-4 text-gray-400" />
+              <CardContent className="p-2">
+                <div className="flex flex-col gap-1">
                   <span 
-                    className="text-lg font-bold text-white"
+                    className="text-[10px] font-medium text-gray-400"
                     style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                    data-testid="text-active-positions"
                   >
-                    {portfolioHoldingsCount}
+                    Active Positions
                   </span>
+                  <div className="flex items-baseline gap-1">
+                    <Star className="w-3 h-3 text-gray-400" />
+                    <span 
+                      className="text-sm font-bold text-white"
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      data-testid="text-active-positions"
+                    >
+                      {portfolioHoldingsCount}
+                    </span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -345,24 +345,24 @@ export default function DashboardPage() {
               onClick={() => setSelectedBox(selectedBox === 'win-rate' ? null : 'win-rate')}
               style={selectedBox === 'win-rate' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
-              <CardHeader className="pb-0">
-                <CardTitle 
-                  className="text-xs font-medium text-gray-400"
-                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                >
-                  Win Rate
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-1 pb-2">
-                <div className="flex items-baseline gap-1">
-                  <TrendingUp className="w-4 h-4 text-green-500" />
+              <CardContent className="p-2">
+                <div className="flex flex-col gap-1">
                   <span 
-                    className="text-lg font-bold text-white"
+                    className="text-[10px] font-medium text-gray-400"
                     style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                    data-testid="text-win-rate"
                   >
-                    {winRate.toFixed(1)}%
+                    Win Rate
                   </span>
+                  <div className="flex items-baseline gap-1">
+                    <TrendingUp className="w-3 h-3 text-green-500" />
+                    <span 
+                      className="text-sm font-bold text-white"
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      data-testid="text-win-rate"
+                    >
+                      {winRate.toFixed(1)}%
+                    </span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -373,32 +373,32 @@ export default function DashboardPage() {
               onClick={() => setSelectedBox(selectedBox === 'best-performer' ? null : 'best-performer')}
               style={selectedBox === 'best-performer' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
-              <CardHeader className="pb-0">
-                <CardTitle 
-                  className="text-xs font-medium text-gray-400"
-                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                >
-                  Best Performer
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-1 pb-2">
-                <div className="flex flex-col gap-0.5">
-                  {bestPerformer ? (
-                    <>
-                      <span 
-                        className="text-xs font-bold text-white truncate"
-                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                        data-testid="text-best-performer"
-                      >
-                        {bestPerformer.symbol}
-                      </span>
-                      <span className="text-lg font-bold text-green-500">
-                        +{bestPerformer.changePercent?.toFixed(2)}%
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-lg font-bold text-gray-500">--</span>
-                  )}
+              <CardContent className="p-2">
+                <div className="flex flex-col gap-1">
+                  <span 
+                    className="text-[10px] font-medium text-gray-400"
+                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                  >
+                    Best Performer
+                  </span>
+                  <div className="flex flex-col gap-0.5">
+                    {bestPerformer ? (
+                      <>
+                        <span 
+                          className="text-[10px] font-bold text-white truncate"
+                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                          data-testid="text-best-performer"
+                        >
+                          {bestPerformer.symbol}
+                        </span>
+                        <span className="text-sm font-bold text-green-500">
+                          +{bestPerformer.changePercent?.toFixed(2)}%
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-sm font-bold text-gray-500">--</span>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -409,32 +409,32 @@ export default function DashboardPage() {
               onClick={() => setSelectedBox(selectedBox === 'worst-performer' ? null : 'worst-performer')}
               style={selectedBox === 'worst-performer' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
-              <CardHeader className="pb-0">
-                <CardTitle 
-                  className="text-xs font-medium text-gray-400"
-                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                >
-                  Worst Performer
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-1 pb-2">
-                <div className="flex flex-col gap-0.5">
-                  {worstPerformer ? (
-                    <>
-                      <span 
-                        className="text-xs font-bold text-white truncate"
-                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                        data-testid="text-worst-performer"
-                      >
-                        {worstPerformer.symbol}
-                      </span>
-                      <span className="text-lg font-bold text-red-500">
-                        {worstPerformer.changePercent?.toFixed(2)}%
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-lg font-bold text-gray-500">--</span>
-                  )}
+              <CardContent className="p-2">
+                <div className="flex flex-col gap-1">
+                  <span 
+                    className="text-[10px] font-medium text-gray-400"
+                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                  >
+                    Worst Performer
+                  </span>
+                  <div className="flex flex-col gap-0.5">
+                    {worstPerformer ? (
+                      <>
+                        <span 
+                          className="text-[10px] font-bold text-white truncate"
+                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                          data-testid="text-worst-performer"
+                        >
+                          {worstPerformer.symbol}
+                        </span>
+                        <span className="text-sm font-bold text-red-500">
+                          {worstPerformer.changePercent?.toFixed(2)}%
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-sm font-bold text-gray-500">--</span>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -445,24 +445,24 @@ export default function DashboardPage() {
               onClick={() => setSelectedBox(selectedBox === 'total-account' ? null : 'total-account')}
               style={selectedBox === 'total-account' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
-              <CardHeader className="pb-0">
-                <CardTitle 
-                  className="text-xs font-medium text-gray-400"
-                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                >
-                  Total Account Value
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-1 pb-2">
-                <div className="flex items-baseline gap-1">
-                  <Wallet className="w-4 h-4 text-gray-400" />
+              <CardContent className="p-2">
+                <div className="flex flex-col gap-1">
                   <span 
-                    className="text-lg font-bold text-white"
+                    className="text-[10px] font-medium text-gray-400"
                     style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                    data-testid="text-total-account-value"
                   >
-                    ${marketCap.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    Total Account Value
                   </span>
+                  <div className="flex items-baseline gap-1">
+                    <Wallet className="w-3 h-3 text-gray-400" />
+                    <span 
+                      className="text-sm font-bold text-white"
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      data-testid="text-total-account-value"
+                    >
+                      ${marketCap.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                    </span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
