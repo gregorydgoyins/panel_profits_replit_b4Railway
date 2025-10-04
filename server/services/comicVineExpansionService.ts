@@ -1,6 +1,7 @@
 import { unifiedPricingEngine } from './unifiedPricingEngine';
 import { tierClassificationService } from './tierClassificationService';
 import { assetInsertionService } from './assetInsertionService';
+import { symbolGeneratorService } from './SymbolGeneratorService';
 import crypto from 'crypto';
 
 /**
@@ -365,6 +366,13 @@ export class ComicVineExpansionService {
     const coverYear = issue.cover_date?.match(/^(\d{4})/)?.[1];
     const era = this.determineEraFromYear(coverYear);
 
+    // Generate symbol using centralized service with new nomenclature
+    // Format: TICKR.V#.#ISSUE (e.g., ASM.V1.#300)
+    const symbol = symbolGeneratorService.generateComicSymbol(name, {
+      year: coverYear,
+      publisher: publisher
+    });
+
     // Calculate pricing for comic issue
     const pricingResult = unifiedPricingEngine.calculatePrice({
       assetType: 'comic',
@@ -378,7 +386,7 @@ export class ComicVineExpansionService {
     return {
       type: 'comic',
       name,
-      symbol: this.generateAssetSymbol(name, null, issue.id),
+      symbol,
       category: 'COMIC',
       description: issue.deck || issue.description?.substring(0, 500) || `${publisher} comic issue`,
       imageUrl: issue.image?.medium_url || issue.image?.small_url || undefined,

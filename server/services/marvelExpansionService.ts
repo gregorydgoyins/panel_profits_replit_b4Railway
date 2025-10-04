@@ -1,6 +1,7 @@
 import { unifiedPricingEngine } from './unifiedPricingEngine';
 import { tierClassificationService } from './tierClassificationService';
 import { assetInsertionService } from './assetInsertionService';
+import { symbolGeneratorService } from './SymbolGeneratorService';
 import crypto from 'crypto';
 
 /**
@@ -365,11 +366,17 @@ export class MarvelExpansionService {
   private async transformComic(comic: MarvelComic): Promise<PricedAsset> {
     const name = comic.title;
     const variant = comic.variantDescription || null;
-    const symbol = this.generateSymbol(name, variant, comic.id);
     
     // Extract year from dates
     const onsaleDate = comic.dates.find(d => d.type === 'onsaleDate');
     const debutYear = onsaleDate ? new Date(onsaleDate.date).getFullYear() : new Date().getFullYear();
+    
+    // Generate symbol using centralized service with new nomenclature
+    // Format: TICKR.V#.#ISSUE (e.g., ASM.V1.#300)
+    const symbol = symbolGeneratorService.generateComicSymbol(name, {
+      year: debutYear,
+      publisher: 'Marvel'
+    });
     
     // Determine era from debut year
     const era = debutYear <= 1955 ? 'golden' as const :
