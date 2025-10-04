@@ -404,7 +404,7 @@
 
 .animate-stock-ticker {
   animation-name: stockTicker !important;
-  animation-duration: 360s !important;
+  animation-duration: 720s !important;
   animation-timing-function: linear !important;
   animation-iteration-count: infinite !important;
   animation-delay: 0s !important;
