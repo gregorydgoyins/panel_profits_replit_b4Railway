@@ -98,155 +98,159 @@ export default function DashboardPage() {
   return (
     <div className="space-y-4">
       {/* Hero Section: Portfolio Stats Grid (3x2) */}
-      <div className="grid grid-cols-3 gap-4">
-        {/* Portfolio Value */}
-        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
-          <CardHeader className="pb-2">
-            <CardTitle 
-              className="text-sm font-medium text-gray-400"
-              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-            >
-              Portfolio Value
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-baseline gap-2">
-              <span 
-                className="text-3xl font-bold text-white"
-                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                data-testid="text-portfolio-value"
-              >
-                ${portfolioValue.toLocaleString()}
-              </span>
-              <span className={`text-sm font-medium flex items-center gap-1 ${portfolioChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {portfolioChange >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                {portfolioChangePercent >= 0 ? '+' : ''}{portfolioChangePercent.toFixed(2)}%
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+      <Card className="border-0" style={{ backgroundColor: 'hsl(270, 80%, 60%)' }}>
+        <CardContent className="p-4">
+          <div className="grid grid-cols-3 gap-4">
+            {/* Portfolio Value */}
+            <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+              <CardHeader className="pb-2">
+                <CardTitle 
+                  className="text-sm font-medium text-gray-400"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                >
+                  Portfolio Value
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-baseline gap-2">
+                  <span 
+                    className="text-3xl font-bold text-white"
+                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                    data-testid="text-portfolio-value"
+                  >
+                    ${portfolioValue.toLocaleString()}
+                  </span>
+                  <span className={`text-sm font-medium flex items-center gap-1 ${portfolioChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    {portfolioChange >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+                    {portfolioChangePercent >= 0 ? '+' : ''}{portfolioChangePercent.toFixed(2)}%
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
 
-        {/* Cash Balance */}
-        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
-          <CardHeader className="pb-2">
-            <CardTitle 
-              className="text-sm font-medium text-gray-400"
-              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-            >
-              Available Cash
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-baseline gap-2">
-              <Wallet className="w-5 h-5 text-gray-400" />
-              <span 
-                className="text-3xl font-bold text-white"
-                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                data-testid="text-cash-balance"
-              >
-                ${cashBalance.toLocaleString()}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+            {/* Cash Balance */}
+            <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+              <CardHeader className="pb-2">
+                <CardTitle 
+                  className="text-sm font-medium text-gray-400"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                >
+                  Available Cash
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-baseline gap-2">
+                  <Wallet className="w-5 h-5 text-gray-400" />
+                  <span 
+                    className="text-3xl font-bold text-white"
+                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                    data-testid="text-cash-balance"
+                  >
+                    ${cashBalance.toLocaleString()}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
 
-        {/* Total Assets */}
-        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
-          <CardHeader className="pb-2">
-            <CardTitle 
-              className="text-sm font-medium text-gray-400"
-              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-            >
-              Market Assets
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-baseline gap-2">
-              <Eye className="w-5 h-5 text-gray-400" />
-              <span 
-                className="text-3xl font-bold text-white"
-                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                data-testid="text-total-assets"
-              >
-                {(marketData?.totalAssets || 0).toLocaleString()}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+            {/* Total Assets */}
+            <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+              <CardHeader className="pb-2">
+                <CardTitle 
+                  className="text-sm font-medium text-gray-400"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                >
+                  Market Assets
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-baseline gap-2">
+                  <Eye className="w-5 h-5 text-gray-400" />
+                  <span 
+                    className="text-3xl font-bold text-white"
+                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                    data-testid="text-total-assets"
+                  >
+                    {(marketData?.totalAssets || 0).toLocaleString()}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
 
-        {/* Portfolio Holdings */}
-        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
-          <CardHeader className="pb-2">
-            <CardTitle 
-              className="text-sm font-medium text-gray-400"
-              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-            >
-              Portfolio Holdings
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-baseline gap-2">
-              <Star className="w-5 h-5 text-gray-400" />
-              <span 
-                className="text-3xl font-bold text-white"
-                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                data-testid="text-holdings-count"
-              >
-                {portfolioHoldingsCount}
-              </span>
-              <span className="text-sm text-gray-500">positions</span>
-            </div>
-          </CardContent>
-        </Card>
+            {/* Portfolio Holdings */}
+            <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+              <CardHeader className="pb-2">
+                <CardTitle 
+                  className="text-sm font-medium text-gray-400"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                >
+                  Portfolio Holdings
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-baseline gap-2">
+                  <Star className="w-5 h-5 text-gray-400" />
+                  <span 
+                    className="text-3xl font-bold text-white"
+                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                    data-testid="text-holdings-count"
+                  >
+                    {portfolioHoldingsCount}
+                  </span>
+                  <span className="text-sm text-gray-500">positions</span>
+                </div>
+              </CardContent>
+            </Card>
 
-        {/* Market Volume */}
-        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
-          <CardHeader className="pb-2">
-            <CardTitle 
-              className="text-sm font-medium text-gray-400"
-              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-            >
-              Market Volume
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-baseline gap-2">
-              <TrendingUp className="w-5 h-5 text-gray-400" />
-              <span 
-                className="text-3xl font-bold text-white"
-                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                data-testid="text-market-volume"
-              >
-                ${totalMarketVolume.toLocaleString()}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+            {/* Market Volume */}
+            <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+              <CardHeader className="pb-2">
+                <CardTitle 
+                  className="text-sm font-medium text-gray-400"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                >
+                  Market Volume
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-baseline gap-2">
+                  <TrendingUp className="w-5 h-5 text-gray-400" />
+                  <span 
+                    className="text-3xl font-bold text-white"
+                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                    data-testid="text-market-volume"
+                  >
+                    ${totalMarketVolume.toLocaleString()}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
 
-        {/* Portfolio Diversity */}
-        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
-          <CardHeader className="pb-2">
-            <CardTitle 
-              className="text-sm font-medium text-gray-400"
-              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-            >
-              Diversity Score
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-baseline gap-2">
-              <DollarSign className="w-5 h-5 text-gray-400" />
-              <span 
-                className="text-3xl font-bold text-white"
-                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                data-testid="text-diversity-score"
-              >
-                {portfolioDiversityScore.toFixed(1)}%
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            {/* Portfolio Diversity */}
+            <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+              <CardHeader className="pb-2">
+                <CardTitle 
+                  className="text-sm font-medium text-gray-400"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                >
+                  Diversity Score
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-baseline gap-2">
+                  <DollarSign className="w-5 h-5 text-gray-400" />
+                  <span 
+                    className="text-3xl font-bold text-white"
+                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                    data-testid="text-diversity-score"
+                  >
+                    {portfolioDiversityScore.toFixed(1)}%
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* World Clocks - Global Market Hours */}
       <WorldClocksWidget />
