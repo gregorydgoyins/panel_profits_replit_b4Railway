@@ -113,13 +113,9 @@ export default function DashboardPage() {
             <div className="grid grid-cols-3 gap-6">
               {/* Portfolio Value */}
               <Card 
-                className="border-2 hover-elevate cursor-pointer transition-all"
+                className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
                 onClick={() => setSelectedBox(selectedBox === 'portfolio-value' ? null : 'portfolio-value')}
-                style={{
-                  background: 'linear-gradient(135deg, #FE4365 0%, #FC9D9A 100%)',
-                  borderColor: '#F9CDAD',
-                  ...(selectedBox === 'portfolio-value' ? { boxShadow: '0 0 0 3px #FE4365, 0 0 20px rgba(254, 67, 101, 0.9), 0 0 40px rgba(254, 67, 101, 0.6)' } : {})
-                }}
+                style={selectedBox === 'portfolio-value' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
               >
               <CardHeader className="pb-2">
                 <CardTitle 
@@ -148,7 +144,7 @@ export default function DashboardPage() {
 
             {/* Cash Balance */}
             <Card 
-              className="bg-gradient-to-br from-purple-900/40 to-purple-950/60 border border-purple-500/30 hover-elevate cursor-pointer transition-all"
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'cash-balance' ? null : 'cash-balance')}
               style={selectedBox === 'cash-balance' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
@@ -176,7 +172,7 @@ export default function DashboardPage() {
 
             {/* Total Assets */}
             <Card 
-              className="bg-gradient-to-br from-purple-900/40 to-purple-950/60 border border-purple-500/30 hover-elevate cursor-pointer transition-all"
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'total-assets' ? null : 'total-assets')}
               style={selectedBox === 'total-assets' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
@@ -204,7 +200,7 @@ export default function DashboardPage() {
 
             {/* Day P&L */}
             <Card 
-              className="bg-gradient-to-br from-purple-900/40 to-purple-950/60 border border-purple-500/30 hover-elevate cursor-pointer transition-all"
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'day-pl' ? null : 'day-pl')}
               style={selectedBox === 'day-pl' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
@@ -234,7 +230,7 @@ export default function DashboardPage() {
 
             {/* Total Return */}
             <Card 
-              className="bg-gradient-to-br from-purple-900/40 to-purple-950/60 border border-purple-500/30 hover-elevate cursor-pointer transition-all"
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'total-return' ? null : 'total-return')}
               style={selectedBox === 'total-return' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
@@ -261,7 +257,7 @@ export default function DashboardPage() {
 
             {/* Buying Power */}
             <Card 
-              className="bg-gradient-to-br from-purple-900/40 to-purple-950/60 border border-purple-500/30 hover-elevate cursor-pointer transition-all"
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'buying-power' ? null : 'buying-power')}
               style={selectedBox === 'buying-power' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
@@ -289,7 +285,7 @@ export default function DashboardPage() {
 
             {/* Open Orders */}
             <Card 
-              className="bg-gradient-to-br from-purple-900/40 to-purple-950/60 border border-purple-500/30 hover-elevate cursor-pointer transition-all"
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'open-orders' ? null : 'open-orders')}
               style={selectedBox === 'open-orders' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
@@ -317,7 +313,7 @@ export default function DashboardPage() {
 
             {/* Active Positions */}
             <Card 
-              className="bg-gradient-to-br from-purple-900/40 to-purple-950/60 border border-purple-500/30 hover-elevate cursor-pointer transition-all"
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'active-positions' ? null : 'active-positions')}
               style={selectedBox === 'active-positions' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
@@ -345,7 +341,7 @@ export default function DashboardPage() {
 
             {/* Win Rate */}
             <Card 
-              className="bg-gradient-to-br from-purple-900/40 to-purple-950/60 border border-purple-500/30 hover-elevate cursor-pointer transition-all"
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'win-rate' ? null : 'win-rate')}
               style={selectedBox === 'win-rate' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
@@ -373,7 +369,7 @@ export default function DashboardPage() {
 
             {/* Best Performer */}
             <Card 
-              className="bg-gradient-to-br from-purple-900/40 to-purple-950/60 border border-purple-500/30 hover-elevate cursor-pointer transition-all"
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'best-performer' ? null : 'best-performer')}
               style={selectedBox === 'best-performer' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
@@ -409,7 +405,7 @@ export default function DashboardPage() {
 
             {/* Worst Performer */}
             <Card 
-              className="bg-gradient-to-br from-purple-900/40 to-purple-950/60 border border-purple-500/30 hover-elevate cursor-pointer transition-all"
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'worst-performer' ? null : 'worst-performer')}
               style={selectedBox === 'worst-performer' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
@@ -445,7 +441,7 @@ export default function DashboardPage() {
 
             {/* Market Cap */}
             <Card 
-              className="bg-gradient-to-br from-purple-900/40 to-purple-950/60 border border-purple-500/30 hover-elevate cursor-pointer transition-all"
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
               onClick={() => setSelectedBox(selectedBox === 'total-account' ? null : 'total-account')}
               style={selectedBox === 'total-account' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
             >
