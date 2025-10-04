@@ -1,0 +1,27 @@
+Warning: Received &#x60;true&#x60; for a non-boolean attribute &#x60;jsx&#x60;.
+
+If you want to write it to the DOM, pass a string instead: jsx=&quot;true&quot; or jsx={value.toString()}.
+    at style
+    at div
+    at NoirTradingPage (https://028a05fe-0779-4872-b169-40e3d4db6582-00-3r858ci4yj2jj.riker.replit.dev/src/pages/trading.tsx:969:20)
+    at Route (https://028a05fe-0779-4872-b169-40e3d4db6582-00-3r858ci4yj2jj.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=ab61a1c3:323:16)
+    at Switch (https://028a05fe-0779-4872-b169-40e3d4db6582-00-3r858ci4yj2jj.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=ab61a1c3:379:17)
+    at Router (https://028a05fe-0779-4872-b169-40e3d4db6582-00-3r858ci4yj2jj.riker.replit.dev/src/App.tsx?v=bdJqNN8YM2eTLr1CwO9jP:55:31)
+    at div
+    at main
+    at div
+    at div
+    at KnowledgeTestGuard (https://028a05fe-0779-4872-b169-40e3d4db6582-00-3r858ci4yj2jj.riker.replit.dev/src/components/KnowledgeTestGuard.tsx:21:46)
+    at Route (https://028a05fe-0779-4872-b169-40e3d4db6582-00-3r858ci4yj2jj.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=ab61a1c3:323:16)
+    at Switch (https://028a05fe-0779-4872-b169-40e3d4db6582-00-3r858ci4yj2jj.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=ab61a1c3:379:17)
+    at EntryTestGuard (https://028a05fe-0779-4872-b169-40e3d4db6582-00-3r858ci4yj2jj.riker.replit.dev/src/components/EntryTestGuard.tsx:21:34)
+    at AuthenticatedLayout (https://028a05fe-0779-4872-b169-40e3d4db6582-00-3r858ci4yj2jj.riker.replit.dev/src/App.tsx?v=bdJqNN8YM2eTLr1CwO9jP:232:42)
+    at HouseThemeProvider (https://028a05fe-0779-4872-b169-40e3d4db6582-00-3r858ci4yj2jj.riker.replit.dev/src/contexts/HouseThemeContext.tsx:93:3)
+    at BrowserNotificationProvider (https://028a05fe-0779-4872-b169-40e3d4db6582-00-3r858ci4yj2jj.riker.replit.dev/src/components/ui/browser-notification-provider.tsx:21:47)
+    at NotificationSystemProvider (https://028a05fe-0779-4872-b169-40e3d4db6582-00-3r858ci4yj2jj.riker.replit.dev/src/components/notifications/NotificationSystemProvider.tsx:22:46)
+    at Provider (https://028a05fe-0779-4872-b169-40e3d4db6582-00-3r858ci4yj2jj.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=ab61a1c3:38:15)
+    at Provider (https://028a05fe-0779-4872-b169-40e3d4db6582-00-3r858ci4yj2jj.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=ab61a1c3:38:15)
+    at CollectionProvider (https://028a05fe-0779-4872-b169-40e3d4db6582-00-3r858ci4yj2jj.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-TPYHSINA.js?v=ab61a1c3:29:13)
+    at ToastProvider (https://028a05fe-0779-4872-b169-40e3d4db6582-00-3r858ci4yj2jj.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-toast.js?v=ab61a1c3:59:5)
+    at QueryClientProvider (https://028a05fe-0779-4872-b169-40e3d4db6582-00-3r858ci4yj2jj.riker.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=ab61a1c3:2805:3)
+    at App
