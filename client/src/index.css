@@ -227,44 +227,60 @@
   }
   
   /* Sharp Rim Glow Effects - Category Color System */
-  .rim-glow-dashboard:hover,
-  .rim-glow-dashboard-active {
+  .rim-glow-dashboard:hover {
     box-shadow: 0 0 0 1px hsl(var(--category-dashboard)), 0 0 6px hsl(var(--category-dashboard));
   }
+  .rim-glow-dashboard-active {
+    box-shadow: 0 0 0 2px hsl(var(--category-dashboard)), 0 0 12px hsl(var(--category-dashboard)), 0 0 24px hsl(var(--category-dashboard) / 0.6), 0 0 36px hsl(var(--category-dashboard) / 0.3);
+  }
   
-  .rim-glow-trading:hover,
-  .rim-glow-trading-active {
+  .rim-glow-trading:hover {
     box-shadow: 0 0 0 1px hsl(var(--category-trading)), 0 0 6px hsl(var(--category-trading));
   }
+  .rim-glow-trading-active {
+    box-shadow: 0 0 0 2px hsl(var(--category-trading)), 0 0 12px hsl(var(--category-trading)), 0 0 24px hsl(var(--category-trading) / 0.6), 0 0 36px hsl(var(--category-trading) / 0.3);
+  }
   
-  .rim-glow-portfolio:hover,
-  .rim-glow-portfolio-active {
+  .rim-glow-portfolio:hover {
     box-shadow: 0 0 0 1px hsl(var(--category-portfolio)), 0 0 6px hsl(var(--category-portfolio));
   }
+  .rim-glow-portfolio-active {
+    box-shadow: 0 0 0 2px hsl(var(--category-portfolio)), 0 0 12px hsl(var(--category-portfolio)), 0 0 24px hsl(var(--category-portfolio) / 0.6), 0 0 36px hsl(var(--category-portfolio) / 0.3);
+  }
   
-  .rim-glow-news:hover,
-  .rim-glow-news-active {
+  .rim-glow-news:hover {
     box-shadow: 0 0 0 1px hsl(var(--category-news)), 0 0 6px hsl(var(--category-news));
   }
+  .rim-glow-news-active {
+    box-shadow: 0 0 0 2px hsl(var(--category-news)), 0 0 12px hsl(var(--category-news)), 0 0 24px hsl(var(--category-news) / 0.6), 0 0 36px hsl(var(--category-news) / 0.3);
+  }
   
-  .rim-glow-learn:hover,
-  .rim-glow-learn-active {
+  .rim-glow-learn:hover {
     box-shadow: 0 0 0 1px hsl(var(--category-learn)), 0 0 6px hsl(var(--category-learn));
   }
+  .rim-glow-learn-active {
+    box-shadow: 0 0 0 2px hsl(var(--category-learn)), 0 0 12px hsl(var(--category-learn)), 0 0 24px hsl(var(--category-learn) / 0.6), 0 0 36px hsl(var(--category-learn) / 0.3);
+  }
   
-  .rim-glow-markets:hover,
-  .rim-glow-markets-active {
+  .rim-glow-markets:hover {
     box-shadow: 0 0 0 1px hsl(var(--category-markets)), 0 0 6px hsl(var(--category-markets));
   }
-  
-  .rim-glow-research:hover,
-  .rim-glow-research-active {
-    box-shadow: 0 0 0 1px hsl(var(--category-research)), 0 0 6px hsl(var(--category-research));
+  .rim-glow-markets-active {
+    box-shadow: 0 0 0 2px hsl(var(--category-markets)), 0 0 12px hsl(var(--category-markets)), 0 0 24px hsl(var(--category-markets) / 0.6), 0 0 36px hsl(var(--category-markets) / 0.3);
   }
   
-  .rim-glow-analytics:hover,
-  .rim-glow-analytics-active {
+  .rim-glow-research:hover {
+    box-shadow: 0 0 0 1px hsl(var(--category-research)), 0 0 6px hsl(var(--category-research));
+  }
+  .rim-glow-research-active {
+    box-shadow: 0 0 0 2px hsl(var(--category-research)), 0 0 12px hsl(var(--category-research)), 0 0 24px hsl(var(--category-research) / 0.6), 0 0 36px hsl(var(--category-research) / 0.3);
+  }
+  
+  .rim-glow-analytics:hover {
     box-shadow: 0 0 0 1px hsl(var(--category-analytics)), 0 0 6px hsl(var(--category-analytics));
+  }
+  .rim-glow-analytics-active {
+    box-shadow: 0 0 0 2px hsl(var(--category-analytics)), 0 0 12px hsl(var(--category-analytics)), 0 0 24px hsl(var(--category-analytics) / 0.6), 0 0 36px hsl(var(--category-analytics) / 0.3);
   }
 }
 
