@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
   TrendingUp, TrendingDown, Wallet, DollarSign, Eye,
-  ArrowUpRight, ArrowDownRight, Plus, Star
+  ArrowUpRight, ArrowDownRight, Plus, Star, Activity
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { WorldClocksWidget } from '@/components/dashboard/WorldClocksWidget';
@@ -94,11 +94,14 @@ export default function DashboardPage() {
   const portfolioHoldingsCount = portfolio?.holdings?.length || 0;
   const totalMarketVolume = marketData?.totalVolume || 0;
   const portfolioDiversityScore = portfolio?.diversityScore || 0;
+  const topGainersCount = marketData?.topGainers?.length || 0;
+  const topLosersCount = marketData?.topLosers?.length || 0;
+  const totalMarketAssets = marketData?.totalAssets || 0;
 
   return (
     <div className="space-y-4">
-      {/* Hero Section: Portfolio Stats Grid (3x2) */}
-      <Card className="border-0" style={{ backgroundColor: 'hsl(270, 80%, 60%)' }}>
+      {/* Hero Section: Portfolio Stats Grid (3x3) */}
+      <Card className="border-0" style={{ backgroundColor: 'hsl(270, 40%, 45%)' }}>
         <CardContent className="p-4">
           <div className="grid grid-cols-3 gap-4">
             {/* Portfolio Value */}
@@ -244,6 +247,80 @@ export default function DashboardPage() {
                     data-testid="text-diversity-score"
                   >
                     {portfolioDiversityScore.toFixed(1)}%
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Top Gainers */}
+            <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+              <CardHeader className="pb-2">
+                <CardTitle 
+                  className="text-sm font-medium text-gray-400"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                >
+                  Top Gainers
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-baseline gap-2">
+                  <TrendingUp className="w-5 h-5 text-green-500" />
+                  <span 
+                    className="text-3xl font-bold text-white"
+                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                    data-testid="text-top-gainers"
+                  >
+                    {topGainersCount}
+                  </span>
+                  <span className="text-sm text-gray-500">assets</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Top Losers */}
+            <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+              <CardHeader className="pb-2">
+                <CardTitle 
+                  className="text-sm font-medium text-gray-400"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                >
+                  Top Losers
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-baseline gap-2">
+                  <TrendingDown className="w-5 h-5 text-red-500" />
+                  <span 
+                    className="text-3xl font-bold text-white"
+                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                    data-testid="text-top-losers"
+                  >
+                    {topLosersCount}
+                  </span>
+                  <span className="text-sm text-gray-500">assets</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Market Activity */}
+            <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+              <CardHeader className="pb-2">
+                <CardTitle 
+                  className="text-sm font-medium text-gray-400"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                >
+                  Market Activity
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-baseline gap-2">
+                  <Activity className="w-5 h-5 text-gray-400" />
+                  <span 
+                    className="text-3xl font-bold text-white"
+                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                    data-testid="text-market-activity"
+                  >
+                    {totalMarketAssets.toLocaleString()}
                   </span>
                 </div>
               </CardContent>
