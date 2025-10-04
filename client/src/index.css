@@ -85,6 +85,18 @@
   --header-welcome: 45 100% 50%; /* Gold - matches portfolio */
   --header-stk-updates: 210 100% 50%; /* Blue - matches trading */
   --header-breaking-news: 0 0% 100%; /* White - matches news */
+
+  /* ═══════════════════════════════════════════════════════════════════════════════════ */
+  /* FOUNDATIONAL WIDGET COLORS - MATCHES NAV BAR CATEGORIES */
+  /* ═══════════════════════════════════════════════════════════════════════════════════ */
+  --foundation-portfolio: 45 100% 50%; /* Yellow/Gold - matches Portfolio nav */
+  --foundation-trading: 210 100% 50%; /* Blue - matches Trading nav */
+  --foundation-news: 0 0% 100%; /* White - matches News nav */
+  --foundation-dashboard: 270 80% 60%; /* Purple - matches Dashboard nav */
+  --foundation-learn: 180 100% 50%; /* Cyan - matches Learn nav */
+  --foundation-markets: 25 95% 53%; /* Orange - matches Markets nav */
+  --foundation-research: 320 85% 60%; /* Pink/Magenta - matches Research nav */
+  --foundation-analytics: 140 70% 45%; /* Green - matches Analytics nav */
 }
 
 .light {
