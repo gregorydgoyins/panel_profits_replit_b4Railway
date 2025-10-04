@@ -162,15 +162,13 @@ function AuthenticatedLayout() {
                 
                 {/* Main scrollable content area */}
                 <main className="flex-1 overflow-y-auto">
-                  <div className="max-w-[1920px] mx-auto px-6 py-6 pb-0">
+                  <div className="max-w-[1920px] mx-auto px-6 py-6">
                     <Router />
                   </div>
                 </main>
                 
-                {/* Sticky footer at bottom */}
-                <div className="sticky bottom-0 z-40">
-                  <Footer />
-                </div>
+                {/* Sticky footer at bottom - outside scrolling context */}
+                <Footer />
               </div>
             </div>
           </KnowledgeTestGuard>
