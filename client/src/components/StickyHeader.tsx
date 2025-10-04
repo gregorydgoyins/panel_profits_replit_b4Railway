@@ -68,11 +68,12 @@ export function StickyHeader() {
 
   return (
     <div className="sticky top-0 z-50 bg-black/95 backdrop-blur-sm border-b border-gray-800">
-      {/* Row 1: Welcome + Market Status */}
-      <div className="h-10 px-6 flex items-center justify-between border-b border-gray-900">
-        <div className="flex items-center gap-3">
+      {/* Row 1: Welcome Banner - Aligned with TopNavbar */}
+      <div className="h-10 px-4 flex items-center border-b border-gray-800">
+        {/* Left Section - Matches TopNavbar left (1/6 width) */}
+        <div className="flex items-center gap-2 flex-shrink-0" style={{ width: '16.66%' }}>
           <span 
-            className="text-white font-normal"
+            className="text-sm text-white font-normal whitespace-nowrap"
             style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             data-testid="text-welcome-message"
           >
@@ -80,7 +81,11 @@ export function StickyHeader() {
           </span>
         </div>
         
-        <div className="flex items-center gap-6">
+        {/* Center Spacer */}
+        <div className="flex-1" />
+        
+        {/* Right Section - Matches TopNavbar right (1/6 width) */}
+        <div className="flex items-center gap-3 justify-end flex-shrink-0" style={{ width: '16.66%' }}>
           <span 
             className={`text-sm font-medium ${marketStatusColor}`}
             data-testid="text-market-status"
@@ -104,6 +109,7 @@ export function StickyHeader() {
             onClick={() => logoutMutation.mutate()}
             disabled={logoutMutation.isPending}
             data-testid="button-logout"
+            className="h-8"
           >
             <LogOut className="w-4 h-4 mr-2" />
             Logout
@@ -112,7 +118,7 @@ export function StickyHeader() {
       </div>
 
       {/* Row 2: News Ticker */}
-      <div className="h-8 bg-gradient-to-r from-gray-950 to-gray-900 border-b border-gray-900 overflow-hidden">
+      <div className="h-8 bg-gradient-to-r from-gray-950 to-gray-900 border-b border-gray-800 overflow-hidden">
         <div className="h-full flex items-center">
           <div className="animate-marquee-slow whitespace-nowrap">
             <span 
