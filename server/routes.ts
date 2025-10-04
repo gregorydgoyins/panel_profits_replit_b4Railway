@@ -77,7 +77,8 @@ import {
   easterEggUserProgress,
   easterEggUnlocks,
   npcTraderActivityLog,
-  assets as assetsTable
+  assets as assetsTable,
+  assetCurrentPrices
 } from "@shared/schema";
 import { z } from "zod";
 import { eq, and, sql } from "drizzle-orm";
@@ -137,16 +138,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .select({
           symbol: assetsTable.symbol,
           name: assetsTable.name,
-          currentPrice: assetsTable.currentPrice,
-          change: assetsTable.change,
-          changePercent: assetsTable.changePercent,
+          currentPrice: assetCurrentPrices.currentPrice,
+          change: assetCurrentPrices.dayChange,
+          changePercent: assetCurrentPrices.dayChangePercent,
         })
         .from(assetsTable)
-        .where(sql`${assetsTable.currentPrice} IS NOT NULL`)
-        .orderBy(sql`${assetsTable.changePercent} DESC`)
+        .innerJoin(assetCurrentPrices, eq(assetsTable.id, assetCurrentPrices.assetId))
+        .where(sql`${assetCurrentPrices.currentPrice} IS NOT NULL`)
+        .orderBy(sql`${assetCurrentPrices.dayChangePercent} DESC`)
         .limit(20);
       
-      res.json(topMovers);
+      // Convert decimal strings to numbers
+      const formattedMovers = topMovers.map(asset => ({
+        symbol: asset.symbol,
+        name: asset.name,
+        currentPrice: parseFloat(asset.currentPrice),
+        change: parseFloat(asset.change || '0'),
+        changePercent: parseFloat(asset.changePercent || '0'),
+      }));
+      
+      res.json(formattedMovers);
     } catch (error) {
       console.error("Error fetching ticker data:", error);
       res.status(500).json({ message: "Failed to fetch ticker data" });
@@ -1554,6 +1565,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           symbol: asset?.symbol,
           name: asset?.name,
           type: asset?.type,
+          coverUrl: asset?.coverUrl,
           currentPrice: parseFloat(price.currentPrice),
           change: parseFloat(price.dayChange || '0'),
           changePercent: parseFloat(price.dayChangePercent || '0'),

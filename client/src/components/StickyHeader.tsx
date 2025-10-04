@@ -98,17 +98,17 @@ export function StickyHeader() {
               style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
               data-testid="text-news-ticker"
             >
-              <span>📰 Marvel announces Phase 6 slate - collector interest surging</span>
+              <span>BREAKING: Marvel announces Phase 6 slate - collector interest surging</span>
               <span>•</span>
-              <span>🔥 Golden Age Superman #1 reaches new all-time high</span>
+              <span>ALERT: Golden Age Superman #1 reaches new all-time high</span>
               <span>•</span>
-              <span>📈 DC Restructuring complete - institutional investors bullish</span>
+              <span>UPDATE: DC Restructuring complete - institutional investors bullish</span>
               <span>•</span>
-              <span>💎 Rare Amazing Fantasy #15 variant discovered - market impact expected</span>
+              <span>EXCLUSIVE: Rare Amazing Fantasy #15 variant discovered - market impact expected</span>
               <span>•</span>
-              <span>🎨 Alex Ross original art auction breaks records</span>
+              <span>RECORD: Alex Ross original art auction breaks records</span>
               <span>•</span>
-              <span>📊 Comic-Con attendance up 300% - signaling strong market demand</span>
+              <span>DATA: Comic-Con attendance up 300% - signaling strong market demand</span>
               <span>•</span>
             </span>
           </div>

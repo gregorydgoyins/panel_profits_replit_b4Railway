@@ -1,662 +1,437 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
-  TrendingUp, TrendingDown, Wallet, DollarSign, Eye, BarChart3,
-  Briefcase, Activity, Star, RefreshCw, Bell, Target, Users,
-  ArrowUpRight, ArrowDownRight, Plus, Minus, Info
+  TrendingUp, TrendingDown, Wallet, DollarSign, Eye,
+  ArrowUpRight, ArrowDownRight, Plus, Star
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Link } from 'wouter';
 
-// We'll create these components in the next tasks
-import { PortfolioOverview } from '@/components/dashboard/PortfolioOverview';
-import { PortfolioHoldings } from '@/components/dashboard/PortfolioHoldings';
-import { TradingBalance } from '@/components/dashboard/TradingBalance';
-import { WatchlistManager } from '@/components/dashboard/WatchlistManager';
-import { MarketOverview } from '@/components/dashboard/MarketOverview';
-import { OptionsChainWidget } from '@/components/dashboard/OptionsChainWidget';
-import { ComicETFsWidget } from '@/components/dashboard/ComicETFsWidget';
-import { MarketMoversWidget } from '@/components/dashboard/MarketMoversWidget';
-import { FearGreedWidget } from '@/components/dashboard/FearGreedWidget';
-import { OracleProphecyWidget } from '@/components/dashboard/OracleProphecyWidget';
-import { HousePowerRankingsWidget } from '@/components/dashboard/HousePowerRankingsWidget';
-import { PortfolioRiskMetricsWidget } from '@/components/dashboard/PortfolioRiskMetricsWidget';
-import { VolatilitySurfaceWidget } from '@/components/dashboard/VolatilitySurfaceWidget';
-import { CorrelationMatrixWidget } from '@/components/dashboard/CorrelationMatrixWidget';
-import { EconomicCalendarWidget } from '@/components/dashboard/EconomicCalendarWidget';
-import { SectorRotationWidget } from '@/components/dashboard/SectorRotationWidget';
-import { MarginUtilizationWidget } from '@/components/dashboard/MarginUtilizationWidget';
-import { LEAPSWidget } from '@/components/dashboard/LEAPSWidget';
-import { PublisherBondsWidget } from '@/components/dashboard/PublisherBondsWidget';
-import { UnusualActivityWidget } from '@/components/dashboard/UnusualActivityWidget';
-import { DarkPoolWidget } from '@/components/dashboard/DarkPoolWidget';
-import { OrderBookWidget } from '@/components/dashboard/OrderBookWidget';
-import { AIRecommendationsWidget } from '@/components/dashboard/AIRecommendationsWidget';
-import { PortfolioGreeksWidget } from '@/components/dashboard/PortfolioGreeksWidget';
-import { NewsTicker } from '@/components/dashboard/NewsTicker';
-import { StockTicker } from '@/components/dashboard/StockTicker';
-import { ComicCoverCardsWidget } from '@/components/dashboard/ComicCoverCardsWidget';
-import { InstitutionalOrderFlowWidget } from '@/components/dashboard/InstitutionalOrderFlowWidget';
-import { AssetGrowthWidget } from '@/components/dashboard/AssetGrowthWidget';
-import { ComicHeatMapWidget } from '@/components/dashboard/ComicHeatMapWidget';
-import { ComicSentimentWidget } from '@/components/dashboard/ComicSentimentWidget';
-import { WorldClocksWidget } from '@/components/dashboard/WorldClocksWidget';
-import { PositionMonitorWidget } from '@/components/dashboard/PositionMonitorWidget';
-import { TradeBlotterWidget } from '@/components/dashboard/TradeBlotterWidget';
-import { WatchlistPanelWidget } from '@/components/dashboard/WatchlistPanelWidget';
-import { CashFlowStatementWidget } from '@/components/dashboard/CashFlowStatementWidget';
-
-// New Comic Widgets - Added for comic-focused trading experience
-import { ComicCoverWidget } from '@/components/dashboard/ComicCoverWidget';
-import { ComicHistoryWidget } from '@/components/dashboard/ComicHistoryWidget';
-import { ComicTriviaWidget } from '@/components/dashboard/ComicTriviaWidget';
-import { ComicRecommendationsWidget } from '@/components/dashboard/ComicRecommendationsWidget';
-import { ComicRiskAssessmentWidget } from '@/components/dashboard/ComicRiskAssessmentWidget';
-import { ComicOfTheDayWidget } from '@/components/dashboard/ComicOfTheDayWidget';
-
-// Tracking Widgets - Publishers, Creators, Gadgets & Memorabilia
-import { PublisherPerformanceWidget } from '@/components/dashboard/PublisherPerformanceWidget';
-import { CreatorInfluenceWidget } from '@/components/dashboard/CreatorInfluenceWidget';
-import { GadgetsMemorabiliaWidget } from '@/components/dashboard/GadgetsMemorabiliaWidget';
-import TrendingCharactersWidget from '@/components/dashboard/TrendingCharactersWidget';
-import CreatorSpotlightWidget from '@/components/dashboard/CreatorSpotlightWidget';
-
-// Price History & Grading Widgets
-import { PriceHistoryChartWidget } from '@/components/dashboard/PriceHistoryChartWidget';
-import { CGCGradeComparisonWidget } from '@/components/dashboard/CGCGradeComparisonWidget';
-
-// Mosaic Layout System
-import { MosaicLayout, MosaicItem, MosaicSection } from '@/components/dashboard/MosaicLayout';
-
-interface UserData {
+interface Asset {
   id: string;
-  username: string;
-  email?: string;
-  firstName?: string;
-  lastName?: string;
-  profileImageUrl?: string;
-  availableCash?: number;
-}
-
-interface Portfolio {
-  id: string;
-  userId: string;
+  symbol: string;
   name: string;
-  description?: string;
-  totalValue?: string;
-  dayChange?: string;
-  dayChangePercent?: string;
-  cashBalance?: string;
-  holdings?: Holding[];
+  currentPrice: number;
+  change: number;
+  changePercent: number;
+  coverUrl?: string;
 }
 
-interface Holding {
+interface MarketOverview {
+  totalAssets: number;
+  topGainers: Asset[];
+  topLosers: Asset[];
+}
+
+interface ComicCover {
   id: string;
-  portfolioId: string;
-  assetId: string;
-  quantity: number;
-  currentValue?: string;
-  averageCost?: string;
-}
-
-interface Watchlist {
-  id: string;
-  userId: string;
-  name: string;
-  assets?: WatchlistAsset[];
-}
-
-interface WatchlistAsset {
-  id: string;
-  watchlistId: string;
-  assetId: string;
-}
-
-interface Order {
-  id: string;
-  userId: string;
-  status: string;
-  type: string;
-  totalValue?: string;
-}
-
-interface DashboardStats {
-  portfolioValue: number;
-  dayChange: number;
-  dayChangePercent: number;
-  availableCash: number;
-  totalTrades: number;
-  winRate: number;
-  watchlistCount: number;
+  title: string;
+  publisher: string;
+  imageUrl: string;
+  price: number;
+  change: number;
 }
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { toast } = useToast();
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Real API calls for dashboard data
-  const { data: userData, isLoading: isUserLoading } = useQuery<UserData>({ 
-    queryKey: ['/api/auth/user'],
-    refetchInterval: 300000 // Refetch every 5 minutes
-  });
-  
-  const { data: portfolios, isLoading: isPortfoliosLoading } = useQuery<Portfolio[]>({ 
-    queryKey: ['/api/portfolios'],
-    refetchInterval: 30000 // Refetch every 30 seconds
-  });
-  
-  const { data: watchlists, isLoading: isWatchlistsLoading } = useQuery<Watchlist[]>({ 
-    queryKey: ['/api/watchlists'],
-    refetchInterval: 60000 // Refetch every minute
-  });
-  
-  const { data: orders } = useQuery<Order[]>({ 
-    queryKey: ['/api/orders/user', userData?.id],
-    enabled: !!userData?.id,
+  // Fetch market data
+  const { data: marketData } = useQuery<MarketOverview>({
+    queryKey: ['/api/market/overview'],
     refetchInterval: 30000
   });
 
-  // Fetch featured/trending assets for price widgets
-  const { data: featuredAssets } = useQuery<any[]>({
-    queryKey: ['/api/assets'],
-    select: (data) => data?.slice(0, 5) || [], // Get first 5 assets
+  const { data: featuredCovers } = useQuery<ComicCover[]>({
+    queryKey: ['/api/comic-covers/featured'],
     refetchInterval: 60000
   });
 
-  // Use first trending asset for price widgets, or fallback to first available
-  const selectedAssetId = featuredAssets?.[0]?.id;
+  const { data: topAssets } = useQuery<Asset[]>({
+    queryKey: ['/api/comic-assets/top'],
+    select: (data) => data?.slice(0, 8).map((asset: any) => ({
+      ...asset,
+      coverUrl: asset.coverImageUrl || asset.coverUrl,
+      currentPrice: asset.currentPrice ?? 0,
+      changePercent: asset.changePercent ?? asset.dayChangePercent ?? 0,
+      change: asset.change ?? asset.dayChange ?? 0
+    })) || [],
+    refetchInterval: 30000
+  });
 
-  // Calculate real dashboard stats from API data
-  const dashboardStats = useMemo((): DashboardStats => {
-    // Calculate portfolio value from holdings
-    const portfolioValue = portfolios?.reduce((total: number, portfolio: any) => {
-      const holdingsValue = portfolio.holdings?.reduce((sum: number, holding: any) => {
-        return sum + (parseFloat(holding.currentValue || '0'));
-      }, 0) || 0;
-      return total + holdingsValue;
-    }, 0) || 0;
+  const { data: portfolio } = useQuery<any>({
+    queryKey: ['/api/portfolios/user', user?.id],
+    enabled: !!user?.id,
+    refetchInterval: 30000
+  });
 
-    // Calculate day change from portfolio performance
-    const dayChange = portfolios?.reduce((total: number, portfolio: any) => {
-      return total + parseFloat(portfolio.dayChange || '0');
-    }, 0) || 0;
-
-    const dayChangePercent = portfolioValue > 0 ? (dayChange / (portfolioValue - dayChange)) * 100 : 0;
-
-    // Get available cash (assuming it's stored in user data or calculated)
-    const availableCash = userData?.availableCash || portfolios?.reduce((total: number, portfolio: any) => {
-      return total + parseFloat(portfolio.cashBalance || '0');
-    }, 0) || 50000; // Default if no data
-
-    // Count total trades from orders
-    const totalTrades = orders?.filter((order: any) => order.status === 'filled').length || 0;
-
-    // Calculate win rate from profitable trades
-    const filledOrders = orders?.filter((order: any) => order.status === 'filled') || [];
-    const profitableTrades = filledOrders.filter((order: any) => {
-      // Simple logic: if it's a sell order and price is higher than average buy, it's profitable
-      return order.type === 'sell' && parseFloat(order.totalValue || '0') > 0;
-    }).length;
-    const winRate = totalTrades > 0 ? (profitableTrades / totalTrades) * 100 : 0;
-
-    // Count watchlist assets
-    const watchlistCount = watchlists?.reduce((total: number, watchlist: any) => {
-      return total + (watchlist.assets?.length || 0);
-    }, 0) || 0;
-
-    return {
-      portfolioValue,
-      dayChange,
-      dayChangePercent,
-      availableCash,
-      totalTrades,
-      winRate,
-      watchlistCount
-    };
-  }, [portfolios, userData, orders, watchlists]);
-
-  const getDisplayName = () => {
-    if (user?.firstName && user?.lastName) {
-      return `${user.firstName} ${user.lastName}`;
-    }
-    if (user?.firstName) {
-      return user.firstName;
-    }
-    if (user?.email) {
-      return user.email.split('@')[0];
-    }
-    return 'Trader';
-  };
-
-  const getInitials = () => {
-    if (user?.firstName && user?.lastName) {
-      return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
-    }
-    if (user?.firstName) {
-      return user.firstName[0].toUpperCase();
-    }
-    if (user?.email) {
-      return user.email[0].toUpperCase();
-    }
-    return 'T';
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  };
-
-  const handleRefreshData = async () => {
-    setIsRefreshing(true);
-    
-    try {
-      // Refetch all dashboard data
-      const { queryClient } = await import('@/lib/queryClient');
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] }),
-        queryClient.invalidateQueries({ queryKey: ['/api/portfolios'] }),
-        queryClient.invalidateQueries({ queryKey: ['/api/watchlists'] }),
-        queryClient.invalidateQueries({ queryKey: ['/api/orders/user', userData?.id] })
-      ]);
-      
-      toast({
-        title: "Data Refreshed",
-        description: "Dashboard updated with latest portfolio data",
-      });
-    } catch (error) {
-      toast({
-        title: "Refresh Failed",
-        description: "Failed to refresh dashboard data. Please try again.",
-        variant: "destructive"
-      });
-    }
-    
-    setIsRefreshing(false);
-  };
-
-  // Show loading state while initial data loads
-  if (isUserLoading || isPortfoliosLoading) {
-    return (
-      <div className="min-h-screen bg-background" data-testid="page-dashboard">
-        <div className="border-b bg-card/50">
-          <div className="max-w-7xl mx-auto px-6 py-4">
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-muted rounded-full animate-pulse" />
-              <div className="space-y-2">
-                <div className="w-48 h-5 bg-muted rounded animate-pulse" />
-                <div className="w-64 h-4 bg-muted rounded animate-pulse" />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-24 bg-muted/50 rounded animate-pulse" />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const portfolioValue = portfolio?.totalValue || 0;
+  const portfolioChange = portfolio?.dayChange || 0;
+  const portfolioChangePercent = portfolio?.dayChangePercent || 0;
+  const cashBalance = portfolio?.cashBalance || 100000;
 
   return (
-    <div className="min-h-screen bg-background" data-testid="page-dashboard">
-      {/* Dashboard Header */}
-      <div className="border-b bg-card/50 sticky top-0 z-10 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Avatar className="h-10 w-10" data-testid="avatar-user">
-                <AvatarImage src={user?.profileImageUrl || undefined} alt={getDisplayName()} />
-                <AvatarFallback className="bg-indigo-600 text-white font-semibold">
-                  {getInitials()}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h1 className="text-xl font-bold" data-testid="text-welcome">
-                  Welcome back, {getDisplayName()}
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  Panel Profits • {new Date().toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })}
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <Activity className="w-3 h-3" />
-                Market Open
-              </Badge>
-              <Button
-                onClick={handleRefreshData}
-                disabled={isRefreshing}
-                variant="outline"
-                size="sm"
-                data-testid="button-refresh-data"
+    <div className="space-y-4">
+      {/* Hero Section: Portfolio Stats + Featured Comic */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Portfolio Value */}
+        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+          <CardHeader className="pb-2">
+            <CardTitle 
+              className="text-sm font-medium text-gray-400"
+              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+            >
+              Portfolio Value
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-baseline gap-2">
+              <span 
+                className="text-3xl font-bold text-white"
+                style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                data-testid="text-portfolio-value"
               >
-                <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-                Refresh
-              </Button>
-              <Button variant="outline" size="sm" data-testid="button-notifications">
-                <Bell className="w-4 h-4" />
+                ${portfolioValue.toLocaleString()}
+              </span>
+              <span className={`text-sm font-medium flex items-center gap-1 ${portfolioChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                {portfolioChange >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+                {portfolioChangePercent >= 0 ? '+' : ''}{portfolioChangePercent.toFixed(2)}%
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Cash Balance */}
+        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+          <CardHeader className="pb-2">
+            <CardTitle 
+              className="text-sm font-medium text-gray-400"
+              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+            >
+              Available Cash
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-baseline gap-2">
+              <Wallet className="w-5 h-5 text-gray-400" />
+              <span 
+                className="text-3xl font-bold text-white"
+                style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                data-testid="text-cash-balance"
+              >
+                ${cashBalance.toLocaleString()}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Total Assets */}
+        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+          <CardHeader className="pb-2">
+            <CardTitle 
+              className="text-sm font-medium text-gray-400"
+              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+            >
+              Market Assets
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-baseline gap-2">
+              <Eye className="w-5 h-5 text-gray-400" />
+              <span 
+                className="text-3xl font-bold text-white"
+                style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                data-testid="text-total-assets"
+              >
+                {(marketData?.totalAssets || 0).toLocaleString()}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Featured Comic Covers */}
+      {featuredCovers && featuredCovers.length > 0 && (
+        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Featured Comics</CardTitle>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/trading">View All</Link>
               </Button>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* All tickers DISABLED per user request - stopping everything */}
-      {/* <NewsTicker /> */}
-      {/* <StockTicker /> */}
-
-      {/* World Clocks - Global market hours under stock ticker */}
-      <div className="max-w-7xl mx-auto px-6 pt-4">
-        <WorldClocksWidget />
-      </div>
-
-      {/* Dashboard Content */}
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        {/* Quick Stats Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-2" data-testid="dashboard-quick-stats">
-          <Card className="hover-elevate" data-testid="card-portfolio-value">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Portfolio Value</p>
-                  <p className="text-2xl font-bold text-foreground" data-testid="text-portfolio-value">
-                    {formatCurrency(dashboardStats.portfolioValue)}
-                  </p>
-                  <div className={`flex items-center text-sm ${dashboardStats.dayChangePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    {dashboardStats.dayChangePercent >= 0 ? (
-                      <ArrowUpRight className="w-3 h-3 mr-1" />
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {featuredCovers.slice(0, 6).map((cover) => (
+                <div key={cover.id} className="group cursor-pointer" data-testid={`cover-${cover.id}`}>
+                  <div className="relative aspect-[2/3] bg-gray-800 rounded-md overflow-hidden mb-2">
+                    {cover.imageUrl ? (
+                      <img 
+                        src={cover.imageUrl} 
+                        alt={cover.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                      />
                     ) : (
-                      <ArrowDownRight className="w-3 h-3 mr-1" />
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="text-xs text-gray-600 text-center px-2">{cover.title}</span>
+                      </div>
                     )}
-                    {formatCurrency(dashboardStats.dayChange)} ({dashboardStats.dayChangePercent >= 0 ? '+' : ''}{dashboardStats.dayChangePercent.toFixed(2)}%)
+                  </div>
+                  <div>
+                    <p 
+                      className="text-xs font-medium text-white truncate"
+                      style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                    >
+                      {cover.title}
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <span 
+                        className="text-sm font-bold text-white"
+                        style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                      >
+                        ${cover.price}
+                      </span>
+                      <span className={`text-xs ${cover.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        {cover.change >= 0 ? '+' : ''}{cover.change}%
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <Briefcase className="w-8 h-8 text-indigo-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="hover-elevate" data-testid="card-available-cash">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Available Cash</p>
-                  <p className="text-2xl font-bold text-foreground" data-testid="text-available-cash">
-                    {formatCurrency(dashboardStats.availableCash)}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Buying Power Ready
-                  </p>
-                </div>
-                <Wallet className="w-8 h-8 text-green-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="hover-elevate" data-testid="card-trading-stats">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Trading Stats</p>
-                  <p className="text-2xl font-bold text-foreground" data-testid="text-total-trades">
-                    {dashboardStats.totalTrades}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {dashboardStats.winRate}% Win Rate
-                  </p>
-                </div>
-                <BarChart3 className="w-8 h-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="hover-elevate" data-testid="card-watchlist-count">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Watchlist Items</p>
-                  <p className="text-2xl font-bold text-foreground" data-testid="text-watchlist-count">
-                    {dashboardStats.watchlistCount}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Assets Tracked
-                  </p>
-                </div>
-                <Eye className="w-8 h-8 text-purple-500" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* THOUGHTFUL MOSAIC - Intentionally Designed Widget Placement */}
-        <MosaicLayout>
-          {/* Hero: Comic of the Day - Large featured spotlight (full width) */}
-          <MosaicSection>
-            <ComicOfTheDayWidget />
-          </MosaicSection>
-
-          {/* Key Row: 1 large left box (full vh) + 2 smaller stacked right boxes (50% vh each) */}
-          <MosaicItem span={2} rowSpan={2} className="!min-h-[100vh]">
-            <PortfolioOverview />
-          </MosaicItem>
-          <MosaicItem span={1} rowSpan={1} className="!min-h-[50vh]">
-            <TradingBalance />
-          </MosaicItem>
-          <MosaicItem span={1} rowSpan={1} className="!min-h-[50vh]">
-            <PositionMonitorWidget />
-          </MosaicItem>
-
-          {/* Visual Row: Comic Covers Gallery (full width) */}
-          <MosaicSection>
-            <ComicCoverWidget />
-          </MosaicSection>
-
-          {/* Market Context Row */}
-          <MosaicItem span={2}>
-            <MarketOverview />
-          </MosaicItem>
-          <MosaicItem span={1}>
-            <FearGreedWidget />
-          </MosaicItem>
-
-          {/* Holdings Section - Wide view for detail */}
-          <MosaicItem span={2}>
-            <PortfolioHoldings />
-          </MosaicItem>
-          <MosaicItem span={1}>
-            <WatchlistPanelWidget />
-          </MosaicItem>
-
-          {/* Comic Content - Three equal squares */}
-          <MosaicItem span={1}>
-            <ComicHistoryWidget />
-          </MosaicItem>
-          <MosaicItem span={1}>
-            <ComicTriviaWidget />
-          </MosaicItem>
-          <MosaicItem span={1}>
-            <ComicRecommendationsWidget />
-          </MosaicItem>
-
-          {/* Risk & Analysis Row */}
-          <MosaicItem span={2}>
-            <ComicRiskAssessmentWidget />
-          </MosaicItem>
-          <MosaicItem span={1}>
-            <CreatorInfluenceWidget />
-          </MosaicItem>
-          
-          {/* Character & Creator Tracking */}
-          <MosaicItem span={1}>
-            <TrendingCharactersWidget />
-          </MosaicItem>
-          <MosaicItem span={1}>
-            <CreatorSpotlightWidget />
-          </MosaicItem>
-          <MosaicItem span={1}>
-            <GadgetsMemorabiliaWidget />
-          </MosaicItem>
-
-          {/* Portfolio Risk - Full Width Important Info */}
-          <MosaicSection>
-            <PortfolioRiskMetricsWidget />
-          </MosaicSection>
-
-          {/* Watchlist & Cash Management */}
-          <MosaicItem span={2}>
-            <WatchlistManager />
-          </MosaicItem>
-          <MosaicItem span={1}>
-            <CashFlowStatementWidget />
-          </MosaicItem>
-
-          {/* Trading Activity - Full Width for Detail */}
-          <MosaicSection>
-            <TradeBlotterWidget />
-          </MosaicSection>
-
-          {/* Market Intelligence - Three Key Indicators */}
-          <MosaicItem span={1}>
-            <ComicETFsWidget />
-          </MosaicItem>
-          <MosaicItem span={1}>
-            <MarketMoversWidget />
-          </MosaicItem>
-          <MosaicItem span={1}>
-            <ComicSentimentWidget />
-          </MosaicItem>
-
-          {/* Price Analysis & Grading */}
-          <MosaicItem span={2}>
-            <PriceHistoryChartWidget assetId={selectedAssetId} />
-          </MosaicItem>
-          <MosaicItem span={1}>
-            <CGCGradeComparisonWidget assetId={selectedAssetId} />
-          </MosaicItem>
-
-          {/* Advanced Trading - Options Chain (Full Width) */}
-          <MosaicSection>
-            <OptionsChainWidget />
-          </MosaicSection>
-
-          {/* Market Dynamics & Fear/Greed */}
-          <MosaicItem span={1}>
-            <FearGreedWidget />
-          </MosaicItem>
-          <MosaicItem span={1}>
-            <OracleProphecyWidget />
-          </MosaicItem>
-          <MosaicItem span={1}>
-            <HousePowerRankingsWidget />
-          </MosaicItem>
-
-          {/* Analytics Row - Sector Focus */}
-          <MosaicItem span={2}>
-            <SectorRotationWidget />
-          </MosaicItem>
-          <MosaicItem span={1}>
-            <VolatilitySurfaceWidget />
-          </MosaicItem>
-
-          {/* Correlation & Portfolio Greeks */}
-          <MosaicItem span={1}>
-            <CorrelationMatrixWidget />
-          </MosaicItem>
-          <MosaicItem span={2}>
-            <PortfolioGreeksWidget />
-          </MosaicItem>
-
-          {/* Market Analysis Tools */}
-          <MosaicItem span={1}>
-            <ComicHeatMapWidget />
-          </MosaicItem>
-          <MosaicItem span={1}>
-            <EconomicCalendarWidget />
-          </MosaicItem>
-          <MosaicItem span={1}>
-            <MarginUtilizationWidget />
-          </MosaicItem>
-
-          {/* Advanced Instruments */}
-          <MosaicItem span={2}>
-            <LEAPSWidget />
-          </MosaicItem>
-          <MosaicItem span={1}>
-            <PublisherBondsWidget />
-          </MosaicItem>
-
-          {/* Asset Growth & Institutional Flow */}
-          <MosaicItem span={1}>
-            <AssetGrowthWidget />
-          </MosaicItem>
-          <MosaicItem span={2}>
-            <InstitutionalOrderFlowWidget />
-          </MosaicItem>
-
-          {/* Dark Pools & Trading Flow */}
-          <MosaicItem span={1}>
-            <UnusualActivityWidget />
-          </MosaicItem>
-          <MosaicItem span={1}>
-            <DarkPoolWidget />
-          </MosaicItem>
-          <MosaicItem span={1}>
-            <OrderBookWidget />
-          </MosaicItem>
-
-          {/* AI Tools - Final Row */}
-          <MosaicItem span={3}>
-            <AIRecommendationsWidget />
-          </MosaicItem>
-        </MosaicLayout>
-
-        {/* Quick Actions Footer */}
-        <div className="mt-8 border-t pt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold">Quick Actions</h3>
-              <p className="text-sm text-muted-foreground">Common trading and portfolio actions</p>
+              ))}
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" data-testid="button-quick-buy">
-                <Plus className="w-4 h-4 mr-2" />
-                Quick Buy
-              </Button>
-              <Button variant="outline" size="sm" data-testid="button-quick-sell">
-                <Minus className="w-4 h-4 mr-2" />
-                Quick Sell
-              </Button>
-              <Button variant="outline" size="sm" data-testid="button-add-watchlist">
-                <Star className="w-4 h-4 mr-2" />
-                Add to Watchlist
-              </Button>
-              <Button variant="outline" size="sm" data-testid="button-market-analysis">
-                <Target className="w-4 h-4 mr-2" />
-                Market Analysis
-              </Button>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Market Movers */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Top Gainers */}
+        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+          <CardHeader className="pb-3">
+            <CardTitle 
+              className="text-lg flex items-center gap-2"
+              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+            >
+              <TrendingUp className="w-5 h-5 text-green-500" />
+              Top Gainers
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {marketData?.topGainers && marketData.topGainers.length > 0 ? (
+              marketData.topGainers.slice(0, 5).map((asset) => (
+                <div 
+                  key={asset.id} 
+                  className="flex items-center justify-between p-2 hover:bg-gray-800/50 rounded-md transition-colors cursor-pointer"
+                  data-testid={`gainer-${asset.id}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gray-800 rounded-md overflow-hidden flex-shrink-0">
+                      {asset.coverUrl ? (
+                        <img 
+                          src={asset.coverUrl} 
+                          alt={asset.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-xs text-gray-600">
+                          {asset.symbol.slice(0, 2)}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p 
+                        className="text-sm font-medium text-white"
+                        style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                      >
+                        {asset.symbol}
+                      </p>
+                      <p 
+                        className="text-xs text-gray-400"
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      >
+                        {asset.name}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p 
+                      className="text-sm font-medium text-white"
+                      style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                    >
+                      ${asset.currentPrice?.toFixed(2) ?? '0.00'}
+                    </p>
+                    <p className="text-xs text-green-500">
+                      +{asset.changePercent?.toFixed(2) ?? '0.00'}%
+                    </p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-gray-400 text-center py-4">No data available</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Top Losers */}
+        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+          <CardHeader className="pb-3">
+            <CardTitle 
+              className="text-lg flex items-center gap-2"
+              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+            >
+              <TrendingDown className="w-5 h-5 text-red-500" />
+              Top Losers
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {marketData?.topLosers && marketData.topLosers.length > 0 ? (
+              marketData.topLosers.slice(0, 5).map((asset) => (
+                <div 
+                  key={asset.id} 
+                  className="flex items-center justify-between p-2 hover:bg-gray-800/50 rounded-md transition-colors cursor-pointer"
+                  data-testid={`loser-${asset.id}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gray-800 rounded-md overflow-hidden flex-shrink-0">
+                      {asset.coverUrl ? (
+                        <img 
+                          src={asset.coverUrl} 
+                          alt={asset.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-xs text-gray-600">
+                          {asset.symbol.slice(0, 2)}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p 
+                        className="text-sm font-medium text-white"
+                        style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                      >
+                        {asset.symbol}
+                      </p>
+                      <p 
+                        className="text-xs text-gray-400"
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      >
+                        {asset.name}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p 
+                      className="text-sm font-medium text-white"
+                      style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                    >
+                      ${asset.currentPrice?.toFixed(2) ?? '0.00'}
+                    </p>
+                    <p className="text-xs text-red-500">
+                      {asset.changePercent?.toFixed(2) ?? '0.00'}%
+                    </p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-gray-400 text-center py-4">No data available</p>
+            )}
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Trending Comics Grid */}
+      {topAssets && topAssets.length > 0 && (
+        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Trending Comics</CardTitle>
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/trading">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Start Trading
+                </Link>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {topAssets.map((asset) => (
+                <div 
+                  key={asset.id} 
+                  className="group p-3 bg-gray-800/50 hover:bg-gray-800 rounded-md cursor-pointer transition-colors"
+                  data-testid={`asset-${asset.id}`}
+                >
+                  <div className="aspect-square bg-gray-700 rounded-md mb-2 overflow-hidden">
+                    {asset.coverUrl ? (
+                      <img 
+                        src={asset.coverUrl} 
+                        alt={asset.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-xl font-bold text-gray-600">
+                        {asset.symbol.slice(0, 2)}
+                      </div>
+                    )}
+                  </div>
+                  <p 
+                    className="text-sm font-medium text-white truncate mb-1"
+                    style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                  >
+                    {asset.symbol}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <span 
+                      className="text-sm font-bold text-white"
+                      style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                    >
+                      ${asset.currentPrice?.toFixed(2) ?? '0.00'}
+                    </span>
+                    <span className={`text-xs ${(asset.changePercent ?? 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {(asset.changePercent ?? 0) >= 0 ? '+' : ''}{asset.changePercent?.toFixed(2) ?? '0.00'}%
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Quick Actions */}
+      <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+        <CardContent className="py-4">
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" asChild data-testid="button-browse-comics">
+              <Link href="/trading">
+                <Eye className="w-4 h-4 mr-2" />
+                Browse Comics
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild data-testid="button-portfolio">
+              <Link href="/portfolio">
+                <Wallet className="w-4 h-4 mr-2" />
+                View Portfolio
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild data-testid="button-watchlist">
+              <Link href="/watchlist">
+                <Star className="w-4 h-4 mr-2" />
+                Watchlist
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild data-testid="button-analytics">
+              <Link href="/analytics">
+                <TrendingUp className="w-4 h-4 mr-2" />
+                Analytics
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

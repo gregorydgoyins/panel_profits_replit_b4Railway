@@ -71,13 +71,14 @@ export function TopNavbar() {
             
             return (
               <Link key={item.path} href={item.path}>
-                <a>
-                  <Button
-                    variant={isActive ? 'secondary' : 'ghost'}
-                    size="sm"
-                    className={`gap-2 ${isActive ? 'bg-gray-800' : ''}`}
-                    data-testid={`link-nav-${item.label.toLowerCase()}`}
-                  >
+                <Button
+                  variant={isActive ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className={`gap-2 ${isActive ? 'bg-gray-800' : ''}`}
+                  data-testid={`link-nav-${item.label.toLowerCase()}`}
+                  asChild
+                >
+                  <a>
                     <Icon className="w-4 h-4" />
                     <span 
                       className="font-medium"
@@ -85,8 +86,8 @@ export function TopNavbar() {
                     >
                       {item.label}
                     </span>
-                  </Button>
-                </a>
+                  </a>
+                </Button>
               </Link>
             );
           })}
