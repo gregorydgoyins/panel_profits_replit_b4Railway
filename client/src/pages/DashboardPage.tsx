@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { WorldClocksWidget } from '@/components/dashboard/WorldClocksWidget';
+import { ComicOfTheDayWidget } from '@/components/dashboard/ComicOfTheDayWidget';
 import { MarketMoversWidget } from '@/components/dashboard/MarketMoversWidget';
 import { FearGreedWidget } from '@/components/dashboard/FearGreedWidget';
 import { ComicHeatMapWidget } from '@/components/dashboard/ComicHeatMapWidget';
@@ -166,6 +167,9 @@ export default function DashboardPage() {
 
       {/* World Clocks - Global Market Hours */}
       <WorldClocksWidget />
+
+      {/* Comic of the Day */}
+      <ComicOfTheDayWidget />
 
       {/* Featured Comic Covers */}
       {featuredCovers && featuredCovers.length > 0 && (
