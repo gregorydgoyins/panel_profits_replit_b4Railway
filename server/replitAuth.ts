@@ -168,6 +168,19 @@ export async function setupAuth(app: Express) {
     (req.session as any).returnTo = "/dashboard";
     return res.redirect("/api/login");
   });
+
+  // "Help Wanted" new player flow - triggers auth then entry test
+  app.get("/api/auth/new-player", (req, res) => {
+    // Check if user already has an active session
+    if (req.isAuthenticated()) {
+      // Session exists - go to entry test
+      return res.redirect("/entry-test");
+    }
+    
+    // No session - save intended destination and trigger OAuth flow
+    (req.session as any).returnTo = "/entry-test";
+    return res.redirect("/api/login");
+  });
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {

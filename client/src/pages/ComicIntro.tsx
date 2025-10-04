@@ -42,8 +42,8 @@ export default function ComicIntro() {
     if (currentPanel < COMIC_PANELS.length - 1) {
       setCurrentPanel(currentPanel + 1);
     } else {
-      // Last panel - go to Entry Test
-      setLocation('/entry-test');
+      // Last panel - trigger new player auth flow (redirects to entry test after login)
+      window.location.href = '/api/auth/new-player';
     }
   };
 
@@ -54,7 +54,8 @@ export default function ComicIntro() {
   };
 
   const handleSkip = () => {
-    setLocation('/entry-test');
+    // Skip intro and go straight to new player login/entry test flow
+    window.location.href = '/api/auth/new-player';
   };
 
   const panel = COMIC_PANELS[currentPanel];
