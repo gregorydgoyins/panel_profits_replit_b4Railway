@@ -248,33 +248,22 @@ export function WorldClocksWidget() {
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="bg-slate-800/20 p-3 rounded-lg">
+        <div className="bg-amber-950/15 p-3 rounded-lg">
           <div className="grid grid-cols-4 gap-2">
-            {topRowMarkets.map((market, idx) => (
+            {topRowMarkets.map((market) => (
               <div
                 key={market.name}
-                className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border bg-slate-700/30 hover-elevate transition-all"
-                style={idx === 0 ? {
-                  '--hover-glow-color': market.status === 'open' 
-                    ? '0, 255, 0' 
-                    : market.status === 'after-hours'
-                    ? '255, 255, 0'
-                    : '255, 0, 0'
-                } as React.CSSProperties : undefined}
+                className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border bg-slate-600/35 hover-elevate transition-all"
                 onMouseEnter={(e) => {
-                  if (idx === 0) {
-                    const glowColor = market.status === 'open' 
-                      ? 'rgba(0, 255, 0, 0.6)' 
-                      : market.status === 'after-hours'
-                      ? 'rgba(255, 255, 0, 0.6)'
-                      : 'rgba(255, 0, 0, 0.6)';
-                    e.currentTarget.style.boxShadow = `0 0 20px ${glowColor}, 0 0 40px ${glowColor}`;
-                  }
+                  const glowColor = market.status === 'open' 
+                    ? 'rgba(34, 197, 94, 0.7)' 
+                    : market.status === 'after-hours'
+                    ? 'rgba(234, 179, 8, 0.7)'
+                    : 'rgba(239, 68, 68, 0.7)';
+                  e.currentTarget.style.boxShadow = `inset 0 0 20px ${glowColor}, inset 0 0 40px ${glowColor}`;
                 }}
                 onMouseLeave={(e) => {
-                  if (idx === 0) {
-                    e.currentTarget.style.boxShadow = '';
-                  }
+                  e.currentTarget.style.boxShadow = '';
                 }}
                 data-testid={`market-${market.name.toLowerCase().replace(/\//g, '-')}`}
               >
@@ -300,12 +289,23 @@ export function WorldClocksWidget() {
           </div>
         </div>
 
-        <div className="bg-slate-800/20 p-3 rounded-lg">
+        <div className="bg-amber-950/15 p-3 rounded-lg">
           <div className="grid grid-cols-4 gap-2">
             {bottomRowMarkets.map((market) => (
               <div
                 key={market.name}
-                className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border bg-slate-700/30 hover-elevate transition-all"
+                className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border bg-slate-600/35 hover-elevate transition-all"
+                onMouseEnter={(e) => {
+                  const glowColor = market.status === 'open' 
+                    ? 'rgba(34, 197, 94, 0.7)' 
+                    : market.status === 'after-hours'
+                    ? 'rgba(234, 179, 8, 0.7)'
+                    : 'rgba(239, 68, 68, 0.7)';
+                  e.currentTarget.style.boxShadow = `inset 0 0 20px ${glowColor}, inset 0 0 40px ${glowColor}`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = '';
+                }}
                 data-testid={`market-${market.name.toLowerCase().replace(/\//g, '-')}`}
               >
               <AnalogClock time={market.localTime} status={market.status} />
