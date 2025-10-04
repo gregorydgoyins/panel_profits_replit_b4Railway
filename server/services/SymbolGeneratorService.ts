@@ -425,6 +425,49 @@ class SymbolGeneratorService {
   }
 
   /**
+   * Publisher code mapping - standardized abbreviations
+   */
+  private readonly publisherCodes: Map<string, string> = new Map([
+    // Major publishers
+    ['marvel', 'MRVL'],
+    ['marvel comics', 'MRVL'],
+    ['dc', 'DC'],
+    ['dc comics', 'DC'],
+    ['timely', 'TIME'],
+    ['timely comics', 'TIME'],
+    ['image', 'IMAGE'],
+    ['image comics', 'IMAGE'],
+    ['dark horse', 'DARK'],
+    ['dark horse comics', 'DARK'],
+    ['idw', 'IDW'],
+    ['idw publishing', 'IDW'],
+    ['vertigo', 'VERT'],
+    ['wildstorm', 'WILD'],
+  ]);
+
+  /**
+   * Get standardized publisher code
+   */
+  private getPublisherCode(publisher: string): string {
+    const normalized = publisher.toLowerCase().trim();
+    
+    // Direct match
+    if (this.publisherCodes.has(normalized)) {
+      return this.publisherCodes.get(normalized)!;
+    }
+    
+    // Fuzzy match
+    for (const [key, code] of this.publisherCodes.entries()) {
+      if (normalized.includes(key) || key.includes(normalized)) {
+        return code;
+      }
+    }
+    
+    // Fallback: abbreviate the publisher name
+    return this.cleanAndAbbreviate(publisher, 6);
+  }
+
+  /**
    * Parse creator name into LASTNAME_FIRSTNAME format
    */
   private parseCreatorName(name: string): string {
@@ -434,8 +477,8 @@ class SymbolGeneratorService {
     // Split by comma first (e.g., "Lee, Stan")
     if (cleanName.includes(',')) {
       const parts = cleanName.split(',').map(p => p.trim());
-      const lastName = this.cleanAndAbbreviate(parts[0], 8);
-      const firstName = parts[1] ? this.cleanAndAbbreviate(parts[1], 6) : '';
+      const lastName = parts[0].toUpperCase().replace(/[^A-Z]/g, '');
+      const firstName = parts[1] ? parts[1].toUpperCase().replace(/[^A-Z]/g, '') : '';
       return firstName ? `${lastName}_${firstName}` : lastName;
     }
     
@@ -443,57 +486,28 @@ class SymbolGeneratorService {
     const words = cleanName.split(/\s+/).filter(w => w.length > 0);
     
     if (words.length === 0) {
-      return this.cleanAndAbbreviate(name, 10);
+      return name.toUpperCase().replace(/[^A-Z]/g, '') || 'UNKNOWN';
     }
     
     if (words.length === 1) {
-      return this.cleanAndAbbreviate(words[0], 10);
+      return words[0].toUpperCase().replace(/[^A-Z]/g, '');
     }
     
     // Assume last word is last name, first word is first name
-    const firstName = this.cleanAndAbbreviate(words[0], 6);
-    const lastName = this.cleanAndAbbreviate(words[words.length - 1], 8);
+    const firstName = words[0].toUpperCase().replace(/[^A-Z]/g, '');
+    const lastName = words[words.length - 1].toUpperCase().replace(/[^A-Z]/g, '');
     
     return `${lastName}_${firstName}`;
   }
 
   /**
-   * Generate symbol for a creator asset
-   * Format: LASTNAME_FIRSTNAME.PUBLISHER.YEAR
+   * Generate symbol for a creator asset with publisher affiliation
+   * Format: LASTNAME_FIRSTNAME.PUBLISHER (e.g., LEE_STAN.MRVL, KIRBY_JACK.DC)
    */
-  generateCreatorSymbol(name: string, metadata?: any): string {
+  generateCreatorSymbol(name: string, publisherCode: string): string {
     const nameFormatted = this.parseCreatorName(name);
-    
-    // Try to extract year from metadata
-    let year = metadata?.birthYear || metadata?.debutYear || metadata?.year;
-    
-    // If no year in metadata, try to parse from name
-    if (!year) {
-      const yearMatch = name.match(/\b(19\d{2}|20\d{2})\b/);
-      if (yearMatch) {
-        year = yearMatch[1];
-      }
-    }
-    
-    // Get publisher from metadata
-    let publisher = metadata?.publisher || metadata?.primaryPublisher;
-    if (publisher) {
-      const pubAbbrev = this.cleanAndAbbreviate(publisher, 8);
-      
-      if (year) {
-        return `${nameFormatted}.${pubAbbrev}.${year}`;
-      }
-      
-      return `${nameFormatted}.${pubAbbrev}`;
-    }
-    
-    // If we have year but no publisher
-    if (year) {
-      return `${nameFormatted}.${year}`;
-    }
-    
-    // Fallback: just name
-    return nameFormatted;
+    const pubCode = this.getPublisherCode(publisherCode);
+    return `${nameFormatted}.${pubCode}`;
   }
 
   /**
@@ -524,7 +538,11 @@ class SymbolGeneratorService {
       case 'creator':
       case 'artist':
       case 'writer':
-        return this.generateCreatorSymbol(name, metadata);
+        // For creators, publisher must be in metadata
+        if (!metadata?.publisher && !metadata?.publisherCode) {
+          throw new Error('Creator symbols require publisher in metadata');
+        }
+        return this.generateCreatorSymbol(name, metadata.publisher || metadata.publisherCode);
       case 'publisher':
         return this.generatePublisherSymbol(name, metadata);
       case 'gadget':
