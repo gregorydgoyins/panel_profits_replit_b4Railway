@@ -2,7 +2,7 @@
  * Ticker Symbol Formatter Utility
  * Formats asset symbols for ticker display in proper nomenclature format
  * 
- * Format: SERIES.VOLUME.ISSUE (e.g., ASM.V1.15 for Amazing Spider-Man Vol 1 Issue #15)
+ * Format: SERIES.V(X).#(ISSUE) (e.g., ASM.V1.#15 for Amazing Spider-Man Vol 1 Issue #15)
  */
 
 /**
@@ -160,11 +160,11 @@ function cleanAndAbbreviate(name: string, maxLength: number = 6): string {
 
 /**
  * Check if symbol is already in proper format
- * Proper format: SERIES.V#.# or SERIES.V#.#ISSUE (e.g., ASM.V1.15 or ASM.V1.#15)
+ * Proper format: SERIES.V#.#ISSUE (e.g., ASM.V1.#15)
  */
 function isProperTickerFormat(symbol: string): boolean {
-  // Match: LETTERS.V#.# or LETTERS.V#.#NUMBER
-  return /^[A-Z]{2,}\.V\d+\.\#?\d+/.test(symbol);
+  // Match: LETTERS.V#.#NUMBER
+  return /^[A-Z]{2,}\.V\d+\.\#\d+/.test(symbol);
 }
 
 /**
@@ -184,14 +184,14 @@ export function formatTickerSymbol(symbol: string, name: string): string {
   const standardTicker = getSeriesTicker(parsed.series);
   const seriesAbbrev = standardTicker || cleanAndAbbreviate(parsed.series, 6);
   
-  // Build ticker symbol: SERIES.V#.ISSUE
+  // Build ticker symbol: SERIES.V#.#ISSUE
   if (parsed.volume && parsed.issue) {
-    return `${seriesAbbrev}.V${parsed.volume}.${parsed.issue}`;
+    return `${seriesAbbrev}.V${parsed.volume}.#${parsed.issue}`;
   }
   
   // Default to V1 if only issue available
   if (parsed.issue) {
-    return `${seriesAbbrev}.V1.${parsed.issue}`;
+    return `${seriesAbbrev}.V1.#${parsed.issue}`;
   }
   
   // Fallback: use existing symbol if it looks reasonable
