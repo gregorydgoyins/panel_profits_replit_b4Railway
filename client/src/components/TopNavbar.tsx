@@ -28,17 +28,18 @@ interface NavItem {
   path: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
+  glowClass: string;
 }
 
 const navItems: NavItem[] = [
-  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/trading', label: 'Trading', icon: TrendingUp },
-  { path: '/portfolio', label: 'Portfolio', icon: Briefcase },
-  { path: '/news', label: 'News', icon: Newspaper },
-  { path: '/learn', label: 'Learn', icon: GraduationCap },
-  { path: '/markets', label: 'Markets', icon: Globe },
-  { path: '/research', label: 'Research', icon: BookOpen },
-  { path: '/analytics', label: 'Analytics', icon: BarChart3 },
+  { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, glowClass: 'rim-glow-dashboard' },
+  { path: '/trading', label: 'Trading', icon: TrendingUp, glowClass: 'rim-glow-trading' },
+  { path: '/portfolio', label: 'Portfolio', icon: Briefcase, glowClass: 'rim-glow-portfolio' },
+  { path: '/news', label: 'News', icon: Newspaper, glowClass: 'rim-glow-news' },
+  { path: '/learn', label: 'Learn', icon: GraduationCap, glowClass: 'rim-glow-learn' },
+  { path: '/markets', label: 'Markets', icon: Globe, glowClass: 'rim-glow-markets' },
+  { path: '/research', label: 'Research', icon: BookOpen, glowClass: 'rim-glow-research' },
+  { path: '/analytics', label: 'Analytics', icon: BarChart3, glowClass: 'rim-glow-analytics' },
 ];
 
 export function TopNavbar() {
@@ -63,23 +64,25 @@ export function TopNavbar() {
     
     return (
       <Link key={item.path} href={item.path}>
-        <Button
-          variant={isActive ? 'secondary' : 'ghost'}
-          size="sm"
-          className={`gap-2 ${isActive ? 'bg-gray-800' : ''}`}
+        <button
+          className={`
+            inline-flex items-center gap-2 px-3 h-8 rounded-sm
+            ${isActive ? 'bg-gray-800' : 'bg-transparent'}
+            hover:bg-gray-900
+            transition-all duration-200
+            ${item.glowClass}
+            ${isActive ? `${item.glowClass}-active` : ''}
+          `}
           data-testid={`link-nav-${item.label.toLowerCase()}`}
-          asChild
         >
-          <a>
-            <Icon className="w-4 h-4" />
-            <span 
-              className="font-normal text-sm"
-              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-            >
-              {item.label}
-            </span>
-          </a>
-        </Button>
+          <Icon className="w-4 h-4 text-foreground" />
+          <span 
+            className="font-bold text-sm text-foreground"
+            style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+          >
+            {item.label}
+          </span>
+        </button>
       </Link>
     );
   };
@@ -90,7 +93,7 @@ export function TopNavbar() {
       <div className="flex items-center flex-shrink-0">
         <Link href="/dashboard">
           <a 
-            className="text-sm font-normal text-white hover:text-gray-300 transition-colors whitespace-nowrap"
+            className="text-sm font-bold text-white hover:text-gray-300 transition-colors whitespace-nowrap"
             style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             data-testid="link-logo"
           >

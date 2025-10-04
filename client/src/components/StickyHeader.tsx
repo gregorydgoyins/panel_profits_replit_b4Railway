@@ -73,8 +73,12 @@ export function StickyHeader() {
         {/* Left Section - Matches TopNavbar left (1/6 width) */}
         <div className="flex items-center gap-2 flex-shrink-0" style={{ width: '16.66%' }}>
           <span 
-            className="text-sm text-white font-normal whitespace-nowrap"
-            style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+            className="text-sm font-bold whitespace-nowrap"
+            style={{ 
+              fontFamily: 'Hind, sans-serif', 
+              fontWeight: 300,
+              color: `hsl(var(--header-welcome))`
+            }}
             data-testid="text-welcome-message"
           >
             Welcome back, {displayName}
@@ -123,8 +127,12 @@ export function StickyHeader() {
           {/* Label Box */}
           <div className="absolute left-0 top-0 h-full px-4 bg-gray-950 border-r border-gray-800 flex items-center z-10">
             <span 
-              className="text-xs text-gray-400 uppercase tracking-wider whitespace-nowrap"
-              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+              className="text-xs font-bold uppercase tracking-wider whitespace-nowrap"
+              style={{ 
+                fontFamily: 'Hind, sans-serif', 
+                fontWeight: 300,
+                color: `hsl(var(--header-breaking-news))`
+              }}
               data-testid="label-breaking-news"
             >
               BREAKING NEWS
@@ -187,8 +195,12 @@ export function StickyHeader() {
           {/* Label Box */}
           <div className="absolute left-0 top-0 h-full px-4 bg-black border-r border-gray-800 flex items-center z-10">
             <span 
-              className="text-xs text-gray-400 uppercase tracking-wider whitespace-nowrap"
-              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+              className="text-xs font-bold uppercase tracking-wider whitespace-nowrap"
+              style={{ 
+                fontFamily: 'Hind, sans-serif', 
+                fontWeight: 300,
+                color: `hsl(var(--header-stk-updates))`
+              }}
               data-testid="label-stk-updates"
             >
               STK UPDATES
