@@ -152,17 +152,17 @@ export function MarketOverview() {
 
   const getEventImpactColor = (impact: string) => {
     switch (impact) {
-      case 'positive': return 'border-green-500/20 bg-green-500/5';
-      case 'negative': return 'border-red-500/20 bg-red-500/5';
-      default: return 'border-blue-500/20 bg-blue-500/5';
+      case 'positive': return 'border-green-600 bg-gradient-to-r from-green-900/80 to-green-800/60';
+      case 'negative': return 'border-red-600 bg-gradient-to-r from-red-900/80 to-red-800/60';
+      default: return 'border-yellow-600 bg-gradient-to-r from-yellow-900/80 to-yellow-800/60';
     }
   };
 
   const getEventImpactIcon = (impact: string) => {
     switch (impact) {
-      case 'positive': return <TrendingUp className="w-4 h-4 text-green-500" />;
-      case 'negative': return <TrendingDown className="w-4 h-4 text-red-500" />;
-      default: return <Activity className="w-4 h-4 text-blue-500" />;
+      case 'positive': return <TrendingUp className="w-4 h-4 text-green-400" />;
+      case 'negative': return <TrendingDown className="w-4 h-4 text-red-400" />;
+      default: return <Activity className="w-4 h-4 text-yellow-400" />;
     }
   };
 
