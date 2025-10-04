@@ -153,23 +153,19 @@ function AuthenticatedLayout() {
           <KnowledgeTestGuard>
             <EasterEggMonitor />
             <div className="min-h-screen bg-background text-foreground">
-              <div className="flex flex-col h-screen">
-                {/* Sticky header at top: Welcome banner + News + Stock tickers */}
+              {/* Sticky header group: Welcome banner + News + Stock tickers + Top Nav */}
+              <div className="sticky top-0 z-50">
                 <StickyHeader />
-                
-                {/* Top navigation bar */}
                 <TopNavbar />
-                
-                {/* Main scrollable content area */}
-                <main className="flex-1 overflow-y-auto">
-                  <div className="max-w-[1920px] mx-auto px-6 py-6">
-                    <Router />
-                  </div>
-                </main>
-                
-                {/* Sticky footer at bottom - outside scrolling context */}
-                <Footer />
               </div>
+              
+              {/* Main content area with footer at end */}
+              <main>
+                <div className="max-w-[1920px] mx-auto px-6 py-6">
+                  <Router />
+                </div>
+                <Footer />
+              </main>
             </div>
           </KnowledgeTestGuard>
         </Route>

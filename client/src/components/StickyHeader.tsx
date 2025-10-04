@@ -68,7 +68,7 @@ export function StickyHeader() {
     : 'text-orange-500';
 
   return (
-    <div className="sticky top-0 z-50 bg-black/95 backdrop-blur-sm border-b border-gray-800">
+    <div className="bg-black/95 backdrop-blur-sm border-b border-gray-800">
       {/* Row 1: Welcome Banner - Aligned with TopNavbar */}
       <div className="h-9 px-4 flex items-center border-b border-gray-800">
         {/* Left Section - Matches TopNavbar left (1/6 width) */}

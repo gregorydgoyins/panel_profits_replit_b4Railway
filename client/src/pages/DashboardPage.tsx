@@ -189,7 +189,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {featuredCovers.slice(0, 6).map((cover) => (
+              {featuredCovers.slice(0, 6).map((cover: ComicCover) => (
                 <div key={cover.id} className="group cursor-pointer" data-testid={`cover-${cover.id}`}>
                   <div className="relative aspect-[2/3] bg-gray-800 rounded-md overflow-hidden mb-2">
                     {cover.imageUrl ? (
@@ -385,7 +385,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {topAssets.map((asset) => (
+              {topAssets.map((asset: Asset) => (
                 <div 
                   key={asset.id} 
                   className="group p-3 bg-gray-800/50 hover:bg-gray-800 rounded-md cursor-pointer transition-colors"
