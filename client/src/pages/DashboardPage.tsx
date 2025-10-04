@@ -100,41 +100,53 @@ export default function DashboardPage() {
       {/* Hero Section: Portfolio Stats Grid (3x2) */}
       <div className="grid grid-cols-3 gap-4">
         {/* Portfolio Value */}
-        <Card 
-          className="border"
+        <div 
+          className="p-1 rounded-md"
           style={{ 
-            background: 'linear-gradient(to bottom right, hsl(270, 50%, 18%), hsl(270, 35%, 10%))',
-            borderColor: 'hsl(270, 60%, 35%)'
+            background: 'hsl(270, 60%, 10%)',
+            boxShadow: '0 0 0 2px hsl(45, 90%, 55%), 0 0 12px hsl(45, 90%, 55%), 0 0 24px hsl(45, 90%, 55% / 0.6)'
           }}
         >
-          <CardHeader className="pb-2">
-            <CardTitle 
-              className="text-sm font-medium"
+          <div 
+            className="p-1 rounded-md"
+            style={{ background: 'hsl(30, 40%, 18%)' }}
+          >
+            <Card 
+              className="border-0"
               style={{ 
-                fontFamily: 'Hind, sans-serif', 
-                fontWeight: 300,
-                color: 'hsl(270, 40%, 75%)'
+                background: 'hsl(35, 25%, 22%)',
               }}
             >
-              Portfolio Value
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-baseline gap-2">
-              <span 
-                className="text-3xl font-bold text-white"
-                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                data-testid="text-portfolio-value"
-              >
-                ${portfolioValue.toLocaleString()}
-              </span>
-              <span className={`text-sm font-medium flex items-center gap-1 ${portfolioChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {portfolioChange >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                {portfolioChangePercent >= 0 ? '+' : ''}{portfolioChangePercent.toFixed(2)}%
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+              <CardHeader className="pb-2">
+                <CardTitle 
+                  className="text-sm font-medium"
+                  style={{ 
+                    fontFamily: 'Hind, sans-serif', 
+                    fontWeight: 300,
+                    color: 'hsl(270, 40%, 75%)'
+                  }}
+                >
+                  Portfolio Value
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-baseline gap-2">
+                  <span 
+                    className="text-3xl font-bold text-white"
+                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                    data-testid="text-portfolio-value"
+                  >
+                    ${portfolioValue.toLocaleString()}
+                  </span>
+                  <span className={`text-sm font-medium flex items-center gap-1 ${portfolioChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    {portfolioChange >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+                    {portfolioChangePercent >= 0 ? '+' : ''}{portfolioChangePercent.toFixed(2)}%
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
 
         {/* Cash Balance */}
         <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
@@ -185,39 +197,51 @@ export default function DashboardPage() {
         </Card>
 
         {/* Portfolio Holdings */}
-        <Card 
-          className="border"
+        <div 
+          className="p-1 rounded-md"
           style={{ 
-            background: 'linear-gradient(to bottom right, hsl(270, 50%, 18%), hsl(270, 35%, 10%))',
-            borderColor: 'hsl(270, 60%, 35%)'
+            background: 'hsl(270, 60%, 10%)',
+            boxShadow: '0 0 0 2px hsl(45, 90%, 55%), 0 0 12px hsl(45, 90%, 55%), 0 0 24px hsl(45, 90%, 55% / 0.6)'
           }}
         >
-          <CardHeader className="pb-2">
-            <CardTitle 
-              className="text-sm font-medium"
+          <div 
+            className="p-1 rounded-md"
+            style={{ background: 'hsl(30, 40%, 18%)' }}
+          >
+            <Card 
+              className="border-0"
               style={{ 
-                fontFamily: 'Hind, sans-serif', 
-                fontWeight: 300,
-                color: 'hsl(270, 40%, 75%)'
+                background: 'hsl(35, 25%, 22%)',
               }}
             >
-              Portfolio Holdings
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-baseline gap-2">
-              <Star className="w-5 h-5" style={{ color: 'hsl(270, 40%, 65%)' }} />
-              <span 
-                className="text-3xl font-bold text-white"
-                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                data-testid="text-holdings-count"
-              >
-                {portfolioHoldingsCount}
-              </span>
-              <span className="text-sm" style={{ color: 'hsl(270, 20%, 60%)' }}>positions</span>
-            </div>
-          </CardContent>
-        </Card>
+              <CardHeader className="pb-2">
+                <CardTitle 
+                  className="text-sm font-medium"
+                  style={{ 
+                    fontFamily: 'Hind, sans-serif', 
+                    fontWeight: 300,
+                    color: 'hsl(270, 40%, 75%)'
+                  }}
+                >
+                  Portfolio Holdings
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-baseline gap-2">
+                  <Star className="w-5 h-5" style={{ color: 'hsl(270, 40%, 65%)' }} />
+                  <span 
+                    className="text-3xl font-bold text-white"
+                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                    data-testid="text-holdings-count"
+                  >
+                    {portfolioHoldingsCount}
+                  </span>
+                  <span className="text-sm" style={{ color: 'hsl(270, 20%, 60%)' }}>positions</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
 
         {/* Market Volume */}
         <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
