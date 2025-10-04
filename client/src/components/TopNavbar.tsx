@@ -30,13 +30,10 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-const leftNavItems: NavItem[] = [
+const navItems: NavItem[] = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/trading', label: 'Trading', icon: TrendingUp },
   { path: '/portfolio', label: 'Portfolio', icon: Briefcase },
-];
-
-const rightNavItems: NavItem[] = [
   { path: '/news', label: 'News', icon: Newspaper },
   { path: '/learn', label: 'Learn', icon: GraduationCap },
   { path: '/markets', label: 'Markets', icon: Globe },
@@ -88,9 +85,9 @@ export function TopNavbar() {
   };
 
   return (
-    <nav className="h-9 px-4 bg-black/90 backdrop-blur-sm border-b border-gray-800 flex items-center">
-      {/* Left Section: Logo + First 3 Nav Items (1/6 width) */}
-      <div className="flex items-center gap-2 flex-shrink-0" style={{ width: '16.66%' }}>
+    <nav className="h-9 px-4 bg-black/90 backdrop-blur-sm border-b border-gray-800 flex items-center justify-between gap-4">
+      {/* Group 1: Logo/Brand */}
+      <div className="flex items-center flex-shrink-0">
         <Link href="/dashboard">
           <a 
             className="text-sm font-normal text-white hover:text-gray-300 transition-colors whitespace-nowrap"
@@ -100,26 +97,15 @@ export function TopNavbar() {
             PANEL PROFITS
           </a>
         </Link>
-        
-        <div className="h-6 w-px bg-gray-700" />
-        
-        <div className="hidden md:flex items-center gap-1">
-          {leftNavItems.map(renderNavItem)}
-        </div>
       </div>
 
-      {/* Center Spacer */}
-      <div className="flex-1" />
+      {/* Group 2: All Navigation Buttons */}
+      <div className="hidden md:flex items-center gap-1 flex-shrink-0">
+        {navItems.map(renderNavItem)}
+      </div>
 
-      {/* Right Section: Remaining Nav Items + Action Buttons (1/6 width) */}
-      <div className="flex items-center gap-2 justify-end flex-shrink-0" style={{ width: '16.66%' }}>
-        {/* Right Nav Items */}
-        <div className="hidden md:flex items-center gap-1">
-          {rightNavItems.map(renderNavItem)}
-        </div>
-        
-        <div className="h-6 w-px bg-gray-700 mx-2" />
-        
+      {/* Group 3: Notification, Settings, Profile Icons */}
+      <div className="flex items-center gap-1 flex-shrink-0">
         {/* Notifications */}
         <Button 
           variant="ghost" 
@@ -128,6 +114,21 @@ export function TopNavbar() {
           data-testid="button-notifications"
         >
           <Bell className="w-4 h-4" />
+        </Button>
+
+        {/* Settings */}
+        <Button 
+          variant="ghost" 
+          size="icon"
+          className="h-9 w-9"
+          data-testid="button-settings"
+          asChild
+        >
+          <Link href="/settings">
+            <a>
+              <Settings className="w-4 h-4" />
+            </a>
+          </Link>
         </Button>
 
         {/* User Menu */}
@@ -170,21 +171,6 @@ export function TopNavbar() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
-        {/* Settings */}
-        <Button 
-          variant="ghost" 
-          size="icon"
-          className="h-9 w-9"
-          data-testid="button-settings"
-          asChild
-        >
-          <Link href="/settings">
-            <a>
-              <Settings className="w-4 h-4" />
-            </a>
-          </Link>
-        </Button>
 
         {/* Mobile Menu */}
         <Button 
