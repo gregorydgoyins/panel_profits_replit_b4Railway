@@ -74,7 +74,7 @@ export function StickyHeader() {
         {/* Left Section - Matches TopNavbar left (1/6 width) */}
         <div className="flex items-center gap-2 flex-shrink-0" style={{ width: '16.66%' }}>
           <span 
-            className="text-sm font-bold whitespace-nowrap"
+            className="text-sm whitespace-nowrap uppercase"
             style={{ 
               fontFamily: 'Hind, sans-serif', 
               fontWeight: 300,
@@ -82,7 +82,7 @@ export function StickyHeader() {
             }}
             data-testid="text-welcome-message"
           >
-            Welcome back, {displayName}
+            WELCOME BACK, {displayName.toUpperCase()}
           </span>
         </div>
         
@@ -92,13 +92,21 @@ export function StickyHeader() {
         {/* Right Section - Matches TopNavbar right (1/6 width) */}
         <div className="flex items-center gap-3 justify-end flex-shrink-0" style={{ width: '16.66%' }}>
           <span 
-            className={`text-sm font-medium whitespace-nowrap ${marketStatusColor}`}
+            className={`text-sm whitespace-nowrap uppercase ${marketStatusColor}`}
+            style={{ 
+              fontFamily: 'Hind, sans-serif', 
+              fontWeight: 300
+            }}
             data-testid="text-market-status"
           >
-            ⬤ {marketStatusText}
+            ⬤ {marketStatusText.toUpperCase()}
           </span>
           <span 
-            className="text-sm text-gray-400 font-mono whitespace-nowrap"
+            className="text-sm text-gray-400 whitespace-nowrap uppercase"
+            style={{ 
+              fontFamily: 'Hind, sans-serif', 
+              fontWeight: 300
+            }}
             data-testid="text-current-time"
           >
             {time.toLocaleTimeString('en-US', { 
@@ -114,10 +122,14 @@ export function StickyHeader() {
             onClick={() => logoutMutation.mutate()}
             disabled={logoutMutation.isPending}
             data-testid="button-logout"
-            className="h-8 whitespace-nowrap"
+            className="h-8 whitespace-nowrap uppercase"
+            style={{ 
+              fontFamily: 'Hind, sans-serif', 
+              fontWeight: 300
+            }}
           >
             <LogOut className="w-4 h-4 mr-2" />
-            Logout
+            LOGOUT
           </Button>
         </div>
       </div>
