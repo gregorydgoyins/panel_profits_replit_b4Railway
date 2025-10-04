@@ -5,7 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
   TrendingUp, TrendingDown, Wallet, DollarSign, Eye,
-  ArrowUpRight, ArrowDownRight, Plus, Star, Activity
+  ArrowUpRight, ArrowDownRight, Plus, Star, Activity,
+  Briefcase, Coins, BarChart3, PieChart, CreditCard,
+  ShoppingCart, Target, Award, Trophy, TrendingDownIcon,
+  Calculator, LineChart
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { WorldClocksWidget } from '@/components/dashboard/WorldClocksWidget';
@@ -106,368 +109,275 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-4">
-      {/* Hero Section: Portfolio Stats Grid (3x3) */}
-      <Card className="border-0" style={{ backgroundColor: '#2A363B' }}>
-        <CardContent className="p-6">
-          <div className="p-6 rounded-lg" style={{ backgroundColor: '#1a2226' }}>
-            <div className="grid grid-cols-3 gap-6">
+      {/* Portfolio Outlook - Single Line Stats */}
+      <Card className="!bg-[#1A1F2E]" data-testid="widget-portfolio-outlook">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Briefcase className="w-4 h-4" />
+            Portfolio Outlook
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Real-time portfolio metrics and performance indicators
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="bg-[#252B3C] p-4 rounded-lg">
+            <div className="grid grid-cols-3 gap-2">
               {/* Portfolio Value */}
-              <Card 
-                className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              <div
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
                 onClick={() => setSelectedBox(selectedBox === 'portfolio-value' ? null : 'portfolio-value')}
                 style={selectedBox === 'portfolio-value' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
+                data-testid="stat-portfolio-value"
               >
-              <CardContent className="p-2">
-                <div className="flex flex-col gap-1">
+                <Briefcase className="w-5 h-5 text-indigo-400 flex-shrink-0" />
+                <div className="flex items-baseline gap-2 flex-1 min-w-0">
                   <span 
-                    className="text-[10px] font-medium text-gray-400"
+                    className="text-sm font-bold text-white truncate"
                     style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                    data-testid="text-portfolio-value"
                   >
-                    Portfolio Value
+                    ${portfolioValue.toLocaleString()}
                   </span>
-                  <div className="flex items-baseline gap-1">
-                    <span 
-                      className="text-sm font-bold text-white"
-                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                      data-testid="text-portfolio-value"
-                    >
-                      ${portfolioValue.toLocaleString()}
-                    </span>
-                    <span className={`text-[10px] font-medium flex items-center gap-0.5 ${portfolioChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      {portfolioChange >= 0 ? <ArrowUpRight className="w-2 h-2" /> : <ArrowDownRight className="w-2 h-2" />}
-                      {portfolioChangePercent >= 0 ? '+' : ''}{portfolioChangePercent.toFixed(2)}%
-                    </span>
-                  </div>
+                  <span className={`text-xs flex items-center gap-0.5 flex-shrink-0 ${portfolioChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    {portfolioChange >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                    {portfolioChangePercent >= 0 ? '+' : ''}{portfolioChangePercent.toFixed(2)}%
+                  </span>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
 
             {/* Cash Balance */}
-            <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
-              onClick={() => setSelectedBox(selectedBox === 'cash-balance' ? null : 'cash-balance')}
-              style={selectedBox === 'cash-balance' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-            >
-              <CardContent className="p-2">
-                <div className="flex flex-col gap-1">
-                  <span 
-                    className="text-[10px] font-medium text-gray-400"
-                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                  >
-                    Available Cash
-                  </span>
-                  <div className="flex items-baseline gap-1">
-                    <Wallet className="w-3 h-3 text-gray-400" />
-                    <span 
-                      className="text-sm font-bold text-white"
-                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                      data-testid="text-cash-balance"
-                    >
-                      ${cashBalance.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              <div
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                onClick={() => setSelectedBox(selectedBox === 'cash-balance' ? null : 'cash-balance')}
+                style={selectedBox === 'cash-balance' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
+                data-testid="stat-cash-balance"
+              >
+                <Coins className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                <span 
+                  className="text-sm font-bold text-white truncate"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                  data-testid="text-cash-balance"
+                >
+                  ${cashBalance.toLocaleString()}
+                </span>
+              </div>
 
             {/* Total Assets */}
-            <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
-              onClick={() => setSelectedBox(selectedBox === 'total-assets' ? null : 'total-assets')}
-              style={selectedBox === 'total-assets' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-            >
-              <CardContent className="p-2">
-                <div className="flex flex-col gap-1">
-                  <span 
-                    className="text-[10px] font-medium text-gray-400"
-                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                  >
-                    Market Assets
-                  </span>
-                  <div className="flex items-baseline gap-1">
-                    <Eye className="w-3 h-3 text-gray-400" />
-                    <span 
-                      className="text-sm font-bold text-white"
-                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                      data-testid="text-total-assets"
-                    >
-                      {(marketData?.totalAssets || 0).toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              <div
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                onClick={() => setSelectedBox(selectedBox === 'total-assets' ? null : 'total-assets')}
+                style={selectedBox === 'total-assets' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
+                data-testid="stat-total-assets"
+              >
+                <BarChart3 className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                <span 
+                  className="text-sm font-bold text-white truncate"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                  data-testid="text-total-assets"
+                >
+                  {(marketData?.totalAssets || 0).toLocaleString()}
+                </span>
+              </div>
 
             {/* Day P&L */}
-            <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
-              onClick={() => setSelectedBox(selectedBox === 'day-pl' ? null : 'day-pl')}
-              style={selectedBox === 'day-pl' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-            >
-              <CardContent className="p-2">
-                <div className="flex flex-col gap-1">
+              <div
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                onClick={() => setSelectedBox(selectedBox === 'day-pl' ? null : 'day-pl')}
+                style={selectedBox === 'day-pl' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
+                data-testid="stat-day-pl"
+              >
+                <PieChart className="w-5 h-5 text-purple-400 flex-shrink-0" />
+                <div className="flex items-baseline gap-2 flex-1 min-w-0">
                   <span 
-                    className="text-[10px] font-medium text-gray-400"
+                    className={`text-sm font-bold truncate ${dayPL >= 0 ? 'text-green-500' : 'text-red-500'}`}
                     style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                    data-testid="text-day-pl"
                   >
-                    Day P&L
+                    {dayPL >= 0 ? '+' : ''}${dayPL.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
-                  <div className="flex items-baseline gap-1">
-                    <span 
-                      className={`text-sm font-bold ${dayPL >= 0 ? 'text-green-500' : 'text-red-500'}`}
-                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                      data-testid="text-day-pl"
-                    >
-                      {dayPL >= 0 ? '+' : ''}${dayPL.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
-                    <span className={`text-[10px] flex items-center gap-0.5 ${dayPL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      {dayPL >= 0 ? <ArrowUpRight className="w-2 h-2" /> : <ArrowDownRight className="w-2 h-2" />}
-                    </span>
-                  </div>
+                  <span className={`text-xs flex items-center gap-0.5 flex-shrink-0 ${dayPL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    {dayPL >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                  </span>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
 
             {/* Total Return */}
-            <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
-              onClick={() => setSelectedBox(selectedBox === 'total-return' ? null : 'total-return')}
-              style={selectedBox === 'total-return' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-            >
-              <CardContent className="p-2">
-                <div className="flex flex-col gap-1">
+              <div
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                onClick={() => setSelectedBox(selectedBox === 'total-return' ? null : 'total-return')}
+                style={selectedBox === 'total-return' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
+                data-testid="stat-total-return"
+              >
+                <TrendingUp className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+                <div className="flex items-baseline gap-2 flex-1 min-w-0">
                   <span 
-                    className="text-[10px] font-medium text-gray-400"
+                    className={`text-sm font-bold truncate ${totalReturn >= 0 ? 'text-green-500' : 'text-red-500'}`}
                     style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                    data-testid="text-total-return"
                   >
-                    Total Return
+                    {totalReturn >= 0 ? '+' : ''}{totalReturn.toFixed(2)}%
                   </span>
-                  <div className="flex items-baseline gap-1">
-                    <span 
-                      className={`text-sm font-bold ${totalReturn >= 0 ? 'text-green-500' : 'text-red-500'}`}
-                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                      data-testid="text-total-return"
-                    >
-                      {totalReturn >= 0 ? '+' : ''}{totalReturn.toFixed(2)}%
-                    </span>
-                  </div>
+                  <span className={`text-xs flex items-center gap-0.5 flex-shrink-0 ${totalReturn >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    {totalReturn >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                  </span>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
 
             {/* Buying Power */}
-            <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
-              onClick={() => setSelectedBox(selectedBox === 'buying-power' ? null : 'buying-power')}
-              style={selectedBox === 'buying-power' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-            >
-              <CardContent className="p-2">
-                <div className="flex flex-col gap-1">
-                  <span 
-                    className="text-[10px] font-medium text-gray-400"
-                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                  >
-                    Buying Power
-                  </span>
-                  <div className="flex items-baseline gap-1">
-                    <DollarSign className="w-3 h-3 text-gray-400" />
-                    <span 
-                      className="text-sm font-bold text-white"
-                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                      data-testid="text-buying-power"
-                    >
-                      ${buyingPower.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              <div
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                onClick={() => setSelectedBox(selectedBox === 'buying-power' ? null : 'buying-power')}
+                style={selectedBox === 'buying-power' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
+                data-testid="stat-buying-power"
+              >
+                <CreditCard className="w-5 h-5 text-amber-400 flex-shrink-0" />
+                <span 
+                  className="text-sm font-bold text-white truncate"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                  data-testid="text-buying-power"
+                >
+                  ${buyingPower.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </span>
+              </div>
 
             {/* Open Orders */}
-            <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
-              onClick={() => setSelectedBox(selectedBox === 'open-orders' ? null : 'open-orders')}
-              style={selectedBox === 'open-orders' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-            >
-              <CardContent className="p-2">
-                <div className="flex flex-col gap-1">
-                  <span 
-                    className="text-[10px] font-medium text-gray-400"
-                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                  >
-                    Open Orders
-                  </span>
-                  <div className="flex items-baseline gap-1">
-                    <Activity className="w-3 h-3 text-gray-400" />
-                    <span 
-                      className="text-sm font-bold text-white"
-                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                      data-testid="text-open-orders"
-                    >
-                      {openOrders}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              <div
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                onClick={() => setSelectedBox(selectedBox === 'open-orders' ? null : 'open-orders')}
+                style={selectedBox === 'open-orders' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
+                data-testid="stat-open-orders"
+              >
+                <ShoppingCart className="w-5 h-5 text-rose-400 flex-shrink-0" />
+                <span 
+                  className="text-sm font-bold text-white truncate"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                  data-testid="text-open-orders"
+                >
+                  {openOrders}
+                </span>
+              </div>
 
             {/* Active Positions */}
-            <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
-              onClick={() => setSelectedBox(selectedBox === 'active-positions' ? null : 'active-positions')}
-              style={selectedBox === 'active-positions' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-            >
-              <CardContent className="p-2">
-                <div className="flex flex-col gap-1">
-                  <span 
-                    className="text-[10px] font-medium text-gray-400"
-                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                  >
-                    Active Positions
-                  </span>
-                  <div className="flex items-baseline gap-1">
-                    <Star className="w-3 h-3 text-gray-400" />
-                    <span 
-                      className="text-sm font-bold text-white"
-                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                      data-testid="text-active-positions"
-                    >
-                      {portfolioHoldingsCount}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              <div
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                onClick={() => setSelectedBox(selectedBox === 'active-positions' ? null : 'active-positions')}
+                style={selectedBox === 'active-positions' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
+                data-testid="stat-active-positions"
+              >
+                <Target className="w-5 h-5 text-teal-400 flex-shrink-0" />
+                <span 
+                  className="text-sm font-bold text-white truncate"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                  data-testid="text-active-positions"
+                >
+                  {portfolioHoldingsCount}
+                </span>
+              </div>
 
             {/* Win Rate */}
-            <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
-              onClick={() => setSelectedBox(selectedBox === 'win-rate' ? null : 'win-rate')}
-              style={selectedBox === 'win-rate' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-            >
-              <CardContent className="p-2">
-                <div className="flex flex-col gap-1">
-                  <span 
-                    className="text-[10px] font-medium text-gray-400"
-                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                  >
-                    Win Rate
-                  </span>
-                  <div className="flex items-baseline gap-1">
-                    <TrendingUp className="w-3 h-3 text-green-500" />
-                    <span 
-                      className="text-sm font-bold text-white"
-                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                      data-testid="text-win-rate"
-                    >
-                      {winRate.toFixed(1)}%
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              <div
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                onClick={() => setSelectedBox(selectedBox === 'win-rate' ? null : 'win-rate')}
+                style={selectedBox === 'win-rate' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
+                data-testid="stat-win-rate"
+              >
+                <Award className="w-5 h-5 text-lime-400 flex-shrink-0" />
+                <span 
+                  className="text-sm font-bold text-white truncate"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                  data-testid="text-win-rate"
+                >
+                  {winRate.toFixed(1)}%
+                </span>
+              </div>
 
             {/* Best Performer */}
-            <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
-              onClick={() => setSelectedBox(selectedBox === 'best-performer' ? null : 'best-performer')}
-              style={selectedBox === 'best-performer' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-            >
-              <CardContent className="p-2">
-                <div className="flex flex-col gap-1">
-                  <span 
-                    className="text-[10px] font-medium text-gray-400"
-                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                  >
-                    Best Performer
-                  </span>
-                  <div className="flex flex-col gap-0.5">
-                    {bestPerformer ? (
-                      <>
-                        <span 
-                          className="text-[10px] font-bold text-white truncate"
-                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                          data-testid="text-best-performer"
-                        >
-                          {bestPerformer.symbol}
-                        </span>
-                        <span className="text-sm font-bold text-green-500">
-                          +{bestPerformer.changePercent?.toFixed(2)}%
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-sm font-bold text-gray-500">--</span>
-                    )}
-                  </div>
+              <div
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                onClick={() => setSelectedBox(selectedBox === 'best-performer' ? null : 'best-performer')}
+                style={selectedBox === 'best-performer' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
+                data-testid="stat-best-performer"
+              >
+                <Trophy className="w-5 h-5 text-yellow-400 flex-shrink-0" />
+                <div className="flex items-baseline gap-2 flex-1 min-w-0">
+                  {bestPerformer ? (
+                    <>
+                      <span 
+                        className="text-sm font-bold text-white truncate"
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                        data-testid="text-best-performer"
+                      >
+                        {bestPerformer.symbol}
+                      </span>
+                      <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-green-500">
+                        <ArrowUpRight className="w-3 h-3" /> +{bestPerformer.changePercent?.toFixed(2)}%
+                      </span>
+                    </>
+                  ) : (
+                    <span 
+                      className="text-sm font-bold text-gray-500 truncate"
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      data-testid="text-best-performer"
+                    >
+                      --
+                    </span>
+                  )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
 
             {/* Worst Performer */}
-            <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
-              onClick={() => setSelectedBox(selectedBox === 'worst-performer' ? null : 'worst-performer')}
-              style={selectedBox === 'worst-performer' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-            >
-              <CardContent className="p-2">
-                <div className="flex flex-col gap-1">
-                  <span 
-                    className="text-[10px] font-medium text-gray-400"
-                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                  >
-                    Worst Performer
-                  </span>
-                  <div className="flex flex-col gap-0.5">
-                    {worstPerformer ? (
-                      <>
-                        <span 
-                          className="text-[10px] font-bold text-white truncate"
-                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                          data-testid="text-worst-performer"
-                        >
-                          {worstPerformer.symbol}
-                        </span>
-                        <span className="text-sm font-bold text-red-500">
-                          {worstPerformer.changePercent?.toFixed(2)}%
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-sm font-bold text-gray-500">--</span>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Market Cap */}
-            <Card 
-              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
-              onClick={() => setSelectedBox(selectedBox === 'total-account' ? null : 'total-account')}
-              style={selectedBox === 'total-account' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-            >
-              <CardContent className="p-2">
-                <div className="flex flex-col gap-1">
-                  <span 
-                    className="text-[10px] font-medium text-gray-400"
-                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                  >
-                    Total Account Value
-                  </span>
-                  <div className="flex items-baseline gap-1">
-                    <Wallet className="w-3 h-3 text-gray-400" />
+              <div
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                onClick={() => setSelectedBox(selectedBox === 'worst-performer' ? null : 'worst-performer')}
+                style={selectedBox === 'worst-performer' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
+                data-testid="stat-worst-performer"
+              >
+                <TrendingDownIcon className="w-5 h-5 text-orange-400 flex-shrink-0" />
+                <div className="flex items-baseline gap-2 flex-1 min-w-0">
+                  {worstPerformer ? (
+                    <>
+                      <span 
+                        className="text-sm font-bold text-white truncate"
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                        data-testid="text-worst-performer"
+                      >
+                        {worstPerformer.symbol}
+                      </span>
+                      <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-red-500">
+                        <ArrowDownRight className="w-3 h-3" /> {worstPerformer.changePercent?.toFixed(2)}%
+                      </span>
+                    </>
+                  ) : (
                     <span 
-                      className="text-sm font-bold text-white"
+                      className="text-sm font-bold text-gray-500 truncate"
                       style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                      data-testid="text-total-account-value"
+                      data-testid="text-worst-performer"
                     >
-                      ${marketCap.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      --
                     </span>
-                  </div>
+                  )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+
+            {/* Total Account Value */}
+              <div
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                onClick={() => setSelectedBox(selectedBox === 'total-account' ? null : 'total-account')}
+                style={selectedBox === 'total-account' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
+                data-testid="stat-total-account-value"
+              >
+                <Calculator className="w-5 h-5 text-green-400 flex-shrink-0" />
+                <span 
+                  className="text-sm font-bold text-white truncate"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                  data-testid="text-total-account-value"
+                >
+                  ${marketCap.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </span>
+              </div>
+            </div>
           </div>
-        </div>
         </CardContent>
       </Card>
 
