@@ -108,9 +108,10 @@ export default function DashboardPage() {
       {/* Hero Section: Portfolio Stats Grid (3x3) */}
       <Card className="border-0" style={{ backgroundColor: 'hsl(270, 40%, 30%)' }}>
         <CardContent className="p-6">
-          <div className="grid grid-cols-3 gap-6">
-            {/* Portfolio Value */}
-            <Card className="bg-gradient-to-br from-gray-900 to-black border border-border">
+          <div className="p-6 rounded-lg" style={{ backgroundColor: 'hsl(270, 35%, 22%)' }}>
+            <div className="grid grid-cols-3 gap-6">
+              {/* Portfolio Value */}
+              <Card className="bg-gradient-to-br from-gray-900 to-black border border-border">
               <CardHeader className="pb-2">
                 <CardTitle 
                   className="text-sm font-medium text-gray-400"
@@ -417,6 +418,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           </div>
+        </div>
         </CardContent>
       </Card>
 
