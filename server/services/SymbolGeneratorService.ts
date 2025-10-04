@@ -5,12 +5,102 @@ import crypto from 'crypto';
  * Generates dot-delimited symbols for different asset types
  * 
  * Format:
- * - Comics: TIKR.VOL.ISSUE (e.g., SPIDEY.1.15)
+ * - Comics: TICKR.V(OLUME).#(ISSUE) (e.g., ASM.V1.#300, BATM.V1.#404)
  * - Characters: CHAR (e.g., SPIDEY, BATMAN)
  * - Creators: CRTR.YR.PUB (e.g., STANLEE.1922.MARVEL)
  * - Publishers: PUB (e.g., MARVEL, DC)
  */
 class SymbolGeneratorService {
+  /**
+   * Well-known series abbreviation mapping
+   * Maps full series names to standard ticker codes
+   */
+  private readonly seriesAbbreviations: Map<string, string> = new Map([
+    // Spider-Man Series
+    ['amazing spider-man', 'ASM'],
+    ['amazing spiderman', 'ASM'],
+    ['spectacular spider-man', 'SPEC'],
+    ['ultimate spider-man', 'USM'],
+    ['spider-man', 'SPDR'],
+    ['spiderman', 'SPDR'],
+    
+    // Batman Series
+    ['batman', 'BATM'],
+    ['detective comics', 'DETC'],
+    ['batman detective comics', 'DETC'],
+    ['batman and robin', 'BATR'],
+    ['dark knight', 'DKKN'],
+    
+    // Superman Series
+    ['superman', 'SUPM'],
+    ['action comics', 'ACTC'],
+    ['superman action comics', 'ACTC'],
+    ['man of steel', 'MOST'],
+    
+    // X-Men Series
+    ['uncanny x-men', 'UXM'],
+    ['x-men', 'XMEN'],
+    ['astonishing x-men', 'AXM'],
+    ['new x-men', 'NXM'],
+    
+    // Avengers Series
+    ['avengers', 'AVNG'],
+    ['new avengers', 'NAVG'],
+    ['mighty avengers', 'MAVG'],
+    
+    // Justice League
+    ['justice league', 'JLA'],
+    ['justice league of america', 'JLA'],
+    
+    // Other Major Series
+    ['fantastic four', 'FF'],
+    ['hulk', 'HULK'],
+    ['incredible hulk', 'IHULK'],
+    ['iron man', 'IRON'],
+    ['captain america', 'CAP'],
+    ['thor', 'THOR'],
+    ['wonder woman', 'WW'],
+    ['flash', 'FLSH'],
+    ['green lantern', 'GL'],
+    ['aquaman', 'AQUA'],
+    ['daredevil', 'DD'],
+    ['punisher', 'PNSH'],
+    ['wolverine', 'WOLV'],
+    ['deadpool', 'DPOOL'],
+    ['spawn', 'SPWN'],
+    ['walking dead', 'TWD'],
+    ['saga', 'SAGA'],
+    ['invincible', 'INVC'],
+  ]);
+
+  /**
+   * Get standardized ticker for a series name
+   */
+  private getSeriesTicker(seriesName: string): string | null {
+    // Guard against empty/whitespace-only series names
+    if (!seriesName || !seriesName.trim()) {
+      return null;
+    }
+    
+    const normalized = seriesName.toLowerCase().trim();
+    
+    // Direct match
+    if (this.seriesAbbreviations.has(normalized)) {
+      return this.seriesAbbreviations.get(normalized)!;
+    }
+    
+    // Try fuzzy matching for common variations (only if normalized has substance)
+    if (normalized.length >= 3) {
+      for (const [key, ticker] of this.seriesAbbreviations.entries()) {
+        if (normalized.includes(key) || key.includes(normalized)) {
+          return ticker;
+        }
+      }
+    }
+    
+    return null;
+  }
+
   /**
    * Clean and abbreviate a name for symbol use
    */
@@ -81,13 +171,16 @@ class SymbolGeneratorService {
 
   /**
    * Generate symbol for a comic asset
-   * Format: TIKR.VOLUME.ISSUE# (e.g., SPDY.V1.#1)
+   * Format: TICKR.V#.#ISSUE (e.g., ASM.V1.#300, BATM.V1.#404, DETC.V1.#27)
    */
   generateComicSymbol(name: string, metadata?: any): string {
     const parsed = this.parseComicName(name);
-    const seriesAbbrev = this.cleanAndAbbreviate(parsed.series, 6);
     
-    // If we have volume and issue, use full format: TIKR.V#.##
+    // Try to get standardized ticker from mapping first
+    const standardTicker = this.getSeriesTicker(parsed.series);
+    const seriesAbbrev = standardTicker || this.cleanAndAbbreviate(parsed.series, 6);
+    
+    // If we have volume and issue, use full format: TICKR.V#.#ISSUE
     if (parsed.volume && parsed.issue) {
       return `${seriesAbbrev}.V${parsed.volume}.#${parsed.issue}`;
     }
