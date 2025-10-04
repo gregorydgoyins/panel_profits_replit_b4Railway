@@ -174,7 +174,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .limit(100);
       
       // Format symbols using ticker nomenclature and convert decimals to numbers
-      const { formatTickerSymbol } = await import('./utils/tickerFormatter');
+      const { formatTickerSymbol } = await import('./utils/tickerFormatter.js');
       const formattedMovers = topMovers.map(asset => ({
         symbol: formatTickerSymbol(asset.symbol, asset.name),
         name: asset.name,
