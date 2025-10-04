@@ -118,92 +118,120 @@ export function StickyHeader() {
       </div>
 
       {/* Row 2: News Ticker */}
-      <div className="h-9 bg-gradient-to-r from-gray-950 to-gray-900 border-b border-gray-800 overflow-hidden">
+      <div className="h-9 bg-gradient-to-r from-gray-950 to-gray-900 border-b border-gray-800 overflow-hidden relative">
         <div className="h-full flex items-center">
-          <div className="animate-marquee-slow whitespace-nowrap">
+          {/* Label Box */}
+          <div className="absolute left-0 top-0 h-full px-4 bg-gray-950 border-r border-gray-800 flex items-center z-10">
             <span 
-              className="text-sm text-gray-300 inline-flex items-center gap-8"
+              className="text-xs text-gray-400 uppercase tracking-wider whitespace-nowrap"
               style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-              data-testid="text-news-ticker"
+              data-testid="label-breaking-news"
             >
-              <Link href="/news/marvel-phase-6">
-                <a className="hover:text-white transition-colors" data-testid="link-news-marvel-phase-6">
-                  BREAKING: Marvel announces Phase 6 slate - collector interest surging
-                </a>
-              </Link>
-              <span>•</span>
-              <Link href="/news/superman-ath">
-                <a className="hover:text-white transition-colors" data-testid="link-news-superman-ath">
-                  ALERT: Golden Age Superman #1 reaches new all-time high
-                </a>
-              </Link>
-              <span>•</span>
-              <Link href="/news/dc-restructuring">
-                <a className="hover:text-white transition-colors" data-testid="link-news-dc-restructuring">
-                  UPDATE: DC Restructuring complete - institutional investors bullish
-                </a>
-              </Link>
-              <span>•</span>
-              <Link href="/news/amazing-fantasy-variant">
-                <a className="hover:text-white transition-colors" data-testid="link-news-amazing-fantasy-variant">
-                  EXCLUSIVE: Rare Amazing Fantasy #15 variant discovered - market impact expected
-                </a>
-              </Link>
-              <span>•</span>
-              <Link href="/news/alex-ross-auction">
-                <a className="hover:text-white transition-colors" data-testid="link-news-alex-ross-auction">
-                  RECORD: Alex Ross original art auction breaks records
-                </a>
-              </Link>
-              <span>•</span>
-              <Link href="/news/comic-con-attendance">
-                <a className="hover:text-white transition-colors" data-testid="link-news-comic-con-attendance">
-                  DATA: Comic-Con attendance up 300% - signaling strong market demand
-                </a>
-              </Link>
-              <span>•</span>
+              BREAKING NEWS
             </span>
+          </div>
+          
+          {/* Scrolling Content */}
+          <div className="h-full flex items-center pl-40">
+            <div className="animate-marquee-slow whitespace-nowrap">
+              <span 
+                className="text-sm text-gray-300 inline-flex items-center gap-8"
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                data-testid="text-news-ticker"
+              >
+                <Link href="/news/marvel-phase-6">
+                  <a className="hover:text-white transition-colors" data-testid="link-news-marvel-phase-6">
+                    BREAKING: Marvel announces Phase 6 slate - collector interest surging
+                  </a>
+                </Link>
+                <span>•</span>
+                <Link href="/news/superman-ath">
+                  <a className="hover:text-white transition-colors" data-testid="link-news-superman-ath">
+                    ALERT: Golden Age Superman #1 reaches new all-time high
+                  </a>
+                </Link>
+                <span>•</span>
+                <Link href="/news/dc-restructuring">
+                  <a className="hover:text-white transition-colors" data-testid="link-news-dc-restructuring">
+                    UPDATE: DC Restructuring complete - institutional investors bullish
+                  </a>
+                </Link>
+                <span>•</span>
+                <Link href="/news/amazing-fantasy-variant">
+                  <a className="hover:text-white transition-colors" data-testid="link-news-amazing-fantasy-variant">
+                    EXCLUSIVE: Rare Amazing Fantasy #15 variant discovered - market impact expected
+                  </a>
+                </Link>
+                <span>•</span>
+                <Link href="/news/alex-ross-auction">
+                  <a className="hover:text-white transition-colors" data-testid="link-news-alex-ross-auction">
+                    RECORD: Alex Ross original art auction breaks records
+                  </a>
+                </Link>
+                <span>•</span>
+                <Link href="/news/comic-con-attendance">
+                  <a className="hover:text-white transition-colors" data-testid="link-news-comic-con-attendance">
+                    DATA: Comic-Con attendance up 300% - signaling strong market demand
+                  </a>
+                </Link>
+                <span>•</span>
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Row 3: Stock Ticker */}
-      <div className="h-9 bg-black border-b border-gray-800 overflow-hidden">
+      <div className="h-9 bg-black border-b border-gray-800 overflow-hidden relative">
         <div className="h-full flex items-center">
-          {tickerAssets && tickerAssets.length > 0 ? (
-            <div className="animate-marquee whitespace-nowrap">
-              <span 
-                className="text-sm inline-flex items-center gap-6"
-                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                data-testid="text-stock-ticker"
-              >
-                {tickerAssets.map((asset, idx) => (
-                  <Link key={idx} href={`/asset/${asset.symbol}`}>
-                    <a 
-                      className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity"
-                      data-testid={`link-ticker-${asset.symbol.toLowerCase()}`}
-                    >
-                      <span className="text-gray-400">{asset.symbol}</span>
-                      <span className="text-white">${asset.currentPrice.toFixed(2)}</span>
-                      <span className={asset.change >= 0 ? 'text-green-500' : 'text-red-500'}>
-                        {asset.change >= 0 ? <TrendingUp className="w-3 h-3 inline" /> : <TrendingDown className="w-3 h-3 inline" />}
-                        {asset.changePercent >= 0 ? '+' : ''}{asset.changePercent.toFixed(2)}%
-                      </span>
-                    </a>
-                  </Link>
-                ))}
-              </span>
-            </div>
-          ) : (
-            <div className="animate-marquee whitespace-nowrap">
-              <span 
-                className="text-sm text-gray-500"
-                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-              >
-                Loading market data...
-              </span>
-            </div>
-          )}
+          {/* Label Box */}
+          <div className="absolute left-0 top-0 h-full px-4 bg-black border-r border-gray-800 flex items-center z-10">
+            <span 
+              className="text-xs text-gray-400 uppercase tracking-wider whitespace-nowrap"
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+              data-testid="label-stk-updates"
+            >
+              STK UPDATES
+            </span>
+          </div>
+          
+          {/* Scrolling Content */}
+          <div className="h-full flex items-center pl-40">
+            {tickerAssets && tickerAssets.length > 0 ? (
+              <div className="animate-marquee whitespace-nowrap">
+                <span 
+                  className="text-sm inline-flex items-center gap-6"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                  data-testid="text-stock-ticker"
+                >
+                  {tickerAssets.map((asset, idx) => (
+                    <Link key={idx} href={`/asset/${asset.symbol}`}>
+                      <a 
+                        className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity"
+                        data-testid={`link-ticker-${asset.symbol.toLowerCase()}`}
+                      >
+                        <span className="text-gray-400">{asset.symbol}</span>
+                        <span className="text-white">${asset.currentPrice.toFixed(2)}</span>
+                        <span className={asset.change >= 0 ? 'text-green-500' : 'text-red-500'}>
+                          {asset.change >= 0 ? <TrendingUp className="w-3 h-3 inline" /> : <TrendingDown className="w-3 h-3 inline" />}
+                          {asset.changePercent >= 0 ? '+' : ''}{asset.changePercent.toFixed(2)}%
+                        </span>
+                      </a>
+                    </Link>
+                  ))}
+                </span>
+              </div>
+            ) : (
+              <div className="animate-marquee whitespace-nowrap">
+                <span 
+                  className="text-sm text-gray-500"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                >
+                  Loading market data...
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
