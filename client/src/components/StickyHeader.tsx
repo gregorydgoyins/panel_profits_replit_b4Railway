@@ -229,7 +229,7 @@ export function StickyHeader() {
           {/* Scrolling Content */}
           <div className="h-full flex items-center pl-40">
             {tickerAssets && tickerAssets.length > 0 ? (
-              <div key="ticker-wrapper" className="animate-marquee whitespace-nowrap">
+              <div className="animate-marquee whitespace-nowrap">
                 {/* Duplicate content for seamless looping */}
                 {[0, 1].map((iteration) => (
                   <span 
@@ -239,11 +239,9 @@ export function StickyHeader() {
                     data-testid={iteration === 0 ? "text-stock-ticker" : undefined}
                   >
                     {tickerAssets.map((asset, idx) => (
-                      <Link 
-                        key={`${iteration}-${idx}`} 
-                        href={`/asset/${asset.symbol}`}
-                        className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity"
-                        data-testid={iteration === 0 ? `link-ticker-${asset.symbol.toLowerCase()}` : undefined}
+                      <span
+                        key={`${asset.symbol}-${idx}`}
+                        className="inline-flex items-center gap-2"
                       >
                         <span className="text-gray-400">{asset.symbol}</span>
                         <span className="text-white">${asset.currentPrice.toFixed(2)}</span>
@@ -257,7 +255,7 @@ export function StickyHeader() {
                            <span className="w-3 h-3 inline-block">•</span>}
                           {asset.changePercent >= 0 ? '+' : ''}{asset.changePercent.toFixed(2)}%
                         </span>
-                      </Link>
+                      </span>
                     ))}
                   </span>
                 ))}
