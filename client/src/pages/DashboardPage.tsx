@@ -231,9 +231,10 @@ export default function DashboardPage() {
       )}
 
       {/* Market Movers */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Top Gainers */}
-        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+      <div className="bg-slate-800/20 p-3 rounded-lg">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Top Gainers */}
+          <Card className="bg-slate-700/30 border-gray-800">
           <CardHeader className="pb-3">
             <CardTitle 
               className="text-lg flex items-center gap-2"
@@ -299,8 +300,8 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Top Losers */}
-        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+          {/* Top Losers */}
+          <Card className="bg-slate-700/30 border-gray-800">
           <CardHeader className="pb-3">
             <CardTitle 
               className="text-lg flex items-center gap-2"
@@ -365,6 +366,7 @@ export default function DashboardPage() {
             )}
           </CardContent>
         </Card>
+        </div>
       </div>
 
       {/* Trending Comics Grid */}
@@ -459,34 +461,44 @@ export default function DashboardPage() {
       </Card>
 
       {/* Dashboard Widgets Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <MarketMoversWidget />
-        <FearGreedWidget />
+      <div className="bg-slate-800/20 p-3 rounded-lg">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <MarketMoversWidget />
+          <FearGreedWidget />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ComicSentimentWidget />
-        <ComicHeatMapWidget />
+      <div className="bg-slate-800/20 p-3 rounded-lg">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <ComicSentimentWidget />
+          <ComicHeatMapWidget />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-        <TrendingCharactersWidget />
-        <CreatorSpotlightWidget />
-        <CreatorInfluenceWidget />
+      <div className="bg-slate-800/20 p-3 rounded-lg">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+          <TrendingCharactersWidget />
+          <CreatorSpotlightWidget />
+          <CreatorInfluenceWidget />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4">
         <OptionsChainWidget />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <WhaleTrackerWidget />
-        <InstitutionalOrderFlowWidget />
+      <div className="bg-slate-800/20 p-3 rounded-lg">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <WhaleTrackerWidget />
+          <InstitutionalOrderFlowWidget />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <AssetGrowthWidget />
-        <GadgetsMemorabiliaWidget />
+      <div className="bg-slate-800/20 p-3 rounded-lg">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <AssetGrowthWidget />
+          <GadgetsMemorabiliaWidget />
+        </div>
       </div>
     </div>
   );

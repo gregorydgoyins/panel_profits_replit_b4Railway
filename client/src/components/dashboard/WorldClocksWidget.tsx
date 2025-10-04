@@ -248,13 +248,14 @@ export function WorldClocksWidget() {
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="grid grid-cols-4 gap-2">
-          {topRowMarkets.map((market) => (
-            <div
-              key={market.name}
-              className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border hover-elevate transition-all"
-              data-testid={`market-${market.name.toLowerCase().replace(/\//g, '-')}`}
-            >
+        <div className="bg-slate-800/20 p-3 rounded-lg">
+          <div className="grid grid-cols-4 gap-2">
+            {topRowMarkets.map((market) => (
+              <div
+                key={market.name}
+                className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border bg-slate-700/30 hover-elevate transition-all"
+                data-testid={`market-${market.name.toLowerCase().replace(/\//g, '-')}`}
+              >
               <AnalogClock time={market.localTime} status={market.status} />
               
               <div className="text-center space-y-0.5 w-full">
@@ -273,16 +274,18 @@ export function WorldClocksWidget() {
                 {getStatusBadge(market.status)}
               </div>
             </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-2">
-          {bottomRowMarkets.map((market) => (
-            <div
-              key={market.name}
-              className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border hover-elevate transition-all"
-              data-testid={`market-${market.name.toLowerCase().replace(/\//g, '-')}`}
-            >
+        <div className="bg-slate-800/20 p-3 rounded-lg">
+          <div className="grid grid-cols-4 gap-2">
+            {bottomRowMarkets.map((market) => (
+              <div
+                key={market.name}
+                className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border bg-slate-700/30 hover-elevate transition-all"
+                data-testid={`market-${market.name.toLowerCase().replace(/\//g, '-')}`}
+              >
               <AnalogClock time={market.localTime} status={market.status} />
               
               <div className="text-center space-y-0.5 w-full">
@@ -302,6 +305,7 @@ export function WorldClocksWidget() {
               </div>
             </div>
           ))}
+          </div>
         </div>
 
         <div className="pt-2 border-t border-border flex flex-wrap gap-2 text-xs text-muted-foreground">

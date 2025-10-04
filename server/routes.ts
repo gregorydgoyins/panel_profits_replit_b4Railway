@@ -79,7 +79,8 @@ import {
   easterEggUnlocks,
   npcTraderActivityLog,
   assets as assetsTable,
-  assetCurrentPrices
+  assetCurrentPrices,
+  marketData
 } from "@shared/schema";
 import { z } from "zod";
 import { eq, and, sql } from "drizzle-orm";
@@ -137,6 +138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get comics with proper series names (major franchises for ticker display)
       const topMovers = await db
         .select({
+          assetId: assetsTable.id,
           symbol: assetsTable.symbol,
           name: assetsTable.name,
           type: assetsTable.type,
@@ -173,14 +175,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .orderBy(sql`RANDOM()`)
         .limit(100);
       
-      // Format symbols using ticker nomenclature and convert decimals to numbers
+      // Calculate 5-minute trend for each asset
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+      
+      // Format symbols using ticker nomenclature and calculate trends
       const { formatTickerSymbol } = await import('./utils/tickerFormatter.js');
-      const formattedMovers = topMovers.map(asset => ({
-        symbol: formatTickerSymbol(asset.symbol, asset.name),
-        name: asset.name,
-        currentPrice: parseFloat(asset.currentPrice),
-        change: parseFloat(asset.change || '0'),
-        changePercent: parseFloat(asset.changePercent || '0'),
+      const formattedMovers = await Promise.all(topMovers.map(async asset => {
+        const currentPrice = parseFloat(asset.currentPrice);
+        let trend: 'up' | 'down' | 'neutral' = 'neutral';
+        
+        // Query 5-minute market data to get price from 5 minutes ago
+        const fiveMinData = await db
+          .select({
+            close: marketData.close,
+          })
+          .from(marketData)
+          .where(sql`
+            ${marketData.assetId} = ${asset.assetId}
+            AND ${marketData.timeframe} = '5m'
+            AND ${marketData.periodStart} <= ${fiveMinutesAgo}
+          `)
+          .orderBy(sql`${marketData.periodStart} DESC`)
+          .limit(1);
+        
+        // Calculate trend
+        if (fiveMinData.length > 0) {
+          const previousPrice = parseFloat(fiveMinData[0].close);
+          const threshold = previousPrice * 0.001; // 0.1% threshold for neutral
+          
+          if (currentPrice > previousPrice + threshold) {
+            trend = 'up';
+          } else if (currentPrice < previousPrice - threshold) {
+            trend = 'down';
+          }
+        } else {
+          // Fallback: use dayChange if no 5-minute data
+          const change = parseFloat(asset.change || '0');
+          if (change > 0.1) trend = 'up';
+          else if (change < -0.1) trend = 'down';
+        }
+        
+        return {
+          symbol: formatTickerSymbol(asset.symbol, asset.name),
+          name: asset.name,
+          currentPrice,
+          change: parseFloat(asset.change || '0'),
+          changePercent: parseFloat(asset.changePercent || '0'),
+          trend,
+        };
       }));
       
       res.json(formattedMovers);

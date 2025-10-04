@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import {
   MessageSquare, AlertCircle, Info, Star, Zap, TrendingUp,
   TrendingDown, Users, BookOpen, Sparkles, Volume2, VolumeX,
-  ThumbsUp, ThumbsDown, Share2, Eye, Clock
+  ThumbsUp, ThumbsDown, Share2, Eye, Clock, Minus
 } from 'lucide-react';
 
 interface ComicNewsItem {
@@ -268,9 +268,10 @@ export function ComicNewsFeed() {
                   <div>
                     <h4 className="font-bold text-lg mb-2 flex items-center gap-2">
                       {item.headline}
-                      {item.sentiment === 'bullish' && <TrendingUp className="w-4 h-4" />}
-                      {item.sentiment === 'bearish' && <TrendingDown className="w-4 h-4" />}
-                      {item.sentiment === 'mysterious' && <Sparkles className="w-4 h-4" />}
+                      {item.sentiment === 'bullish' && <TrendingUp className="w-4 h-4 text-green-500" />}
+                      {item.sentiment === 'bearish' && <TrendingDown className="w-4 h-4 text-red-500" />}
+                      {item.sentiment === 'neutral' && <Minus className="w-4 h-4 text-yellow-500" />}
+                      {item.sentiment === 'mysterious' && <Sparkles className="w-4 h-4 text-purple-400" />}
                     </h4>
                     
                     <p className={cn(

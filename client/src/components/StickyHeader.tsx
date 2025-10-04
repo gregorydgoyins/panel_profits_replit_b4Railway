@@ -17,6 +17,7 @@ interface AssetPrice {
   currentPrice: number;
   change: number;
   changePercent: number;
+  trend: 'up' | 'down' | 'neutral';
 }
 
 export function StickyHeader() {
@@ -228,8 +229,14 @@ export function StickyHeader() {
                       >
                         <span className="text-gray-400">{asset.symbol}</span>
                         <span className="text-white">${asset.currentPrice.toFixed(2)}</span>
-                        <span className={asset.change >= 0 ? 'text-green-500' : 'text-red-500'}>
-                          {asset.change >= 0 ? <TrendingUp className="w-3 h-3 inline" /> : <TrendingDown className="w-3 h-3 inline" />}
+                        <span className={
+                          asset.trend === 'up' ? 'text-green-500' : 
+                          asset.trend === 'down' ? 'text-red-500' : 
+                          'text-yellow-500'
+                        }>
+                          {asset.trend === 'up' ? <TrendingUp className="w-3 h-3 inline" /> : 
+                           asset.trend === 'down' ? <TrendingDown className="w-3 h-3 inline" /> : 
+                           <span className="w-3 h-3 inline-block">•</span>}
                           {asset.changePercent >= 0 ? '+' : ''}{asset.changePercent.toFixed(2)}%
                         </span>
                       </Link>
