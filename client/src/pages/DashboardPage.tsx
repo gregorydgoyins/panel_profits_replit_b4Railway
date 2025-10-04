@@ -107,8 +107,8 @@ export default function DashboardPage() {
     <div className="space-y-4">
       {/* Hero Section: Portfolio Stats Grid (3x3) */}
       <Card className="border-0" style={{ backgroundColor: 'hsl(270, 40%, 30%)' }}>
-        <CardContent className="p-4">
-          <div className="grid grid-cols-3 gap-4">
+        <CardContent className="p-6">
+          <div className="grid grid-cols-3 gap-6">
             {/* Portfolio Value */}
             <Card className="bg-gradient-to-br from-gray-900 to-black border border-border">
               <CardHeader className="pb-2">
