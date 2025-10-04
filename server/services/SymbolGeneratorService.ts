@@ -146,8 +146,9 @@ class SymbolGeneratorService {
     // "Batman (2016) #50"
     // "X-Men Vol. 2 Issue 15"
     
-    // Extract volume
-    const volMatch = name.match(/vol\.?\s*(\d+)/i);
+    // Extract volume - match "Vol 1", "Vol. 1", "Volume 1", "V1", etc.
+    // Use word boundary to ensure V/Vol is standalone
+    const volMatch = name.match(/\b(?:vol(?:ume)?\.?|v)\s*(\d+)/i);
     const volume = volMatch ? volMatch[1] : undefined;
     
     // Extract issue - try multiple patterns
@@ -159,7 +160,7 @@ class SymbolGeneratorService {
     
     // Get series name by removing all the extracted parts
     let series = name
-      .replace(/vol\.?\s*\d+/i, '')
+      .replace(/\b(?:vol(?:ume)?\.?|v)\s*\d+/i, '')
       .replace(/#\d+/g, '')
       .replace(/issue\s+\d+/i, '')
       .replace(/\(\d{4}\)/g, '')
