@@ -515,6 +515,25 @@ export const clubActivityLog = pgTable("club_activity_log", {
   timestamp: timestamp("timestamp").defaultNow(),
 });
 
+// Article Pages - Full blog-length articles linked from news ticker
+export const articlePages = pgTable("article_pages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  slug: text("slug").notNull().unique(), // URL-friendly identifier
+  title: text("title").notNull(),
+  content: text("content").notNull(), // Full article content in markdown or HTML
+  excerpt: text("excerpt"), // Short summary for listings
+  author: text("author"), // Reporter/author name
+  source: text("source"), // Source publication/organization
+  publishedDate: timestamp("published_date").notNull(),
+  featuredImage: text("featured_image"), // Image URL
+  tags: text("tags").array(), // Topic tags for categorization
+  category: text("category").default("market_news"), // 'market_news', 'character_spotlight', 'creator_profile', 'industry_analysis'
+  viewCount: integer("view_count").default(0),
+  featured: boolean("featured").default(false), // Show in featured section
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Create insert schemas for all tables
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -7024,3 +7043,14 @@ export type InsertHousePowerRanking = z.infer<typeof insertHousePowerRankingsSch
 
 export type HouseMarketEvent = typeof houseMarketEvents.$inferSelect;
 export type InsertHouseMarketEvent = z.infer<typeof insertHouseMarketEventsSchema>;
+
+// Article Pages - Type exports
+export const insertArticlePageSchema = createInsertSchema(articlePages).omit({
+  id: true,
+  viewCount: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type ArticlePage = typeof articlePages.$inferSelect;
+export type InsertArticlePage = z.infer<typeof insertArticlePageSchema>;
