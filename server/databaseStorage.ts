@@ -237,6 +237,20 @@ export class DatabaseStorage implements IStorage {
     return await query.orderBy(desc(assets.createdAt));
   }
 
+  async getAssetById(id: string): Promise<Asset | undefined> {
+    const result = await db.select().from(assets).where(eq(assets.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getAssetsByType(type: string, limit: number = 100): Promise<Asset[]> {
+    const result = await db.select()
+      .from(assets)
+      .where(eq(assets.type, type))
+      .limit(limit)
+      .orderBy(desc(assets.createdAt));
+    return result;
+  }
+
   async createAsset(asset: InsertAsset): Promise<Asset> {
     const result = await db.insert(assets).values(asset).returning();
     return result[0];
