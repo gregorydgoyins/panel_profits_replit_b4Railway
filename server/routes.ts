@@ -3226,17 +3226,16 @@ Respond with valid JSON in this exact format:
     await seedMarketData();
     await generateHistoricalData();
     
-    // TEMPORARY: Comment out market simulation to allow server to start
-    // await marketSimulation.initialize();
+    await marketSimulation.initialize();
     
     // Delay starting price updates to allow server to fully start first
-    // setTimeout(() => {
-    //   const updateInterval = process.env.NODE_ENV === 'development' ? 30000 : 60000;
-    //   marketSimulation.start(updateInterval);
-    //   console.log('✅ Market simulation price updates started');
-    // }, 10000); // Wait 10 seconds after server starts
+    setTimeout(() => {
+      const updateInterval = process.env.NODE_ENV === 'development' ? 30000 : 60000;
+      marketSimulation.start(updateInterval);
+      console.log('✅ Market simulation price updates started');
+    }, 10000); // Wait 10 seconds after server starts
     
-    console.log('✅ Market simulation engine initialized successfully (price updates temporarily disabled)');
+    console.log('✅ Market simulation engine initialized successfully');
   } catch (error) {
     console.error('❌ Failed to initialize market simulation engine:', error);
     // Continue anyway - the engine can be manually restarted
