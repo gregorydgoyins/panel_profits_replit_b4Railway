@@ -51,6 +51,7 @@ interface ComicCover {
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const [selectedBox, setSelectedBox] = useState<string | null>(null);
 
   // Fetch market data
   const { data: marketData } = useQuery<MarketOverview>({
@@ -111,7 +112,11 @@ export default function DashboardPage() {
           <div className="p-6 rounded-lg" style={{ backgroundColor: 'hsl(270, 35%, 22%)' }}>
             <div className="grid grid-cols-3 gap-6">
               {/* Portfolio Value */}
-              <Card className="bg-gradient-to-br from-gray-900 to-black border border-border">
+              <Card 
+                className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+                onClick={() => setSelectedBox(selectedBox === 'portfolio-value' ? null : 'portfolio-value')}
+                style={selectedBox === 'portfolio-value' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+              >
               <CardHeader className="pb-2">
                 <CardTitle 
                   className="text-sm font-medium text-gray-400"
@@ -138,7 +143,11 @@ export default function DashboardPage() {
             </Card>
 
             {/* Cash Balance */}
-            <Card className="bg-gradient-to-br from-gray-900 to-black border border-border">
+            <Card 
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              onClick={() => setSelectedBox(selectedBox === 'cash-balance' ? null : 'cash-balance')}
+              style={selectedBox === 'cash-balance' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+            >
               <CardHeader className="pb-2">
                 <CardTitle 
                   className="text-sm font-medium text-gray-400"
@@ -162,7 +171,11 @@ export default function DashboardPage() {
             </Card>
 
             {/* Total Assets */}
-            <Card className="bg-gradient-to-br from-gray-900 to-black border border-border">
+            <Card 
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              onClick={() => setSelectedBox(selectedBox === 'total-assets' ? null : 'total-assets')}
+              style={selectedBox === 'total-assets' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+            >
               <CardHeader className="pb-2">
                 <CardTitle 
                   className="text-sm font-medium text-gray-400"
@@ -186,7 +199,11 @@ export default function DashboardPage() {
             </Card>
 
             {/* Day P&L */}
-            <Card className="bg-gradient-to-br from-gray-900 to-black border border-border">
+            <Card 
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              onClick={() => setSelectedBox(selectedBox === 'day-pl' ? null : 'day-pl')}
+              style={selectedBox === 'day-pl' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+            >
               <CardHeader className="pb-2">
                 <CardTitle 
                   className="text-sm font-medium text-gray-400"
@@ -212,7 +229,11 @@ export default function DashboardPage() {
             </Card>
 
             {/* Total Return */}
-            <Card className="bg-gradient-to-br from-gray-900 to-black border border-border">
+            <Card 
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              onClick={() => setSelectedBox(selectedBox === 'total-return' ? null : 'total-return')}
+              style={selectedBox === 'total-return' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+            >
               <CardHeader className="pb-2">
                 <CardTitle 
                   className="text-sm font-medium text-gray-400"
@@ -235,7 +256,11 @@ export default function DashboardPage() {
             </Card>
 
             {/* Buying Power */}
-            <Card className="bg-gradient-to-br from-gray-900 to-black border border-border">
+            <Card 
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              onClick={() => setSelectedBox(selectedBox === 'buying-power' ? null : 'buying-power')}
+              style={selectedBox === 'buying-power' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+            >
               <CardHeader className="pb-2">
                 <CardTitle 
                   className="text-sm font-medium text-gray-400"
@@ -259,7 +284,11 @@ export default function DashboardPage() {
             </Card>
 
             {/* Open Orders */}
-            <Card className="bg-gradient-to-br from-gray-900 to-black border border-border">
+            <Card 
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              onClick={() => setSelectedBox(selectedBox === 'open-orders' ? null : 'open-orders')}
+              style={selectedBox === 'open-orders' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+            >
               <CardHeader className="pb-2">
                 <CardTitle 
                   className="text-sm font-medium text-gray-400"
@@ -283,7 +312,11 @@ export default function DashboardPage() {
             </Card>
 
             {/* Active Positions */}
-            <Card className="bg-gradient-to-br from-gray-900 to-black border border-border">
+            <Card 
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              onClick={() => setSelectedBox(selectedBox === 'active-positions' ? null : 'active-positions')}
+              style={selectedBox === 'active-positions' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+            >
               <CardHeader className="pb-2">
                 <CardTitle 
                   className="text-sm font-medium text-gray-400"
@@ -307,7 +340,11 @@ export default function DashboardPage() {
             </Card>
 
             {/* Win Rate */}
-            <Card className="bg-gradient-to-br from-gray-900 to-black border border-border">
+            <Card 
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              onClick={() => setSelectedBox(selectedBox === 'win-rate' ? null : 'win-rate')}
+              style={selectedBox === 'win-rate' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+            >
               <CardHeader className="pb-2">
                 <CardTitle 
                   className="text-sm font-medium text-gray-400"
@@ -331,7 +368,11 @@ export default function DashboardPage() {
             </Card>
 
             {/* Best Performer */}
-            <Card className="bg-gradient-to-br from-gray-900 to-black border border-border">
+            <Card 
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              onClick={() => setSelectedBox(selectedBox === 'best-performer' ? null : 'best-performer')}
+              style={selectedBox === 'best-performer' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+            >
               <CardHeader className="pb-2">
                 <CardTitle 
                   className="text-sm font-medium text-gray-400"
@@ -363,7 +404,11 @@ export default function DashboardPage() {
             </Card>
 
             {/* Worst Performer */}
-            <Card className="bg-gradient-to-br from-gray-900 to-black border border-border">
+            <Card 
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              onClick={() => setSelectedBox(selectedBox === 'worst-performer' ? null : 'worst-performer')}
+              style={selectedBox === 'worst-performer' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+            >
               <CardHeader className="pb-2">
                 <CardTitle 
                   className="text-sm font-medium text-gray-400"
@@ -395,7 +440,11 @@ export default function DashboardPage() {
             </Card>
 
             {/* Market Cap */}
-            <Card className="bg-gradient-to-br from-gray-900 to-black border border-border">
+            <Card 
+              className="bg-gradient-to-br from-gray-900 to-black border border-border hover-elevate cursor-pointer transition-all"
+              onClick={() => setSelectedBox(selectedBox === 'total-account' ? null : 'total-account')}
+              style={selectedBox === 'total-account' ? { boxShadow: '0 0 8px rgba(234, 179, 8, 0.8), 0 0 15px rgba(234, 179, 8, 0.8)' } : {}}
+            >
               <CardHeader className="pb-2">
                 <CardTitle 
                   className="text-sm font-medium text-gray-400"
