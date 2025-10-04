@@ -88,7 +88,7 @@ export function TopNavbar() {
   };
 
   return (
-    <nav className="h-14 px-4 bg-black/90 backdrop-blur-sm border-b border-gray-800 flex items-center">
+    <nav className="h-9 px-4 bg-black/90 backdrop-blur-sm border-b border-gray-800 flex items-center">
       {/* Left Section: Logo + First 3 Nav Items (1/6 width) */}
       <div className="flex items-center gap-2 flex-shrink-0" style={{ width: '16.66%' }}>
         <Link href="/dashboard">

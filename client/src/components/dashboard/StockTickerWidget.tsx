@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from 'react';
 interface TickerAsset {
   symbol: string;
   name: string;
-  assetType: 'stock' | 'option' | 'bond' | 'comic';
   currentPrice: number;
   changePercent: number;
 }
@@ -15,23 +14,21 @@ export function StockTickerWidget() {
   const [isPaused, setIsPaused] = useState(false);
 
   const { data: assets = [], isLoading } = useQuery<TickerAsset[]>({
-    queryKey: ['/api/comic-assets/top'],
-    refetchInterval: 5000, // Refresh every 5 seconds
+    queryKey: ['/api/market/ticker'],
+    refetchInterval: 5000,
   });
 
-  // Auto-scroll animation
   useEffect(() => {
     const scrollContainer = scrollRef.current;
     if (!scrollContainer || isPaused || assets.length === 0) return;
 
     let scrollPosition = 0;
-    const scrollSpeed = 0.167; // pixels per frame
+    const scrollSpeed = 0.167;
     
     const animate = () => {
       if (scrollContainer && !isPaused) {
         scrollPosition += scrollSpeed;
         
-        // Reset when we've scrolled past half the content (for seamless loop)
         const maxScroll = scrollContainer.scrollWidth / 2;
         if (scrollPosition >= maxScroll) {
           scrollPosition = 0;
@@ -48,25 +45,29 @@ export function StockTickerWidget() {
 
   if (isLoading || assets.length === 0) {
     return (
-      <div className="w-full bg-card border-b border-border h-12 flex items-center justify-center">
-        <div className="text-muted-foreground text-sm">Loading market data...</div>
+      <div className="w-full bg-card border-b border-border h-9 flex items-center justify-center">
+        <div 
+          className="text-muted-foreground text-sm"
+          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+        >
+          Loading market data...
+        </div>
       </div>
     );
   }
 
-  // Duplicate assets for seamless infinite scroll
   const duplicatedAssets = [...assets, ...assets];
 
   return (
     <div 
-      className="w-full bg-card border-b border-border overflow-hidden relative"
+      className="w-full bg-card border-b border-border overflow-hidden relative h-9"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       data-testid="widget-stock-ticker"
     >
       <div
         ref={scrollRef}
-        className="flex items-center h-12 overflow-x-hidden whitespace-nowrap"
+        className="flex items-center h-9 overflow-x-hidden whitespace-nowrap"
         style={{ scrollBehavior: 'auto' }}
       >
         {duplicatedAssets.map((asset, index) => (
@@ -75,8 +76,16 @@ export function StockTickerWidget() {
             className="inline-flex items-center gap-2 px-6 border-r border-border/50 hover-elevate cursor-pointer"
             data-testid={`ticker-item-${asset.symbol}-${index}`}
           >
-            <span className="font-semibold text-sm text-foreground">{asset.symbol}</span>
-            <span className="text-lg font-bold text-foreground">
+            <span 
+              className="font-semibold text-sm text-foreground"
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+            >
+              {asset.symbol}
+            </span>
+            <span 
+              className="text-lg font-bold text-foreground"
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+            >
               ${asset.currentPrice >= 1000 
                 ? (asset.currentPrice / 1000).toFixed(1) + 'K' 
                 : asset.currentPrice.toFixed(2)}
@@ -87,7 +96,10 @@ export function StockTickerWidget() {
               ) : (
                 <TrendingDown className="w-3 h-3" />
               )}
-              <span className="text-sm font-medium">
+              <span 
+                className="text-sm font-medium"
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+              >
                 {asset.changePercent >= 0 ? '+' : ''}{asset.changePercent.toFixed(2)}%
               </span>
             </div>

@@ -1,18 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
-interface MarketDataItem {
-  asset_id: string;
+interface TickerAsset {
   symbol: string;
-  close: number;
-  change: number;
-  percent_change: number;
-}
-
-interface TickerItem {
-  symbol: string;
-  price: number;
+  name: string;
+  currentPrice: number;
   change: number;
   changePercent: number;
 }
@@ -20,32 +13,25 @@ interface TickerItem {
 export function StockTicker() {
   const [isPaused, setIsPaused] = useState(false);
   
-  // Fetch latest market data with prices
-  const { data: marketData = [] } = useQuery<MarketDataItem[]>({
-    queryKey: ['/api/market-data/latest'],
-    refetchInterval: 30000, // Refresh every 30 seconds
+  const { data: tickerAssets = [] } = useQuery<TickerAsset[]>({
+    queryKey: ['/api/market/ticker'],
+    refetchInterval: 5000,
   });
   
-  // Convert market data to ticker format
-  const tickerItems: TickerItem[] = marketData.map(item => ({
-    symbol: item.symbol,
-    price: parseFloat(item.close?.toString() || '0'),
-    change: parseFloat(item.change?.toString() || '0'),
-    changePercent: parseFloat(item.percent_change?.toString() || '0'),
-  }));
-  
-  // Duplicate for seamless loop
-  const duplicatedItems = [...tickerItems, ...tickerItems, ...tickerItems];
+  const duplicatedItems = [...tickerAssets, ...tickerAssets, ...tickerAssets];
 
   return (
     <div 
-      className="bg-card/60 border-b border-border/50 overflow-hidden"
+      className="bg-card/60 border-b border-border/50 overflow-hidden h-9"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       data-testid="stock-ticker"
     >
-      <div className="flex items-center h-10">
-        <div className="bg-card px-4 h-full flex items-center font-mono text-xs text-muted-foreground shrink-0 border-r border-border">
+      <div className="flex items-center h-9">
+        <div 
+          className="bg-card px-4 h-full flex items-center text-xs text-muted-foreground shrink-0 border-r border-border"
+          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+        >
           LIVE QUOTES
         </div>
         
@@ -62,11 +48,12 @@ export function StockTicker() {
               return (
                 <div
                   key={`${item.symbol}-${index}`}
-                  className="flex items-center gap-2 text-xs font-mono whitespace-nowrap"
+                  className="flex items-center gap-2 text-xs whitespace-nowrap"
+                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                   data-testid={`ticker-item-${item.symbol}`}
                 >
                   <span className="font-bold text-foreground">{item.symbol}</span>
-                  <span className="text-muted-foreground">${item.price.toFixed(2)}</span>
+                  <span className="text-muted-foreground">${item.currentPrice.toFixed(2)}</span>
                   <span className={`flex items-center gap-0.5 ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
                     {isPositive ? (
                       <TrendingUp className="w-3 h-3" />

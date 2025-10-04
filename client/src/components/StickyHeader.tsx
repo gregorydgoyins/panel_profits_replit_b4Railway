@@ -69,7 +69,7 @@ export function StickyHeader() {
   return (
     <div className="sticky top-0 z-50 bg-black/95 backdrop-blur-sm border-b border-gray-800">
       {/* Row 1: Welcome Banner - Aligned with TopNavbar */}
-      <div className="h-10 px-4 flex items-center border-b border-gray-800">
+      <div className="h-9 px-4 flex items-center border-b border-gray-800">
         {/* Left Section - Matches TopNavbar left (1/6 width) */}
         <div className="flex items-center gap-2 flex-shrink-0" style={{ width: '16.66%' }}>
           <span 
@@ -118,7 +118,7 @@ export function StickyHeader() {
       </div>
 
       {/* Row 2: News Ticker */}
-      <div className="h-8 bg-gradient-to-r from-gray-950 to-gray-900 border-b border-gray-800 overflow-hidden">
+      <div className="h-9 bg-gradient-to-r from-gray-950 to-gray-900 border-b border-gray-800 overflow-hidden">
         <div className="h-full flex items-center">
           <div className="animate-marquee-slow whitespace-nowrap">
             <span 
@@ -168,7 +168,7 @@ export function StickyHeader() {
       </div>
 
       {/* Row 3: Stock Ticker */}
-      <div className="h-8 bg-black border-b border-gray-800 overflow-hidden">
+      <div className="h-9 bg-black border-b border-gray-800 overflow-hidden">
         <div className="h-full flex items-center">
           {tickerAssets && tickerAssets.length > 0 ? (
             <div className="animate-marquee whitespace-nowrap">

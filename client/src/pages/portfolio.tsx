@@ -1,747 +1,719 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  TrendingUp, TrendingDown, DollarSign, Activity, AlertTriangle,
-  Briefcase, Droplets, Shield, BookOpen, Palette, Eye, Globe,
-  Skull, Crown, Swords, Target, RefreshCw, ArrowUp, ArrowDown
-} from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
-import { useHouseTheme } from '@/contexts/HouseThemeContext';
-import { apiRequest } from '@/lib/queryClient';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  TrendingUp,
+  TrendingDown,
+  RefreshCw,
+  ExternalLink,
+  AlertCircle,
+  DollarSign,
+  BarChart3,
+  PieChart,
+  Activity
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
+import { Link } from 'wouter';
 
-// Seven Houses configuration
-const SEVEN_HOUSES = [
-  { id: 'sequential-securities', name: 'Sequential Securities', icon: Briefcase, color: '#DC2626' },
-  { id: 'ink-blood', name: 'Ink & Blood', icon: Droplets, color: '#7C3AED' },
-  { id: 'heroic-trust', name: 'Heroic Trust', icon: Shield, color: '#2563EB' },
-  { id: 'narrative-capital', name: 'Narrative Capital', icon: BookOpen, color: '#059669' },
-  { id: 'visual-holdings', name: 'Visual Holdings', icon: Palette, color: '#EA580C' },
-  { id: 'vigilante-exchange', name: 'Vigilante Exchange', icon: Eye, color: '#64748B' },
-  { id: 'crossover-consortium', name: 'Crossover Consortium', icon: Globe, color: '#BE185D' },
-];
-
-// Comic panel component with noir styling
-function NoirComicPanel({ 
-  id,
-  gridArea,
-  title,
-  caption,
-  soundEffect,
-  children,
-  delay = 0,
-  kenBurnsType = 'zoomIn',
-  isLosing = false,
-  onClick,
-  className = ''
-}: { 
+interface Position {
   id: string;
-  gridArea: string;
-  title?: string;
-  caption?: string;
-  soundEffect?: string;
-  children: React.ReactNode;
-  delay?: number;
-  kenBurnsType?: 'zoomIn' | 'zoomOut' | 'panLeft' | 'panRight';
-  isLosing?: boolean;
-  onClick?: () => void;
-  className?: string;
-}) {
-  const [isHovered, setIsHovered] = useState(false);
-  const [showEffect, setShowEffect] = useState(false);
-
-  useEffect(() => {
-    if (soundEffect) {
-      const timer = setTimeout(() => setShowEffect(true), delay + 500);
-      return () => clearTimeout(timer);
-    }
-  }, [soundEffect, delay]);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: delay * 0.1, duration: 0.6 }}
-      whileHover={{ scale: 1.02, zIndex: 50 }}
-      onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={cn(
-        "relative overflow-hidden",
-        "border-8 border-black shadow-2xl",
-        "bg-gradient-to-br from-gray-900 to-black",
-        onClick && "cursor-pointer",
-        className
-      )}
-      style={{ gridArea }}
-      data-testid={`portfolio-panel-${id}`}
-    >
-      {/* Film grain effect */}
-      <div className="absolute inset-0 opacity-20 mix-blend-overlay"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' /%3E%3C/svg%3E")`
-        }}
-      />
-
-      {/* Venetian blind shadows - only on larger panels */}
-      {gridArea.includes('hero') && (
-        <div className="absolute inset-0 pointer-events-none z-10"
-          style={{
-            backgroundImage: `repeating-linear-gradient(
-              0deg,
-              transparent,
-              transparent 10px,
-              rgba(0,0,0,0.3) 10px,
-              rgba(0,0,0,0.3) 12px
-            )`
-          }}
-        />
-      )}
-
-      {/* Rain effect for losing positions */}
-      {isLosing && (
-        <div className="absolute inset-0 pointer-events-none z-20 opacity-30">
-          <div className="rain-effect" />
-        </div>
-      )}
-
-      {/* Ken Burns effect on hover for charts */}
-      {kenBurnsType !== 'zoomIn' && isHovered && (
-        <div className={`absolute inset-0 ken-burns-${kenBurnsType}`} />
-      )}
-
-      {/* Caption box */}
-      {caption && (
-        <div className="absolute top-3 left-3 z-30 bg-black border-2 border-white px-2 py-1"
-          style={{ boxShadow: '3px 3px 0 rgba(0,0,0,0.8)' }}
-        >
-          <div className="text-white text-xs font-mono uppercase tracking-wider">
-            {caption}
-          </div>
-        </div>
-      )}
-
-      {/* Sound effect */}
-      <AnimatePresence>
-        {showEffect && soundEffect && (
-          <motion.div
-            initial={{ scale: 0, rotate: -15 }}
-            animate={{ scale: 1.2, rotate: 0 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 400 }}
-            className="absolute top-4 right-4 z-40 pointer-events-none"
-            style={{
-              color: isLosing ? '#DC2626' : '#10B981',
-              textShadow: '3px 3px 0 #000, -3px -3px 0 #000',
-              fontFamily: 'Impact, sans-serif',
-              fontSize: '2.5rem',
-              fontWeight: 'bold'
-            }}
-          >
-            {soundEffect}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Title */}
-      {title && (
-        <div className="absolute top-0 left-0 right-0 bg-black/80 border-b-2 border-white p-2 z-20">
-          <h3 className="text-white font-bold text-sm uppercase tracking-wider">{title}</h3>
-        </div>
-      )}
-
-      {/* Content */}
-      <div className="relative h-full p-4 z-10">
-        {children}
-      </div>
-
-      {/* Hover glow effect */}
-      {isHovered && (
-        <div className="absolute inset-0 pointer-events-none"
-          style={{
-            boxShadow: 'inset 0 0 30px rgba(255,255,255,0.1)',
-            background: 'radial-gradient(circle at center, transparent 0%, rgba(255,255,255,0.05) 100%)'
-          }}
-        />
-      )}
-    </motion.div>
-  );
+  assetId: string;
+  symbol: string;
+  assetName: string;
+  quantity: number;
+  averagePrice: number;
+  currentPrice: number;
+  totalValue: number;
+  totalCost: number;
+  unrealizedPL: number;
+  unrealizedPLPercent: number;
+  dayChange: number;
+  dayChangePercent: number;
 }
 
-// Portfolio metrics component
-function PortfolioMetric({ 
-  label, 
-  value, 
-  change, 
-  icon: Icon,
-  narrative,
-  isNegative = false 
-}: {
-  label: string;
-  value: string | number;
-  change?: string;
-  icon?: any;
-  narrative?: string;
-  isNegative?: boolean;
-}) {
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        {Icon && <Icon className={cn("h-5 w-5", isNegative ? "text-red-500" : "text-green-500")} />}
-        <span className="text-xs text-gray-500 uppercase tracking-wider">{label}</span>
-      </div>
-      <div className={cn(
-        "font-mono text-3xl font-black",
-        isNegative ? "text-red-500" : "text-white"
-      )}
-        style={{
-          textShadow: isNegative ? '0 0 10px rgba(239,68,68,0.5)' : '0 0 10px rgba(255,255,255,0.2)'
-        }}
-      >
-        {value}
-        {isNegative && '!!!'}
-      </div>
-      {change && (
-        <div className={cn(
-          "text-sm font-mono",
-          isNegative ? "text-red-400" : "text-green-400"
-        )}>
-          {change}
-        </div>
-      )}
-      {narrative && (
-        <div className="text-xs text-gray-400 italic mt-2">
-          "{narrative}"
-        </div>
-      )}
-    </div>
-  );
+interface PortfolioSummary {
+  totalValue: number;
+  totalCost: number;
+  totalPL: number;
+  totalPLPercent: number;
+  dayChange: number;
+  dayChangePercent: number;
+  positionCount: number;
+  cash: number;
 }
 
-// Holding strip component - vertical comic strip style
-function HoldingStrip({ 
-  holding,
-  onClick
-}: {
-  holding: {
-    id: string;
-    name: string;
-    value: number;
-    change: number;
-    quantity: number;
-  };
-  onClick?: () => void;
-}) {
-  const isLosing = holding.change < 0;
-  
-  return (
-    <motion.div
-      whileHover={{ x: 5 }}
-      onClick={onClick}
-      className="border-4 border-black bg-gradient-to-r from-gray-900 to-black p-3 cursor-pointer relative overflow-hidden"
-      data-testid={`holding-strip-${holding.id}`}
-    >
-      {/* Diagonal stripes for losses */}
-      {isLosing && (
-        <div className="absolute inset-0 opacity-20"
-          style={{
-            backgroundImage: `repeating-linear-gradient(
-              45deg,
-              transparent,
-              transparent 10px,
-              rgba(239,68,68,0.3) 10px,
-              rgba(239,68,68,0.3) 20px
-            )`
-          }}
-        />
-      )}
-      
-      <div className="relative z-10">
-        <div className="text-white font-bold text-sm mb-1">{holding.name}</div>
-        <div className="text-xs text-gray-400">QTY: {holding.quantity}</div>
-        <div className={cn(
-          "font-mono text-lg font-bold mt-1",
-          isLosing ? "text-red-500" : "text-green-500"
-        )}>
-          ${holding.value.toLocaleString()}
-        </div>
-        <div className={cn(
-          "text-xs",
-          isLosing ? "text-red-400" : "text-green-400"
-        )}>
-          {isLosing ? '▼' : '▲'} {Math.abs(holding.change)}%
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-export default function NoirPortfolioDashboard() {
+export default function PortfolioPage() {
   const { user } = useAuth();
-  const { toast } = useToast();
-  const [selectedHolding, setSelectedHolding] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const { currentHouse } = useHouseTheme();
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
-  // Fetch portfolio data
-  const { data: portfolioData, refetch, isLoading } = useQuery({
-    queryKey: ['/api/portfolio', user?.id],
-    queryFn: async () => {
-      // Mock data for now - replace with actual API
-      return {
-        totalValue: 125430.50,
-        dayChange: -2340.20,
-        dayChangePercent: -1.83,
-        allTimePL: 15230.00,
-        allTimePLPercent: 13.82,
-        holdingCount: 23,
-        riskLevel: 3, // 1-5 scale
-        dominantHouse: 'ink-blood',
-        holdings: [
-          { id: '1', name: 'BATMAN #1', value: 45000, change: 5.2, quantity: 1 },
-          { id: '2', name: 'SPIDER-MAN #1', value: 38000, change: -2.1, quantity: 1 },
-          { id: '3', name: 'X-MEN #1', value: 22000, change: 1.8, quantity: 2 },
-          { id: '4', name: 'WATCHMEN #1', value: 15430, change: -3.5, quantity: 3 },
-          { id: '5', name: 'SANDMAN #1', value: 5000, change: 12.3, quantity: 5 }
-        ],
-        recentTrades: [
-          { id: '1', action: 'BUY', asset: 'DOOM #1', price: 450, time: '2 min ago' },
-          { id: '2', action: 'SELL', asset: 'VENOM #3', price: 220, time: '15 min ago' },
-          { id: '3', action: 'BUY', asset: 'JOKER #5', price: 180, time: '1 hour ago' }
-        ],
-        performanceData: [] // Chart data
-      };
-    },
-    refetchInterval: 30000 // Refresh every 30 seconds
+  const { data: summary, isLoading: summaryLoading, refetch: refetchSummary } = useQuery<PortfolioSummary>({
+    queryKey: ['/api/portfolios/summary', user?.id],
+    enabled: !!user?.id,
   });
 
-  // Calculate narrative based on performance
-  const performanceNarrative = useMemo(() => {
-    if (!portfolioData) return '';
-    
-    if (portfolioData.dayChangePercent < -5) {
-      return "The market devours your wealth like a hungry beast...";
-    } else if (portfolioData.dayChangePercent < -2) {
-      return "Your portfolio bleeds red in the unforgiving streets of Paneltown...";
-    } else if (portfolioData.dayChangePercent < 0) {
-      return "A shadow falls across your holdings...";
-    } else if (portfolioData.dayChangePercent < 2) {
-      return "The fog lifts slightly, revealing modest gains...";
-    } else if (portfolioData.dayChangePercent < 5) {
-      return "Fortune smiles upon you in the dark alleys...";
-    } else {
-      return "You've struck gold in the criminal underworld of comics!";
-    }
-  }, [portfolioData]);
+  const { data: positions, isLoading: positionsLoading, refetch: refetchPositions } = useQuery<Position[]>({
+    queryKey: ['/api/portfolios/positions', user?.id],
+    enabled: !!user?.id,
+  });
 
-  // Get dominant house data
-  const dominantHouseData = useMemo(() => {
-    if (!portfolioData) return null;
-    return SEVEN_HOUSES.find(h => h.id === portfolioData.dominantHouse);
-  }, [portfolioData]);
-
-  // Risk level narrative
-  const getRiskNarrative = (level: number) => {
-    const narratives = [
-      "DEFCON 5 - All quiet on the western front",
-      "DEFCON 4 - Tensions rising in the shadows",
-      "DEFCON 3 - Danger lurks around every corner",
-      "DEFCON 2 - The streets run red with risk",
-      "DEFCON 1 - MAXIMUM DANGER! Retreat immediately!"
-    ];
-    return narratives[level - 1] || narratives[2];
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await Promise.all([refetchSummary(), refetchPositions()]);
+    setTimeout(() => setRefreshing(false), 500);
   };
 
-  // Chart options with noir theme
-  const chartOptions: Highcharts.Options = {
+  const isLoading = summaryLoading || positionsLoading;
+
+  const performanceChartOptions: Highcharts.Options = {
     chart: {
+      type: 'areaspline',
       backgroundColor: 'transparent',
-      style: { fontFamily: 'monospace' },
-      animation: { duration: 1500 }
+      height: 280,
     },
     title: { text: '' },
+    credits: { enabled: false },
+    legend: { enabled: false },
     xAxis: {
+      type: 'datetime',
       gridLineColor: '#333',
-      labels: { style: { color: '#666' } }
+      lineColor: '#666',
+      tickColor: '#666',
+      labels: {
+        style: {
+          color: '#999',
+          fontFamily: 'Hind, sans-serif',
+          fontWeight: '300',
+          fontSize: '11px',
+        },
+      },
     },
     yAxis: {
-      gridLineColor: '#333',
-      labels: { style: { color: '#666' } },
-      title: { text: '' }
+      title: { text: '' },
+      gridLineColor: '#222',
+      labels: {
+        style: {
+          color: '#999',
+          fontFamily: 'Hind, sans-serif',
+          fontWeight: '300',
+          fontSize: '11px',
+        },
+        formatter: function() {
+          return '$' + (this.value as number).toLocaleString();
+        },
+      },
+    },
+    plotOptions: {
+      areaspline: {
+        fillOpacity: 0.2,
+        lineWidth: 2,
+        marker: {
+          enabled: false,
+          states: {
+            hover: { enabled: true, radius: 4 },
+          },
+        },
+      },
     },
     series: [{
       type: 'areaspline',
       name: 'Portfolio Value',
-      data: Array.from({ length: 30 }, (_, i) => [
-        Date.now() - (29 - i) * 24 * 60 * 60 * 1000,
-        120000 + Math.random() * 10000 - 5000
-      ]),
-      color: portfolioData?.dayChange && portfolioData.dayChange < 0 ? '#DC2626' : '#10B981',
-      fillOpacity: 0.3
+      data: Array.from({ length: 30 }, (_, i) => {
+        const date = Date.now() - (29 - i) * 24 * 60 * 60 * 1000;
+        const value = (summary?.totalValue || 100000) * (0.95 + Math.random() * 0.1);
+        return [date, value];
+      }),
+      color: summary?.dayChange && summary.dayChange >= 0 ? '#22c55e' : '#ef4444',
     }],
+    tooltip: {
+      backgroundColor: '#000',
+      borderColor: '#333',
+      style: {
+        color: '#fff',
+        fontFamily: 'Hind, sans-serif',
+        fontWeight: '300',
+      },
+      formatter: function() {
+        return '<b>$' + (this.y as number).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</b>';
+      },
+    },
+  };
+
+  const allocationChartOptions: Highcharts.Options = {
+    chart: {
+      type: 'pie',
+      backgroundColor: 'transparent',
+      height: 280,
+    },
+    title: { text: '' },
     credits: { enabled: false },
-    legend: { enabled: false }
+    plotOptions: {
+      pie: {
+        innerSize: '60%',
+        dataLabels: {
+          enabled: true,
+          format: '{point.name}: {point.percentage:.1f}%',
+          style: {
+            color: '#999',
+            fontFamily: 'Hind, sans-serif',
+            fontWeight: '300',
+            fontSize: '11px',
+            textOutline: 'none',
+          },
+        },
+      },
+    },
+    series: [{
+      type: 'pie',
+      name: 'Allocation',
+      data: positions?.slice(0, 5).map((p, i) => ({
+        name: p.symbol,
+        y: p.totalValue,
+        color: ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'][i],
+      })) || [],
+    }],
+    tooltip: {
+      backgroundColor: '#000',
+      borderColor: '#333',
+      style: {
+        color: '#fff',
+        fontFamily: 'Hind, sans-serif',
+        fontWeight: '300',
+      },
+      formatter: function() {
+        return '<b>' + this.point.name + '</b>: $' + (this.y as number).toLocaleString();
+      },
+    },
   };
-
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await refetch();
-    setTimeout(() => setRefreshing(false), 1000);
-  };
-
-  // CSS for effects
-  useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes rain {
-        0% { background-position: 0 0; }
-        100% { background-position: 0 100px; }
-      }
-      
-      .rain-effect {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-image: linear-gradient(transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
-        background-size: 2px 100px;
-        animation: rain 0.5s linear infinite;
-      }
-      
-      @keyframes ken-burns-zoomIn {
-        0% { transform: scale(1); }
-        100% { transform: scale(1.1); }
-      }
-      
-      @keyframes ken-burns-panLeft {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(-5%); }
-      }
-      
-      .ken-burns-zoomIn {
-        animation: ken-burns-zoomIn 10s ease-in-out infinite alternate;
-      }
-      
-      .ken-burns-panLeft {
-        animation: ken-burns-panLeft 10s ease-in-out infinite alternate;
-      }
-
-      @keyframes ticker {
-        0% { transform: translateX(100%); }
-        100% { transform: translateX(-100%); }
-      }
-    `;
-    document.head.appendChild(style);
-    return () => document.head.removeChild(style);
-  }, []);
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-black">
-        <div className="text-white font-mono text-xl animate-pulse">
-          LOADING PORTFOLIO DATA...
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="h-8 w-8 border-2 border-primary rounded-full animate-spin border-t-transparent mx-auto mb-4"></div>
+          <p className="text-muted-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+            Loading portfolio...
+          </p>
         </div>
       </div>
     );
   }
 
-  const isLosing = portfolioData?.dayChange && portfolioData.dayChange < 0;
-  const soundEffect = isLosing ? 'CRASH!' : portfolioData?.dayChange && portfolioData.dayChange > 1000 ? 'BOOM!' : null;
+  const hasPositions = positions && positions.length > 0;
+  const sortedPositions = positions?.sort((a, b) => b.totalValue - a.totalValue) || [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-6">
-      {/* Header with refresh */}
-      <div className="flex justify-between items-center mb-6">
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-black text-white uppercase tracking-wider"
-            style={{ textShadow: '3px 3px 0 #000' }}>
-            Portfolio Command Center
+          <h1 
+            className="text-2xl font-bold text-foreground"
+            style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+          >
+            Portfolio Command
           </h1>
-          <p className="text-gray-400 text-sm italic mt-1">
-            {performanceNarrative}
+          <p 
+            className="text-sm text-muted-foreground mt-1"
+            style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+          >
+            Real-time position monitoring and analytics
           </p>
         </div>
         <Button
+          variant="outline"
+          size="sm"
           onClick={handleRefresh}
           disabled={refreshing}
-          variant="outline"
-          className="border-2 border-white text-white hover:bg-white hover:text-black"
           data-testid="button-refresh-portfolio"
         >
           <RefreshCw className={cn("h-4 w-4 mr-2", refreshing && "animate-spin")} />
-          {refreshing ? 'UPDATING...' : 'REFRESH'}
+          <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>Refresh</span>
         </Button>
       </div>
 
-      {/* Comic panel grid layout - Kirby-inspired irregular panels */}
-      <div 
-        className="grid gap-4"
-        style={{
-          gridTemplateColumns: 'repeat(12, 1fr)',
-          gridTemplateRows: 'repeat(8, minmax(80px, 1fr))',
-          gridTemplateAreas: `
-            "hero hero hero hero hero hero stats stats stats house house house"
-            "hero hero hero hero hero hero stats stats stats house house house"
-            "hero hero hero hero hero hero profit profit profit house house house"
-            "chart chart chart chart chart chart chart chart holdings holdings holdings holdings"
-            "chart chart chart chart chart chart chart chart holdings holdings holdings holdings"
-            "chart chart chart chart chart chart chart chart holdings holdings holdings holdings"
-            "trades trades trades trades trades trades trades trades risk risk risk risk"
-            "trades trades trades trades trades trades trades trades risk risk risk risk"
-          `,
-          minHeight: '80vh'
-        }}
-      >
-        {/* Hero Panel - Total Portfolio Value */}
-        <NoirComicPanel
-          id="total-value"
-          gridArea="hero"
-          caption="TOTAL PORTFOLIO VALUE"
-          soundEffect={soundEffect}
-          delay={0}
-          isLosing={isLosing}
-          className="min-h-[200px]"
-        >
-          <div className="flex flex-col justify-center h-full">
-            <PortfolioMetric
-              label="Current Value"
-              value={`$${portfolioData?.totalValue.toLocaleString()}`}
-              change={`${isLosing ? '▼' : '▲'} $${Math.abs(portfolioData?.dayChange || 0).toLocaleString()} (${portfolioData?.dayChangePercent}%)`}
-              icon={DollarSign}
-              narrative={performanceNarrative}
-              isNegative={isLosing}
-            />
-          </div>
-        </NoirComicPanel>
-
-        {/* Stats Panel */}
-        <NoirComicPanel
-          id="stats"
-          gridArea="stats"
-          title="PORTFOLIO STATS"
-          delay={1}
-        >
-          <div className="space-y-3">
-            <div>
-              <div className="text-xs text-gray-500">HOLDINGS</div>
-              <div className="text-2xl font-mono font-bold text-white">
-                {portfolioData?.holdingCount}
-              </div>
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card data-testid="card-total-value">
+          <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
+            <CardTitle 
+              className="text-sm font-medium"
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+            >
+              Total Value
+            </CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div 
+              className="text-2xl font-bold"
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+              data-testid="text-total-value"
+            >
+              ${summary?.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
-            <div>
-              <div className="text-xs text-gray-500">ALL-TIME P/L</div>
-              <div className={cn(
-                "text-xl font-mono font-bold",
-                portfolioData?.allTimePL && portfolioData.allTimePL > 0 ? "text-green-500" : "text-red-500"
-              )}>
-                ${portfolioData?.allTimePL.toLocaleString()}
-                <span className="text-xs ml-1">({portfolioData?.allTimePLPercent}%)</span>
-              </div>
-            </div>
-          </div>
-        </NoirComicPanel>
+            {summary && (
+              <p 
+                className={cn(
+                  "text-xs mt-1",
+                  summary.dayChange >= 0 ? "text-green-500" : "text-red-500"
+                )}
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+              >
+                {summary.dayChange >= 0 ? "+" : ""}
+                ${summary.dayChange.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {" "}({summary.dayChangePercent >= 0 ? "+" : ""}{summary.dayChangePercent.toFixed(2)}%)
+              </p>
+            )}
+          </CardContent>
+        </Card>
 
-        {/* Profit/Loss Panel */}
-        <NoirComicPanel
-          id="profit-loss"
-          gridArea="profit"
-          title="TODAY'S VERDICT"
-          delay={2}
-          isLosing={isLosing}
-        >
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <div className={cn(
-                "text-3xl font-black mb-2",
-                isLosing ? "text-red-500" : "text-green-500"
+        <Card data-testid="card-total-pl">
+          <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
+            <CardTitle 
+              className="text-sm font-medium"
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+            >
+              Total P/L
+            </CardTitle>
+            {summary && summary.totalPL >= 0 ? (
+              <TrendingUp className="h-4 w-4 text-green-500" />
+            ) : (
+              <TrendingDown className="h-4 w-4 text-red-500" />
+            )}
+          </CardHeader>
+          <CardContent>
+            <div 
+              className={cn(
+                "text-2xl font-bold",
+                summary && summary.totalPL >= 0 ? "text-green-500" : "text-red-500"
               )}
-                style={{
-                  textShadow: isLosing ? '0 0 20px rgba(239,68,68,0.8)' : '0 0 20px rgba(34,197,94,0.8)'
-                }}
-              >
-                {isLosing ? '▼' : '▲'} {Math.abs(portfolioData?.dayChangePercent || 0)}%
-              </div>
-              <div className="text-xs text-gray-400 uppercase">
-                {isLosing ? 'Losing Battle' : 'Winning Streak'}
-              </div>
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+              data-testid="text-total-pl"
+            >
+              {summary && summary.totalPL >= 0 ? "+" : ""}
+              ${summary?.totalPL.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
-          </div>
-        </NoirComicPanel>
+            {summary && (
+              <p 
+                className={cn(
+                  "text-xs mt-1",
+                  summary.totalPL >= 0 ? "text-green-500" : "text-red-500"
+                )}
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+              >
+                {summary.totalPLPercent >= 0 ? "+" : ""}{summary.totalPLPercent.toFixed(2)}% All-Time
+              </p>
+            )}
+          </CardContent>
+        </Card>
 
-        {/* House Allegiance Panel */}
-        <NoirComicPanel
-          id="house"
-          gridArea="house"
-          title="HOUSE DOMINANCE"
-          delay={3}
-        >
-          {dominantHouseData && (
-            <div className="flex flex-col items-center justify-center h-full">
-              <dominantHouseData.icon 
-                className="h-16 w-16 mb-3"
-                style={{ color: dominantHouseData.color }}
-              />
-              <div className="text-center">
-                <div className="text-white font-bold text-lg">
-                  {dominantHouseData.name}
+        <Card data-testid="card-positions">
+          <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
+            <CardTitle 
+              className="text-sm font-medium"
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+            >
+              Positions
+            </CardTitle>
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div 
+              className="text-2xl font-bold"
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+              data-testid="text-position-count"
+            >
+              {summary?.positionCount || 0}
+            </div>
+            <p 
+              className="text-xs text-muted-foreground mt-1"
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+            >
+              Active holdings
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card data-testid="card-cash">
+          <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
+            <CardTitle 
+              className="text-sm font-medium"
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+            >
+              Buying Power
+            </CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div 
+              className="text-2xl font-bold"
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+              data-testid="text-cash"
+            >
+              ${summary?.cash.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </div>
+            <p 
+              className="text-xs text-muted-foreground mt-1"
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+            >
+              Available cash
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card data-testid="card-performance-chart">
+          <CardHeader>
+            <CardTitle 
+              className="text-base"
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+            >
+              Portfolio Performance (30D)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <HighchartsReact highcharts={Highcharts} options={performanceChartOptions} />
+          </CardContent>
+        </Card>
+
+        <Card data-testid="card-allocation-chart">
+          <CardHeader>
+            <CardTitle 
+              className="text-base"
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+            >
+              Position Allocation
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {hasPositions ? (
+              <HighchartsReact highcharts={Highcharts} options={allocationChartOptions} />
+            ) : (
+              <div className="flex items-center justify-center h-[280px] text-muted-foreground">
+                <div className="text-center">
+                  <PieChart className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                  <p style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>No positions yet</p>
                 </div>
-                <Badge 
-                  className="mt-2"
-                  style={{ 
-                    backgroundColor: dominantHouseData.color,
-                    color: 'white'
-                  }}
-                >
-                  PRIMARY ALLEGIANCE
-                </Badge>
               </div>
-            </div>
-          )}
-        </NoirComicPanel>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Performance Chart Panel */}
-        <NoirComicPanel
-          id="chart"
-          gridArea="chart"
-          title="MARKET PERFORMANCE"
-          delay={4}
-          kenBurnsType="panLeft"
-        >
-          <div className="h-full">
-            <HighchartsReact
-              highcharts={Highcharts}
-              options={chartOptions}
-              containerProps={{ style: { height: '100%', width: '100%' } }}
-            />
-          </div>
-        </NoirComicPanel>
-
-        {/* Holdings Strips */}
-        <NoirComicPanel
-          id="holdings"
-          gridArea="holdings"
-          title="TOP HOLDINGS"
-          delay={5}
-        >
-          <ScrollArea className="h-full">
-            <div className="space-y-2">
-              {portfolioData?.holdings.map((holding, index) => (
-                <HoldingStrip
-                  key={holding.id}
-                  holding={holding}
-                  onClick={() => setSelectedHolding(holding.id)}
-                />
-              ))}
-            </div>
-          </ScrollArea>
-        </NoirComicPanel>
-
-        {/* Recent Trades Ticker */}
-        <NoirComicPanel
-          id="trades"
-          gridArea="trades"
-          title="RECENT ACTIVITY"
-          delay={6}
-        >
-          <div className="relative h-full overflow-hidden">
-            <div className="absolute inset-0 flex items-center">
-              <div 
-                className="flex gap-8 animate-marquee whitespace-nowrap"
-                style={{
-                  animation: 'ticker 20s linear infinite'
-                }}
+      {/* Positions Table */}
+      <Card data-testid="card-positions-table">
+        <CardHeader className="flex flex-row items-center justify-between gap-2">
+          <CardTitle 
+            className="text-base"
+            style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+          >
+            Current Positions
+          </CardTitle>
+          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'list' | 'grid')}>
+            <TabsList>
+              <TabsTrigger value="list" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                List
+              </TabsTrigger>
+              <TabsTrigger value="grid" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                Grid
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </CardHeader>
+        <CardContent>
+          {!hasPositions ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
+              <h3 
+                className="text-lg font-semibold mb-2"
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
               >
-                {portfolioData?.recentTrades.concat(portfolioData?.recentTrades).map((trade, i) => (
-                  <div key={`${trade.id}-${i}`} className="inline-flex items-center gap-2">
-                    <Badge variant={trade.action === 'BUY' ? 'default' : 'destructive'}>
-                      {trade.action}
-                    </Badge>
-                    <span className="text-white font-mono">{trade.asset}</span>
-                    <span className="text-gray-400">${trade.price}</span>
-                    <span className="text-xs text-gray-500">• {trade.time}</span>
+                No Positions Yet
+              </h3>
+              <p 
+                className="text-sm text-muted-foreground mb-4"
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+              >
+                Start trading to build your portfolio
+              </p>
+              <Link href="/trading">
+                <Button data-testid="button-start-trading">
+                  <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>Start Trading</span>
+                </Button>
+              </Link>
+            </div>
+          ) : viewMode === 'list' ? (
+            <ScrollArea className="h-[500px]">
+              <div className="space-y-2">
+                {sortedPositions.map((position) => (
+                  <div
+                    key={position.id}
+                    className="flex items-center justify-between p-4 border rounded-lg hover-elevate"
+                    data-testid={`position-row-${position.symbol}`}
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3">
+                        <div>
+                          <Link href={`/asset/${position.symbol}`}>
+                            <a className="font-medium hover:underline" data-testid={`link-asset-${position.symbol}`}>
+                              <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                                {position.symbol}
+                              </span>
+                            </a>
+                          </Link>
+                          <p 
+                            className="text-sm text-muted-foreground"
+                            style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                          >
+                            {position.assetName}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-8">
+                      <div className="text-right">
+                        <p 
+                          className="text-sm text-muted-foreground"
+                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                        >
+                          Quantity
+                        </p>
+                        <p 
+                          className="font-medium"
+                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                        >
+                          {position.quantity.toLocaleString()}
+                        </p>
+                      </div>
+
+                      <div className="text-right">
+                        <p 
+                          className="text-sm text-muted-foreground"
+                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                        >
+                          Avg Price
+                        </p>
+                        <p 
+                          className="font-medium"
+                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                        >
+                          ${position.averagePrice.toFixed(2)}
+                        </p>
+                      </div>
+
+                      <div className="text-right">
+                        <p 
+                          className="text-sm text-muted-foreground"
+                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                        >
+                          Current Price
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <p 
+                            className="font-medium"
+                            style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                          >
+                            ${position.currentPrice.toFixed(2)}
+                          </p>
+                          <Badge
+                            variant={position.dayChange >= 0 ? "default" : "destructive"}
+                            className="text-xs"
+                          >
+                            <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                              {position.dayChange >= 0 ? "+" : ""}
+                              {position.dayChangePercent.toFixed(2)}%
+                            </span>
+                          </Badge>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <p 
+                          className="text-sm text-muted-foreground"
+                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                        >
+                          Market Value
+                        </p>
+                        <p 
+                          className="font-medium"
+                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                        >
+                          ${position.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </p>
+                      </div>
+
+                      <div className="text-right min-w-[120px]">
+                        <p 
+                          className="text-sm text-muted-foreground"
+                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                        >
+                          Unrealized P/L
+                        </p>
+                        <p 
+                          className={cn(
+                            "font-medium",
+                            position.unrealizedPL >= 0 ? "text-green-500" : "text-red-500"
+                          )}
+                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                          data-testid={`text-pl-${position.symbol}`}
+                        >
+                          {position.unrealizedPL >= 0 ? "+" : ""}
+                          ${position.unrealizedPL.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          <span className="text-xs ml-1">
+                            ({position.unrealizedPLPercent >= 0 ? "+" : ""}
+                            {position.unrealizedPLPercent.toFixed(2)}%)
+                          </span>
+                        </p>
+                      </div>
+
+                      <Link href={`/asset/${position.symbol}`}>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          data-testid={`button-view-${position.symbol}`}
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 ))}
               </div>
+            </ScrollArea>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {sortedPositions.map((position) => (
+                <Card key={position.id} className="hover-elevate" data-testid={`position-card-${position.symbol}`}>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <CardTitle 
+                          className="text-base"
+                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                        >
+                          {position.symbol}
+                        </CardTitle>
+                        <p 
+                          className="text-xs text-muted-foreground mt-1"
+                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                        >
+                          {position.assetName}
+                        </p>
+                      </div>
+                      <Badge
+                        variant={position.unrealizedPL >= 0 ? "default" : "destructive"}
+                        className="text-xs"
+                      >
+                        <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                          {position.unrealizedPL >= 0 ? "+" : ""}
+                          {position.unrealizedPLPercent.toFixed(2)}%
+                        </span>
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span 
+                        className="text-muted-foreground"
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      >
+                        Quantity:
+                      </span>
+                      <span 
+                        className="font-medium"
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      >
+                        {position.quantity.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span 
+                        className="text-muted-foreground"
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      >
+                        Avg Price:
+                      </span>
+                      <span 
+                        className="font-medium"
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      >
+                        ${position.averagePrice.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span 
+                        className="text-muted-foreground"
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      >
+                        Current:
+                      </span>
+                      <span 
+                        className="font-medium"
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      >
+                        ${position.currentPrice.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm pt-2 border-t">
+                      <span 
+                        className="text-muted-foreground"
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      >
+                        Market Value:
+                      </span>
+                      <span 
+                        className="font-medium"
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      >
+                        ${position.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span 
+                        className="text-muted-foreground"
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      >
+                        Unrealized P/L:
+                      </span>
+                      <span 
+                        className={cn(
+                          "font-medium",
+                          position.unrealizedPL >= 0 ? "text-green-500" : "text-red-500"
+                        )}
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                      >
+                        {position.unrealizedPL >= 0 ? "+" : ""}
+                        ${position.unrealizedPL.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                    <Link href={`/asset/${position.symbol}`}>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full mt-2"
+                        data-testid={`button-view-grid-${position.symbol}`}
+                      >
+                        <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>View Details</span>
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
-          </div>
-        </NoirComicPanel>
-
-        {/* Risk Level Panel */}
-        <NoirComicPanel
-          id="risk"
-          gridArea="risk"
-          title="THREAT ASSESSMENT"
-          delay={7}
-        >
-          <div className="flex flex-col justify-center h-full">
-            <div className="text-center">
-              <div className="flex justify-center mb-3">
-                {[1, 2, 3, 4, 5].map((level) => (
-                  <div
-                    key={level}
-                    className={cn(
-                      "w-8 h-8 mx-1 border-2",
-                      level <= (portfolioData?.riskLevel || 3) 
-                        ? "bg-red-500 border-red-500" 
-                        : "bg-transparent border-gray-600"
-                    )}
-                    style={{
-                      clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)'
-                    }}
-                  />
-                ))}
-              </div>
-              <div className="text-xs text-gray-400 uppercase">
-                {getRiskNarrative(portfolioData?.riskLevel || 3)}
-              </div>
-              {portfolioData?.riskLevel && portfolioData.riskLevel >= 4 && (
-                <AlertTriangle className="h-6 w-6 text-red-500 mx-auto mt-2 animate-pulse" />
-              )}
-            </div>
-          </div>
-        </NoirComicPanel>
-      </div>
-
-      {/* Selected holding modal */}
-      <AnimatePresence>
-        {selectedHolding && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-6"
-            onClick={() => setSelectedHolding(null)}
-            data-testid="holding-detail-modal"
-          >
-            <motion.div
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.8 }}
-              className="bg-black border-4 border-white p-6 max-w-lg"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h2 className="text-2xl font-bold text-white mb-4">ASSET INTELLIGENCE</h2>
-              <p className="text-gray-400">
-                Detailed view for holding #{selectedHolding}
-              </p>
-              <Button 
-                className="mt-4"
-                onClick={() => setSelectedHolding(null)}
-              >
-                CLOSE DOSSIER
-              </Button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
