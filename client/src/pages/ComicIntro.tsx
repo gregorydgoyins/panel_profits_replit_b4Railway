@@ -111,7 +111,7 @@ export default function ComicIntro() {
               {/* Title */}
               <h1 
                 className="text-5xl md:text-6xl font-bold text-white text-center mb-8 tracking-tight"
-                style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                 data-testid="text-panel-title"
               >
                 {panel.title}

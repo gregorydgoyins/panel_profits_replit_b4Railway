@@ -103,7 +103,7 @@ export default function AssetDetailPage() {
             <div className="space-y-3">
               <div>
                 <p className="text-xs text-gray-500 mb-1">Symbol</p>
-                <p className="text-2xl font-bold text-white" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                <p className="text-2xl font-bold text-white" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
                   {asset.symbol}
                 </p>
               </div>

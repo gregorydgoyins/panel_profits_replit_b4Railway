@@ -99,7 +99,7 @@ export default function DashboardPage() {
           <CardHeader className="pb-2">
             <CardTitle 
               className="text-sm font-medium text-gray-400"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             >
               Portfolio Value
             </CardTitle>
@@ -108,7 +108,7 @@ export default function DashboardPage() {
             <div className="flex items-baseline gap-2">
               <span 
                 className="text-3xl font-bold text-white"
-                style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                 data-testid="text-portfolio-value"
               >
                 ${portfolioValue.toLocaleString()}
@@ -126,7 +126,7 @@ export default function DashboardPage() {
           <CardHeader className="pb-2">
             <CardTitle 
               className="text-sm font-medium text-gray-400"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             >
               Available Cash
             </CardTitle>
@@ -136,7 +136,7 @@ export default function DashboardPage() {
               <Wallet className="w-5 h-5 text-gray-400" />
               <span 
                 className="text-3xl font-bold text-white"
-                style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                 data-testid="text-cash-balance"
               >
                 ${cashBalance.toLocaleString()}
@@ -150,7 +150,7 @@ export default function DashboardPage() {
           <CardHeader className="pb-2">
             <CardTitle 
               className="text-sm font-medium text-gray-400"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             >
               Market Assets
             </CardTitle>
@@ -160,7 +160,7 @@ export default function DashboardPage() {
               <Eye className="w-5 h-5 text-gray-400" />
               <span 
                 className="text-3xl font-bold text-white"
-                style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                 data-testid="text-total-assets"
               >
                 {(marketData?.totalAssets || 0).toLocaleString()}
@@ -181,7 +181,7 @@ export default function DashboardPage() {
         <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Featured Comics</CardTitle>
+              <CardTitle style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>Featured Comics</CardTitle>
               <Button variant="ghost" size="sm" asChild>
                 <Link href="/trading">View All</Link>
               </Button>
@@ -207,14 +207,14 @@ export default function DashboardPage() {
                   <div>
                     <p 
                       className="text-xs font-medium text-white truncate"
-                      style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                     >
                       {cover.title}
                     </p>
                     <div className="flex items-center justify-between">
                       <span 
                         className="text-sm font-bold text-white"
-                        style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                       >
                         ${cover.price}
                       </span>
@@ -237,7 +237,7 @@ export default function DashboardPage() {
           <CardHeader className="pb-3">
             <CardTitle 
               className="text-lg flex items-center gap-2"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             >
               <TrendingUp className="w-5 h-5 text-green-500" />
               Top Gainers
@@ -268,7 +268,7 @@ export default function DashboardPage() {
                     <div>
                       <p 
                         className="text-sm font-medium text-white"
-                        style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                       >
                         {asset.symbol}
                       </p>
@@ -283,7 +283,7 @@ export default function DashboardPage() {
                   <div className="text-right">
                     <p 
                       className="text-sm font-medium text-white"
-                      style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                     >
                       ${asset.currentPrice?.toFixed(2) ?? '0.00'}
                     </p>
@@ -304,7 +304,7 @@ export default function DashboardPage() {
           <CardHeader className="pb-3">
             <CardTitle 
               className="text-lg flex items-center gap-2"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             >
               <TrendingDown className="w-5 h-5 text-red-500" />
               Top Losers
@@ -335,7 +335,7 @@ export default function DashboardPage() {
                     <div>
                       <p 
                         className="text-sm font-medium text-white"
-                        style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                       >
                         {asset.symbol}
                       </p>
@@ -350,7 +350,7 @@ export default function DashboardPage() {
                   <div className="text-right">
                     <p 
                       className="text-sm font-medium text-white"
-                      style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                     >
                       ${asset.currentPrice?.toFixed(2) ?? '0.00'}
                     </p>
@@ -372,7 +372,7 @@ export default function DashboardPage() {
         <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Trending Comics</CardTitle>
+              <CardTitle style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>Trending Comics</CardTitle>
               <Button variant="outline" size="sm" asChild>
                 <Link href="/trading">
                   <Plus className="w-4 h-4 mr-2" />
@@ -404,14 +404,14 @@ export default function DashboardPage() {
                   </div>
                   <p 
                     className="text-sm font-medium text-white truncate mb-1"
-                    style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                    style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                   >
                     {asset.symbol}
                   </p>
                   <div className="flex items-center justify-between">
                     <span 
                       className="text-sm font-bold text-white"
-                      style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                     >
                       ${asset.currentPrice?.toFixed(2) ?? '0.00'}
                     </span>

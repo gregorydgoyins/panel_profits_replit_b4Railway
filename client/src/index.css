@@ -1,6 +1,5 @@
 /* INSTITUTIONAL TRADING PLATFORM DESIGN SYSTEM - RESTRAINED & PROFESSIONAL */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Hind:wght@300;400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hind:wght@300&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -65,13 +64,8 @@
   --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.5);
   
   /* Typography */
-  --font-header: 'Space Grotesk', sans-serif;
-  --font-body: 'Hind', sans-serif;
-  --font-weight-light: 300;
-  --font-weight-regular: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
+  --font-primary: 'Hind', sans-serif;
+  --font-weight-primary: 300;
   
   /* Minimal border radius - subtle softening only */
   --radius: 2px;

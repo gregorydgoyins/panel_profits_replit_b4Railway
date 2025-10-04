@@ -72,8 +72,8 @@ export function StickyHeader() {
       <div className="h-10 px-6 flex items-center justify-between border-b border-gray-900">
         <div className="flex items-center gap-3">
           <span 
-            className="text-white font-semibold"
-            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+            className="text-white font-normal"
+            style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             data-testid="text-welcome-message"
           >
             Welcome back, {displayName}
@@ -168,7 +168,7 @@ export function StickyHeader() {
             <div className="animate-marquee whitespace-nowrap">
               <span 
                 className="text-sm inline-flex items-center gap-6"
-                style={{ fontFamily: 'Space Grotesk, sans-serif', fontWeight: 500 }}
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                 data-testid="text-stock-ticker"
               >
                 {tickerAssets.map((asset, idx) => (

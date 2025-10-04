@@ -11,7 +11,7 @@ export function Footer() {
           <div>
             <h3 
               className="text-sm font-bold text-white mb-3"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             >
               Panel Profits
             </h3>
@@ -27,7 +27,7 @@ export function Footer() {
           <div>
             <h3 
               className="text-sm font-bold text-white mb-3"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             >
               Platform
             </h3>
@@ -79,7 +79,7 @@ export function Footer() {
           <div>
             <h3 
               className="text-sm font-bold text-white mb-3"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             >
               Resources
             </h3>
@@ -131,7 +131,7 @@ export function Footer() {
           <div>
             <h3 
               className="text-sm font-bold text-white mb-3"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             >
               Legal
             </h3>

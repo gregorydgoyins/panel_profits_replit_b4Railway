@@ -63,8 +63,8 @@ export function TopNavbar() {
       <div className="flex items-center gap-8">
         <Link href="/dashboard">
           <a 
-            className="text-xl font-bold text-white hover:text-gray-300 transition-colors"
-            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+            className="text-base font-normal text-white hover:text-gray-300 transition-colors whitespace-nowrap"
+            style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             data-testid="link-logo"
           >
             PANEL PROFITS
@@ -89,8 +89,8 @@ export function TopNavbar() {
                   <a>
                     <Icon className="w-4 h-4" />
                     <span 
-                      className="font-medium"
-                      style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                      className="font-normal"
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                     >
                       {item.label}
                     </span>

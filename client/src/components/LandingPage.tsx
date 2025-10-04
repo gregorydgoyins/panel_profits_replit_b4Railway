@@ -111,7 +111,7 @@ export function LandingPage() {
           <div className="text-center mb-12">
             <h1 
               className="text-5xl font-header font-bold tracking-tight mb-4 text-white drop-shadow-2xl"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
               data-testid="text-app-title"
             >
               PANEL PROFITS
@@ -130,7 +130,7 @@ export function LandingPage() {
             <Link href="/intro">
               <Button 
                 className="w-full h-12 text-base tracking-wider uppercase bg-white text-black hover:bg-gray-100 font-bold"
-                style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                 variant="default"
                 size="lg"
                 data-testid="button-begin-test"
@@ -158,7 +158,7 @@ export function LandingPage() {
             <a href="/api/auth/closers">
               <Button 
                 className="w-full h-12 text-base tracking-wider uppercase border-white/50 text-white hover:bg-white hover:text-black backdrop-blur-sm font-bold"
-                style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                 variant="outline"
                 size="lg"
                 data-testid="button-member-login"

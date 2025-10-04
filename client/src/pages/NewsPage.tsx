@@ -121,7 +121,7 @@ The convention also saw unprecedented participation from institutional investors
         <div className="mb-8">
           <h1 
             className="text-4xl font-bold text-white mb-2"
-            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+            style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
           >
             Comic Market News
           </h1>
@@ -218,7 +218,7 @@ The convention also saw unprecedented participation from institutional investors
           <Badge variant="secondary" className="mb-4">{article.category}</Badge>
           <h1 
             className="text-4xl font-bold text-white mb-4"
-            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+            style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             data-testid="text-article-title"
           >
             {article.title}

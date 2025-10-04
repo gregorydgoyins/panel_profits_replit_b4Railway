@@ -152,7 +152,7 @@ export default function LearnPage() {
           <GraduationCap className="w-10 h-10 text-primary" />
           <h1 
             className="text-4xl font-bold text-white"
-            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+            style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
           >
             Learning Center
           </h1>
