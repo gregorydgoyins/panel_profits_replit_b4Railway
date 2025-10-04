@@ -64,14 +64,19 @@ export default function DashboardPage() {
 
   const featuredCovers = featuredCoversRaw?.data || featuredCoversRaw;
 
-  const topAssets = featuredCovers?.slice(0, 8).map((cover: any) => ({
-    id: cover.id,
-    symbol: cover.title?.split(' ')[0]?.toUpperCase().substring(0, 6) || 'COMIC',
-    name: cover.title,
-    coverUrl: cover.coverUrl || cover.featuredImageUrl,
-    currentPrice: cover.price || Math.random() * 100 + 10,
-    changePercent: cover.change || (Math.random() * 10 - 5),
-    change: cover.change || (Math.random() * 10 - 5)
+  const { data: randomComicsData } = useQuery<any>({
+    queryKey: ['/api/comic-covers/random?limit=8'],
+    refetchInterval: 60000
+  });
+
+  const topAssets = randomComicsData?.data?.map((comic: any) => ({
+    id: comic.id || Math.random().toString(),
+    symbol: comic.title?.split(' ')[0]?.toUpperCase().substring(0, 6) || 'COMIC',
+    name: comic.title,
+    coverUrl: comic.coverUrl,
+    currentPrice: comic.estimatedValue || Math.random() * 100 + 10,
+    changePercent: Math.random() * 10 - 5,
+    change: Math.random() * 10 - 5
   })) || [];
 
   const { data: portfolio } = useQuery<any>({

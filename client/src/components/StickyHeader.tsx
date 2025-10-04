@@ -1,8 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { TrendingUp, TrendingDown, LogOut } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
+import { Button } from '@/components/ui/button';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 
 interface MarketStatus {
   status: 'open' | 'closed' | 'pre-market' | 'after-hours';
@@ -37,6 +39,15 @@ export function StickyHeader() {
   const { data: tickerAssets } = useQuery<AssetPrice[]>({
     queryKey: ['/api/market/ticker'],
     refetchInterval: 5000, // Refresh every 5 seconds
+  });
+
+  // Logout mutation
+  const logoutMutation = useMutation({
+    mutationFn: () => apiRequest('/api/auth/logout', 'POST'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+      window.location.href = '/';
+    }
   });
 
   const displayName = user?.firstName 
@@ -87,6 +98,16 @@ export function StickyHeader() {
               hour12: false 
             })}
           </span>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => logoutMutation.mutate()}
+            disabled={logoutMutation.isPending}
+            data-testid="button-logout"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Logout
+          </Button>
         </div>
       </div>
 
