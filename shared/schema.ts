@@ -848,6 +848,25 @@ export const comicCreators = pgTable("comic_creators", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Creator Affiliations - Track which publishers each creator worked with
+// Enables creator-per-publisher assets (LEE_STAN.MRVL, LEE_STAN.TIME, etc.)
+export const creatorAffiliations = pgTable("creator_affiliations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  creatorName: text("creator_name").notNull(), // Full name (e.g., "Stan Lee", "Jack Kirby")
+  publisherCode: text("publisher_code").notNull(), // Abbreviated code (MRVL, DC, TIME, etc.)
+  publisherFullName: text("publisher_full_name").notNull(), // Full publisher name
+  // Work statistics at this publisher
+  workCount: integer("work_count").default(0), // Number of works at this publisher
+  firstWork: text("first_work"), // First known work at publisher
+  lastWork: text("last_work"), // Last known work at publisher
+  yearsActive: text("years_active"), // "1961-1972"
+  notableWorks: text("notable_works").array(), // Key works at this publisher
+  // Metadata
+  sourceData: jsonb("source_data"), // Raw data from expansion services
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Featured Comics - Curated selections for homepage display
 export const featuredComics = pgTable("featured_comics", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
