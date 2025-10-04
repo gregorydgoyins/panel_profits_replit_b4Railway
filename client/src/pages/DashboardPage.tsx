@@ -100,11 +100,21 @@ export default function DashboardPage() {
       {/* Hero Section: Portfolio Stats Grid (3x2) */}
       <div className="grid grid-cols-3 gap-4">
         {/* Portfolio Value */}
-        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+        <Card 
+          className="border"
+          style={{ 
+            background: 'linear-gradient(to bottom right, hsl(270, 50%, 18%), hsl(270, 35%, 10%))',
+            borderColor: 'hsl(270, 60%, 35%)'
+          }}
+        >
           <CardHeader className="pb-2">
             <CardTitle 
-              className="text-sm font-medium text-gray-400"
-              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+              className="text-sm font-medium"
+              style={{ 
+                fontFamily: 'Hind, sans-serif', 
+                fontWeight: 300,
+                color: 'hsl(270, 40%, 75%)'
+              }}
             >
               Portfolio Value
             </CardTitle>
@@ -175,18 +185,28 @@ export default function DashboardPage() {
         </Card>
 
         {/* Portfolio Holdings */}
-        <Card className="bg-gradient-to-br from-gray-900 to-black border-gray-800">
+        <Card 
+          className="border"
+          style={{ 
+            background: 'linear-gradient(to bottom right, hsl(270, 50%, 18%), hsl(270, 35%, 10%))',
+            borderColor: 'hsl(270, 60%, 35%)'
+          }}
+        >
           <CardHeader className="pb-2">
             <CardTitle 
-              className="text-sm font-medium text-gray-400"
-              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+              className="text-sm font-medium"
+              style={{ 
+                fontFamily: 'Hind, sans-serif', 
+                fontWeight: 300,
+                color: 'hsl(270, 40%, 75%)'
+              }}
             >
               Portfolio Holdings
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-baseline gap-2">
-              <Star className="w-5 h-5 text-gray-400" />
+              <Star className="w-5 h-5" style={{ color: 'hsl(270, 40%, 65%)' }} />
               <span 
                 className="text-3xl font-bold text-white"
                 style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
@@ -194,7 +214,7 @@ export default function DashboardPage() {
               >
                 {portfolioHoldingsCount}
               </span>
-              <span className="text-sm text-gray-500">positions</span>
+              <span className="text-sm" style={{ color: 'hsl(270, 20%, 60%)' }}>positions</span>
             </div>
           </CardContent>
         </Card>
