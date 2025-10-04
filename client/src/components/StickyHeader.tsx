@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
-import { TrendingUp, TrendingDown, LogOut } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, LogOut } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
@@ -161,37 +161,43 @@ export function StickyHeader() {
                 data-testid="text-news-ticker"
               >
                 <Link href="/news/marvel-phase-6">
-                  <a className="underline hover:text-white transition-colors" data-testid="link-news-marvel-phase-6">
+                  <a className="inline-flex items-center gap-2 underline hover:text-white transition-colors" data-testid="link-news-marvel-phase-6">
+                    <TrendingUp className="w-3 h-3 text-green-500 flex-shrink-0" />
                     BREAKING: Marvel announces Phase 6 slate - collector interest surging
                   </a>
                 </Link>
                 <span>•</span>
                 <Link href="/news/superman-ath">
-                  <a className="underline hover:text-white transition-colors" data-testid="link-news-superman-ath">
+                  <a className="inline-flex items-center gap-2 underline hover:text-white transition-colors" data-testid="link-news-superman-ath">
+                    <TrendingUp className="w-3 h-3 text-green-500 flex-shrink-0" />
                     ALERT: Golden Age Superman #1 reaches new all-time high
                   </a>
                 </Link>
                 <span>•</span>
                 <Link href="/news/dc-restructuring">
-                  <a className="underline hover:text-white transition-colors" data-testid="link-news-dc-restructuring">
+                  <a className="inline-flex items-center gap-2 underline hover:text-white transition-colors" data-testid="link-news-dc-restructuring">
+                    <TrendingUp className="w-3 h-3 text-green-500 flex-shrink-0" />
                     UPDATE: DC Restructuring complete - institutional investors bullish
                   </a>
                 </Link>
                 <span>•</span>
                 <Link href="/news/amazing-fantasy-variant">
-                  <a className="underline hover:text-white transition-colors" data-testid="link-news-amazing-fantasy-variant">
+                  <a className="inline-flex items-center gap-2 underline hover:text-white transition-colors" data-testid="link-news-amazing-fantasy-variant">
+                    <Minus className="w-3 h-3 text-yellow-500 flex-shrink-0" />
                     EXCLUSIVE: Rare Amazing Fantasy #15 variant discovered - market impact expected
                   </a>
                 </Link>
                 <span>•</span>
                 <Link href="/news/alex-ross-auction">
-                  <a className="underline hover:text-white transition-colors" data-testid="link-news-alex-ross-auction">
+                  <a className="inline-flex items-center gap-2 underline hover:text-white transition-colors" data-testid="link-news-alex-ross-auction">
+                    <TrendingUp className="w-3 h-3 text-green-500 flex-shrink-0" />
                     RECORD: Alex Ross original art auction breaks records
                   </a>
                 </Link>
                 <span>•</span>
                 <Link href="/news/comic-con-attendance">
-                  <a className="underline hover:text-white transition-colors" data-testid="link-news-comic-con-attendance">
+                  <a className="inline-flex items-center gap-2 underline hover:text-white transition-colors" data-testid="link-news-comic-con-attendance">
+                    <TrendingUp className="w-3 h-3 text-green-500 flex-shrink-0" />
                     DATA: Comic-Con attendance up 300% - signaling strong market demand
                   </a>
                 </Link>
