@@ -237,7 +237,7 @@ export function WorldClocksWidget() {
   const bottomRowMarkets = markets.slice(4);
 
   return (
-    <Card className="!bg-[#E9B641]" data-testid="widget-world-clocks">
+    <Card className="!bg-[#1A1F2E]" data-testid="widget-world-clocks">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
           <Globe className="w-4 h-4" />
@@ -248,12 +248,12 @@ export function WorldClocksWidget() {
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="bg-[#FCF5E5] p-4 rounded-lg">
+        <div className="bg-[#252B3C] p-4 rounded-lg">
           <div className="grid grid-cols-4 gap-2">
             {topRowMarkets.map((market) => (
               <div
                 key={market.name}
-                className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border bg-[#E5ECFC] hover-elevate transition-all"
+                className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate transition-all"
                 onMouseEnter={(e) => {
                   const glowColor = market.status === 'open' 
                     ? 'rgba(34, 197, 94, 0.8)' 
@@ -289,12 +289,12 @@ export function WorldClocksWidget() {
           </div>
         </div>
 
-        <div className="bg-[#FCF5E5] p-4 rounded-lg">
+        <div className="bg-[#252B3C] p-4 rounded-lg">
           <div className="grid grid-cols-4 gap-2">
             {bottomRowMarkets.map((market) => (
               <div
                 key={market.name}
-                className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border bg-[#E5ECFC] hover-elevate transition-all"
+                className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate transition-all"
                 onMouseEnter={(e) => {
                   const glowColor = market.status === 'open' 
                     ? 'rgba(34, 197, 94, 0.8)' 
