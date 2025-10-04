@@ -9,6 +9,7 @@ import { HouseThemeProvider } from '@/contexts/HouseThemeContext';
 import { LandingPage } from '@/components/LandingPage';
 import { StickyHeader } from '@/components/StickyHeader';
 import { TopNavbar } from '@/components/TopNavbar';
+import { Footer } from '@/components/Footer';
 import { EntryTestGuard } from '@/components/EntryTestGuard';
 import KnowledgeTestGuard from '@/components/KnowledgeTestGuard';
 import NotFound from '@/pages/not-found';
@@ -49,6 +50,13 @@ import InvestmentClubDetailPage from '@/pages/InvestmentClubDetailPage';
 // Advanced Analytics
 import AdvancedAnalytics from '@/pages/AdvancedAnalytics';
 
+// News & Learning
+import NewsPage from '@/pages/NewsPage';
+import LearnPage from '@/pages/LearnPage';
+
+// Asset Details
+import AssetDetailPage from '@/pages/AssetDetailPage';
+
 function Router() {
   const { isAuthenticated } = useAuth();
 
@@ -81,6 +89,9 @@ function Router() {
       <Route path="/investment-clubs" component={InvestmentClubsPage} />
       <Route path="/investment-clubs/:id" component={InvestmentClubDetailPage} />
       <Route path="/analytics" component={AdvancedAnalytics} />
+      <Route path="/news/:id?" component={NewsPage} />
+      <Route path="/learn/:id?" component={LearnPage} />
+      <Route path="/asset/:symbol" component={AssetDetailPage} />
       <Route path="/settings" component={SettingsPage} />
       <Route component={NotFound} />
     </Switch>
@@ -150,8 +161,11 @@ function AuthenticatedLayout() {
                 <TopNavbar />
                 
                 {/* Main content area */}
-                <main className="flex-1 overflow-y-auto p-6">
-                  <Router />
+                <main className="flex-1 overflow-y-auto">
+                  <div className="max-w-[1920px] mx-auto px-6 py-6">
+                    <Router />
+                    <Footer />
+                  </div>
                 </main>
               </div>
             </div>

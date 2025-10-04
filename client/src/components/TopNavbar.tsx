@@ -3,6 +3,10 @@ import {
   LayoutDashboard, 
   TrendingUp, 
   Briefcase, 
+  Newspaper,
+  GraduationCap,
+  Globe,
+  BookOpen,
   BarChart3,
   User,
   Bell,
@@ -30,6 +34,10 @@ const navItems: NavItem[] = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/trading', label: 'Trading', icon: TrendingUp },
   { path: '/portfolio', label: 'Portfolio', icon: Briefcase },
+  { path: '/news', label: 'News', icon: Newspaper },
+  { path: '/learn', label: 'Learn', icon: GraduationCap },
+  { path: '/markets', label: 'Markets', icon: Globe },
+  { path: '/research', label: 'Research', icon: BookOpen },
   { path: '/analytics', label: 'Analytics', icon: BarChart3 },
 ];
 
@@ -94,15 +102,16 @@ export function TopNavbar() {
         </div>
       </div>
 
-      {/* Right Section: Notifications + User Menu */}
-      <div className="flex items-center gap-3">
+      {/* Right Section: Notifications + User + Settings */}
+      <div className="flex items-center gap-2">
         {/* Notifications */}
         <Button 
           variant="ghost" 
           size="icon"
+          className="h-9 w-9"
           data-testid="button-notifications"
         >
-          <Bell className="w-5 h-5" />
+          <Bell className="w-4 h-4" />
         </Button>
 
         {/* User Menu */}
@@ -110,17 +119,11 @@ export function TopNavbar() {
           <DropdownMenuTrigger asChild>
             <Button 
               variant="ghost" 
-              size="sm"
-              className="gap-2"
+              size="icon"
+              className="h-9 w-9"
               data-testid="button-user-menu"
             >
               <User className="w-4 h-4" />
-              <span 
-                className="hidden md:inline font-medium"
-                style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-              >
-                {user?.username || 'User'}
-              </span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
@@ -152,14 +155,29 @@ export function TopNavbar() {
           </DropdownMenuContent>
         </DropdownMenu>
 
+        {/* Settings */}
+        <Button 
+          variant="ghost" 
+          size="icon"
+          className="h-9 w-9"
+          data-testid="button-settings"
+          asChild
+        >
+          <Link href="/settings">
+            <a>
+              <Settings className="w-4 h-4" />
+            </a>
+          </Link>
+        </Button>
+
         {/* Mobile Menu */}
         <Button 
           variant="ghost" 
           size="icon"
-          className="md:hidden"
+          className="md:hidden h-9 w-9"
           data-testid="button-mobile-menu"
         >
-          <Menu className="w-5 h-5" />
+          <Menu className="w-4 h-4" />
         </Button>
       </div>
     </nav>

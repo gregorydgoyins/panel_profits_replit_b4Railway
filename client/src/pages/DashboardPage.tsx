@@ -9,6 +9,18 @@ import {
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { WorldClocksWidget } from '@/components/dashboard/WorldClocksWidget';
+import { MarketMoversWidget } from '@/components/dashboard/MarketMoversWidget';
+import { FearGreedWidget } from '@/components/dashboard/FearGreedWidget';
+import { ComicHeatMapWidget } from '@/components/dashboard/ComicHeatMapWidget';
+import { ComicSentimentWidget } from '@/components/dashboard/ComicSentimentWidget';
+import TrendingCharactersWidget from '@/components/dashboard/TrendingCharactersWidget';
+import CreatorSpotlightWidget from '@/components/dashboard/CreatorSpotlightWidget';
+import { OptionsChainWidget } from '@/components/dashboard/OptionsChainWidget';
+import WhaleTrackerWidget from '@/components/dashboard/WhaleTrackerWidget';
+import { InstitutionalOrderFlowWidget } from '@/components/dashboard/InstitutionalOrderFlowWidget';
+import { AssetGrowthWidget } from '@/components/dashboard/AssetGrowthWidget';
+import { CreatorInfluenceWidget } from '@/components/dashboard/CreatorInfluenceWidget';
+import { GadgetsMemorabiliaWidget } from '@/components/dashboard/GadgetsMemorabiliaWidget';
 
 interface Asset {
   id: string;
@@ -436,6 +448,37 @@ export default function DashboardPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Dashboard Widgets Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <MarketMoversWidget />
+        <FearGreedWidget />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <ComicSentimentWidget />
+        <ComicHeatMapWidget />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+        <TrendingCharactersWidget />
+        <CreatorSpotlightWidget />
+        <CreatorInfluenceWidget />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4">
+        <OptionsChainWidget />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <WhaleTrackerWidget />
+        <InstitutionalOrderFlowWidget />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <AssetGrowthWidget />
+        <GadgetsMemorabiliaWidget />
+      </div>
     </div>
   );
 }
