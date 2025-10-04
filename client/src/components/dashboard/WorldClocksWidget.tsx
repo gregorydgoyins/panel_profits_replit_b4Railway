@@ -250,10 +250,32 @@ export function WorldClocksWidget() {
       <CardContent className="space-y-3">
         <div className="bg-slate-800/20 p-3 rounded-lg">
           <div className="grid grid-cols-4 gap-2">
-            {topRowMarkets.map((market) => (
+            {topRowMarkets.map((market, idx) => (
               <div
                 key={market.name}
                 className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border bg-slate-700/30 hover-elevate transition-all"
+                style={idx === 0 ? {
+                  '--hover-glow-color': market.status === 'open' 
+                    ? '0, 255, 0' 
+                    : market.status === 'after-hours'
+                    ? '255, 255, 0'
+                    : '255, 0, 0'
+                } as React.CSSProperties : undefined}
+                onMouseEnter={(e) => {
+                  if (idx === 0) {
+                    const glowColor = market.status === 'open' 
+                      ? 'rgba(0, 255, 0, 0.6)' 
+                      : market.status === 'after-hours'
+                      ? 'rgba(255, 255, 0, 0.6)'
+                      : 'rgba(255, 0, 0, 0.6)';
+                    e.currentTarget.style.boxShadow = `0 0 20px ${glowColor}, 0 0 40px ${glowColor}`;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (idx === 0) {
+                    e.currentTarget.style.boxShadow = '';
+                  }
+                }}
                 data-testid={`market-${market.name.toLowerCase().replace(/\//g, '-')}`}
               >
               <AnalogClock time={market.localTime} status={market.status} />
