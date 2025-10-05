@@ -81,7 +81,7 @@ export function TopNavbar() {
         >
           <Icon className={`w-4 h-4 ${isActive ? item.activeTextClass : `text-foreground ${groupHoverClass}`}`} />
           <span 
-            className={`font-bold text-sm ${isActive ? item.activeTextClass : `text-foreground ${groupHoverClass}`}`}
+            className={`text-sm ${isActive ? item.activeTextClass : `text-foreground ${groupHoverClass}`}`}
             style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
           >
             {item.label}
