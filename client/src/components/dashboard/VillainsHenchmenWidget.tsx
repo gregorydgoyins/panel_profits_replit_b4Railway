@@ -49,8 +49,8 @@ export function VillainsHenchmenWidget() {
 
   if (isLoading) {
     return (
-      <Card className="h-full border-2 border-[#8b0000] bg-[#8b0000]/5 villain-rimlight-hover" data-testid="widget-villains-henchmen">
-        <CardHeader className="pb-3 space-y-0">
+      <Card className="h-full narrative-foundation narrative-foundation-villain border-2 border-[#8b0000]/30" data-testid="widget-villains-henchmen">
+        <CardHeader className="pb-3 space-y-0 relative z-10">
           <div className="flex items-center gap-2">
             <Skull className="w-12 h-12 text-[#8b0000]" data-testid="icon-skull" />
             <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
@@ -58,7 +58,7 @@ export function VillainsHenchmenWidget() {
             </span>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative z-10">
           <div className="flex gap-4 overflow-x-auto pb-2">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="w-[280px] h-[480px] bg-muted rounded-lg animate-pulse shrink-0" />
@@ -71,8 +71,8 @@ export function VillainsHenchmenWidget() {
 
   if (error || !data?.success) {
     return (
-      <Card className="h-full border-2 border-[#8b0000] bg-[#8b0000]/5 villain-rimlight-hover" data-testid="widget-villains-henchmen">
-        <CardHeader className="pb-3 space-y-0">
+      <Card className="h-full narrative-foundation narrative-foundation-villain border-2 border-[#8b0000]/30" data-testid="widget-villains-henchmen">
+        <CardHeader className="pb-3 space-y-0 relative z-10">
           <div className="flex items-center gap-2">
             <Skull className="w-12 h-12 text-[#8b0000]" data-testid="icon-skull" />
             <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
@@ -80,7 +80,7 @@ export function VillainsHenchmenWidget() {
             </span>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative z-10">
           <div className="text-center text-muted-foreground py-8">
             Failed to load villains. Please try again later.
           </div>
@@ -90,8 +90,8 @@ export function VillainsHenchmenWidget() {
   }
 
   return (
-    <Card className="h-full border-2 border-[#8b0000] bg-[#8b0000]/5 villain-rimlight-hover" data-testid="widget-villains-henchmen">
-      <CardHeader className="pb-3 space-y-0">
+    <Card className="h-full narrative-foundation narrative-foundation-villain border-2 border-[#8b0000]/30" data-testid="widget-villains-henchmen">
+      <CardHeader className="pb-3 space-y-0 relative z-10">
         <div className="flex items-center gap-2">
           <Skull className="w-12 h-12 text-[#8b0000]" data-testid="icon-skull" />
           <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
@@ -99,14 +99,14 @@ export function VillainsHenchmenWidget() {
           </span>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="relative z-10">
         <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-[#8b0000]/30 scrollbar-track-transparent">
           {villains.map((villain) => {
             const imageUrl = getImageUrl(villain);
             const isVillain = villain.subtype === 'villain';
             const accentColor = isVillain ? '#8b0000' : '#89CFF0';
             const linkPath = isVillain ? `/villain/${villain.id}` : `/henchman/${villain.id}`;
-            const rimlightClass = isVillain ? '' : 'henchman-rimlight-hover';
+            const rimlightClass = isVillain ? 'narrative-rimlight narrative-rimlight-villain' : 'narrative-rimlight narrative-rimlight-sidekick';
             
             const price = villain.assetPrice ? parseFloat(villain.assetPrice) : null;
             const priceChange = villain.assetPriceChange ? parseFloat(villain.assetPriceChange) : null;
@@ -120,34 +120,46 @@ export function VillainsHenchmenWidget() {
                 data-testid={`link-${isVillain ? 'villain' : 'henchman'}-${villain.id}`}
               >
                 <div 
-                  className={`relative w-[280px] h-[480px] rounded-lg overflow-hidden shrink-0 hover-elevate cursor-pointer ${rimlightClass}`}
+                  className={`relative w-[280px] h-[480px] rounded-lg overflow-visible shrink-0 narrative-hover cursor-pointer ${rimlightClass}`}
                   data-testid={`card-villain-${villain.id}`}
-                  style={{
-                    backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundColor: imageUrl ? 'transparent' : '#1a1a1a',
-                  }}
                 >
-                  {/* Dark gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent" />
-                  
-                  {/* Franchise Badge - Top Right */}
-                  <div className="absolute top-3 right-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm border border-white/20">
-                    <span 
-                      style={{ 
-                        fontFamily: 'Hind, sans-serif', 
-                        fontWeight: '300', 
-                        fontSize: '10pt',
-                        color: '#ffffff',
-                      }}
-                    >
-                      {villain.universe?.toUpperCase() || 'UNKNOWN'}
-                    </span>
+                  {/* Image container with rimlight */}
+                  <div 
+                    className="absolute inset-0 rounded-lg overflow-hidden"
+                    style={{
+                      backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      backgroundColor: imageUrl ? 'transparent' : '#1a1a1a',
+                    }}
+                  >
+                    {/* Dark gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent" />
+                    
+                    {/* Franchise Badge - Top Right */}
+                    <div className="absolute top-3 right-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm border border-white/20">
+                      <span 
+                        style={{ 
+                          fontFamily: 'Hind, sans-serif', 
+                          fontWeight: '300', 
+                          fontSize: '10pt',
+                          color: '#ffffff',
+                        }}
+                      >
+                        {villain.universe?.toUpperCase() || 'UNKNOWN'}
+                      </span>
+                    </div>
+                    
+                    {/* Placeholder if no image */}
+                    {!imageUrl && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Skull className="w-24 h-24 text-muted-foreground/30" />
+                      </div>
+                    )}
                   </div>
                   
-                  {/* Bottom content area */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4 space-y-3">
+                  {/* Bottom content area - Secondary Layer */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4 space-y-3 narrative-secondary rounded-b-lg">
                     {/* Category label */}
                     <div 
                       className="mb-1"
@@ -239,13 +251,6 @@ export function VillainsHenchmenWidget() {
                       </div>
                     )}
                   </div>
-
-                  {/* Placeholder if no image */}
-                  {!imageUrl && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Skull className="w-24 h-24 text-muted-foreground/30" />
-                    </div>
-                  )}
                 </div>
               </Link>
             );

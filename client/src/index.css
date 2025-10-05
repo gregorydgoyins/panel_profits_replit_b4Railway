@@ -92,6 +92,13 @@
   --category-research: 320 85% 60%; /* Pink/Magenta */
   --category-analytics: 140 70% 45%; /* Green */
   
+  /* Narrative Entity Color System - Bloomberg Terminal Aesthetic */
+  --narrative-villain: 0 100% 27%; /* Blood-red #8b0000 */
+  --narrative-sidekick: 195 77% 64%; /* Baby blue #89CFF0 */
+  --narrative-superhero: 181 100% 41%; /* Cyan #00CED1 */
+  --narrative-location: 25 56% 31%; /* Brown #8B4513 */
+  --narrative-gadget: 43 74% 49%; /* Goldenrod #DAA520 */
+  
   /* Header Label Colors */
   --header-navbar: 270 80% 60%; /* Purple - matches dashboard */
   --header-welcome: 45 100% 50%; /* Gold - matches portfolio */
@@ -569,62 +576,162 @@
     0 0 24px rgba(255, 255, 255, 0.4);     /* Minimal outer bleed */
 }
 
-/* Villain Rimlight Hover Effect - Deep red glow for villain theme */
-.villain-rimlight-hover {
+/* ═══════════════════════════════════════════════════════════════════════════════════════ */
+/* NARRATIVE ENTITY VISUAL SYSTEM - Bloomberg Terminal Aesthetic */
+/* Foundation Layers, Secondary Layers, Rimlight Effects, and Hover Interactions */
+/* ═══════════════════════════════════════════════════════════════════════════════════════ */
+
+/* FOUNDATION LAYER UTILITIES - Subtle tinted base (2-3% opacity) */
+.narrative-foundation {
   position: relative;
-  transition: box-shadow 200ms ease-in-out;
+  overflow: visible;
 }
 
-.villain-rimlight-hover:hover {
-  box-shadow: 0 0 12px rgba(139, 0, 0, 0.8);
+.narrative-foundation::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
 }
 
-/* Sidekick Rimlight Hover Effect - Baby blue glow for sidekick theme */
-.sidekick-rimlight-hover {
+.narrative-foundation-villain::before {
+  background: hsl(var(--narrative-villain) / 0.03);
+}
+
+.narrative-foundation-sidekick::before {
+  background: hsl(var(--narrative-sidekick) / 0.03);
+}
+
+.narrative-foundation-superhero::before {
+  background: hsl(var(--narrative-superhero) / 0.03);
+}
+
+.narrative-foundation-location::before {
+  background: hsl(var(--narrative-location) / 0.03);
+}
+
+.narrative-foundation-gadget::before {
+  background: hsl(var(--narrative-gadget) / 0.03);
+}
+
+/* SECONDARY LAYER UTILITIES - Content wells with backdrop blur */
+.narrative-secondary {
   position: relative;
-  transition: box-shadow 200ms ease-in-out;
+  background: hsl(var(--card) / 0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid hsl(var(--border) / 0.3);
+  z-index: 1;
 }
 
-.sidekick-rimlight-hover:hover {
-  box-shadow: 0 0 12px rgba(137, 207, 240, 0.8);
-}
-
-/* Henchman Rimlight Hover Effect - Baby blue glow for henchman theme */
-.henchman-rimlight-hover {
+/* RIMLIGHT SYSTEM - Pseudo-element rings with masked linear-gradient overlays */
+.narrative-rimlight {
   position: relative;
-  transition: box-shadow 200ms ease-in-out;
+  overflow: visible;
+  transition: all 200ms ease-in-out;
 }
 
-.henchman-rimlight-hover:hover {
-  box-shadow: 0 0 12px rgba(137, 207, 240, 0.8);
+.narrative-rimlight::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+  transition: all 200ms ease-in-out;
 }
 
-/* Superhero Rimlight Hover Effect - Cyan glow for superhero theme */
-.superhero-rimlight-hover {
-  position: relative;
-  transition: box-shadow 200ms ease-in-out;
+/* Villain Rimlight - Blood-red glow */
+.narrative-rimlight-villain::after {
+  box-shadow: 
+    0 0 0 1px hsl(var(--narrative-villain) / 0.6),
+    0 0 8px hsl(var(--narrative-villain) / 0.4),
+    inset 0 0 8px hsl(var(--narrative-villain) / 0.2);
 }
 
-.superhero-rimlight-hover:hover {
-  box-shadow: 0 0 12px rgba(0, 206, 209, 0.8);
+.narrative-rimlight-villain:hover::after {
+  box-shadow: 
+    0 0 0 2px hsl(var(--narrative-villain) / 0.9),
+    0 0 16px hsl(var(--narrative-villain) / 0.6),
+    0 0 24px hsl(var(--narrative-villain) / 0.3),
+    inset 0 0 12px hsl(var(--narrative-villain) / 0.3);
+  transform: translateY(-2px);
 }
 
-/* Location Rimlight Hover Effect - Brown glow for location theme */
-.location-rimlight-hover {
-  position: relative;
-  transition: box-shadow 200ms ease-in-out;
+/* Sidekick Rimlight - Baby blue glow */
+.narrative-rimlight-sidekick::after {
+  box-shadow: 
+    0 0 0 1px hsl(var(--narrative-sidekick) / 0.6),
+    0 0 8px hsl(var(--narrative-sidekick) / 0.4),
+    inset 0 0 8px hsl(var(--narrative-sidekick) / 0.2);
 }
 
-.location-rimlight-hover:hover {
-  box-shadow: 0 0 12px rgba(139, 69, 19, 0.8);
+.narrative-rimlight-sidekick:hover::after {
+  box-shadow: 
+    0 0 0 2px hsl(var(--narrative-sidekick) / 0.9),
+    0 0 16px hsl(var(--narrative-sidekick) / 0.6),
+    0 0 24px hsl(var(--narrative-sidekick) / 0.3),
+    inset 0 0 12px hsl(var(--narrative-sidekick) / 0.3);
+  transform: translateY(-2px);
 }
 
-/* Gadget Rimlight Hover Effect - Goldenrod glow for gadget/artifact theme */
-.gadget-rimlight-hover {
-  position: relative;
-  transition: box-shadow 200ms ease-in-out;
+/* Superhero Rimlight - Cyan glow */
+.narrative-rimlight-superhero::after {
+  box-shadow: 
+    0 0 0 1px hsl(var(--narrative-superhero) / 0.6),
+    0 0 8px hsl(var(--narrative-superhero) / 0.4),
+    inset 0 0 8px hsl(var(--narrative-superhero) / 0.2);
 }
 
-.gadget-rimlight-hover:hover {
-  box-shadow: 0 0 12px rgba(218, 165, 32, 0.8);
+.narrative-rimlight-superhero:hover::after {
+  box-shadow: 
+    0 0 0 2px hsl(var(--narrative-superhero) / 0.9),
+    0 0 16px hsl(var(--narrative-superhero) / 0.6),
+    0 0 24px hsl(var(--narrative-superhero) / 0.3),
+    inset 0 0 12px hsl(var(--narrative-superhero) / 0.3);
+  transform: translateY(-2px);
+}
+
+/* Location Rimlight - Brown glow */
+.narrative-rimlight-location::after {
+  box-shadow: 
+    0 0 0 1px hsl(var(--narrative-location) / 0.6),
+    0 0 8px hsl(var(--narrative-location) / 0.4),
+    inset 0 0 8px hsl(var(--narrative-location) / 0.2);
+}
+
+.narrative-rimlight-location:hover::after {
+  box-shadow: 
+    0 0 0 2px hsl(var(--narrative-location) / 0.9),
+    0 0 16px hsl(var(--narrative-location) / 0.6),
+    0 0 24px hsl(var(--narrative-location) / 0.3),
+    inset 0 0 12px hsl(var(--narrative-location) / 0.3);
+  transform: translateY(-2px);
+}
+
+/* Gadget Rimlight - Goldenrod glow */
+.narrative-rimlight-gadget::after {
+  box-shadow: 
+    0 0 0 1px hsl(var(--narrative-gadget) / 0.6),
+    0 0 8px hsl(var(--narrative-gadget) / 0.4),
+    inset 0 0 8px hsl(var(--narrative-gadget) / 0.2);
+}
+
+.narrative-rimlight-gadget:hover::after {
+  box-shadow: 
+    0 0 0 2px hsl(var(--narrative-gadget) / 0.9),
+    0 0 16px hsl(var(--narrative-gadget) / 0.6),
+    0 0 24px hsl(var(--narrative-gadget) / 0.3),
+    inset 0 0 12px hsl(var(--narrative-gadget) / 0.3);
+  transform: translateY(-2px);
+}
+
+/* ENHANCED HOVER INTERACTIONS - Combines elevation with rimlight intensity */
+.narrative-hover {
+  transition: all 200ms ease-in-out;
+}
+
+.narrative-hover:hover {
+  transform: translateY(-2px);
 }
