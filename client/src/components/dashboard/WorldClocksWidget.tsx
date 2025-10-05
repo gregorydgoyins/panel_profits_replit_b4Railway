@@ -50,7 +50,7 @@ function AnalogClock({ time, status }: { time: Date; status: MarketStatus['statu
               key={i}
               cx={x}
               cy={y}
-              r={i % 3 === 0 ? 2 : 1}
+              r={i % 3 === 0 ? 1 : 0.5}
               className="fill-muted-foreground"
             />
           );
