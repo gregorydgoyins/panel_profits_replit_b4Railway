@@ -121,25 +121,33 @@ export function LocationsGadgetsWidget() {
                   data-testid={`card-item-${item.id}`}
                 >
                   {/* Image container with rimlight */}
-                  <div 
-                    className="absolute inset-0 rounded-lg overflow-hidden"
-                    style={{
-                      backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      backgroundColor: imageUrl ? 'transparent' : '#1a1a1a',
-                    }}
-                  >
-                    {/* Dark gradient overlay */}
+                  <div className="absolute inset-0 rounded-lg overflow-hidden bg-[#1a1a1a]">
+                    {/* Placeholder icon behind image */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <MapPin className="w-32 h-32 text-muted-foreground/20" />
+                    </div>
+                    
+                    {/* Actual image in front */}
+                    {imageUrl && (
+                      <img
+                        src={imageUrl}
+                        alt={item.canonicalName}
+                        className="absolute inset-0 w-full h-full object-contain"
+                        style={{ zIndex: 1 }}
+                      />
+                    )}
+                    
+                    {/* Dark gradient overlay on top */}
                     <div 
                       className="absolute inset-0"
                       style={{
-                        background: `linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.6) 40%, transparent 100%)`
+                        background: `linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.6) 40%, transparent 100%)`,
+                        zIndex: 2
                       }}
                     />
                     
                     {/* Franchise Badge - Top Right */}
-                    <div className="absolute top-3 right-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm border border-white/20">
+                    <div className="absolute top-3 right-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm border border-white/20" style={{ zIndex: 3 }}>
                       <span 
                         style={{ 
                           fontFamily: 'Hind, sans-serif', 
@@ -151,13 +159,6 @@ export function LocationsGadgetsWidget() {
                         {item.universe?.toUpperCase() || 'UNKNOWN'}
                       </span>
                     </div>
-                    
-                    {/* Placeholder if no image */}
-                    {!imageUrl && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <MapPin className="w-32 h-32 text-muted-foreground/20" />
-                      </div>
-                    )}
                   </div>
                   
                   {/* Bottom content area - Secondary Layer */}

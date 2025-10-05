@@ -124,20 +124,27 @@ export function VillainsHenchmenWidget() {
                   data-testid={`card-villain-${villain.id}`}
                 >
                   {/* Image container with rimlight */}
-                  <div 
-                    className="absolute inset-0 rounded-lg overflow-hidden"
-                    style={{
-                      backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      backgroundColor: imageUrl ? 'transparent' : '#1a1a1a',
-                    }}
-                  >
-                    {/* Dark gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent" />
+                  <div className="absolute inset-0 rounded-lg overflow-hidden bg-[#1a1a1a]">
+                    {/* Placeholder icon behind image */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Skull className="w-24 h-24 text-muted-foreground/30" />
+                    </div>
+                    
+                    {/* Actual image in front */}
+                    {imageUrl && (
+                      <img
+                        src={imageUrl}
+                        alt={villain.canonicalName}
+                        className="absolute inset-0 w-full h-full object-contain"
+                        style={{ zIndex: 1 }}
+                      />
+                    )}
+                    
+                    {/* Dark gradient overlay on top */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent" style={{ zIndex: 2 }} />
                     
                     {/* Franchise Badge - Top Right */}
-                    <div className="absolute top-3 right-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm border border-white/20">
+                    <div className="absolute top-3 right-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm border border-white/20" style={{ zIndex: 3 }}>
                       <span 
                         style={{ 
                           fontFamily: 'Hind, sans-serif', 
@@ -149,13 +156,6 @@ export function VillainsHenchmenWidget() {
                         {villain.universe?.toUpperCase() || 'UNKNOWN'}
                       </span>
                     </div>
-                    
-                    {/* Placeholder if no image */}
-                    {!imageUrl && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Skull className="w-24 h-24 text-muted-foreground/30" />
-                      </div>
-                    )}
                   </div>
                   
                   {/* Bottom content area - Secondary Layer */}
