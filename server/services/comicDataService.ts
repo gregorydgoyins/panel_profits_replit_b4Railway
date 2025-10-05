@@ -610,11 +610,15 @@ class ComicDataService {
    */
   async fetchKeyIssues(limit = 6): Promise<any[]> {
     try {
-      // Fetch more comics to ensure we get enough key issues
+      // Fetch more comics to ensure we get enough key issues with covers
       const comics = await this.fetchRandomComicCovers(50);
       
-      // Filter for key issues only
-      const keyComics = comics.filter(c => c.isKeyIssue || c.isFirstIssue);
+      // Filter for key issues with valid cover images only
+      const keyComics = comics.filter(c => 
+        (c.isKeyIssue || c.isFirstIssue) && 
+        c.coverUrl && 
+        !c.coverUrl.includes('image_not_available')
+      );
       
       return keyComics.slice(0, limit);
     } catch (error) {
