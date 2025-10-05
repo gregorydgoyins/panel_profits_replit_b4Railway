@@ -167,14 +167,16 @@ export function ComicOfTheDayWidget() {
           </div>
         </Link>
 
-        {/* Description */}
+        {/* Description - About This Issue - Clickable to Issue Detail */}
         {comic.description && (
-          <div className="space-y-2">
-            <h4 className="font-semibold text-foreground">About This Issue</h4>
-            <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
-              {comic.description}
-            </p>
-          </div>
+          <Link href={`/issue/${comic.id}`} data-testid="link-issue-detail">
+            <div className="space-y-2 border border-border rounded-lg p-4 white-rimlight-hover cursor-pointer overflow-visible">
+              <h4 className="font-semibold text-foreground">About This Issue</h4>
+              <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                {comic.description}
+              </p>
+            </div>
+          </Link>
         )}
 
         {/* Creators - Creative Team with White Rimlight */}
