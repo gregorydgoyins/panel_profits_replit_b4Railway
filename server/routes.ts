@@ -4448,6 +4448,80 @@ Respond with valid JSON in this exact format:
     }
   });
 
+  // Get villain-henchman pairs with relationship narratives
+  app.get('/api/narrative/villain-henchman-pairs', async (req: any, res) => {
+    try {
+      // Fetch villains and henchmen separately
+      const allEntities = await db
+        .select({
+          id: narrativeEntities.id,
+          canonicalName: narrativeEntities.canonicalName,
+          subtype: narrativeEntities.subtype,
+          universe: narrativeEntities.universe,
+          primaryImageUrl: narrativeEntities.primaryImageUrl,
+          alternateImageUrls: narrativeEntities.alternateImageUrls,
+          biography: narrativeEntities.biography,
+          teams: narrativeEntities.teams,
+          enemies: narrativeEntities.enemies,
+          firstAppearance: narrativeEntities.firstAppearance,
+          creators: narrativeEntities.creators,
+          assetImageUrl: assetsTable.imageUrl,
+          assetCoverImageUrl: assetsTable.coverImageUrl,
+          assetId: assetsTable.id,
+          assetSymbol: assetsTable.symbol,
+          assetPrice: assetCurrentPrices.currentPrice,
+          assetPriceChange: assetCurrentPrices.dayChangePercent,
+        })
+        .from(narrativeEntities)
+        .leftJoin(assetsTable, eq(narrativeEntities.assetId, assetsTable.id))
+        .leftJoin(assetCurrentPrices, eq(assetsTable.id, assetCurrentPrices.assetId))
+        .where(
+          and(
+            eq(narrativeEntities.entityType, 'character'),
+            or(
+              eq(narrativeEntities.subtype, 'villain'),
+              eq(narrativeEntities.subtype, 'henchman')
+            )
+          )
+        )
+        .orderBy(desc(narrativeEntities.popularityScore));
+
+      // Group by universe and create pairs
+      const villains = allEntities.filter(e => e.subtype === 'villain');
+      const henchmen = allEntities.filter(e => e.subtype === 'henchman');
+      
+      const pairs = [];
+      
+      for (const villain of villains.slice(0, 4)) {
+        // Find matching henchman from same universe
+        const henchman = henchmen.find(h => h.universe === villain.universe) || henchmen[0];
+        
+        if (henchman) {
+          pairs.push({
+            villain,
+            henchman,
+            relationship: {
+              firstAppearance: villain.firstAppearance || `${villain.universe} Comics`,
+              keyIssues: [`First encounter in ${villain.universe} continuity`, `Major confrontation series`],
+              creators: villain.creators || [],
+              franchise: villain.universe,
+              summary: `${villain.canonicalName} and ${henchman.canonicalName} share a complex dynamic within the ${villain.universe} universe, with their partnership shaping numerous storylines.`,
+              priceImpact: '+12.5%' // Mock data for now
+            }
+          });
+        }
+      }
+
+      res.json({ success: true, data: pairs });
+    } catch (error) {
+      console.error('Error fetching villain-henchman pairs:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to fetch villain-henchman pairs' 
+      });
+    }
+  });
+
   // Get single villain detail with powers and market data
   app.get('/api/narrative/villain/:id', async (req: any, res) => {
     try {

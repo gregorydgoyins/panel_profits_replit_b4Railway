@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Skull, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
+import { Skull } from 'lucide-react';
 
-interface Villain {
+interface Entity {
   id: string;
   canonicalName: string;
   subtype: string;
@@ -13,6 +13,8 @@ interface Villain {
   biography: string | null;
   teams: string[] | null;
   enemies: string[] | null;
+  firstAppearance: string | null;
+  creators: string[] | null;
   assetImageUrl: string | null;
   assetCoverImageUrl: string | null;
   assetId: string | null;
@@ -21,30 +23,33 @@ interface Villain {
   assetPriceChange: string | null;
 }
 
+interface VillainHenchmanPair {
+  villain: Entity;
+  henchman: Entity;
+  relationship: {
+    firstAppearance: string;
+    keyIssues: string[];
+    creators: string[];
+    franchise: string;
+    summary: string;
+    priceImpact: string;
+  };
+}
+
 export function VillainsHenchmenWidget() {
-  const { data, isLoading, error } = useQuery<{ success: boolean; data: Villain[] }>({
-    queryKey: ['/api/narrative/villains'],
+  const { data, isLoading, error } = useQuery<{ success: boolean; data: VillainHenchmanPair[] }>({
+    queryKey: ['/api/narrative/villain-henchman-pairs'],
     refetchInterval: 30000, // 30 seconds
   });
 
-  const villains = data?.data || [];
+  const pairs = data?.data || [];
 
   // Get image URL with fallbacks
-  const getImageUrl = (villain: Villain): string => {
-    return villain.primaryImageUrl || 
-           villain.assetImageUrl || 
-           villain.assetCoverImageUrl || 
+  const getImageUrl = (entity: Entity): string => {
+    return entity.primaryImageUrl || 
+           entity.assetImageUrl || 
+           entity.assetCoverImageUrl || 
            '';
-  };
-
-  // Get character significance text
-  const getSignificanceText = (villain: Villain): string => {
-    const isVillain = villain.subtype === 'villain';
-    if (isVillain) {
-      return `Major ${villain.universe} antagonist with significant comic history and fan following`;
-    } else {
-      return `Supporting criminal character in the ${villain.universe} universe`;
-    }
   };
 
   if (isLoading) {
@@ -60,8 +65,8 @@ export function VillainsHenchmenWidget() {
         </CardHeader>
         <CardContent>
           <div className="flex gap-4 overflow-x-auto pb-2">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="w-[280px] h-[480px] bg-muted rounded-lg animate-pulse shrink-0" />
+            {[1, 2].map((i) => (
+              <div key={i} className="bg-[#252B3C] p-4 rounded-lg shrink-0 w-[900px] h-[400px] animate-pulse" />
             ))}
           </div>
         </CardContent>
@@ -82,7 +87,7 @@ export function VillainsHenchmenWidget() {
         </CardHeader>
         <CardContent>
           <div className="text-center text-muted-foreground py-8">
-            Failed to load villains. Please try again later.
+            Failed to load villain-henchman pairs. Please try again later.
           </div>
         </CardContent>
       </Card>
@@ -91,7 +96,7 @@ export function VillainsHenchmenWidget() {
 
   return (
     <Card className="h-full !bg-[#1A1F2E] villain-rimlight-hover" data-testid="widget-villains-henchmen">
-      <CardHeader className="pb-3 space-y-0 relative z-10">
+      <CardHeader className="pb-3 space-y-0">
         <div className="flex items-center gap-2">
           <Skull className="w-12 h-12 text-[#8b0000]/60 villain-icon-glow" data-testid="icon-skull" />
           <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
@@ -99,162 +104,176 @@ export function VillainsHenchmenWidget() {
           </span>
         </div>
       </CardHeader>
-      <CardContent className="relative z-10">
+      <CardContent>
         <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-[#8b0000]/30 scrollbar-track-transparent">
-          {villains.map((villain) => {
-            const imageUrl = getImageUrl(villain);
-            const isVillain = villain.subtype === 'villain';
-            const accentColor = isVillain ? '#8b0000' : '#89CFF0';
-            const linkPath = isVillain ? `/villain/${villain.id}` : `/henchman/${villain.id}`;
-            const rimlightClass = isVillain ? 'narrative-rimlight narrative-rimlight-villain' : 'narrative-rimlight narrative-rimlight-sidekick';
-            
-            const price = villain.assetPrice ? parseFloat(villain.assetPrice) : null;
-            const priceChange = villain.assetPriceChange ? parseFloat(villain.assetPriceChange) : null;
-            const isPriceUp = priceChange !== null && priceChange > 0;
-            const isPriceDown = priceChange !== null && priceChange < 0;
-            
-            return (
-              <Link 
-                key={villain.id} 
-                href={linkPath}
-                data-testid={`link-${isVillain ? 'villain' : 'henchman'}-${villain.id}`}
-              >
-                <div 
-                  className={`relative w-[280px] h-[480px] rounded-lg overflow-visible shrink-0 narrative-hover cursor-pointer ${rimlightClass}`}
-                  data-testid={`card-villain-${villain.id}`}
-                >
-                  {/* Image container with rimlight */}
-                  <div className="absolute inset-0 rounded-lg overflow-hidden bg-[#1a1a1a]">
-                    {/* Placeholder icon behind image */}
-                    <div className="absolute inset-0 flex items-center justify-center">
+          {pairs.map((pair, index) => (
+            <div key={index} className="bg-[#252B3C] p-4 rounded-lg shrink-0 w-[900px]" data-testid={`pair-villain-henchman-${index}`}>
+              <div className="flex gap-6">
+                {/* Villain Image */}
+                <Link href={`/villain/${pair.villain.id}`} data-testid={`link-villain-${pair.villain.id}`}>
+                  <div className="relative w-[280px] h-[380px] rounded-lg overflow-hidden shrink-0 cursor-pointer group">
+                    {/* Background placeholder */}
+                    <div className="absolute inset-0 bg-[#1a1a1a] flex items-center justify-center">
                       <Skull className="w-24 h-24 text-muted-foreground/30" />
                     </div>
                     
-                    {/* Actual image in front */}
-                    {imageUrl && (
+                    {/* Actual image */}
+                    {getImageUrl(pair.villain) && (
                       <img
-                        src={imageUrl}
-                        alt={villain.canonicalName}
-                        className="absolute inset-0 w-full h-full object-contain"
-                        style={{ zIndex: 1 }}
+                        src={getImageUrl(pair.villain)}
+                        alt={pair.villain.canonicalName}
+                        className="absolute inset-0 w-full h-full object-contain z-10"
+                        data-testid={`img-villain-${pair.villain.id}`}
                       />
                     )}
                     
-                    {/* Dark gradient overlay on top */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent" style={{ zIndex: 2 }} />
+                    {/* Rimlight on hover only */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20"
+                         style={{
+                           boxShadow: '0 0 2px 2px #8b0000, 0 0 12px 12px rgba(139, 0, 0, 0.8), 0 0 24px 24px rgba(139, 0, 0, 0.4)',
+                           borderRadius: '0.5rem'
+                         }} />
                     
-                    {/* Franchise Badge - Top Right */}
-                    <div className="absolute top-3 right-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm border border-white/20" style={{ zIndex: 3 }}>
-                      <span 
-                        style={{ 
-                          fontFamily: 'Hind, sans-serif', 
-                          fontWeight: '300', 
-                          fontSize: '10pt',
-                          color: '#ffffff',
-                        }}
-                      >
-                        {villain.universe?.toUpperCase() || 'UNKNOWN'}
+                    {/* Franchise Badge */}
+                    <div className="absolute top-3 right-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm border border-white/20 z-30">
+                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '10pt', color: '#ffffff' }}>
+                        {pair.villain.universe?.toUpperCase()}
+                      </span>
+                    </div>
+                    
+                    {/* VILLAIN label with rimlight on hover */}
+                    <div className="absolute bottom-3 left-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm z-30 group-hover:shadow-[0_0_8px_2px_rgba(139,0,0,0.6)] transition-shadow duration-300">
+                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt', color: '#8b0000' }}>
+                        VILLAIN
                       </span>
                     </div>
                   </div>
-                  
-                  {/* Bottom content area - Secondary Layer */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4 space-y-3 narrative-secondary rounded-b-lg">
-                    {/* Category label */}
-                    <div 
-                      className="mb-1"
-                      style={{ 
-                        fontFamily: 'Hind, sans-serif', 
-                        fontWeight: '300', 
-                        fontSize: '15pt',
-                        color: accentColor,
-                      }}
+                </Link>
+
+                {/* Henchman Image */}
+                <Link href={`/henchman/${pair.henchman.id}`} data-testid={`link-henchman-${pair.henchman.id}`}>
+                  <div className="relative w-[280px] h-[380px] rounded-lg overflow-hidden shrink-0 cursor-pointer group">
+                    {/* Background placeholder */}
+                    <div className="absolute inset-0 bg-[#1a1a1a] flex items-center justify-center">
+                      <Skull className="w-24 h-24 text-muted-foreground/30" />
+                    </div>
+                    
+                    {/* Actual image */}
+                    {getImageUrl(pair.henchman) && (
+                      <img
+                        src={getImageUrl(pair.henchman)}
+                        alt={pair.henchman.canonicalName}
+                        className="absolute inset-0 w-full h-full object-contain z-10"
+                        data-testid={`img-henchman-${pair.henchman.id}`}
+                      />
+                    )}
+                    
+                    {/* Rimlight on hover only */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20"
+                         style={{
+                           boxShadow: '0 0 2px 2px #8b0000, 0 0 12px 12px rgba(139, 0, 0, 0.8), 0 0 24px 24px rgba(139, 0, 0, 0.4)',
+                           borderRadius: '0.5rem'
+                         }} />
+                    
+                    {/* Franchise Badge */}
+                    <div className="absolute top-3 right-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm border border-white/20 z-30">
+                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '10pt', color: '#ffffff' }}>
+                        {pair.henchman.universe?.toUpperCase()}
+                      </span>
+                    </div>
+                    
+                    {/* HENCHMAN label */}
+                    <div className="absolute bottom-3 left-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm z-30">
+                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt', color: '#8b0000' }}>
+                        HENCHMAN
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+
+                {/* Relationship Narrative */}
+                <div className="flex-1 space-y-4">
+                  <div>
+                    <h3 style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt', color: '#ffffff' }}>
+                      {pair.villain.canonicalName} & {pair.henchman.canonicalName}
+                    </h3>
+                    <Link 
+                      href={`/franchise/${encodeURIComponent(pair.relationship.franchise)}`}
+                      data-testid={`link-franchise-${pair.relationship.franchise}`}
                     >
-                      {isVillain ? 'VILLAIN' : 'HENCHMAN'}
+                      <span 
+                        className="inline-block mt-1 px-2 py-1 rounded cursor-pointer transition-shadow duration-300 hover:shadow-[0_0_8px_2px_rgba(255,255,255,0.6)]"
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt', color: '#89CFF0' }}
+                      >
+                        {pair.relationship.franchise}
+                      </span>
+                    </Link>
+                  </div>
+
+                  <p style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt', color: '#ffffff', lineHeight: '1.6' }}>
+                    {pair.relationship.summary}
+                  </p>
+
+                  <div className="space-y-2">
+                    <div>
+                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt', color: '#8b0000' }}>
+                        First Appearance:
+                      </span>
+                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt', color: '#ffffff', marginLeft: '8px' }}>
+                        {pair.relationship.firstAppearance}
+                      </span>
                     </div>
 
-                    {/* Character name */}
-                    <h3 
-                      className="text-white line-clamp-2"
-                      style={{ 
-                        fontFamily: 'Hind, sans-serif', 
-                        fontWeight: '300', 
-                        fontSize: '15pt' 
-                      }}
-                    >
-                      {villain.canonicalName}
-                    </h3>
+                    <div>
+                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt', color: '#8b0000' }}>
+                        Key Issues:
+                      </span>
+                      <ul className="list-disc list-inside mt-1">
+                        {pair.relationship.keyIssues.map((issue, idx) => (
+                          <li key={idx} style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt', color: '#ffffff' }}>
+                            {issue}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
 
-                    {/* Significance text */}
-                    <p 
-                      className="text-white/80 line-clamp-2"
-                      style={{ 
-                        fontFamily: 'Hind, sans-serif', 
-                        fontWeight: '300', 
-                        fontSize: '12pt',
-                      }}
-                    >
-                      {getSignificanceText(villain)}
-                    </p>
-
-                    {/* Asset pricing section */}
-                    {price !== null && (
-                      <div className="flex items-center justify-between bg-black/50 backdrop-blur-sm rounded px-3 py-2 border border-white/10">
-                        <div className="flex items-center gap-2">
-                          <DollarSign className="w-4 h-4 text-[#50C878]" />
-                          <span 
-                            style={{ 
-                              fontFamily: 'Hind, sans-serif', 
-                              fontWeight: '300', 
-                              fontSize: '12pt',
-                              color: '#50C878',
-                            }}
-                          >
-                            ${price.toFixed(2)}
-                          </span>
+                    {pair.relationship.creators.length > 0 && (
+                      <div>
+                        <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt', color: '#8b0000' }}>
+                          Creators:
+                        </span>
+                        <div className="flex gap-2 flex-wrap mt-1">
+                          {pair.relationship.creators.map((creator, idx) => (
+                            <Link 
+                              key={idx}
+                              href={`/creator/${encodeURIComponent(creator)}`}
+                              data-testid={`link-creator-${creator}`}
+                            >
+                              <span 
+                                className="px-2 py-1 rounded bg-black/50 cursor-pointer hover:bg-black/70 transition-colors"
+                                style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt', color: '#89CFF0' }}
+                              >
+                                {creator}
+                              </span>
+                            </Link>
+                          ))}
                         </div>
-                        
-                        {priceChange !== null && (
-                          <div className="flex items-center gap-1">
-                            {isPriceUp && (
-                              <>
-                                <TrendingUp className="w-4 h-4 text-[#50C878]" data-testid="icon-trending-up" />
-                                <span 
-                                  style={{ 
-                                    fontFamily: 'Hind, sans-serif', 
-                                    fontWeight: '300', 
-                                    fontSize: '12pt',
-                                    color: '#50C878',
-                                  }}
-                                >
-                                  +{Math.abs(priceChange).toFixed(2)}%
-                                </span>
-                              </>
-                            )}
-                            {isPriceDown && (
-                              <>
-                                <TrendingDown className="w-4 h-4 text-[#DC143C]" data-testid="icon-trending-down" />
-                                <span 
-                                  style={{ 
-                                    fontFamily: 'Hind, sans-serif', 
-                                    fontWeight: '300', 
-                                    fontSize: '12pt',
-                                    color: '#DC143C',
-                                  }}
-                                >
-                                  {priceChange.toFixed(2)}%
-                                </span>
-                              </>
-                            )}
-                          </div>
-                        )}
                       </div>
                     )}
+
+                    <div>
+                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt', color: '#8b0000' }}>
+                        Price Impact:
+                      </span>
+                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt', color: '#50C878', marginLeft: '8px' }}>
+                        {pair.relationship.priceImpact}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </Link>
-            );
-          })}
+              </div>
+            </div>
+          ))}
         </div>
       </CardContent>
     </Card>
