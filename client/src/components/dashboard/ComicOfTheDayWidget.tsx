@@ -210,7 +210,7 @@ export function ComicOfTheDayWidget() {
 
         {/* Key Facts - One Orange Box Around All Items */}
         <div className="space-y-2 mt-6">
-          <h4 className="font-semibold text-foreground">Quick Facts</h4>
+          <h4 className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>Quick Facts</h4>
           <div className="border-2 border-orange-500 rounded-lg p-4 bg-orange-500/5 orange-rimlight-hover overflow-visible">
             <ul className="space-y-3">
               {comic.isFirstIssue && (
