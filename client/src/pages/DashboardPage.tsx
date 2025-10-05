@@ -105,11 +105,11 @@ export default function DashboardPage() {
       {/* Portfolio Outlook - Single Line Stats */}
       <Card className="!bg-[#1A1F2E] yellow-rimlight-hover" data-testid="widget-portfolio-outlook">
         <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '20pt' }}>
+          <div className="flex items-center gap-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300 !important', fontSize: '20pt' }}>
             <Briefcase className="w-4 h-4" />
-            Portfolio Outlook
-          </CardTitle>
-          <p className="text-muted-foreground" style={{ fontSize: '15pt' }}>
+            <span style={{ fontWeight: '300' }}>Portfolio Outlook</span>
+          </div>
+          <p className="text-muted-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
             Real-time portfolio metrics and performance indicators
           </p>
         </CardHeader>
