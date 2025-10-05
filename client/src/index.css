@@ -5,6 +5,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Force all font-weight utilities to use Hind bold (700) */
+@layer utilities {
+  .font-light,
+  .font-normal,
+  .font-medium,
+  .font-semibold,
+  .font-bold,
+  .font-extrabold {
+    font-weight: 700 !important;
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════════════════ */
 /* PROFESSIONAL INSTITUTIONAL DESIGN SYSTEM - GOLDMAN SACHS MEETS MYTHOLOGY */
 /* ═══════════════════════════════════════════════════════════════════════════════════════ */

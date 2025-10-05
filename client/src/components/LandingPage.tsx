@@ -125,41 +125,13 @@ export function LandingPage() {
             </p>
           </div>
 
-          {/* Entry button */}
+          {/* Single login button - Closers Only */}
           <div className="space-y-4">
-            <Link href="/intro">
+            <a href="/api/auth/closers">
               <Button 
                 className="w-full h-12 text-base tracking-wider uppercase bg-white text-black hover:bg-gray-100 font-bold"
                 style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                 variant="default"
-                size="lg"
-                data-testid="button-begin-test"
-              >
-                Help Wanted
-              </Button>
-            </Link>
-
-            {/* Subtle divider */}
-            <div className="relative my-8">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/20" />
-              </div>
-              <div className="relative flex justify-center text-xs">
-                <span 
-                  className="px-4 bg-black/40 text-gray-300 backdrop-blur-sm"
-                  style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                >
-                  Members
-                </span>
-              </div>
-            </div>
-
-            {/* Existing member login - smart session check */}
-            <a href="/api/auth/closers">
-              <Button 
-                className="w-full h-12 text-base tracking-wider uppercase border-white/50 text-white hover:bg-white hover:text-black backdrop-blur-sm font-bold"
-                style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                variant="outline"
                 size="lg"
                 data-testid="button-member-login"
               >
