@@ -309,7 +309,9 @@ class ComicDataService {
         const finalPrice = Math.floor(estimatedValue * 100) / 100;
         
         // Format ticker symbol using standardized nomenclature
-        const volume = comic.title.match(/\((\d{4})\)/)?.[1] || '1';
+        // Extract volume from title (e.g., "Vol 2", "Volume 3") or default to 1
+        const volMatch = comic.title.match(/vol(?:ume)?\.?\s*(\d+)/i);
+        const volume = volMatch ? volMatch[1] : '1';
         const comicName = `${comic.series.name} Vol ${volume} #${comic.issueNumber || 1}`;
         const tickerSymbol = formatTickerSymbol('', comicName);
         
@@ -624,7 +626,9 @@ class ComicDataService {
           const finalPrice = Math.floor(estimatedValue * 100) / 100;
           
           // Format ticker symbol using standardized nomenclature
-          const volume = comic.title.match(/\((\d{4})\)/)?.[1] || '1';
+          // Extract volume from title (e.g., "Vol 2", "Volume 3") or default to 1
+          const volMatch = comic.title.match(/vol(?:ume)?\.?\s*(\d+)/i);
+          const volume = volMatch ? volMatch[1] : '1';
           const comicName = `${comic.series.name} Vol ${volume} #${comic.issueNumber || 1}`;
           const tickerSymbol = formatTickerSymbol('', comicName);
           
