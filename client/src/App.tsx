@@ -84,6 +84,7 @@ import SuperheroBioPage from '@/pages/SuperheroBioPage';
 import SidekickBioPage from '@/pages/SidekickBioPage';
 import LocationBioPage from '@/pages/LocationBioPage';
 import GadgetBioPage from '@/pages/GadgetBioPage';
+import FranchiseBioPage from '@/pages/FranchiseBioPage';
 
 // Comic of the Day Dedicated Pages
 import ComicOfDayHistoricalPage from '@/pages/ComicOfDayHistoricalPage';
@@ -152,6 +153,7 @@ function Router() {
       <Route path="/sidekick/:id" component={SidekickBioPage} />
       <Route path="/location/:id" component={LocationBioPage} />
       <Route path="/gadget/:id" component={GadgetBioPage} />
+      <Route path="/franchise/:name" component={FranchiseBioPage} />
       <Route path="/settings" component={SettingsPage} />
       <Route component={NotFound} />
     </Switch>

@@ -4522,6 +4522,50 @@ Respond with valid JSON in this exact format:
     }
   });
 
+  // Get franchise/universe information
+  app.get('/api/narrative/franchise/:name', async (req: any, res) => {
+    try {
+      const franchiseName = decodeURIComponent(req.params.name);
+
+      // Get all entities from this franchise
+      const entities = await db
+        .select({
+          id: narrativeEntities.id,
+          canonicalName: narrativeEntities.canonicalName,
+          entityType: narrativeEntities.entityType,
+          subtype: narrativeEntities.subtype,
+          primaryImageUrl: narrativeEntities.primaryImageUrl,
+          assetId: narrativeEntities.assetId,
+        })
+        .from(narrativeEntities)
+        .where(eq(narrativeEntities.universe, franchiseName))
+        .limit(50);
+
+      // Get character count
+      const characters = entities.filter(e => e.entityType === 'character');
+      const creators = entities.filter(e => e.entityType === 'creator');
+      const locations = entities.filter(e => e.entityType === 'location');
+
+      res.json({
+        success: true,
+        data: {
+          name: franchiseName,
+          totalEntities: entities.length,
+          characterCount: characters.length,
+          creatorCount: creators.length,
+          locationCount: locations.length,
+          entities: entities,
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching franchise:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to fetch franchise information' 
+      });
+    }
+  });
+
   // Get single villain detail with powers and market data
   app.get('/api/narrative/villain/:id', async (req: any, res) => {
     try {
