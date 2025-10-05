@@ -251,7 +251,9 @@ export default function AssetDetailPage() {
                     <Badge 
                       key={idx} 
                       variant="outline"
+                      className="hover-elevate cursor-pointer transition-all duration-200"
                       style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '13pt' }}
+                      data-testid={`badge-creator-${idx}`}
                     >
                       {creator}
                     </Badge>
