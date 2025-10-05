@@ -37,10 +37,10 @@ export function ComicOfTheDayWidget() {
     return (
       <Card className="h-full !bg-[#1A1F2E] green-rimlight-hover">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <div className="flex items-center gap-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
             <Star className="w-5 h-5 text-yellow-500" />
-            Comic of the Day
-          </CardTitle>
+            <span>Comic of the Day</span>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="flex items-start gap-4">
@@ -60,10 +60,10 @@ export function ComicOfTheDayWidget() {
     return (
       <Card className="h-full !bg-[#1A1F2E] green-rimlight-hover">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <div className="flex items-center gap-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
             <Star className="w-5 h-5 text-yellow-500" />
-            Comic of the Day
-          </CardTitle>
+            <span>Comic of the Day</span>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="text-center text-muted-foreground py-8">
@@ -80,10 +80,10 @@ export function ComicOfTheDayWidget() {
   return (
     <Card className="h-full !bg-[#1A1F2E] green-rimlight-hover" data-testid="widget-comic-of-the-day">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <div className="flex items-center gap-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
           <Star className="w-5 h-5 text-yellow-500" />
-          Comic of the Day
-        </CardTitle>
+          <span>Comic of the Day</span>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="bg-[#252B3C] p-4 rounded-lg">
