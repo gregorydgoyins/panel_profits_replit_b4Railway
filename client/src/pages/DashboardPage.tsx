@@ -125,7 +125,7 @@ export default function DashboardPage() {
             <div className="grid grid-cols-4 gap-2">
               {/* Portfolio Value */}
               <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
                 onClick={() => setSelectedBox(selectedBox === 'portfolio-value' ? null : 'portfolio-value')}
                 style={selectedBox === 'portfolio-value' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-portfolio-value"
@@ -153,7 +153,7 @@ export default function DashboardPage() {
 
             {/* Cash Balance */}
               <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
                 onClick={() => setSelectedBox(selectedBox === 'cash-balance' ? null : 'cash-balance')}
                 style={selectedBox === 'cash-balance' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-cash-balance"
@@ -180,7 +180,7 @@ export default function DashboardPage() {
 
             {/* Total Assets */}
               <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
                 onClick={() => setSelectedBox(selectedBox === 'total-assets' ? null : 'total-assets')}
                 style={selectedBox === 'total-assets' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-total-assets"
@@ -207,7 +207,7 @@ export default function DashboardPage() {
 
             {/* Day P&L */}
               <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
                 onClick={() => setSelectedBox(selectedBox === 'day-pl' ? null : 'day-pl')}
                 style={selectedBox === 'day-pl' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-day-pl"
@@ -234,7 +234,7 @@ export default function DashboardPage() {
 
             {/* Total Return */}
               <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
                 onClick={() => setSelectedBox(selectedBox === 'total-return' ? null : 'total-return')}
                 style={selectedBox === 'total-return' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-total-return"
@@ -261,7 +261,7 @@ export default function DashboardPage() {
 
             {/* Buying Power */}
               <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
                 onClick={() => setSelectedBox(selectedBox === 'buying-power' ? null : 'buying-power')}
                 style={selectedBox === 'buying-power' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-buying-power"
@@ -288,7 +288,7 @@ export default function DashboardPage() {
 
             {/* Open Orders */}
               <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
                 onClick={() => setSelectedBox(selectedBox === 'open-orders' ? null : 'open-orders')}
                 style={selectedBox === 'open-orders' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-open-orders"
@@ -315,7 +315,7 @@ export default function DashboardPage() {
 
             {/* Active Positions */}
               <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
                 onClick={() => setSelectedBox(selectedBox === 'active-positions' ? null : 'active-positions')}
                 style={selectedBox === 'active-positions' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-active-positions"
@@ -342,7 +342,7 @@ export default function DashboardPage() {
 
             {/* Win Rate */}
               <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
                 onClick={() => setSelectedBox(selectedBox === 'win-rate' ? null : 'win-rate')}
                 style={selectedBox === 'win-rate' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-win-rate"
@@ -369,7 +369,7 @@ export default function DashboardPage() {
 
             {/* Best Performer */}
               <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
                 onClick={() => setSelectedBox(selectedBox === 'best-performer' ? null : 'best-performer')}
                 style={selectedBox === 'best-performer' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-best-performer"
@@ -413,7 +413,7 @@ export default function DashboardPage() {
 
             {/* Worst Performer */}
               <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
                 onClick={() => setSelectedBox(selectedBox === 'worst-performer' ? null : 'worst-performer')}
                 style={selectedBox === 'worst-performer' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-worst-performer"
@@ -457,7 +457,7 @@ export default function DashboardPage() {
 
             {/* Total Account Value */}
               <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all"
+                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
                 onClick={() => setSelectedBox(selectedBox === 'total-account' ? null : 'total-account')}
                 style={selectedBox === 'total-account' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
                 data-testid="stat-total-account-value"

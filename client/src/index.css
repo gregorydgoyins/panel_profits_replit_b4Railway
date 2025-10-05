@@ -434,3 +434,16 @@
 .pause-stock-animation {
   animation-play-state: paused !important;
 }
+
+/* Yellow Rimlight Hover Effect - Bright with minimal bleed */
+.yellow-rimlight-hover {
+  position: relative;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.yellow-rimlight-hover:hover {
+  box-shadow: 
+    0 0 0 2px rgba(234, 179, 8, 1),      /* Solid yellow rim */
+    0 0 12px rgba(234, 179, 8, 0.8),     /* Tight inner glow */
+    0 0 24px rgba(234, 179, 8, 0.4);     /* Minimal outer bleed */
+}
