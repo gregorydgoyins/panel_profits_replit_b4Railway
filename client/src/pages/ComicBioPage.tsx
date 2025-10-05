@@ -84,8 +84,8 @@ export default function ComicBioPage() {
   }
 
   // Transform comic data
-  const seriesAbbrev = comic.series?.split(' ').map((w: string) => w[0]).join('').toUpperCase() || 'CMC';
-  const symbol = `${seriesAbbrev}.V1.#${comic.issueNumber || '1'}`;
+  // Use backend-provided ticker symbol (already formatted with standardized nomenclature)
+  const symbol = comic.symbol || 'UNKNOWN';
   const currentPrice = comic.estimatedValue || 199.99;
   const priceChange = (Math.random() - 0.5) * 20;
   const priceChangePercent = (priceChange / currentPrice) * 100;
