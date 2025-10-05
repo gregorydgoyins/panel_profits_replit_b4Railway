@@ -71,6 +71,11 @@ import LearnPage from '@/pages/LearnPage';
 // Asset Details
 import AssetDetailPage from '@/pages/AssetDetailPage';
 
+// Comic Detail Pages
+import SeriesDetailPage from '@/pages/SeriesDetailPage';
+import HistoricalSignificancePage from '@/pages/HistoricalSignificancePage';
+import CreatorBioPage from '@/pages/CreatorBioPage';
+
 function Router() {
   const { isAuthenticated } = useAuth();
 
@@ -118,6 +123,9 @@ function Router() {
       <Route path="/news/:id?" component={NewsPage} />
       <Route path="/learn/:id?" component={LearnPage} />
       <Route path="/asset/:symbol" component={AssetDetailPage} />
+      <Route path="/series/:series" component={SeriesDetailPage} />
+      <Route path="/historical-significance/:id" component={HistoricalSignificancePage} />
+      <Route path="/creator/:name" component={CreatorBioPage} />
       <Route path="/settings" component={SettingsPage} />
       <Route component={NotFound} />
     </Switch>

@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -87,22 +88,24 @@ export function ComicOfTheDayWidget() {
       <CardContent className="space-y-6">
         {/* Featured Comic Header */}
         <div className="flex items-start gap-4">
-          {/* Real Comic Cover from Marvel API */}
-          <div className="w-32 aspect-[2/3] bg-muted rounded-lg overflow-hidden shrink-0 border-2 border-border">
-            {comic.coverUrl ? (
-              <img
-                src={comic.coverUrl}
-                alt={comic.title}
-                className="w-full h-full object-cover"
-                loading="lazy"
-                data-testid="img-comic-of-the-day-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
-                <Book className="w-12 h-12 text-primary/50" />
-              </div>
-            )}
-          </div>
+          {/* Real Comic Cover from Marvel API - Clickable to Series Detail */}
+          <Link href={`/series/${encodeURIComponent(comic.series)}`} data-testid="link-series-detail">
+            <div className="w-32 aspect-[2/3] bg-muted rounded-lg overflow-visible shrink-0 border-2 border-border white-rimlight-hover cursor-pointer">
+              {comic.coverUrl ? (
+                <img
+                  src={comic.coverUrl}
+                  alt={comic.title}
+                  className="w-full h-full object-cover rounded-lg"
+                  loading="lazy"
+                  data-testid="img-comic-of-the-day-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 rounded-lg">
+                  <Book className="w-12 h-12 text-primary/50" />
+                </div>
+              )}
+            </div>
+          </Link>
 
           {/* Comic Info */}
           <div className="flex-1 space-y-3">
@@ -154,13 +157,15 @@ export function ComicOfTheDayWidget() {
           </div>
         </div>
 
-        {/* Historical Context - Storytelling */}
-        <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
-          <p className="text-sm font-semibold text-primary mb-2">Historical Significance</p>
-          <p className="text-sm text-foreground/80 leading-relaxed">
-            {comic.historicalContext}
-          </p>
-        </div>
+        {/* Historical Context - Storytelling - Clickable to Detail Page */}
+        <Link href={`/historical-significance/${comic.id}`} data-testid="link-historical-significance">
+          <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 white-rimlight-hover cursor-pointer overflow-visible">
+            <p className="text-sm font-semibold text-primary mb-2">Historical Significance</p>
+            <p className="text-sm text-foreground/80 leading-relaxed">
+              {comic.historicalContext}
+            </p>
+          </div>
+        </Link>
 
         {/* Description */}
         {comic.description && (
@@ -172,18 +177,20 @@ export function ComicOfTheDayWidget() {
           </div>
         )}
 
-        {/* Creators */}
+        {/* Creators - Creative Team with White Rimlight */}
         {comic.creators && comic.creators.length > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-2 bg-primary/5 border border-primary/10 rounded-lg p-4 white-rimlight-hover overflow-visible">
             <h4 className="font-semibold text-foreground flex items-center gap-2">
               <User className="w-4 h-4" />
               Creative Team
             </h4>
             <div className="flex flex-wrap gap-2">
               {comic.creators.map((creator, idx) => (
-                <Badge key={idx} variant="outline" className="text-xs">
-                  {creator.name} <span className="text-muted-foreground ml-1">({creator.role})</span>
-                </Badge>
+                <Link key={idx} href={`/creator/${encodeURIComponent(creator.name)}`} data-testid={`link-creator-${idx}`}>
+                  <Badge variant="outline" className="text-xs white-rimlight-hover cursor-pointer overflow-visible">
+                    {creator.name} <span className="text-muted-foreground ml-1">({creator.role})</span>
+                  </Badge>
+                </Link>
               ))}
             </div>
           </div>
