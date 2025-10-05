@@ -216,24 +216,24 @@ export function ComicOfTheDayWidget() {
               {comic.isFirstIssue && (
                 <li className="flex items-start gap-2 text-sm">
                   <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                  <span className="text-foreground">First issue of the series - highly collectible</span>
+                  <span className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>First issue of the series - highly collectible</span>
                 </li>
               )}
               {comic.isKeyIssue && (
                 <li className="flex items-start gap-2 text-sm">
                   <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                  <span className="text-foreground">Key issue with significant historical importance</span>
+                  <span className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>Key issue with significant historical importance</span>
                 </li>
               )}
               {comic.pageCount > 0 && (
                 <li className="flex items-start gap-2 text-sm">
                   <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                  <span className="text-foreground">{comic.pageCount} pages of storytelling excellence</span>
+                  <span className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>{comic.pageCount} pages of storytelling excellence</span>
                 </li>
               )}
               <li className="flex items-start gap-2 text-sm">
                 <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                <span className="text-foreground">
+                <span className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
                   Value appreciation: {priceChangePercent > 0 ? '+' : ''}{priceChangePercent.toFixed(0)}% from print price
                 </span>
               </li>
