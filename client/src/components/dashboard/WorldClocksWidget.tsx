@@ -253,7 +253,7 @@ export function WorldClocksWidget() {
             {topRowMarkets.map((market) => (
               <div
                 key={market.name}
-                className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate transition-all purple-rimlight-hover"
+                className="flex flex-col items-center gap-1 p-4 rounded-lg border border-border bg-[#2D3748] hover-elevate transition-all purple-rimlight-hover min-h-[180px] justify-between"
                 data-testid={`market-${market.name.toLowerCase().replace(/\//g, '-')}`}
               >
               <AnalogClock time={market.localTime} status={market.status} />
@@ -283,7 +283,7 @@ export function WorldClocksWidget() {
             {bottomRowMarkets.map((market) => (
               <div
                 key={market.name}
-                className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate transition-all purple-rimlight-hover"
+                className="flex flex-col items-center gap-1 p-4 rounded-lg border border-border bg-[#2D3748] hover-elevate transition-all purple-rimlight-hover min-h-[180px] justify-between"
                 data-testid={`market-${market.name.toLowerCase().replace(/\//g, '-')}`}
               >
               <AnalogClock time={market.localTime} status={market.status} />
