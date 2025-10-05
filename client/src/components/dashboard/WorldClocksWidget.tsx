@@ -39,7 +39,7 @@ function AnalogClock({ time, status }: { time: Date; status: MarketStatus['statu
   };
 
   return (
-    <div className={`relative w-16 h-16 rounded-full border-2 ${getFaceColor()} flex items-center justify-center`}>
+    <div className={`relative w-5 h-5 rounded-full border ${getFaceColor()} flex items-center justify-center`}>
       <svg className="absolute w-full h-full" viewBox="0 0 100 100">
         {[...Array(12)].map((_, i) => {
           const angle = (i * 30 - 90) * (Math.PI / 180);
@@ -225,11 +225,11 @@ export function WorldClocksWidget() {
   const getStatusBadge = (status: MarketStatus['status']) => {
     switch (status) {
       case 'open':
-        return <Badge variant="default" className="bg-green-500 text-xs">Open</Badge>;
+        return <Badge variant="default" className="bg-green-500 text-sm">Open</Badge>;
       case 'after-hours':
-        return <Badge variant="secondary" className="bg-yellow-500 text-black text-xs">Extended</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-500 text-black text-sm">Extended</Badge>;
       case 'closed':
-        return <Badge variant="destructive" className="text-xs">Closed</Badge>;
+        return <Badge variant="destructive" className="text-sm">Closed</Badge>;
     }
   };
 
@@ -239,11 +239,11 @@ export function WorldClocksWidget() {
   return (
     <Card className="!bg-[#1A1F2E]" data-testid="widget-world-clocks">
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-base">
+        <CardTitle className="flex items-center gap-2 text-sm">
           <Globe className="w-4 h-4" />
           Global Market Hours
         </CardTitle>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Real-time analog clocks - 8 major exchanges
         </p>
       </CardHeader>
@@ -270,16 +270,16 @@ export function WorldClocksWidget() {
               <AnalogClock time={market.localTime} status={market.status} />
               
               <div className="text-center space-y-0.5 w-full">
-                <div className="font-semibold text-xs text-foreground">{market.name}</div>
-                <div className="text-xs text-muted-foreground">{market.city}</div>
-                <div className="text-xs font-mono text-muted-foreground">
+                <div className="font-semibold text-sm text-foreground truncate">{market.name}</div>
+                <div className="text-sm text-muted-foreground truncate">{market.city}</div>
+                <div className="text-sm font-mono text-muted-foreground truncate whitespace-nowrap">
                   {market.localTime.toLocaleTimeString('en-US', { 
                     hour: '2-digit', 
                     minute: '2-digit',
                     hour12: true 
                   })}
                 </div>
-                <div className="text-[10px] text-muted-foreground leading-tight">
+                <div className="text-sm text-muted-foreground leading-tight truncate whitespace-nowrap">
                   {market.openTime} - {market.closeTime}
                 </div>
                 {getStatusBadge(market.status)}
@@ -311,16 +311,16 @@ export function WorldClocksWidget() {
               <AnalogClock time={market.localTime} status={market.status} />
               
               <div className="text-center space-y-0.5 w-full">
-                <div className="font-semibold text-xs text-foreground">{market.name}</div>
-                <div className="text-xs text-muted-foreground">{market.city}</div>
-                <div className="text-xs font-mono text-muted-foreground">
+                <div className="font-semibold text-sm text-foreground truncate">{market.name}</div>
+                <div className="text-sm text-muted-foreground truncate">{market.city}</div>
+                <div className="text-sm font-mono text-muted-foreground truncate whitespace-nowrap">
                   {market.localTime.toLocaleTimeString('en-US', { 
                     hour: '2-digit', 
                     minute: '2-digit',
                     hour12: true 
                   })}
                 </div>
-                <div className="text-[10px] text-muted-foreground leading-tight">
+                <div className="text-sm text-muted-foreground leading-tight truncate whitespace-nowrap">
                   {market.openTime} - {market.closeTime}
                 </div>
                 {getStatusBadge(market.status)}
@@ -330,7 +330,7 @@ export function WorldClocksWidget() {
           </div>
         </div>
 
-        <div className="pt-2 border-t border-border flex flex-wrap gap-2 text-xs text-muted-foreground">
+        <div className="pt-2 border-t border-border flex flex-wrap gap-2 text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 rounded-full bg-green-500" />
             <span>Open</span>
