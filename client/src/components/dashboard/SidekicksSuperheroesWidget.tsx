@@ -50,7 +50,7 @@ export function SidekicksSuperheroesWidget() {
       <Card className="h-full !bg-[#1A1F2E] sidekick-rimlight-hover" data-testid="widget-sidekicks-superheroes">
         <CardHeader className="pb-3 space-y-0">
           <div className="flex items-center gap-2">
-            <Shield className="w-12 h-12 text-[#89CFF0]" data-testid="icon-shield" />
+            <Shield className="w-12 h-12 text-[#89CFF0] sidekick-icon-glow" data-testid="icon-shield" />
             <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
               Sidekicks & Superheroes
             </span>
@@ -72,7 +72,7 @@ export function SidekicksSuperheroesWidget() {
       <Card className="h-full !bg-[#1A1F2E] sidekick-rimlight-hover" data-testid="widget-sidekicks-superheroes">
         <CardHeader className="pb-3 space-y-0">
           <div className="flex items-center gap-2">
-            <Shield className="w-12 h-12 text-[#89CFF0]" data-testid="icon-shield" />
+            <Shield className="w-12 h-12 text-[#89CFF0] sidekick-icon-glow" data-testid="icon-shield" />
             <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
               Sidekicks & Superheroes
             </span>
@@ -91,7 +91,7 @@ export function SidekicksSuperheroesWidget() {
     <Card className="h-full !bg-[#1A1F2E] sidekick-rimlight-hover" data-testid="widget-sidekicks-superheroes">
       <CardHeader className="pb-3 space-y-0">
         <div className="flex items-center gap-2">
-          <Shield className="w-12 h-12 text-[#89CFF0]" data-testid="icon-shield" />
+          <Shield className="w-12 h-12 text-[#89CFF0] sidekick-icon-glow" data-testid="icon-shield" />
           <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
             Sidekicks & Superheroes
           </span>

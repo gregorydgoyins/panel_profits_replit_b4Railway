@@ -49,7 +49,7 @@ export function LocationsGadgetsWidget() {
       <Card className="h-full !bg-[#1A1F2E] location-rimlight-hover" data-testid="widget-locations-gadgets">
         <CardHeader className="pb-3 space-y-0">
           <div className="flex items-center gap-2">
-            <MapPin className="w-12 h-12 text-[#8B4513]" data-testid="icon-mappin" />
+            <MapPin className="w-12 h-12 text-[#8B4513] location-icon-glow" data-testid="icon-mappin" />
             <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
               Locations & Gadgets
             </span>
@@ -71,7 +71,7 @@ export function LocationsGadgetsWidget() {
       <Card className="h-full !bg-[#1A1F2E] location-rimlight-hover" data-testid="widget-locations-gadgets">
         <CardHeader className="pb-3 space-y-0">
           <div className="flex items-center gap-2">
-            <MapPin className="w-12 h-12 text-[#8B4513]" data-testid="icon-mappin" />
+            <MapPin className="w-12 h-12 text-[#8B4513] location-icon-glow" data-testid="icon-mappin" />
             <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
               Locations & Gadgets
             </span>
@@ -90,7 +90,7 @@ export function LocationsGadgetsWidget() {
     <Card className="h-full !bg-[#1A1F2E] location-rimlight-hover" data-testid="widget-locations-gadgets">
       <CardHeader className="pb-3 space-y-0">
         <div className="flex items-center gap-2">
-          <MapPin className="w-12 h-12 text-[#8B4513]" data-testid="icon-mappin" />
+          <MapPin className="w-12 h-12 text-[#8B4513] location-icon-glow" data-testid="icon-mappin" />
           <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
             Locations & Gadgets
           </span>

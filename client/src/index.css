@@ -611,6 +611,15 @@
     0 0 24px rgba(137, 207, 240, 0.4);     /* Minimal outer bleed */
 }
 
+/* Sidekick Icon Glow - Makes shield icon glow on widget hover */
+.sidekick-icon-glow {
+  transition: filter 0.2s ease-in-out, drop-shadow 0.2s ease-in-out;
+}
+
+.sidekick-rimlight-hover:hover .sidekick-icon-glow {
+  filter: drop-shadow(0 0 8px rgba(137, 207, 240, 0.8)) drop-shadow(0 0 16px rgba(137, 207, 240, 0.6));
+}
+
 /* Location Rimlight Hover Effect - Brown with minimal bleed */
 .location-rimlight-hover {
   position: relative;
@@ -622,6 +631,15 @@
     0 0 0 2px rgba(139, 69, 19, 1),      /* Solid brown rim */
     0 0 12px rgba(139, 69, 19, 0.8),     /* Tight inner glow */
     0 0 24px rgba(139, 69, 19, 0.4);     /* Minimal outer bleed */
+}
+
+/* Location Icon Glow - Makes map pin icon glow on widget hover */
+.location-icon-glow {
+  transition: filter 0.2s ease-in-out, drop-shadow 0.2s ease-in-out;
+}
+
+.location-rimlight-hover:hover .location-icon-glow {
+  filter: drop-shadow(0 0 8px rgba(139, 69, 19, 0.8)) drop-shadow(0 0 16px rgba(139, 69, 19, 0.6));
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════════════ */
