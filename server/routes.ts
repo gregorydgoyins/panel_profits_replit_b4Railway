@@ -4418,7 +4418,7 @@ Respond with valid JSON in this exact format:
           assetId: assetsTable.id,
           assetSymbol: assetsTable.symbol,
           assetPrice: assetCurrentPrices.currentPrice,
-          assetPriceChange: assetCurrentPrices.dailyChange,
+          assetPriceChange: assetCurrentPrices.dayChangePercent,
         })
         .from(narrativeEntities)
         .leftJoin(assetsTable, eq(narrativeEntities.assetId, assetsTable.id))
@@ -4515,7 +4515,7 @@ Respond with valid JSON in this exact format:
           assetId: assetsTable.id,
           assetSymbol: assetsTable.symbol,
           assetPrice: assetCurrentPrices.currentPrice,
-          assetPriceChange: assetCurrentPrices.dailyChange,
+          assetPriceChange: assetCurrentPrices.dayChangePercent,
         })
         .from(narrativeEntities)
         .leftJoin(assetsTable, eq(narrativeEntities.assetId, assetsTable.id))
@@ -4657,7 +4657,7 @@ Respond with valid JSON in this exact format:
           assetId: assetsTable.id,
           assetSymbol: assetsTable.symbol,
           assetPrice: assetCurrentPrices.currentPrice,
-          assetPriceChange: assetCurrentPrices.dailyChange,
+          assetPriceChange: assetCurrentPrices.dayChangePercent,
         })
         .from(narrativeEntities)
         .leftJoin(assetsTable, eq(narrativeEntities.assetId, assetsTable.id))

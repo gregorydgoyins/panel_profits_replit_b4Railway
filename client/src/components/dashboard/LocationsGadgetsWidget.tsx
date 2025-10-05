@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { MapPin } from 'lucide-react';
+import { MapPin, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
 
 interface LocationGadget {
   id: string;
@@ -14,6 +14,10 @@ interface LocationGadget {
   description: string | null;
   assetImageUrl: string | null;
   assetCoverImageUrl: string | null;
+  assetId: string | null;
+  assetSymbol: string | null;
+  assetPrice: string | null;
+  assetPriceChange: string | null;
 }
 
 export function LocationsGadgetsWidget() {
@@ -31,6 +35,15 @@ export function LocationsGadgetsWidget() {
            '';
   };
 
+  const getSignificanceText = (item: LocationGadget): string => {
+    const isLocation = item.entityType === 'location';
+    if (isLocation) {
+      return `Iconic ${item.universe} location with significant story importance and fan recognition`;
+    } else {
+      return `Notable ${item.universe} equipment or artifact with unique powers or historical value`;
+    }
+  };
+
   if (isLoading) {
     return (
       <Card className="h-full border-2 border-[#8B4513] bg-[#8B4513]/5 rounded-lg location-rimlight-hover" data-testid="widget-locations-gadgets">
@@ -45,7 +58,7 @@ export function LocationsGadgetsWidget() {
         <CardContent>
           <div className="flex gap-4 overflow-x-auto pb-2">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="w-[280px] h-[400px] bg-muted rounded-lg animate-pulse shrink-0" />
+              <div key={i} className="w-[280px] h-[480px] bg-muted rounded-lg animate-pulse shrink-0" />
             ))}
           </div>
         </CardContent>
@@ -89,9 +102,13 @@ export function LocationsGadgetsWidget() {
             const imageUrl = getImageUrl(item);
             const isLocation = item.entityType === 'location';
             const accentColor = isLocation ? '#8B4513' : '#DAA520';
-            
             const linkPath = isLocation ? `/location/${item.id}` : `/gadget/${item.id}`;
             const rimlightClass = isLocation ? 'location-rimlight-hover' : 'gadget-rimlight-hover';
+            
+            const price = item.assetPrice ? parseFloat(item.assetPrice) : null;
+            const priceChange = item.assetPriceChange ? parseFloat(item.assetPriceChange) : null;
+            const isPriceUp = priceChange !== null && priceChange > 0;
+            const isPriceDown = priceChange !== null && priceChange < 0;
             
             return (
               <Link 
@@ -100,7 +117,7 @@ export function LocationsGadgetsWidget() {
                 data-testid={`link-${isLocation ? 'location' : 'gadget'}-${item.id}`}
               >
                 <div 
-                  className={`relative w-[280px] h-[400px] rounded-lg overflow-hidden shrink-0 hover-elevate cursor-pointer ${rimlightClass}`}
+                  className={`relative w-[280px] h-[480px] rounded-lg overflow-hidden shrink-0 hover-elevate cursor-pointer ${rimlightClass}`}
                   data-testid={`card-item-${item.id}`}
                   style={{
                     backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',
@@ -112,11 +129,10 @@ export function LocationsGadgetsWidget() {
                   <div 
                     className="absolute inset-0"
                     style={{
-                      background: `linear-gradient(to top, ${accentColor}ee 0%, ${accentColor}99 30%, transparent 100%)`
+                      background: `linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.6) 40%, transparent 100%)`
                     }}
                   />
                   
-                  {/* Franchise Badge - Top Right */}
                   <div className="absolute top-3 right-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm border border-white/20">
                     <span 
                       style={{ 
@@ -130,18 +146,19 @@ export function LocationsGadgetsWidget() {
                     </span>
                   </div>
                   
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <div className="absolute bottom-0 left-0 right-0 p-4 space-y-3">
                     <div 
-                      className="mb-2"
+                      className="mb-1"
                       style={{ 
                         fontFamily: 'Hind, sans-serif', 
                         fontWeight: '300', 
                         fontSize: '15pt',
-                        color: '#ffffff',
+                        color: accentColor,
                       }}
                     >
                       {isLocation ? 'LOCATION' : 'GADGET'}
                     </div>
+
                     <h3 
                       className="text-white line-clamp-2"
                       style={{ 
@@ -152,6 +169,70 @@ export function LocationsGadgetsWidget() {
                     >
                       {item.canonicalName}
                     </h3>
+
+                    <p 
+                      className="text-white/80 line-clamp-2"
+                      style={{ 
+                        fontFamily: 'Hind, sans-serif', 
+                        fontWeight: '300', 
+                        fontSize: '12pt',
+                      }}
+                    >
+                      {getSignificanceText(item)}
+                    </p>
+
+                    {price !== null && (
+                      <div className="flex items-center justify-between bg-black/50 backdrop-blur-sm rounded px-3 py-2 border border-white/10">
+                        <div className="flex items-center gap-2">
+                          <DollarSign className="w-4 h-4 text-[#50C878]" />
+                          <span 
+                            style={{ 
+                              fontFamily: 'Hind, sans-serif', 
+                              fontWeight: '300', 
+                              fontSize: '12pt',
+                              color: '#50C878',
+                            }}
+                          >
+                            ${price.toFixed(2)}
+                          </span>
+                        </div>
+                        
+                        {priceChange !== null && (
+                          <div className="flex items-center gap-1">
+                            {isPriceUp && (
+                              <>
+                                <TrendingUp className="w-4 h-4 text-[#50C878]" data-testid="icon-trending-up" />
+                                <span 
+                                  style={{ 
+                                    fontFamily: 'Hind, sans-serif', 
+                                    fontWeight: '300', 
+                                    fontSize: '12pt',
+                                    color: '#50C878',
+                                  }}
+                                >
+                                  +{Math.abs(priceChange).toFixed(2)}%
+                                </span>
+                              </>
+                            )}
+                            {isPriceDown && (
+                              <>
+                                <TrendingDown className="w-4 h-4 text-[#DC143C]" data-testid="icon-trending-down" />
+                                <span 
+                                  style={{ 
+                                    fontFamily: 'Hind, sans-serif', 
+                                    fontWeight: '300', 
+                                    fontSize: '12pt',
+                                    color: '#DC143C',
+                                  }}
+                                >
+                                  {priceChange.toFixed(2)}%
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {!imageUrl && (

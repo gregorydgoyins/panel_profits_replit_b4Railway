@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Shield } from 'lucide-react';
+import { Shield, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
 
 interface Hero {
   id: string;
@@ -15,22 +15,34 @@ interface Hero {
   allies: string[] | null;
   assetImageUrl: string | null;
   assetCoverImageUrl: string | null;
+  assetId: string | null;
+  assetSymbol: string | null;
+  assetPrice: string | null;
+  assetPriceChange: string | null;
 }
 
 export function SidekicksSuperheroesWidget() {
   const { data, isLoading, error } = useQuery<{ success: boolean; data: Hero[] }>({
     queryKey: ['/api/narrative/sidekicks'],
-    refetchInterval: 30000, // 30 seconds
+    refetchInterval: 30000,
   });
 
   const heroes = data?.data || [];
 
-  // Get image URL with fallbacks
   const getImageUrl = (hero: Hero): string => {
     return hero.primaryImageUrl || 
            hero.assetImageUrl || 
            hero.assetCoverImageUrl || 
            '';
+  };
+
+  const getSignificanceText = (hero: Hero): string => {
+    const isSidekick = hero.subtype === 'sidekick';
+    if (isSidekick) {
+      return `Supporting heroic character in the ${hero.universe} universe with notable adventures`;
+    } else {
+      return `Major ${hero.universe} protagonist with significant comic history and cultural impact`;
+    }
   };
 
   if (isLoading) {
@@ -47,7 +59,7 @@ export function SidekicksSuperheroesWidget() {
         <CardContent>
           <div className="flex gap-4 overflow-x-auto pb-2">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="w-[280px] h-[400px] bg-muted rounded-lg animate-pulse shrink-0" />
+              <div key={i} className="w-[280px] h-[480px] bg-muted rounded-lg animate-pulse shrink-0" />
             ))}
           </div>
         </CardContent>
@@ -91,9 +103,13 @@ export function SidekicksSuperheroesWidget() {
             const imageUrl = getImageUrl(hero);
             const isSidekick = hero.subtype === 'sidekick';
             const accentColor = isSidekick ? '#89CFF0' : '#00CED1';
-            
             const linkPath = isSidekick ? `/sidekick/${hero.id}` : `/superhero/${hero.id}`;
             const rimlightClass = isSidekick ? 'sidekick-rimlight-hover' : 'superhero-rimlight-hover';
+            
+            const price = hero.assetPrice ? parseFloat(hero.assetPrice) : null;
+            const priceChange = hero.assetPriceChange ? parseFloat(hero.assetPriceChange) : null;
+            const isPriceUp = priceChange !== null && priceChange > 0;
+            const isPriceDown = priceChange !== null && priceChange < 0;
             
             return (
               <Link 
@@ -102,7 +118,7 @@ export function SidekicksSuperheroesWidget() {
                 data-testid={`link-${isSidekick ? 'sidekick' : 'superhero'}-${hero.id}`}
               >
                 <div 
-                  className={`relative w-[280px] h-[400px] rounded-lg overflow-hidden shrink-0 hover-elevate cursor-pointer ${rimlightClass}`}
+                  className={`relative w-[280px] h-[480px] rounded-lg overflow-hidden shrink-0 hover-elevate cursor-pointer ${rimlightClass}`}
                   data-testid={`card-hero-${hero.id}`}
                   style={{
                     backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',
@@ -111,15 +127,13 @@ export function SidekicksSuperheroesWidget() {
                     backgroundColor: imageUrl ? 'transparent' : '#1a1a1a',
                   }}
                 >
-                  {/* Bright gradient overlay */}
                   <div 
                     className="absolute inset-0"
                     style={{
-                      background: `linear-gradient(to top, ${accentColor}ee 0%, ${accentColor}99 30%, transparent 100%)`
+                      background: `linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.6) 40%, transparent 100%)`
                     }}
                   />
                   
-                  {/* Franchise Badge - Top Right */}
                   <div className="absolute top-3 right-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm border border-white/20">
                     <span 
                       style={{ 
@@ -133,19 +147,19 @@ export function SidekicksSuperheroesWidget() {
                     </span>
                   </div>
                   
-                  {/* Hero name at bottom */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <div className="absolute bottom-0 left-0 right-0 p-4 space-y-3">
                     <div 
-                      className="mb-2"
+                      className="mb-1"
                       style={{ 
                         fontFamily: 'Hind, sans-serif', 
                         fontWeight: '300', 
                         fontSize: '15pt',
-                        color: '#ffffff',
+                        color: accentColor,
                       }}
                     >
                       {isSidekick ? 'SIDEKICK' : 'SUPERHERO'}
                     </div>
+
                     <h3 
                       className="text-white line-clamp-2"
                       style={{ 
@@ -156,9 +170,72 @@ export function SidekicksSuperheroesWidget() {
                     >
                       {hero.canonicalName}
                     </h3>
+
+                    <p 
+                      className="text-white/80 line-clamp-2"
+                      style={{ 
+                        fontFamily: 'Hind, sans-serif', 
+                        fontWeight: '300', 
+                        fontSize: '12pt',
+                      }}
+                    >
+                      {getSignificanceText(hero)}
+                    </p>
+
+                    {price !== null && (
+                      <div className="flex items-center justify-between bg-black/50 backdrop-blur-sm rounded px-3 py-2 border border-white/10">
+                        <div className="flex items-center gap-2">
+                          <DollarSign className="w-4 h-4 text-[#50C878]" />
+                          <span 
+                            style={{ 
+                              fontFamily: 'Hind, sans-serif', 
+                              fontWeight: '300', 
+                              fontSize: '12pt',
+                              color: '#50C878',
+                            }}
+                          >
+                            ${price.toFixed(2)}
+                          </span>
+                        </div>
+                        
+                        {priceChange !== null && (
+                          <div className="flex items-center gap-1">
+                            {isPriceUp && (
+                              <>
+                                <TrendingUp className="w-4 h-4 text-[#50C878]" data-testid="icon-trending-up" />
+                                <span 
+                                  style={{ 
+                                    fontFamily: 'Hind, sans-serif', 
+                                    fontWeight: '300', 
+                                    fontSize: '12pt',
+                                    color: '#50C878',
+                                  }}
+                                >
+                                  +{Math.abs(priceChange).toFixed(2)}%
+                                </span>
+                              </>
+                            )}
+                            {isPriceDown && (
+                              <>
+                                <TrendingDown className="w-4 h-4 text-[#DC143C]" data-testid="icon-trending-down" />
+                                <span 
+                                  style={{ 
+                                    fontFamily: 'Hind, sans-serif', 
+                                    fontWeight: '300', 
+                                    fontSize: '12pt',
+                                    color: '#DC143C',
+                                  }}
+                                >
+                                  {priceChange.toFixed(2)}%
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
-                  {/* Placeholder if no image */}
                   {!imageUrl && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <Shield className="w-32 h-32 text-muted-foreground/20" />
