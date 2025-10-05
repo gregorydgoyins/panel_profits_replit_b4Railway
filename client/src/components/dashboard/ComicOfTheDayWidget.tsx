@@ -207,8 +207,8 @@ export function ComicOfTheDayWidget() {
               </h4>
               <div className="flex flex-wrap gap-2">
                 {comic.creators.map((creator, idx) => (
-                  <Badge key={idx} variant="outline" className="text-xs" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
-                    {creator.name} <span className="text-muted-foreground ml-1" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>({creator.role})</span>
+                  <Badge key={idx} variant="outline" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '13pt' }}>
+                    {creator.name} <span className="text-muted-foreground ml-1" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>({creator.role})</span>
                   </Badge>
                 ))}
               </div>
