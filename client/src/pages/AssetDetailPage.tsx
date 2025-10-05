@@ -247,17 +247,25 @@ export default function AssetDetailPage() {
                   Creators
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {asset.creators.map((creator, idx) => (
-                    <Badge 
-                      key={idx} 
-                      variant="outline"
-                      className="hover-elevate cursor-pointer transition-all duration-200"
-                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '13pt' }}
-                      data-testid={`badge-creator-${idx}`}
-                    >
-                      {creator}
-                    </Badge>
-                  ))}
+                  {asset.creators.map((creator, idx) => {
+                    const creatorName = creator.split('(')[0].trim();
+                    return (
+                      <Link 
+                        key={idx} 
+                        href={`/creator/${encodeURIComponent(creatorName)}`}
+                        data-testid={`link-creator-${idx}`}
+                      >
+                        <Badge 
+                          variant="outline"
+                          className="hover-elevate cursor-pointer transition-all duration-200"
+                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '13pt' }}
+                          data-testid={`badge-creator-${idx}`}
+                        >
+                          {creator}
+                        </Badge>
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             )}
