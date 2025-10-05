@@ -13,6 +13,7 @@ import {
 import { Link } from 'wouter';
 import { WorldClocksWidget } from '@/components/dashboard/WorldClocksWidget';
 import { ComicOfTheDayWidget } from '@/components/dashboard/ComicOfTheDayWidget';
+import { FeaturedComicsSection } from '@/components/dashboard/FeaturedComicsSection';
 import { MarketMoversWidget } from '@/components/dashboard/MarketMoversWidget';
 import { FearGreedWidget } from '@/components/dashboard/FearGreedWidget';
 import { ComicHeatMapWidget } from '@/components/dashboard/ComicHeatMapWidget';
@@ -490,6 +491,9 @@ export default function DashboardPage() {
 
       {/* Comic of the Day */}
       <ComicOfTheDayWidget />
+
+      {/* Featured Comics Section */}
+      <FeaturedComicsSection />
 
       {/* Featured Comic Covers */}
       {featuredCovers && featuredCovers.length > 0 && (

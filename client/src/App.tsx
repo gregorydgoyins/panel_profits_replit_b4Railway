@@ -76,6 +76,7 @@ import SeriesDetailPage from '@/pages/SeriesDetailPage';
 import HistoricalSignificancePage from '@/pages/HistoricalSignificancePage';
 import CreatorBioPage from '@/pages/CreatorBioPage';
 import IssueDetailPage from '@/pages/IssueDetailPage';
+import ComicBioPage from '@/pages/ComicBioPage';
 import OrderDeskPage from '@/pages/OrderDeskPage';
 
 function Router() {
@@ -129,6 +130,7 @@ function Router() {
       <Route path="/historical-significance/:id" component={HistoricalSignificancePage} />
       <Route path="/creator/:name" component={CreatorBioPage} />
       <Route path="/issue/:id" component={IssueDetailPage} />
+      <Route path="/comic-bio/:id" component={ComicBioPage} />
       <Route path="/order-desk/:assetId" component={OrderDeskPage} />
       <Route path="/settings" component={SettingsPage} />
       <Route component={NotFound} />
