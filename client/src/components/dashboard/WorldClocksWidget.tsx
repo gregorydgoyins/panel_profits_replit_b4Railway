@@ -253,18 +253,7 @@ export function WorldClocksWidget() {
             {topRowMarkets.map((market) => (
               <div
                 key={market.name}
-                className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate transition-all"
-                onMouseEnter={(e) => {
-                  const glowColor = market.status === 'open' 
-                    ? 'rgba(34, 197, 94, 0.8)' 
-                    : market.status === 'after-hours'
-                    ? 'rgba(234, 179, 8, 0.8)'
-                    : 'rgba(239, 68, 68, 0.8)';
-                  e.currentTarget.style.boxShadow = `0 0 8px ${glowColor}, 0 0 15px ${glowColor}`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = '';
-                }}
+                className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate transition-all purple-rimlight-hover"
                 data-testid={`market-${market.name.toLowerCase().replace(/\//g, '-')}`}
               >
               <AnalogClock time={market.localTime} status={market.status} />
@@ -294,18 +283,7 @@ export function WorldClocksWidget() {
             {bottomRowMarkets.map((market) => (
               <div
                 key={market.name}
-                className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate transition-all"
-                onMouseEnter={(e) => {
-                  const glowColor = market.status === 'open' 
-                    ? 'rgba(34, 197, 94, 0.8)' 
-                    : market.status === 'after-hours'
-                    ? 'rgba(234, 179, 8, 0.8)'
-                    : 'rgba(239, 68, 68, 0.8)';
-                  e.currentTarget.style.boxShadow = `0 0 8px ${glowColor}, 0 0 15px ${glowColor}`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = '';
-                }}
+                className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate transition-all purple-rimlight-hover"
                 data-testid={`market-${market.name.toLowerCase().replace(/\//g, '-')}`}
               >
               <AnalogClock time={market.localTime} status={market.status} />

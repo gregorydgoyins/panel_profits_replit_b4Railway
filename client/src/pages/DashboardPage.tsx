@@ -109,7 +109,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-4">
       {/* Portfolio Outlook - Single Line Stats */}
-      <Card className="!bg-[#1A1F2E]" data-testid="widget-portfolio-outlook">
+      <Card className="!bg-[#1A1F2E] yellow-rimlight-hover" data-testid="widget-portfolio-outlook">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-base">
             <Briefcase className="w-4 h-4" />
