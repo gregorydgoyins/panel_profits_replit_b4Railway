@@ -7,6 +7,7 @@ interface Hero {
   id: string;
   canonicalName: string;
   subtype: string;
+  universe: string;
   primaryImageUrl: string | null;
   alternateImageUrls: string[] | null;
   biography: string | null;
@@ -117,6 +118,20 @@ export function SidekicksSuperheroesWidget() {
                       background: `linear-gradient(to top, ${accentColor}ee 0%, ${accentColor}99 30%, transparent 100%)`
                     }}
                   />
+                  
+                  {/* Franchise Badge - Top Right */}
+                  <div className="absolute top-3 right-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm border border-white/20">
+                    <span 
+                      style={{ 
+                        fontFamily: 'Hind, sans-serif', 
+                        fontWeight: '300', 
+                        fontSize: '10pt',
+                        color: '#ffffff',
+                      }}
+                    >
+                      {hero.universe?.toUpperCase() || 'UNKNOWN'}
+                    </span>
+                  </div>
                   
                   {/* Hero name at bottom */}
                   <div className="absolute bottom-0 left-0 right-0 p-4">

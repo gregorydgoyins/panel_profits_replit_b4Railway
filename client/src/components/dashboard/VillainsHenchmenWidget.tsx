@@ -7,6 +7,7 @@ interface Villain {
   id: string;
   canonicalName: string;
   subtype: string;
+  universe: string;
   primaryImageUrl: string | null;
   alternateImageUrls: string[] | null;
   biography: string | null;
@@ -112,6 +113,20 @@ export function VillainsHenchmenWidget() {
                 >
                   {/* Dark gradient overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+                  
+                  {/* Franchise Badge - Top Right */}
+                  <div className="absolute top-3 right-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm border border-white/20">
+                    <span 
+                      style={{ 
+                        fontFamily: 'Hind, sans-serif', 
+                        fontWeight: '300', 
+                        fontSize: '10pt',
+                        color: '#ffffff',
+                      }}
+                    >
+                      {villain.universe?.toUpperCase() || 'UNKNOWN'}
+                    </span>
+                  </div>
                   
                   {/* Villain name at bottom */}
                   <div className="absolute bottom-0 left-0 right-0 p-4">
