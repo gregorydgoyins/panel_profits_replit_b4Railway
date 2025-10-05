@@ -97,7 +97,7 @@ export function TopNavbar() {
       <div className="flex items-center flex-shrink-0">
         <Link href="/dashboard">
           <a 
-            className="text-sm font-bold text-white hover:text-gray-300 transition-colors whitespace-nowrap"
+            className="text-sm text-white hover:text-gray-300 transition-colors whitespace-nowrap"
             style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             data-testid="link-logo"
           >
