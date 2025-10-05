@@ -240,7 +240,7 @@ export function WorldClocksWidget() {
     <Card className="!bg-[#1A1F2E] purple-rimlight-hover" data-testid="widget-world-clocks">
       <CardHeader className="pb-3 space-y-0">
         <div className="flex items-center gap-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt', marginBottom: '-4px' }}>
-          <Globe className="w-4 h-4" />
+          <Globe className="w-4 h-4 text-purple-500" />
           <span>Global Market Hours</span>
         </div>
         <p className="text-muted-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
