@@ -54,7 +54,7 @@ export function FeaturedComicsSection() {
   if (isLoading || comics.length === 0) {
     return (
       <div className="bg-[#1A1F2E] rounded-lg p-6 pink-rimlight-hover overflow-visible">
-        <h3 className="text-xl font-semibold mb-4 text-foreground">Featured Comics</h3>
+        <h3 className="mb-4 text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>Featured Comics</h3>
         <div className="bg-[#252B3C] p-4 rounded-lg">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
             {[...Array(6)].map((_, i) => (
@@ -71,7 +71,7 @@ export function FeaturedComicsSection() {
 
   return (
     <div className="bg-[#1A1F2E] rounded-lg p-6 pink-rimlight-hover overflow-visible">
-      <h3 className="text-xl font-semibold mb-4 text-foreground">Featured Comics</h3>
+      <h3 className="mb-4 text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>Featured Comics</h3>
       
       <div className="bg-[#252B3C] p-4 rounded-lg">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
@@ -100,12 +100,12 @@ export function FeaturedComicsSection() {
 
                 {/* Ticker Label - No Text Wrap */}
                 <div className="space-y-1">
-                  <div className="text-xs font-semibold text-foreground truncate" title={comic.symbol}>
+                  <div className="text-foreground truncate" title={comic.symbol} style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt', whiteSpace: 'nowrap' }}>
                     {comic.symbol}
                   </div>
                   
                   {/* Price with Movement Icon */}
-                  <div className="flex items-center gap-1 text-xs">
+                  <div className="flex items-center gap-1" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt' }}>
                     {comic.priceChangePercent >= 0 ? (
                       <TrendingUp className="w-3 h-3 text-green-500 shrink-0" />
                     ) : (
