@@ -39,8 +39,8 @@ function AnalogClock({ time, status }: { time: Date; status: MarketStatus['statu
   };
 
   return (
-    <div className={`relative w-12 h-12 rounded-full border ${getFaceColor()} flex items-center justify-center overflow-visible`}>
-      <svg className="absolute w-full h-full" viewBox="0 0 100 100" style={{ transform: 'scale(2.5)' }}>
+    <div className={`relative w-10 h-10 rounded-full border ${getFaceColor()} flex items-center justify-center overflow-visible`}>
+      <svg className="absolute w-full h-full" viewBox="0 0 100 100" style={{ transform: 'scale(2)' }}>
         {[...Array(12)].map((_, i) => {
           const angle = (i * 30 - 90) * (Math.PI / 180);
           const x = 50 + 38 * Math.cos(angle);
