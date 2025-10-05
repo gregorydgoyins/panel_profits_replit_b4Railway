@@ -170,9 +170,9 @@ export function ComicOfTheDayWidget() {
         {/* Description - About This Issue - Clickable to Issue Detail */}
         {comic.description && (
           <Link href={`/issue/${comic.id}`} data-testid="link-issue-detail">
-            <div className="space-y-2 border border-border rounded-lg p-4 white-rimlight-hover cursor-pointer overflow-visible">
+            <div className="space-y-2 bg-primary/5 border border-primary/10 rounded-lg p-4 white-rimlight-hover cursor-pointer overflow-visible">
               <h4 className="font-semibold text-foreground">About This Issue</h4>
-              <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+              <p className="text-sm text-foreground/80 leading-relaxed line-clamp-3">
                 {comic.description}
               </p>
             </div>
@@ -198,49 +198,43 @@ export function ComicOfTheDayWidget() {
           </div>
         )}
 
-        {/* Key Facts */}
+        {/* Key Facts - One Orange Box Around All Items */}
         <div className="space-y-2">
           <h4 className="font-semibold text-foreground">Quick Facts</h4>
-          <ul className="space-y-3">
-            {comic.isFirstIssue && (
-              <li className="border-2 border-orange-500 rounded-lg p-3 bg-orange-500/5 orange-rimlight-hover overflow-visible">
-                <div className="flex items-start gap-2 text-sm">
+          <div className="border-2 border-orange-500 rounded-lg p-4 bg-orange-500/5 orange-rimlight-hover overflow-visible">
+            <ul className="space-y-3">
+              {comic.isFirstIssue && (
+                <li className="flex items-start gap-2 text-sm">
                   <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                  <span className="text-foreground underline decoration-orange-500 decoration-2">First issue of the series - highly collectible</span>
-                </div>
-              </li>
-            )}
-            {comic.isKeyIssue && (
-              <li className="border-2 border-orange-500 rounded-lg p-3 bg-orange-500/5 orange-rimlight-hover overflow-visible">
-                <div className="flex items-start gap-2 text-sm">
+                  <span className="text-foreground">First issue of the series - highly collectible</span>
+                </li>
+              )}
+              {comic.isKeyIssue && (
+                <li className="flex items-start gap-2 text-sm">
                   <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                  <span className="text-foreground underline decoration-orange-500 decoration-2">Key issue with significant historical importance</span>
-                </div>
-              </li>
-            )}
-            {comic.pageCount > 0 && (
-              <li className="border-2 border-orange-500 rounded-lg p-3 bg-orange-500/5 orange-rimlight-hover overflow-visible">
-                <div className="flex items-start gap-2 text-sm">
+                  <span className="text-foreground">Key issue with significant historical importance</span>
+                </li>
+              )}
+              {comic.pageCount > 0 && (
+                <li className="flex items-start gap-2 text-sm">
                   <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                  <span className="text-foreground underline decoration-orange-500 decoration-2">{comic.pageCount} pages of storytelling excellence</span>
-                </div>
-              </li>
-            )}
-            <li className="border-2 border-orange-500 rounded-lg p-3 bg-orange-500/5 orange-rimlight-hover overflow-visible">
-              <div className="flex items-start gap-2 text-sm">
+                  <span className="text-foreground">{comic.pageCount} pages of storytelling excellence</span>
+                </li>
+              )}
+              <li className="flex items-start gap-2 text-sm">
                 <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                <span className="text-foreground underline decoration-orange-500 decoration-2">
+                <span className="text-foreground">
                   Value appreciation: {priceChangePercent > 0 ? '+' : ''}{priceChangePercent.toFixed(0)}% from print price
                 </span>
-              </div>
-            </li>
-          </ul>
+              </li>
+            </ul>
+          </div>
         </div>
 
         {/* Trading Actions */}
         <div className="flex gap-2">
           <Link href={`/order-desk/${comic.id}`} data-testid="link-order-desk" className="flex-1">
-            <div className="blue-rimlight-hover rounded-lg p-3 bg-blue-500/10 cursor-pointer overflow-visible flex items-center justify-center gap-2 text-foreground font-semibold" data-testid="button-trade-comic-of-day">
+            <div className="blue-rimlight-hover rounded-lg p-3 cursor-pointer overflow-visible flex items-center justify-center gap-2 font-semibold" data-testid="button-trade-comic-of-day">
               <DollarSign className="w-4 h-4" />
               Trade Now
             </div>
