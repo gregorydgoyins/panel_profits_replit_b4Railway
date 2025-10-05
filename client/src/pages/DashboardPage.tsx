@@ -62,13 +62,6 @@ export default function DashboardPage() {
     refetchInterval: 30000
   });
 
-  const { data: featuredCoversRaw } = useQuery<any>({
-    queryKey: ['/api/comic-covers/featured'],
-    refetchInterval: 60000
-  });
-
-  const featuredCovers = featuredCoversRaw?.data || featuredCoversRaw;
-
   const { data: randomComicsData } = useQuery<any>({
     queryKey: ['/api/comic-covers/random?limit=8'],
     refetchInterval: 60000
