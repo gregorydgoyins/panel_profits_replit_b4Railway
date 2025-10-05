@@ -22,9 +22,9 @@ export function StockTicker() {
   
   const { data: topAssets = [], isLoading } = useQuery<TickerAsset[]>({
     queryKey: ['/api/market/ticker'],
-    refetchInterval: pollingInterval,
+    refetchInterval: 30000, // Refresh every 30 seconds to prevent blinking
     refetchIntervalInBackground: true,
-    staleTime: 0,
+    staleTime: 25000, // Keep data fresh for 25 seconds to avoid unnecessary refetches
   });
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export function StockTicker() {
     if (!scrollContainer || isPaused || topAssets.length === 0) return;
 
     let scrollPosition = 0;
-    const scrollSpeed = 0.25;
+    const scrollSpeed = 0.5; // Increased speed for smoother, faster scrolling
     let animationFrameId: number;
     
     const animate = () => {

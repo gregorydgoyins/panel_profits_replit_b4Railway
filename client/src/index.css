@@ -529,3 +529,17 @@
     0 0 12px rgba(255, 255, 255, 0.8),     /* Tight inner glow */
     0 0 24px rgba(255, 255, 255, 0.4);     /* Minimal outer bleed */
 }
+
+/* Blue Background with White Rimlight Hover Effect */
+.blue-white-rimlight-hover {
+  position: relative;
+  transition: box-shadow 0.2s ease-in-out;
+  background-color: rgb(59, 130, 246); /* Blue background */
+}
+
+.blue-white-rimlight-hover:hover {
+  box-shadow: 
+    0 0 0 2px rgba(255, 255, 255, 1),      /* Solid white rim */
+    0 0 12px rgba(255, 255, 255, 0.8),     /* Tight inner glow */
+    0 0 24px rgba(255, 255, 255, 0.4);     /* Minimal outer bleed */
+}
