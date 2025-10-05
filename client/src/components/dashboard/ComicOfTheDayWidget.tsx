@@ -3,7 +3,7 @@ import { Link } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Star, TrendingUp, TrendingDown, DollarSign, Calendar, Book, User } from 'lucide-react';
+import { Star, TrendingUp, TrendingDown, DollarSign, Calendar, Book, User, Landmark, FileText } from 'lucide-react';
 
 interface ComicOfTheDay {
   id: number;
@@ -90,7 +90,7 @@ export function ComicOfTheDayWidget() {
         <div className="flex items-start gap-4">
           {/* Real Comic Cover from Marvel API - Clickable to Series Detail */}
           <Link href={`/series/${encodeURIComponent(comic.series)}`} data-testid="link-series-detail">
-            <div className="w-32 aspect-[2/3] bg-muted rounded-lg overflow-visible shrink-0 border-2 border-border white-rimlight-hover cursor-pointer">
+            <div className="w-32 aspect-[2/3] bg-muted rounded-lg overflow-visible shrink-0 border-2 border-white/40 white-rimlight-hover cursor-pointer">
               {comic.coverUrl ? (
                 <img
                   src={comic.coverUrl}
@@ -159,8 +159,11 @@ export function ComicOfTheDayWidget() {
 
         {/* Historical Context - Storytelling - Clickable to Detail Page */}
         <Link href={`/historical-significance/${comic.id}`} data-testid="link-historical-significance">
-          <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 white-rimlight-hover cursor-pointer overflow-visible">
-            <p className="text-sm font-semibold text-primary mb-2">Historical Significance</p>
+          <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 white-rimlight-hover cursor-pointer overflow-visible">
+            <h4 className="font-semibold text-foreground flex items-center gap-2 mb-2">
+              <Landmark className="w-4 h-4 text-amber-500" />
+              Historical Significance
+            </h4>
             <p className="text-sm text-foreground/80 leading-relaxed">
               {comic.historicalContext}
             </p>
@@ -170,8 +173,11 @@ export function ComicOfTheDayWidget() {
         {/* Description - About This Issue - Clickable to Issue Detail */}
         {comic.description && (
           <Link href={`/issue/${comic.id}`} data-testid="link-issue-detail">
-            <div className="space-y-2 bg-primary/5 border border-primary/10 rounded-lg p-4 white-rimlight-hover cursor-pointer overflow-visible">
-              <h4 className="font-semibold text-foreground">About This Issue</h4>
+            <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 white-rimlight-hover cursor-pointer overflow-visible">
+              <h4 className="font-semibold text-foreground flex items-center gap-2 mb-2">
+                <FileText className="w-4 h-4 text-blue-500" />
+                About This Issue
+              </h4>
               <p className="text-sm text-foreground/80 leading-relaxed line-clamp-3">
                 {comic.description}
               </p>
@@ -181,9 +187,9 @@ export function ComicOfTheDayWidget() {
 
         {/* Creators - Creative Team with White Rimlight */}
         {comic.creators && comic.creators.length > 0 && (
-          <div className="space-y-2 bg-primary/5 border border-primary/10 rounded-lg p-4 white-rimlight-hover overflow-visible">
-            <h4 className="font-semibold text-foreground flex items-center gap-2">
-              <User className="w-4 h-4" />
+          <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 white-rimlight-hover overflow-visible">
+            <h4 className="font-semibold text-foreground flex items-center gap-2 mb-2">
+              <User className="w-4 h-4 text-purple-500" />
               Creative Team
             </h4>
             <div className="flex flex-wrap gap-2">
