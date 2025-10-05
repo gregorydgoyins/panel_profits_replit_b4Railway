@@ -167,7 +167,7 @@ export function ComicOfTheDayWidget() {
               <Landmark className="w-4 h-4 text-amber-500" />
               Historical Significance
             </h4>
-            <p className="text-sm text-foreground/80 leading-relaxed">
+            <p className="text-sm text-foreground/80 leading-relaxed" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
               {comic.historicalContext}
             </p>
           </div>
@@ -181,7 +181,7 @@ export function ComicOfTheDayWidget() {
                 <FileText className="w-4 h-4 text-blue-500" />
                 About This Issue
               </h4>
-              <p className="text-sm text-foreground/80 leading-relaxed line-clamp-3">
+              <p className="text-sm text-foreground/80 leading-relaxed line-clamp-3" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
                 {comic.description}
               </p>
             </div>
@@ -198,8 +198,8 @@ export function ComicOfTheDayWidget() {
             <div className="flex flex-wrap gap-2">
               {comic.creators.map((creator, idx) => (
                 <Link key={idx} href={`/creator/${encodeURIComponent(creator.name)}`} data-testid={`link-creator-${idx}`}>
-                  <Badge variant="outline" className="text-xs white-rimlight-hover cursor-pointer overflow-visible">
-                    {creator.name} <span className="text-muted-foreground ml-1">({creator.role})</span>
+                  <Badge variant="outline" className="text-xs white-rimlight-hover cursor-pointer overflow-visible" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
+                    {creator.name} <span className="text-muted-foreground ml-1" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>({creator.role})</span>
                   </Badge>
                 </Link>
               ))}
