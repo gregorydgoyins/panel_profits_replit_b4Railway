@@ -85,7 +85,8 @@ export function ComicOfTheDayWidget() {
           Comic of the Day
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent>
+        <div className="bg-[#252B3C] p-4 rounded-lg space-y-6">
         {/* Featured Comic Header */}
         <div className="flex items-start gap-4">
           {/* Real Comic Cover from Marvel API - Clickable to Series Detail */}
@@ -248,6 +249,7 @@ export function ComicOfTheDayWidget() {
           <Button variant="outline" data-testid="button-view-details">
             View Details
           </Button>
+        </div>
         </div>
       </CardContent>
     </Card>
