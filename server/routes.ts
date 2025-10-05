@@ -4779,6 +4779,101 @@ Respond with valid JSON in this exact format:
     }
   });
 
+  // Populate Narrative Entities from existing character data
+  app.post('/api/narrative/populate', async (req, res) => {
+    try {
+      console.log('📚 Starting narrative entities population...');
+      
+      // Sample diverse characters with alignment metadata
+      const characters = await db
+        .select()
+        .from(assetsTable)
+        .where(eq(assetsTable.type, 'character'))
+        .limit(100); // Start with 100 characters
+      
+      let inserted = 0;
+      let skipped = 0;
+      
+      for (const char of characters) {
+        const metadata = char.metadata as any;
+        if (!metadata || !metadata.alignment) {
+          skipped++;
+          continue;
+        }
+        
+        // Determine entity type and subtype based on alignment
+        let entityType = 'character';
+        let subtype = '';
+        
+        // Get franchise tier from name/metadata
+        const isFranchise = char.franchiseTags && char.franchiseTags.length > 0;
+        const hasTeam = char.teamTags && char.teamTags.length > 0;
+        
+        if (metadata.alignment === 'Bad') {
+          // Villains (franchise) vs Henchmen (non-franchise)
+          subtype = isFranchise ? 'villain' : 'henchman';
+        } else if (metadata.alignment === 'Good') {
+          // Superheroes (franchise/team) vs Sidekicks (non-franchise)
+          subtype = (isFranchise || hasTeam) ? 'superhero' : 'sidekick';
+        } else {
+          // Neutral - can be sidekick
+          subtype = 'sidekick';
+        }
+        
+        // Check if already exists
+        const existing = await db
+          .select()
+          .from(narrativeEntities)
+          .where(eq(narrativeEntities.canonicalName, char.name))
+          .limit(1);
+        
+        if (existing.length > 0) {
+          skipped++;
+          continue;
+        }
+        
+        // Insert into narrative_entities
+        await db.insert(narrativeEntities).values({
+          canonicalName: char.name,
+          entityType,
+          subtype,
+          universe: metadata.publisher || 'unknown',
+          realName: metadata.realName || null,
+          gender: metadata.gender || null,
+          firstAppearance: metadata.firstAppearance || null,
+          creators: metadata.creators ? [metadata.creators] : [],
+          teams: char.teamTags || [],
+          allies: [],
+          enemies: [],
+          familyMembers: [],
+          assetId: char.id,
+          popularityScore: '0.00',
+          biography: char.biography,
+          description: char.description,
+          primaryImageUrl: char.imageUrl,
+          alternateImageUrls: char.coverImageUrl ? [char.coverImageUrl] : [],
+          verificationStatus: 'verified',
+        });
+        
+        inserted++;
+      }
+      
+      console.log(`✅ Population complete: ${inserted} inserted, ${skipped} skipped`);
+      res.json({ 
+        success: true, 
+        inserted,
+        skipped,
+        total: characters.length
+      });
+    } catch (error) {
+      console.error('Error populating narrative entities:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message 
+      });
+    }
+  });
+
   // Initialize WebSocket notification service for real-time notifications
   console.log('🔔 Initializing WebSocket notification service...');
   wsNotificationService.initialize(httpServer, '/ws/notifications');

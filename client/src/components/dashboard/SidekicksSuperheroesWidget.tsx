@@ -34,10 +34,10 @@ export function SidekicksSuperheroesWidget() {
 
   if (isLoading) {
     return (
-      <Card className="h-full border-2 border-[#001f3f] bg-[#001f3f]/5 sidekick-rimlight-hover" data-testid="widget-sidekicks-superheroes">
+      <Card className="h-full border-2 border-[#89CFF0] bg-[#89CFF0]/5 sidekick-rimlight-hover" data-testid="widget-sidekicks-superheroes">
         <CardHeader className="pb-3 space-y-0">
           <div className="flex items-center gap-2">
-            <Shield className="w-12 h-12 text-[#001f3f]" data-testid="icon-shield" />
+            <Shield className="w-12 h-12 text-[#89CFF0]" data-testid="icon-shield" />
             <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
               Sidekicks & Superheroes
             </span>
@@ -56,10 +56,10 @@ export function SidekicksSuperheroesWidget() {
 
   if (error || !data?.success) {
     return (
-      <Card className="h-full border-2 border-[#001f3f] bg-[#001f3f]/5 sidekick-rimlight-hover" data-testid="widget-sidekicks-superheroes">
+      <Card className="h-full border-2 border-[#89CFF0] bg-[#89CFF0]/5 sidekick-rimlight-hover" data-testid="widget-sidekicks-superheroes">
         <CardHeader className="pb-3 space-y-0">
           <div className="flex items-center gap-2">
-            <Shield className="w-12 h-12 text-[#001f3f]" data-testid="icon-shield" />
+            <Shield className="w-12 h-12 text-[#89CFF0]" data-testid="icon-shield" />
             <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
               Sidekicks & Superheroes
             </span>
@@ -75,21 +75,21 @@ export function SidekicksSuperheroesWidget() {
   }
 
   return (
-    <Card className="h-full border-2 border-[#001f3f] bg-[#001f3f]/5 sidekick-rimlight-hover" data-testid="widget-sidekicks-superheroes">
+    <Card className="h-full border-2 border-[#89CFF0] bg-[#89CFF0]/5 sidekick-rimlight-hover" data-testid="widget-sidekicks-superheroes">
       <CardHeader className="pb-3 space-y-0">
         <div className="flex items-center gap-2">
-          <Shield className="w-12 h-12 text-[#001f3f]" data-testid="icon-shield" />
+          <Shield className="w-12 h-12 text-[#89CFF0]" data-testid="icon-shield" />
           <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
             Sidekicks & Superheroes
           </span>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-[#001f3f]/30 scrollbar-track-transparent">
+        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-[#89CFF0]/30 scrollbar-track-transparent">
           {heroes.map((hero) => {
             const imageUrl = getImageUrl(hero);
             const isSidekick = hero.subtype === 'sidekick';
-            const accentColor = isSidekick ? '#001f3f' : '#00CED1';
+            const accentColor = isSidekick ? '#89CFF0' : '#00CED1';
             
             const linkPath = isSidekick ? `/sidekick/${hero.id}` : `/superhero/${hero.id}`;
             const rimlightClass = isSidekick ? 'sidekick-rimlight-hover' : 'superhero-rimlight-hover';

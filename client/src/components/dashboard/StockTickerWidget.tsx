@@ -12,36 +12,46 @@ interface TickerAsset {
 export function StockTickerWidget() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
+  const scrollPositionRef = useRef(0);
+  const animationFrameRef = useRef<number | null>(null);
 
   const { data: assets = [], isLoading } = useQuery<TickerAsset[]>({
     queryKey: ['/api/market/ticker'],
-    refetchInterval: 5000,
+    refetchInterval: 30000, // Changed to 30s to match other widgets
   });
 
   useEffect(() => {
     const scrollContainer = scrollRef.current;
-    if (!scrollContainer || isPaused || assets.length === 0) return;
+    if (!scrollContainer || assets.length === 0) return;
 
-    let scrollPosition = 0;
     const scrollSpeed = 0.167;
     
     const animate = () => {
       if (scrollContainer && !isPaused) {
-        scrollPosition += scrollSpeed;
+        scrollPositionRef.current += scrollSpeed;
         
         const maxScroll = scrollContainer.scrollWidth / 2;
-        if (scrollPosition >= maxScroll) {
-          scrollPosition = 0;
+        if (scrollPositionRef.current >= maxScroll) {
+          scrollPositionRef.current = 0;
         }
         
-        scrollContainer.scrollLeft = scrollPosition;
+        scrollContainer.scrollLeft = scrollPositionRef.current;
       }
-      requestAnimationFrame(animate);
+      animationFrameRef.current = requestAnimationFrame(animate);
     };
 
-    const animationId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationId);
-  }, [isPaused, assets.length]);
+    // Only start animation if not already running
+    if (!animationFrameRef.current) {
+      animationFrameRef.current = requestAnimationFrame(animate);
+    }
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+    };
+  }, [isPaused]);
 
   if (isLoading || assets.length === 0) {
     return (

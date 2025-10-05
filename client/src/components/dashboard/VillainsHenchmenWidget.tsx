@@ -89,9 +89,10 @@ export function VillainsHenchmenWidget() {
           {villains.map((villain) => {
             const imageUrl = getImageUrl(villain);
             const isVillain = villain.subtype === 'villain';
-            const accentColor = isVillain ? '#8b0000' : '#4a0080';
+            const accentColor = isVillain ? '#8b0000' : '#89CFF0';
             
             const linkPath = isVillain ? `/villain/${villain.id}` : `/henchman/${villain.id}`;
+            const rimlightClass = isVillain ? '' : 'henchman-rimlight-hover';
             
             return (
               <Link 
@@ -100,7 +101,7 @@ export function VillainsHenchmenWidget() {
                 data-testid={`link-${isVillain ? 'villain' : 'henchman'}-${villain.id}`}
               >
                 <div 
-                  className="relative w-[280px] h-[400px] rounded-lg overflow-hidden shrink-0 hover-elevate cursor-pointer"
+                  className={`relative w-[280px] h-[400px] rounded-lg overflow-hidden shrink-0 hover-elevate cursor-pointer ${rimlightClass}`}
                   data-testid={`card-villain-${villain.id}`}
                   style={{
                     backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',

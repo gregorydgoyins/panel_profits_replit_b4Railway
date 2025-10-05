@@ -579,14 +579,24 @@
   box-shadow: 0 0 12px rgba(139, 0, 0, 0.8);
 }
 
-/* Sidekick Rimlight Hover Effect - Navy glow for sidekick/hero theme */
+/* Sidekick Rimlight Hover Effect - Baby blue glow for sidekick theme */
 .sidekick-rimlight-hover {
   position: relative;
   transition: box-shadow 200ms ease-in-out;
 }
 
 .sidekick-rimlight-hover:hover {
-  box-shadow: 0 0 12px rgba(0, 31, 63, 0.8);
+  box-shadow: 0 0 12px rgba(137, 207, 240, 0.8);
+}
+
+/* Henchman Rimlight Hover Effect - Baby blue glow for henchman theme */
+.henchman-rimlight-hover {
+  position: relative;
+  transition: box-shadow 200ms ease-in-out;
+}
+
+.henchman-rimlight-hover:hover {
+  box-shadow: 0 0 12px rgba(137, 207, 240, 0.8);
 }
 
 /* Superhero Rimlight Hover Effect - Cyan glow for superhero theme */
