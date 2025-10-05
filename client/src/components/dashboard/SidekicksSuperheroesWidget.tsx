@@ -47,8 +47,8 @@ export function SidekicksSuperheroesWidget() {
 
   if (isLoading) {
     return (
-      <Card className="h-full narrative-foundation narrative-foundation-sidekick border-2 border-[#89CFF0]/30" data-testid="widget-sidekicks-superheroes">
-        <CardHeader className="pb-3 space-y-0 relative z-10">
+      <Card className="h-full !bg-[#1A1F2E] sidekick-rimlight-hover" data-testid="widget-sidekicks-superheroes">
+        <CardHeader className="pb-3 space-y-0">
           <div className="flex items-center gap-2">
             <Shield className="w-12 h-12 text-[#89CFF0]" data-testid="icon-shield" />
             <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
@@ -56,7 +56,7 @@ export function SidekicksSuperheroesWidget() {
             </span>
           </div>
         </CardHeader>
-        <CardContent className="relative z-10">
+        <CardContent>
           <div className="flex gap-4 overflow-x-auto pb-2">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="w-[280px] h-[480px] bg-muted rounded-lg animate-pulse shrink-0" />
@@ -69,8 +69,8 @@ export function SidekicksSuperheroesWidget() {
 
   if (error || !data?.success) {
     return (
-      <Card className="h-full narrative-foundation narrative-foundation-sidekick border-2 border-[#89CFF0]/30" data-testid="widget-sidekicks-superheroes">
-        <CardHeader className="pb-3 space-y-0 relative z-10">
+      <Card className="h-full !bg-[#1A1F2E] sidekick-rimlight-hover" data-testid="widget-sidekicks-superheroes">
+        <CardHeader className="pb-3 space-y-0">
           <div className="flex items-center gap-2">
             <Shield className="w-12 h-12 text-[#89CFF0]" data-testid="icon-shield" />
             <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
@@ -78,7 +78,7 @@ export function SidekicksSuperheroesWidget() {
             </span>
           </div>
         </CardHeader>
-        <CardContent className="relative z-10">
+        <CardContent>
           <div className="text-center text-muted-foreground py-8">
             Failed to load heroes. Please try again later.
           </div>
@@ -88,8 +88,8 @@ export function SidekicksSuperheroesWidget() {
   }
 
   return (
-    <Card className="h-full narrative-foundation narrative-foundation-sidekick border-2 border-[#89CFF0]/30" data-testid="widget-sidekicks-superheroes">
-      <CardHeader className="pb-3 space-y-0 relative z-10">
+    <Card className="h-full !bg-[#1A1F2E] sidekick-rimlight-hover" data-testid="widget-sidekicks-superheroes">
+      <CardHeader className="pb-3 space-y-0">
         <div className="flex items-center gap-2">
           <Shield className="w-12 h-12 text-[#89CFF0]" data-testid="icon-shield" />
           <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>

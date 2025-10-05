@@ -576,6 +576,45 @@
     0 0 24px rgba(255, 255, 255, 0.4);     /* Minimal outer bleed */
 }
 
+/* Villain Rimlight Hover Effect - Blood-red with minimal bleed */
+.villain-rimlight-hover {
+  position: relative;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.villain-rimlight-hover:hover {
+  box-shadow: 
+    0 0 0 2px rgba(139, 0, 0, 1),      /* Solid blood-red rim */
+    0 0 12px rgba(139, 0, 0, 0.8),     /* Tight inner glow */
+    0 0 24px rgba(139, 0, 0, 0.4);     /* Minimal outer bleed */
+}
+
+/* Sidekick Rimlight Hover Effect - Baby blue with minimal bleed */
+.sidekick-rimlight-hover {
+  position: relative;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.sidekick-rimlight-hover:hover {
+  box-shadow: 
+    0 0 0 2px rgba(137, 207, 240, 1),      /* Solid baby blue rim */
+    0 0 12px rgba(137, 207, 240, 0.8),     /* Tight inner glow */
+    0 0 24px rgba(137, 207, 240, 0.4);     /* Minimal outer bleed */
+}
+
+/* Location Rimlight Hover Effect - Brown with minimal bleed */
+.location-rimlight-hover {
+  position: relative;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.location-rimlight-hover:hover {
+  box-shadow: 
+    0 0 0 2px rgba(139, 69, 19, 1),      /* Solid brown rim */
+    0 0 12px rgba(139, 69, 19, 0.8),     /* Tight inner glow */
+    0 0 24px rgba(139, 69, 19, 0.4);     /* Minimal outer bleed */
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════════════════ */
 /* NARRATIVE ENTITY VISUAL SYSTEM - Bloomberg Terminal Aesthetic */
 /* Foundation Layers, Secondary Layers, Rimlight Effects, and Hover Interactions */

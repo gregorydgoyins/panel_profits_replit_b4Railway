@@ -46,8 +46,8 @@ export function LocationsGadgetsWidget() {
 
   if (isLoading) {
     return (
-      <Card className="h-full narrative-foundation narrative-foundation-location border-2 border-[#8B4513]/30" data-testid="widget-locations-gadgets">
-        <CardHeader className="pb-3 space-y-0 relative z-10">
+      <Card className="h-full !bg-[#1A1F2E] location-rimlight-hover" data-testid="widget-locations-gadgets">
+        <CardHeader className="pb-3 space-y-0">
           <div className="flex items-center gap-2">
             <MapPin className="w-12 h-12 text-[#8B4513]" data-testid="icon-mappin" />
             <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
@@ -55,7 +55,7 @@ export function LocationsGadgetsWidget() {
             </span>
           </div>
         </CardHeader>
-        <CardContent className="relative z-10">
+        <CardContent>
           <div className="flex gap-4 overflow-x-auto pb-2">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="w-[280px] h-[480px] bg-muted rounded-lg animate-pulse shrink-0" />
@@ -68,8 +68,8 @@ export function LocationsGadgetsWidget() {
 
   if (error || !data?.success) {
     return (
-      <Card className="h-full narrative-foundation narrative-foundation-location border-2 border-[#8B4513]/30" data-testid="widget-locations-gadgets">
-        <CardHeader className="pb-3 space-y-0 relative z-10">
+      <Card className="h-full !bg-[#1A1F2E] location-rimlight-hover" data-testid="widget-locations-gadgets">
+        <CardHeader className="pb-3 space-y-0">
           <div className="flex items-center gap-2">
             <MapPin className="w-12 h-12 text-[#8B4513]" data-testid="icon-mappin" />
             <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
@@ -77,7 +77,7 @@ export function LocationsGadgetsWidget() {
             </span>
           </div>
         </CardHeader>
-        <CardContent className="relative z-10">
+        <CardContent>
           <div className="text-center text-muted-foreground py-8">
             Failed to load locations & gadgets. Please try again later.
           </div>
@@ -87,8 +87,8 @@ export function LocationsGadgetsWidget() {
   }
 
   return (
-    <Card className="h-full narrative-foundation narrative-foundation-location border-2 border-[#8B4513]/30" data-testid="widget-locations-gadgets">
-      <CardHeader className="pb-3 space-y-0 relative z-10">
+    <Card className="h-full !bg-[#1A1F2E] location-rimlight-hover" data-testid="widget-locations-gadgets">
+      <CardHeader className="pb-3 space-y-0">
         <div className="flex items-center gap-2">
           <MapPin className="w-12 h-12 text-[#8B4513]" data-testid="icon-mappin" />
           <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
