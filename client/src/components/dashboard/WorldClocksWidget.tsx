@@ -39,8 +39,8 @@ function AnalogClock({ time, status }: { time: Date; status: MarketStatus['statu
   };
 
   return (
-    <div className={`relative w-16 h-16 rounded-full border ${getFaceColor()} flex items-center justify-center overflow-visible`}>
-      <svg className="absolute w-full h-full" viewBox="0 0 100 100" style={{ transform: 'scale(4)' }}>
+    <div className={`relative w-12 h-12 rounded-full border ${getFaceColor()} flex items-center justify-center overflow-visible`}>
+      <svg className="absolute w-full h-full" viewBox="0 0 100 100" style={{ transform: 'scale(2.5)' }}>
         {[...Array(12)].map((_, i) => {
           const angle = (i * 30 - 90) * (Math.PI / 180);
           const x = 50 + 38 * Math.cos(angle);
@@ -248,12 +248,12 @@ export function WorldClocksWidget() {
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="bg-[#252B3C] p-4 rounded-lg">
-          <div className="grid grid-cols-4 gap-2">
+        <div className="bg-[#252B3C] p-3 rounded-lg">
+          <div className="grid grid-cols-4 gap-3">
             {topRowMarkets.map((market) => (
               <div
                 key={market.name}
-                className="flex flex-col items-center gap-2 p-6 rounded-lg border border-border bg-[#2D3748] hover-elevate transition-all purple-rimlight-hover min-h-[220px] justify-between"
+                className="flex flex-col items-center gap-1 p-3 rounded-lg border border-border bg-[#2D3748] hover-elevate transition-all purple-rimlight-hover min-h-[160px] justify-between"
                 data-testid={`market-${market.name.toLowerCase().replace(/\//g, '-')}`}
               >
               <AnalogClock time={market.localTime} status={market.status} />
@@ -268,10 +268,10 @@ export function WorldClocksWidget() {
                     hour12: true 
                   })}
                 </div>
-                <div className="text-sm text-muted-foreground leading-tight truncate whitespace-nowrap" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', marginBottom: '-4px' }}>
+                <div className="text-sm text-muted-foreground leading-tight truncate whitespace-nowrap" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
                   {market.openTime} - {market.closeTime}
                 </div>
-                <div className="whitespace-nowrap">
+                <div className="whitespace-nowrap mt-1">
                   {getStatusBadge(market.status)}
                 </div>
               </div>
@@ -280,12 +280,12 @@ export function WorldClocksWidget() {
           </div>
         </div>
 
-        <div className="bg-[#252B3C] p-4 rounded-lg">
-          <div className="grid grid-cols-4 gap-2">
+        <div className="bg-[#252B3C] p-3 rounded-lg">
+          <div className="grid grid-cols-4 gap-3">
             {bottomRowMarkets.map((market) => (
               <div
                 key={market.name}
-                className="flex flex-col items-center gap-2 p-6 rounded-lg border border-border bg-[#2D3748] hover-elevate transition-all purple-rimlight-hover min-h-[220px] justify-between"
+                className="flex flex-col items-center gap-1 p-3 rounded-lg border border-border bg-[#2D3748] hover-elevate transition-all purple-rimlight-hover min-h-[160px] justify-between"
                 data-testid={`market-${market.name.toLowerCase().replace(/\//g, '-')}`}
               >
               <AnalogClock time={market.localTime} status={market.status} />
@@ -300,10 +300,10 @@ export function WorldClocksWidget() {
                     hour12: true 
                   })}
                 </div>
-                <div className="text-sm text-muted-foreground leading-tight truncate whitespace-nowrap" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', marginBottom: '-4px' }}>
+                <div className="text-sm text-muted-foreground leading-tight truncate whitespace-nowrap" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
                   {market.openTime} - {market.closeTime}
                 </div>
-                <div className="whitespace-nowrap">
+                <div className="whitespace-nowrap mt-1">
                   {getStatusBadge(market.status)}
                 </div>
               </div>
