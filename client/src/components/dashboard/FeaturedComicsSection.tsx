@@ -54,7 +54,12 @@ export function FeaturedComicsSection() {
   if (isLoading || comics.length === 0) {
     return (
       <div className="bg-[#1A1F2E] rounded-lg p-6 pink-rimlight-hover overflow-visible">
-        <h3 className="mb-4 text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>Featured Comics</h3>
+        <div className="mb-4">
+          <h3 className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt', marginBottom: '-4px' }}>Featured Comics</h3>
+          <p className="text-muted-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
+            Key issues and first appearances worth tracking
+          </p>
+        </div>
         <div className="bg-[#252B3C] p-4 rounded-lg">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
             {[...Array(6)].map((_, i) => (
@@ -71,7 +76,12 @@ export function FeaturedComicsSection() {
 
   return (
     <div className="bg-[#1A1F2E] rounded-lg p-6 pink-rimlight-hover overflow-visible">
-      <h3 className="mb-4 text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>Featured Comics</h3>
+      <div className="mb-4">
+        <h3 className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt', marginBottom: '-4px' }}>Featured Comics</h3>
+        <p className="text-muted-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
+          Key issues and first appearances worth tracking
+        </p>
+      </div>
       
       <div className="bg-[#252B3C] p-4 rounded-lg">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
