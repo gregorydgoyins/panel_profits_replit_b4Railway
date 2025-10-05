@@ -54,7 +54,6 @@ interface ComicCover {
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const [selectedBox, setSelectedBox] = useState<string | null>(null);
 
   // Fetch market data
   const { data: marketData } = useQuery<MarketOverview>({
@@ -124,12 +123,11 @@ export default function DashboardPage() {
           <div className="bg-[#252B3C] p-4 rounded-lg">
             <div className="grid grid-cols-4 gap-2">
               {/* Portfolio Value */}
-              <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
-                onClick={() => setSelectedBox(selectedBox === 'portfolio-value' ? null : 'portfolio-value')}
-                style={selectedBox === 'portfolio-value' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-                data-testid="stat-portfolio-value"
-              >
+              <Link href="/portfolio/value">
+                <div
+                  className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
+                  data-testid="stat-portfolio-value"
+                >
                 <Briefcase className="w-8 h-8 text-indigo-400 flex-shrink-0" />
                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
                   <span className="text-base text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
@@ -150,41 +148,41 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </div>
+              </Link>
 
             {/* Cash Balance */}
-              <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
-                onClick={() => setSelectedBox(selectedBox === 'cash-balance' ? null : 'cash-balance')}
-                style={selectedBox === 'cash-balance' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-                data-testid="stat-cash-balance"
-              >
-                <Coins className="w-8 h-8 text-emerald-400 flex-shrink-0" />
-                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <span className="text-base text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
-                    Available Cash
-                  </span>
-                  <div className="flex items-baseline gap-2">
-                    <span 
-                      className="text-sm font-bold text-white truncate"
-                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                      data-testid="text-cash-balance"
-                    >
-                      ${cashBalance.toLocaleString()}
+              <Link href="/portfolio/cash">
+                <div
+                  className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
+                  data-testid="stat-cash-balance"
+                >
+                  <Coins className="w-8 h-8 text-emerald-400 flex-shrink-0" />
+                  <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                    <span className="text-base text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                      Available Cash
                     </span>
-                    <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
-                      <Minus className="w-3 h-3" />
-                    </span>
+                    <div className="flex items-baseline gap-2">
+                      <span 
+                        className="text-sm font-bold text-white truncate"
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                        data-testid="text-cash-balance"
+                      >
+                        ${cashBalance.toLocaleString()}
+                      </span>
+                      <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
+                        <Minus className="w-3 h-3" />
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
 
             {/* Total Assets */}
-              <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
-                onClick={() => setSelectedBox(selectedBox === 'total-assets' ? null : 'total-assets')}
-                style={selectedBox === 'total-assets' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-                data-testid="stat-total-assets"
-              >
+              <Link href="/portfolio/assets">
+                <div
+                  className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
+                  data-testid="stat-total-assets"
+                >
                 <BarChart3 className="w-8 h-8 text-blue-400 flex-shrink-0" />
                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
                   <span className="text-base text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
@@ -204,14 +202,14 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </div>
+              </Link>
 
             {/* Day P&L */}
-              <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
-                onClick={() => setSelectedBox(selectedBox === 'day-pl' ? null : 'day-pl')}
-                style={selectedBox === 'day-pl' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-                data-testid="stat-day-pl"
-              >
+              <Link href="/portfolio/pnl">
+                <div
+                  className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
+                  data-testid="stat-day-pl"
+                >
                 <PieChart className="w-8 h-8 text-purple-400 flex-shrink-0" />
                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
                   <span className="text-base text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
@@ -231,14 +229,14 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </div>
+              </Link>
 
             {/* Total Return */}
-              <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
-                onClick={() => setSelectedBox(selectedBox === 'total-return' ? null : 'total-return')}
-                style={selectedBox === 'total-return' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-                data-testid="stat-total-return"
-              >
+              <Link href="/portfolio/returns">
+                <div
+                  className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
+                  data-testid="stat-total-return"
+                >
                 <TrendingUp className="w-8 h-8 text-cyan-400 flex-shrink-0" />
                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
                   <span className="text-base text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
@@ -258,14 +256,14 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </div>
+              </Link>
 
             {/* Buying Power */}
-              <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
-                onClick={() => setSelectedBox(selectedBox === 'buying-power' ? null : 'buying-power')}
-                style={selectedBox === 'buying-power' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-                data-testid="stat-buying-power"
-              >
+              <Link href="/portfolio/buying-power">
+                <div
+                  className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
+                  data-testid="stat-buying-power"
+                >
                 <CreditCard className="w-8 h-8 text-amber-400 flex-shrink-0" />
                 <div className="flex flex-col gap-0.5 flex-1 min-w-0">
                   <span className="text-base text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
@@ -285,202 +283,203 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </div>
+              </Link>
 
             {/* Open Orders */}
-              <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
-                onClick={() => setSelectedBox(selectedBox === 'open-orders' ? null : 'open-orders')}
-                style={selectedBox === 'open-orders' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-                data-testid="stat-open-orders"
-              >
-                <ShoppingCart className="w-8 h-8 text-rose-400 flex-shrink-0" />
-                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <span className="text-base text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
-                    Open Orders
-                  </span>
-                  <div className="flex items-baseline gap-2">
-                    <span 
-                      className="text-sm font-bold text-white truncate"
-                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                      data-testid="text-open-orders"
-                    >
-                      {openOrders}
+              <Link href="/portfolio/orders">
+                <div
+                  className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
+                  data-testid="stat-open-orders"
+                >
+                  <ShoppingCart className="w-8 h-8 text-rose-400 flex-shrink-0" />
+                  <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                    <span className="text-base text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                      Open Orders
                     </span>
-                    <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
-                      <Minus className="w-3 h-3" />
-                    </span>
+                    <div className="flex items-baseline gap-2">
+                      <span 
+                        className="text-sm font-bold text-white truncate"
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                        data-testid="text-open-orders"
+                      >
+                        {openOrders}
+                      </span>
+                      <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
+                        <Minus className="w-3 h-3" />
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
 
             {/* Active Positions */}
-              <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
-                onClick={() => setSelectedBox(selectedBox === 'active-positions' ? null : 'active-positions')}
-                style={selectedBox === 'active-positions' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-                data-testid="stat-active-positions"
-              >
-                <Target className="w-8 h-8 text-teal-400 flex-shrink-0" />
-                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <span className="text-base text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
-                    Active Positions
-                  </span>
-                  <div className="flex items-baseline gap-2">
-                    <span 
-                      className="text-sm font-bold text-white truncate"
-                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                      data-testid="text-active-positions"
-                    >
-                      {portfolioHoldingsCount}
+              <Link href="/portfolio/positions">
+                <div
+                  className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
+                  data-testid="stat-active-positions"
+                >
+                  <Target className="w-8 h-8 text-teal-400 flex-shrink-0" />
+                  <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                    <span className="text-base text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                      Active Positions
                     </span>
-                    <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
-                      <Minus className="w-3 h-3" />
-                    </span>
+                    <div className="flex items-baseline gap-2">
+                      <span 
+                        className="text-sm font-bold text-white truncate"
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                        data-testid="text-active-positions"
+                      >
+                        {portfolioHoldingsCount}
+                      </span>
+                      <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
+                        <Minus className="w-3 h-3" />
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
 
             {/* Win Rate */}
-              <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
-                onClick={() => setSelectedBox(selectedBox === 'win-rate' ? null : 'win-rate')}
-                style={selectedBox === 'win-rate' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-                data-testid="stat-win-rate"
-              >
-                <Award className="w-8 h-8 text-lime-400 flex-shrink-0" />
-                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <span className="text-base text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
-                    Win Rate
-                  </span>
-                  <div className="flex items-baseline gap-2">
-                    <span 
-                      className="text-sm font-bold text-white truncate"
-                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                      data-testid="text-win-rate"
-                    >
-                      {winRate.toFixed(1)}%
+              <Link href="/portfolio/win-rate">
+                <div
+                  className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
+                  data-testid="stat-win-rate"
+                >
+                  <Award className="w-8 h-8 text-lime-400 flex-shrink-0" />
+                  <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                    <span className="text-base text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                      Win Rate
                     </span>
-                    <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
-                      <Minus className="w-3 h-3" />
-                    </span>
+                    <div className="flex items-baseline gap-2">
+                      <span 
+                        className="text-sm font-bold text-white truncate"
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                        data-testid="text-win-rate"
+                      >
+                        {winRate.toFixed(1)}%
+                      </span>
+                      <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
+                        <Minus className="w-3 h-3" />
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
 
             {/* Best Performer */}
-              <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
-                onClick={() => setSelectedBox(selectedBox === 'best-performer' ? null : 'best-performer')}
-                style={selectedBox === 'best-performer' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-                data-testid="stat-best-performer"
-              >
-                <Trophy className="w-8 h-8 text-yellow-400 flex-shrink-0" />
-                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <span className="text-base text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
-                    Best Performer
-                  </span>
-                  <div className="flex items-baseline gap-2">
-                    {bestPerformer ? (
-                      <>
-                        <span 
-                          className="text-sm font-bold text-white truncate"
-                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                          data-testid="text-best-performer"
-                        >
-                          {bestPerformer.symbol}
-                        </span>
-                        <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-green-500">
-                          <ArrowUpRight className="w-3 h-3" /> +{bestPerformer.changePercent?.toFixed(2)}%
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <span 
-                          className="text-sm font-bold text-gray-500 truncate"
-                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                          data-testid="text-best-performer"
-                        >
-                          --
-                        </span>
-                        <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
-                          <Minus className="w-3 h-3" />
-                        </span>
-                      </>
-                    )}
+              <Link href="/portfolio/best-performer">
+                <div
+                  className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
+                  data-testid="stat-best-performer"
+                >
+                  <Trophy className="w-8 h-8 text-yellow-400 flex-shrink-0" />
+                  <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                    <span className="text-base text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                      Best Performer
+                    </span>
+                    <div className="flex items-baseline gap-2">
+                      {bestPerformer ? (
+                        <>
+                          <span 
+                            className="text-sm font-bold text-white truncate"
+                            style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                            data-testid="text-best-performer"
+                          >
+                            {bestPerformer.symbol}
+                          </span>
+                          <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-green-500">
+                            <ArrowUpRight className="w-3 h-3" /> +{bestPerformer.changePercent?.toFixed(2)}%
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span 
+                            className="text-sm font-bold text-gray-500 truncate"
+                            style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                            data-testid="text-best-performer"
+                          >
+                            --
+                          </span>
+                          <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
+                            <Minus className="w-3 h-3" />
+                          </span>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
 
             {/* Worst Performer */}
-              <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
-                onClick={() => setSelectedBox(selectedBox === 'worst-performer' ? null : 'worst-performer')}
-                style={selectedBox === 'worst-performer' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-                data-testid="stat-worst-performer"
-              >
-                <TrendingDownIcon className="w-8 h-8 text-orange-400 flex-shrink-0" />
-                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <span className="text-base text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
-                    Worst Performer
-                  </span>
-                  <div className="flex items-baseline gap-2">
-                    {worstPerformer ? (
-                      <>
-                        <span 
-                          className="text-sm font-bold text-white truncate"
-                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                          data-testid="text-worst-performer"
-                        >
-                          {worstPerformer.symbol}
-                        </span>
-                        <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-red-500">
-                          <ArrowDownRight className="w-3 h-3" /> {worstPerformer.changePercent?.toFixed(2)}%
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <span 
-                          className="text-sm font-bold text-gray-500 truncate"
-                          style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                          data-testid="text-worst-performer"
-                        >
-                          --
-                        </span>
-                        <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
-                          <Minus className="w-3 h-3" />
-                        </span>
-                      </>
-                    )}
+              <Link href="/portfolio/worst-performer">
+                <div
+                  className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
+                  data-testid="stat-worst-performer"
+                >
+                  <TrendingDownIcon className="w-8 h-8 text-orange-400 flex-shrink-0" />
+                  <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                    <span className="text-base text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                      Worst Performer
+                    </span>
+                    <div className="flex items-baseline gap-2">
+                      {worstPerformer ? (
+                        <>
+                          <span 
+                            className="text-sm font-bold text-white truncate"
+                            style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                            data-testid="text-worst-performer"
+                          >
+                            {worstPerformer.symbol}
+                          </span>
+                          <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-red-500">
+                            <ArrowDownRight className="w-3 h-3" /> {worstPerformer.changePercent?.toFixed(2)}%
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span 
+                            className="text-sm font-bold text-gray-500 truncate"
+                            style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                            data-testid="text-worst-performer"
+                          >
+                            --
+                          </span>
+                          <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
+                            <Minus className="w-3 h-3" />
+                          </span>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
 
             {/* Total Account Value */}
-              <div
-                className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
-                onClick={() => setSelectedBox(selectedBox === 'total-account' ? null : 'total-account')}
-                style={selectedBox === 'total-account' ? { boxShadow: '0 0 0 3px rgba(234, 179, 8, 1), 0 0 20px rgba(234, 179, 8, 0.9), 0 0 40px rgba(234, 179, 8, 0.6)' } : {}}
-                data-testid="stat-total-account-value"
-              >
-                <Calculator className="w-8 h-8 text-green-400 flex-shrink-0" />
-                <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                  <span className="text-base text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
-                    Total Account
-                  </span>
-                  <div className="flex items-baseline gap-2">
-                    <span 
-                      className="text-sm font-bold text-white truncate"
-                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                      data-testid="text-total-account-value"
-                    >
-                      ${marketCap.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              <Link href="/portfolio/account-value">
+                <div
+                  className="flex items-center gap-2 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate cursor-pointer transition-all yellow-rimlight-hover"
+                  data-testid="stat-total-account-value"
+                >
+                  <Calculator className="w-8 h-8 text-green-400 flex-shrink-0" />
+                  <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                    <span className="text-base text-gray-300" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                      Total Account
                     </span>
-                    <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
-                      <Minus className="w-3 h-3" />
-                    </span>
+                    <div className="flex items-baseline gap-2">
+                      <span 
+                        className="text-sm font-bold text-white truncate"
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+                        data-testid="text-total-account-value"
+                      >
+                        ${marketCap.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                      </span>
+                      <span className="text-xs flex items-center gap-0.5 flex-shrink-0 text-gray-500">
+                        <Minus className="w-3 h-3" />
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
         </CardContent>
