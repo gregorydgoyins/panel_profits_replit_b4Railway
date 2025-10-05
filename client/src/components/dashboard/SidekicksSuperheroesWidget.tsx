@@ -107,8 +107,8 @@ export function SidekicksSuperheroesWidget() {
       <CardContent>
         <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-[#89CFF0]/30 scrollbar-track-transparent">
           {pairs.map((pair, index) => (
-            <div key={index} className="bg-[#252B3C] p-4 rounded-lg shrink-0 w-[900px]" data-testid={`pair-sidekick-superhero-${index}`}>
-              <div className="flex gap-6">
+            <div key={index} className={`bg-[#252B3C] p-4 rounded-lg shrink-0 ${pair.sidekick ? 'w-[900px]' : 'w-[600px]'}`} data-testid={`pair-sidekick-superhero-${index}`}>
+              <div className={`flex gap-6 ${!pair.sidekick ? 'justify-center' : ''}`}>
                 {/* Superhero Image */}
                 <Link href={`/superhero/${pair.superhero.id}`} data-testid={`link-superhero-${pair.superhero.id}`}>
                   <div className="relative w-[280px] h-[380px] rounded-lg overflow-hidden shrink-0 cursor-pointer group">

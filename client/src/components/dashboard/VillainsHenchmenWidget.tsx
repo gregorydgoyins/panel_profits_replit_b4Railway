@@ -107,8 +107,8 @@ export function VillainsHenchmenWidget() {
       <CardContent>
         <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-[#8b0000]/30 scrollbar-track-transparent">
           {pairs.map((pair, index) => (
-            <div key={index} className="bg-[#252B3C] p-4 rounded-lg shrink-0 w-[900px]" data-testid={`pair-villain-henchman-${index}`}>
-              <div className="flex gap-6">
+            <div key={index} className={`bg-[#252B3C] p-4 rounded-lg shrink-0 ${pair.henchman ? 'w-[900px]' : 'w-[600px]'}`} data-testid={`pair-villain-henchman-${index}`}>
+              <div className={`flex gap-6 ${!pair.henchman ? 'justify-center' : ''}`}>
                 {/* Villain Image */}
                 <Link href={`/villain/${pair.villain.id}`} data-testid={`link-villain-${pair.villain.id}`}>
                   <div className="relative w-[280px] h-[380px] rounded-lg overflow-hidden shrink-0 cursor-pointer group">
@@ -150,52 +150,57 @@ export function VillainsHenchmenWidget() {
                   </div>
                 </Link>
 
-                {/* Henchman Image */}
-                <Link href={`/henchman/${pair.henchman.id}`} data-testid={`link-henchman-${pair.henchman.id}`}>
-                  <div className="relative w-[280px] h-[380px] rounded-lg overflow-hidden shrink-0 cursor-pointer group">
-                    {/* Background placeholder */}
-                    <div className="absolute inset-0 bg-[#1a1a1a] flex items-center justify-center">
-                      <Skull className="w-24 h-24 text-muted-foreground/30" />
+                {/* Partner/Henchman Image (only if exists) */}
+                {pair.henchman && (
+                  <Link href={`/villain/${pair.henchman.id}`} data-testid={`link-henchman-${pair.henchman.id}`}>
+                    <div className="relative w-[280px] h-[380px] rounded-lg overflow-hidden shrink-0 cursor-pointer group">
+                      {/* Background placeholder */}
+                      <div className="absolute inset-0 bg-[#1a1a1a] flex items-center justify-center">
+                        <Skull className="w-24 h-24 text-muted-foreground/30" />
+                      </div>
+                      
+                      {/* Actual image */}
+                      {getImageUrl(pair.henchman) && (
+                        <img
+                          src={getImageUrl(pair.henchman)}
+                          alt={pair.henchman.canonicalName}
+                          className="absolute inset-0 w-full h-full object-contain z-10"
+                          data-testid={`img-henchman-${pair.henchman.id}`}
+                        />
+                      )}
+                      
+                      {/* Rimlight on hover only */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20"
+                           style={{
+                             boxShadow: '0 0 2px 2px #8b0000, 0 0 12px 12px rgba(139, 0, 0, 0.8), 0 0 24px 24px rgba(139, 0, 0, 0.4)',
+                             borderRadius: '0.5rem'
+                           }} />
+                      
+                      {/* Franchise Badge */}
+                      <div className="absolute top-3 right-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm border border-white/20 z-30">
+                        <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '10pt', color: '#ffffff' }}>
+                          {pair.henchman.universe?.toUpperCase()}
+                        </span>
+                      </div>
+                      
+                      {/* PARTNER label */}
+                      <div className="absolute bottom-3 left-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm z-30">
+                        <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt', color: '#8b0000' }}>
+                          PARTNER
+                        </span>
+                      </div>
                     </div>
-                    
-                    {/* Actual image */}
-                    {getImageUrl(pair.henchman) && (
-                      <img
-                        src={getImageUrl(pair.henchman)}
-                        alt={pair.henchman.canonicalName}
-                        className="absolute inset-0 w-full h-full object-contain z-10"
-                        data-testid={`img-henchman-${pair.henchman.id}`}
-                      />
-                    )}
-                    
-                    {/* Rimlight on hover only */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20"
-                         style={{
-                           boxShadow: '0 0 2px 2px #8b0000, 0 0 12px 12px rgba(139, 0, 0, 0.8), 0 0 24px 24px rgba(139, 0, 0, 0.4)',
-                           borderRadius: '0.5rem'
-                         }} />
-                    
-                    {/* Franchise Badge */}
-                    <div className="absolute top-3 right-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm border border-white/20 z-30">
-                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '10pt', color: '#ffffff' }}>
-                        {pair.henchman.universe?.toUpperCase()}
-                      </span>
-                    </div>
-                    
-                    {/* HENCHMAN label */}
-                    <div className="absolute bottom-3 left-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm z-30">
-                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt', color: '#8b0000' }}>
-                        HENCHMAN
-                      </span>
-                    </div>
-                  </div>
-                </Link>
+                  </Link>
+                )}
 
                 {/* Relationship Narrative */}
                 <div className="flex-1 space-y-4">
                   <div>
                     <h3 style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt', color: '#ffffff' }}>
-                      {pair.villain.canonicalName} & {pair.henchman.canonicalName}
+                      {pair.henchman 
+                        ? `${pair.villain.canonicalName} & ${pair.henchman.canonicalName}`
+                        : pair.villain.canonicalName
+                      }
                     </h3>
                     <Link 
                       href={`/franchise/${encodeURIComponent(pair.relationship.franchise)}`}

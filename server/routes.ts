@@ -4552,27 +4552,47 @@ Respond with valid JSON in this exact format:
         )
         .orderBy(desc(narrativeEntities.popularityScore));
 
-      // Group by universe and create pairs
+      // Create hero pairs/singles
       const sidekicks = allEntities.filter(e => e.subtype === 'sidekick');
       const superheroes = allEntities.filter(e => e.subtype === 'superhero');
       
       const pairs = [];
       
-      for (const superhero of superheroes.slice(0, 4)) {
-        // Find matching sidekick from same universe
-        const sidekick = sidekicks.find(s => s.universe === superhero.universe) || sidekicks[0];
+      for (const superhero of superheroes) {
+        // Try to find sidekick who shares a team
+        const sidekick = sidekicks.find(s => 
+          s.teams && superhero.teams &&
+          s.teams.some(team => superhero.teams?.includes(team))
+        );
         
         if (sidekick) {
+          // Team pair
+          const sharedTeam = superhero.teams?.find(team => sidekick.teams?.includes(team)) || superhero.universe;
+          
           pairs.push({
             superhero,
             sidekick,
             relationship: {
               firstAppearance: `${superhero.universe} Comics`,
-              keyIssues: [`First team-up in ${superhero.universe} continuity`, `Iconic partnership moments`],
+              keyIssues: [`${sharedTeam} formation`, `Iconic partnership moments`],
               creators: ['Stan Lee', 'Jack Kirby'],
               franchise: superhero.universe,
-              summary: `${superhero.canonicalName} and ${sidekick.canonicalName} form a legendary heroic partnership in the ${superhero.universe} universe, inspiring generations with their teamwork and courage.`,
-              priceImpact: '+8.3%' // Mock data for now
+              summary: `${superhero.canonicalName} and ${sidekick.canonicalName} form a legendary heroic partnership as members of ${sharedTeam}, inspiring generations with their teamwork and courage.`,
+              priceImpact: '+8.3%'
+            }
+          });
+        } else {
+          // Solo hero
+          pairs.push({
+            superhero,
+            sidekick: null,
+            relationship: {
+              firstAppearance: `${superhero.universe} Comics`,
+              keyIssues: [`Solo heroic debut`, `Legendary solo missions`],
+              creators: ['Stan Lee', 'Jack Kirby'],
+              franchise: superhero.universe,
+              summary: `${superhero.canonicalName} stands as a solo champion in the ${superhero.universe} universe, protecting the innocent with unwavering resolve.`,
+              priceImpact: '+8.3%'
             }
           });
         }
@@ -4624,27 +4644,53 @@ Respond with valid JSON in this exact format:
         )
         .orderBy(desc(narrativeEntities.popularityScore));
 
-      // Group by universe and create pairs
+      // Create villain pairs/singles
       const villains = allEntities.filter(e => e.subtype === 'villain');
-      const henchmen = allEntities.filter(e => e.subtype === 'henchman');
-      
       const pairs = [];
+      const usedVillains = new Set();
       
-      for (const villain of villains.slice(0, 4)) {
-        // Find matching henchman from same universe
-        const henchman = henchmen.find(h => h.universe === villain.universe) || henchmen[0];
+      for (const villain of villains) {
+        if (usedVillains.has(villain.id)) continue;
         
-        if (henchman) {
+        // Try to find partner villain who shares a team
+        const partner = villains.find(v => 
+          v.id !== villain.id && 
+          !usedVillains.has(v.id) &&
+          v.teams && villain.teams &&
+          v.teams.some(team => villain.teams?.includes(team))
+        );
+        
+        if (partner) {
+          // Team pair
+          usedVillains.add(villain.id);
+          usedVillains.add(partner.id);
+          const sharedTeam = villain.teams?.find(team => partner.teams?.includes(team)) || villain.universe;
+          
           pairs.push({
             villain,
-            henchman,
+            henchman: partner,
             relationship: {
               firstAppearance: `${villain.universe} Comics`,
-              keyIssues: [`First encounter in ${villain.universe} continuity`, `Major confrontation series`],
+              keyIssues: [`${sharedTeam} formation`, `Major team operations`],
               creators: ['Stan Lee', 'Jack Kirby'],
               franchise: villain.universe,
-              summary: `${villain.canonicalName} and ${henchman.canonicalName} share a complex dynamic within the ${villain.universe} universe, with their partnership shaping numerous storylines.`,
-              priceImpact: '+12.5%' // Mock data for now
+              summary: `${villain.canonicalName} and ${partner.canonicalName} are partners in crime as members of ${sharedTeam}, terrorizing heroes across the ${villain.universe} universe.`,
+              priceImpact: '+12.5%'
+            }
+          });
+        } else {
+          // Solo villain
+          usedVillains.add(villain.id);
+          pairs.push({
+            villain,
+            henchman: null,
+            relationship: {
+              firstAppearance: `${villain.universe} Comics`,
+              keyIssues: [`Solo criminal mastermind`, `Independent operations`],
+              creators: ['Stan Lee', 'Jack Kirby'],
+              franchise: villain.universe,
+              summary: `${villain.canonicalName} operates as a solo threat in the ${villain.universe} universe, a force to be reckoned with.`,
+              priceImpact: '+12.5%'
             }
           });
         }
