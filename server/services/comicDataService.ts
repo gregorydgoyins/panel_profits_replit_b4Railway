@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { formatTickerSymbol } from '../utils/tickerFormatter.js';
 
 interface MarvelComic {
   id: number;
@@ -307,11 +308,17 @@ class ComicDataService {
         
         const finalPrice = Math.floor(estimatedValue * 100) / 100;
         
+        // Format ticker symbol using standardized nomenclature
+        const volume = comic.title.match(/\((\d{4})\)/)?.[1] || '1';
+        const comicName = `${comic.series.name} Vol ${volume} #${comic.issueNumber || 1}`;
+        const tickerSymbol = formatTickerSymbol('', comicName);
+        
         return {
           id: comic.id,
           title: comic.title,
           series: comic.series.name,
           issueNumber: comic.issueNumber || 1,
+          symbol: tickerSymbol,
           coverUrl: comic.thumbnail ? `${comic.thumbnail.path}.${comic.thumbnail.extension}` : '',
           description: comic.description || comic.textObjects[0]?.text || `A legendary issue from ${comic.series.name}`,
           printPrice: printPrice,
@@ -616,11 +623,17 @@ class ComicDataService {
           
           const finalPrice = Math.floor(estimatedValue * 100) / 100;
           
+          // Format ticker symbol using standardized nomenclature
+          const volume = comic.title.match(/\((\d{4})\)/)?.[1] || '1';
+          const comicName = `${comic.series.name} Vol ${volume} #${comic.issueNumber || 1}`;
+          const tickerSymbol = formatTickerSymbol('', comicName);
+          
           return {
             id: comic.id,
             title: comic.title,
             series: comic.series.name,
             issueNumber: comic.issueNumber || 1,
+            symbol: tickerSymbol,
             coverUrl: `${comic.thumbnail.path}.${comic.thumbnail.extension}`,
             description: comic.description || comic.textObjects[0]?.text || `A legendary issue from ${comic.series.name}`,
             printPrice: printPrice,
