@@ -74,7 +74,7 @@
   --category-dashboard: 270 80% 60%; /* Purple */
   --category-trading: 210 100% 50%; /* Blue */
   --category-portfolio: 45 100% 50%; /* Gold */
-  --category-news: 0 0% 100%; /* White */
+  --category-news: 140 70% 45%; /* Green */
   --category-learn: 180 100% 50%; /* Cyan */
   --category-markets: 25 95% 53%; /* Orange */
   --category-research: 320 85% 60%; /* Pink/Magenta */
@@ -84,14 +84,14 @@
   --header-navbar: 270 80% 60%; /* Purple - matches dashboard */
   --header-welcome: 45 100% 50%; /* Gold - matches portfolio */
   --header-stk-updates: 210 100% 50%; /* Blue - matches trading */
-  --header-breaking-news: 0 0% 100%; /* White - matches news */
+  --header-breaking-news: 140 70% 45%; /* Green - matches news */
 
   /* ═══════════════════════════════════════════════════════════════════════════════════ */
   /* FOUNDATIONAL WIDGET COLORS - MATCHES NAV BAR CATEGORIES */
   /* ═══════════════════════════════════════════════════════════════════════════════════ */
   --foundation-portfolio: 45 100% 50%; /* Yellow/Gold - matches Portfolio nav */
   --foundation-trading: 210 100% 50%; /* Blue - matches Trading nav */
-  --foundation-news: 0 0% 100%; /* White - matches News nav */
+  --foundation-news: 140 70% 45%; /* Green - matches News nav */
   --foundation-dashboard: 270 80% 60%; /* Purple - matches Dashboard nav */
   --foundation-learn: 180 100% 50%; /* Cyan - matches Learn nav */
   --foundation-markets: 25 95% 53%; /* Orange - matches Markets nav */
@@ -501,4 +501,31 @@
     0 0 0 2px rgb(59, 130, 246),      /* Solid blue rim */
     0 0 12px rgba(59, 130, 246, 0.8),     /* Tight inner glow */
     0 0 24px rgba(59, 130, 246, 0.6);     /* Bright outer bleed */
+}
+
+/* Green Rimlight Hover Effect - Bright with minimal bleed */
+.green-rimlight-hover {
+  position: relative;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.green-rimlight-hover:hover {
+  box-shadow: 
+    0 0 0 2px rgba(34, 197, 94, 1),      /* Solid green rim */
+    0 0 12px rgba(34, 197, 94, 0.8),     /* Tight inner glow */
+    0 0 24px rgba(34, 197, 94, 0.4);     /* Minimal outer bleed */
+}
+
+/* Orange Background with White Rimlight Hover Effect */
+.orange-white-rimlight-hover {
+  position: relative;
+  transition: box-shadow 0.2s ease-in-out;
+  background-color: rgb(251, 146, 60); /* Orange background */
+}
+
+.orange-white-rimlight-hover:hover {
+  box-shadow: 
+    0 0 0 2px rgba(255, 255, 255, 1),      /* Solid white rim */
+    0 0 12px rgba(255, 255, 255, 0.8),     /* Tight inner glow */
+    0 0 24px rgba(255, 255, 255, 0.4);     /* Minimal outer bleed */
 }

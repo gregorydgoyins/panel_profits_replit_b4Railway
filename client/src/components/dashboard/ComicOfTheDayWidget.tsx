@@ -78,7 +78,7 @@ export function ComicOfTheDayWidget() {
   const priceChangePercent = ((comic.estimatedValue - comic.printPrice) / comic.printPrice) * 100;
 
   return (
-    <Card className="h-full !bg-[#1A1F2E] white-rimlight-hover" data-testid="widget-comic-of-the-day">
+    <Card className="h-full !bg-[#1A1F2E] green-rimlight-hover" data-testid="widget-comic-of-the-day">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Star className="w-5 h-5 text-yellow-500" />
@@ -91,7 +91,7 @@ export function ComicOfTheDayWidget() {
         <div className="flex items-start gap-4 mb-6">
           {/* Real Comic Cover from Marvel API - Clickable to Series Detail */}
           <Link href={`/series/${encodeURIComponent(comic.series)}`} data-testid="link-series-detail">
-            <div className="w-32 aspect-[2/3] bg-muted rounded-lg overflow-visible shrink-0 border-2 border-white/40 white-rimlight-hover cursor-pointer">
+            <div className="w-32 aspect-[2/3] bg-muted rounded-lg overflow-visible shrink-0 border-2 border-white/40 green-rimlight-hover cursor-pointer">
               {comic.coverUrl ? (
                 <img
                   src={comic.coverUrl}
@@ -162,7 +162,7 @@ export function ComicOfTheDayWidget() {
         <div className="space-y-4">
         {/* Historical Context - Storytelling - Clickable to Detail Page */}
         <Link href={`/historical-significance/${comic.id}`} data-testid="link-historical-significance" className="block">
-          <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 white-rimlight-hover cursor-pointer overflow-visible">
+          <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 green-rimlight-hover cursor-pointer overflow-visible">
             <h4 className="font-semibold text-foreground flex items-center gap-2 mb-2">
               <Landmark className="w-4 h-4 text-amber-500" />
               Historical Significance
@@ -176,7 +176,7 @@ export function ComicOfTheDayWidget() {
         {/* Description - About This Issue - Clickable to Issue Detail */}
         {comic.description && (
           <Link href={`/issue/${comic.id}`} data-testid="link-issue-detail" className="block">
-            <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 white-rimlight-hover cursor-pointer overflow-visible">
+            <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 green-rimlight-hover cursor-pointer overflow-visible">
               <h4 className="font-semibold text-foreground flex items-center gap-2 mb-2">
                 <FileText className="w-4 h-4 text-blue-500" />
                 About This Issue
@@ -190,7 +190,7 @@ export function ComicOfTheDayWidget() {
 
         {/* Creators - Creative Team with White Rimlight */}
         {comic.creators && comic.creators.length > 0 && (
-          <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 white-rimlight-hover overflow-visible">
+          <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 green-rimlight-hover overflow-visible">
             <h4 className="font-semibold text-foreground flex items-center gap-2 mb-2">
               <User className="w-4 h-4 text-purple-500" />
               Creative Team
@@ -249,9 +249,11 @@ export function ComicOfTheDayWidget() {
               Trade Now
             </div>
           </Link>
-          <Button variant="outline" data-testid="button-view-details">
-            View Details
-          </Button>
+          <Link href={`/issue/${comic.id}`} data-testid="link-learn-more" className="flex-1">
+            <div className="orange-white-rimlight-hover rounded-lg p-3 cursor-pointer overflow-visible flex items-center justify-center gap-2 font-semibold text-white" data-testid="button-learn-more">
+              Learn More
+            </div>
+          </Link>
         </div>
         </div>
       </CardContent>
