@@ -36,11 +36,14 @@ export function ComicOfTheDayWidget() {
   if (isLoading || !comic) {
     return (
       <Card className="h-full !bg-[#1A1F2E] green-rimlight-hover">
-        <CardHeader>
-          <div className="flex items-center gap-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
+        <CardHeader className="pb-3 space-y-0">
+          <div className="flex items-center gap-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt', marginBottom: '-4px' }}>
             <Star className="w-5 h-5 text-yellow-500" />
             <span>Comic of the Day</span>
           </div>
+          <p className="text-muted-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
+            Featured key issue with historical significance
+          </p>
         </CardHeader>
         <CardContent>
           <div className="flex items-start gap-4">
@@ -59,11 +62,14 @@ export function ComicOfTheDayWidget() {
   if (error) {
     return (
       <Card className="h-full !bg-[#1A1F2E] green-rimlight-hover">
-        <CardHeader>
-          <div className="flex items-center gap-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
+        <CardHeader className="pb-3 space-y-0">
+          <div className="flex items-center gap-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt', marginBottom: '-4px' }}>
             <Star className="w-5 h-5 text-yellow-500" />
             <span>Comic of the Day</span>
           </div>
+          <p className="text-muted-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
+            Featured key issue with historical significance
+          </p>
         </CardHeader>
         <CardContent>
           <div className="text-center text-muted-foreground py-8">
@@ -79,11 +85,14 @@ export function ComicOfTheDayWidget() {
 
   return (
     <Card className="h-full !bg-[#1A1F2E] green-rimlight-hover" data-testid="widget-comic-of-the-day">
-      <CardHeader>
-        <div className="flex items-center gap-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
+      <CardHeader className="pb-3 space-y-0">
+        <div className="flex items-center gap-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt', marginBottom: '-4px' }}>
           <Star className="w-5 h-5 text-yellow-500" />
           <span>Comic of the Day</span>
         </div>
+        <p className="text-muted-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
+          Featured key issue with historical significance
+        </p>
       </CardHeader>
       <CardContent>
         <div className="bg-[#252B3C] p-4 rounded-lg">
