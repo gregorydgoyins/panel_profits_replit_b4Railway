@@ -106,7 +106,7 @@ export default function DashboardPage() {
       <Card className="!bg-[#1A1F2E] yellow-rimlight-hover" data-testid="widget-portfolio-outlook">
         <CardHeader className="pb-3 space-y-0">
           <div className="flex items-center gap-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt', marginBottom: '-4px' }}>
-            <Briefcase className="w-4 h-4" />
+            <Briefcase className="w-4 h-4 text-yellow-500" />
             <span style={{ fontWeight: '300' }}>Portfolio Outlook</span>
           </div>
           <p className="text-muted-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
