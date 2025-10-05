@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Shield, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
+import { Shield } from 'lucide-react';
 
-interface Hero {
+interface Entity {
   id: string;
   canonicalName: string;
   subtype: string;
@@ -13,6 +13,8 @@ interface Hero {
   biography: string | null;
   teams: string[] | null;
   allies: string[] | null;
+  firstAppearance: string | null;
+  creators: string[] | null;
   assetImageUrl: string | null;
   assetCoverImageUrl: string | null;
   assetId: string | null;
@@ -21,28 +23,33 @@ interface Hero {
   assetPriceChange: string | null;
 }
 
+interface SidekickSuperheroPair {
+  superhero: Entity;
+  sidekick: Entity;
+  relationship: {
+    firstAppearance: string;
+    keyIssues: string[];
+    creators: string[];
+    franchise: string;
+    summary: string;
+    priceImpact: string;
+  };
+}
+
 export function SidekicksSuperheroesWidget() {
-  const { data, isLoading, error } = useQuery<{ success: boolean; data: Hero[] }>({
-    queryKey: ['/api/narrative/sidekicks'],
-    refetchInterval: 30000,
+  const { data, isLoading, error } = useQuery<{ success: boolean; data: SidekickSuperheroPair[] }>({
+    queryKey: ['/api/narrative/sidekick-superhero-pairs'],
+    refetchInterval: 30000, // 30 seconds
   });
 
-  const heroes = data?.data || [];
+  const pairs = data?.data || [];
 
-  const getImageUrl = (hero: Hero): string => {
-    return hero.primaryImageUrl || 
-           hero.assetImageUrl || 
-           hero.assetCoverImageUrl || 
+  // Get image URL with fallbacks
+  const getImageUrl = (entity: Entity): string => {
+    return entity.primaryImageUrl || 
+           entity.assetImageUrl || 
+           entity.assetCoverImageUrl || 
            '';
-  };
-
-  const getSignificanceText = (hero: Hero): string => {
-    const isSidekick = hero.subtype === 'sidekick';
-    if (isSidekick) {
-      return `Supporting heroic character in the ${hero.universe} universe with notable adventures`;
-    } else {
-      return `Major ${hero.universe} protagonist with significant comic history and cultural impact`;
-    }
   };
 
   if (isLoading) {
@@ -50,7 +57,7 @@ export function SidekicksSuperheroesWidget() {
       <Card className="h-full !bg-[#1A1F2E] sidekick-rimlight-hover" data-testid="widget-sidekicks-superheroes">
         <CardHeader className="pb-3 space-y-0">
           <div className="flex items-center gap-2">
-            <Shield className="w-12 h-12 text-[#89CFF0] sidekick-icon-glow" data-testid="icon-shield" />
+            <Shield className="w-12 h-12 text-[#89CFF0]/60 sidekick-icon-glow" data-testid="icon-shield" />
             <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
               Sidekicks & Superheroes
             </span>
@@ -58,8 +65,8 @@ export function SidekicksSuperheroesWidget() {
         </CardHeader>
         <CardContent>
           <div className="flex gap-4 overflow-x-auto pb-2">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="w-[280px] h-[480px] bg-muted rounded-lg animate-pulse shrink-0" />
+            {[1, 2].map((i) => (
+              <div key={i} className="bg-[#252B3C] p-4 rounded-lg shrink-0 w-[900px] h-[400px] animate-pulse" />
             ))}
           </div>
         </CardContent>
@@ -72,7 +79,7 @@ export function SidekicksSuperheroesWidget() {
       <Card className="h-full !bg-[#1A1F2E] sidekick-rimlight-hover" data-testid="widget-sidekicks-superheroes">
         <CardHeader className="pb-3 space-y-0">
           <div className="flex items-center gap-2">
-            <Shield className="w-12 h-12 text-[#89CFF0] sidekick-icon-glow" data-testid="icon-shield" />
+            <Shield className="w-12 h-12 text-[#89CFF0]/60 sidekick-icon-glow" data-testid="icon-shield" />
             <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
               Sidekicks & Superheroes
             </span>
@@ -80,7 +87,7 @@ export function SidekicksSuperheroesWidget() {
         </CardHeader>
         <CardContent>
           <div className="text-center text-muted-foreground py-8">
-            Failed to load heroes. Please try again later.
+            Failed to load sidekick-superhero pairs. Please try again later.
           </div>
         </CardContent>
       </Card>
@@ -91,174 +98,182 @@ export function SidekicksSuperheroesWidget() {
     <Card className="h-full !bg-[#1A1F2E] sidekick-rimlight-hover" data-testid="widget-sidekicks-superheroes">
       <CardHeader className="pb-3 space-y-0">
         <div className="flex items-center gap-2">
-          <Shield className="w-12 h-12 text-[#89CFF0] sidekick-icon-glow" data-testid="icon-shield" />
+          <Shield className="w-12 h-12 text-[#89CFF0]/60 sidekick-icon-glow" data-testid="icon-shield" />
           <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
             Sidekicks & Superheroes
           </span>
         </div>
       </CardHeader>
-      <CardContent className="relative z-10">
+      <CardContent>
         <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-[#89CFF0]/30 scrollbar-track-transparent">
-          {heroes.map((hero) => {
-            const imageUrl = getImageUrl(hero);
-            const isSidekick = hero.subtype === 'sidekick';
-            const accentColor = isSidekick ? '#89CFF0' : '#00CED1';
-            const linkPath = isSidekick ? `/sidekick/${hero.id}` : `/superhero/${hero.id}`;
-            const rimlightClass = isSidekick ? 'narrative-rimlight narrative-rimlight-sidekick' : 'narrative-rimlight narrative-rimlight-superhero';
-            
-            const price = hero.assetPrice ? parseFloat(hero.assetPrice) : null;
-            const priceChange = hero.assetPriceChange ? parseFloat(hero.assetPriceChange) : null;
-            const isPriceUp = priceChange !== null && priceChange > 0;
-            const isPriceDown = priceChange !== null && priceChange < 0;
-            
-            return (
-              <Link 
-                key={hero.id} 
-                href={linkPath}
-                data-testid={`link-${isSidekick ? 'sidekick' : 'superhero'}-${hero.id}`}
-              >
-                <div 
-                  className={`relative w-[280px] h-[480px] rounded-lg overflow-visible shrink-0 narrative-hover cursor-pointer ${rimlightClass}`}
-                  data-testid={`card-hero-${hero.id}`}
-                >
-                  {/* Image container with rimlight */}
-                  <div className="absolute inset-0 rounded-lg overflow-hidden bg-[#1a1a1a]">
-                    {/* Placeholder icon behind image */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Shield className="w-32 h-32 text-muted-foreground/20" />
+          {pairs.map((pair, index) => (
+            <div key={index} className="bg-[#252B3C] p-4 rounded-lg shrink-0 w-[900px]" data-testid={`pair-sidekick-superhero-${index}`}>
+              <div className="flex gap-6">
+                {/* Superhero Image */}
+                <Link href={`/superhero/${pair.superhero.id}`} data-testid={`link-superhero-${pair.superhero.id}`}>
+                  <div className="relative w-[280px] h-[380px] rounded-lg overflow-hidden shrink-0 cursor-pointer group">
+                    {/* Background placeholder */}
+                    <div className="absolute inset-0 bg-[#1a1a1a] flex items-center justify-center">
+                      <Shield className="w-24 h-24 text-muted-foreground/30" />
                     </div>
                     
-                    {/* Actual image in front */}
-                    {imageUrl && (
+                    {/* Actual image */}
+                    {getImageUrl(pair.superhero) && (
                       <img
-                        src={imageUrl}
-                        alt={hero.canonicalName}
-                        className="absolute inset-0 w-full h-full object-contain"
-                        style={{ zIndex: 1 }}
+                        src={getImageUrl(pair.superhero)}
+                        alt={pair.superhero.canonicalName}
+                        className="absolute inset-0 w-full h-full object-contain z-10"
+                        data-testid={`img-superhero-${pair.superhero.id}`}
                       />
                     )}
                     
-                    {/* Dark gradient overlay on top */}
-                    <div 
-                      className="absolute inset-0"
-                      style={{
-                        background: `linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.6) 40%, transparent 100%)`,
-                        zIndex: 2
-                      }}
-                    />
+                    {/* Rimlight on hover only */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20"
+                         style={{
+                           boxShadow: '0 0 2px 2px #00CED1, 0 0 12px 12px rgba(0, 206, 209, 0.8), 0 0 24px 24px rgba(0, 206, 209, 0.4)',
+                           borderRadius: '0.5rem'
+                         }} />
                     
-                    {/* Franchise Badge - Top Right */}
-                    <div className="absolute top-3 right-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm border border-white/20" style={{ zIndex: 3 }}>
-                      <span 
-                        style={{ 
-                          fontFamily: 'Hind, sans-serif', 
-                          fontWeight: '300', 
-                          fontSize: '10pt',
-                          color: '#ffffff',
-                        }}
-                      >
-                        {hero.universe?.toUpperCase() || 'UNKNOWN'}
+                    {/* Franchise Badge */}
+                    <div className="absolute top-3 right-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm border border-white/20 z-30">
+                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '10pt', color: '#ffffff' }}>
+                        {pair.superhero.universe?.toUpperCase()}
+                      </span>
+                    </div>
+                    
+                    {/* SUPERHERO label with rimlight on hover */}
+                    <div className="absolute bottom-3 left-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm z-30 group-hover:shadow-[0_0_8px_2px_rgba(0,206,209,0.6)] transition-shadow duration-300">
+                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt', color: '#00CED1' }}>
+                        SUPERHERO
                       </span>
                     </div>
                   </div>
-                  
-                  {/* Bottom content area - Secondary Layer */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4 space-y-3 narrative-secondary rounded-b-lg">
-                    {/* Category label */}
-                    <div 
-                      className="mb-1"
-                      style={{ 
-                        fontFamily: 'Hind, sans-serif', 
-                        fontWeight: '300', 
-                        fontSize: '15pt',
-                        color: accentColor,
-                      }}
+                </Link>
+
+                {/* Sidekick Image */}
+                <Link href={`/sidekick/${pair.sidekick.id}`} data-testid={`link-sidekick-${pair.sidekick.id}`}>
+                  <div className="relative w-[280px] h-[380px] rounded-lg overflow-hidden shrink-0 cursor-pointer group">
+                    {/* Background placeholder */}
+                    <div className="absolute inset-0 bg-[#1a1a1a] flex items-center justify-center">
+                      <Shield className="w-24 h-24 text-muted-foreground/30" />
+                    </div>
+                    
+                    {/* Actual image */}
+                    {getImageUrl(pair.sidekick) && (
+                      <img
+                        src={getImageUrl(pair.sidekick)}
+                        alt={pair.sidekick.canonicalName}
+                        className="absolute inset-0 w-full h-full object-contain z-10"
+                        data-testid={`img-sidekick-${pair.sidekick.id}`}
+                      />
+                    )}
+                    
+                    {/* Rimlight on hover only */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20"
+                         style={{
+                           boxShadow: '0 0 2px 2px #89CFF0, 0 0 12px 12px rgba(137, 207, 240, 0.8), 0 0 24px 24px rgba(137, 207, 240, 0.4)',
+                           borderRadius: '0.5rem'
+                         }} />
+                    
+                    {/* Franchise Badge */}
+                    <div className="absolute top-3 right-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm border border-white/20 z-30">
+                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '10pt', color: '#ffffff' }}>
+                        {pair.sidekick.universe?.toUpperCase()}
+                      </span>
+                    </div>
+                    
+                    {/* SIDEKICK label */}
+                    <div className="absolute bottom-3 left-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm z-30">
+                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt', color: '#89CFF0' }}>
+                        SIDEKICK
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+
+                {/* Relationship Narrative */}
+                <div className="flex-1 space-y-4">
+                  <div>
+                    <h3 style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt', color: '#ffffff' }}>
+                      {pair.superhero.canonicalName} & {pair.sidekick.canonicalName}
+                    </h3>
+                    <Link 
+                      href={`/franchise/${encodeURIComponent(pair.relationship.franchise)}`}
+                      data-testid={`link-franchise-${pair.relationship.franchise}`}
                     >
-                      {isSidekick ? 'SIDEKICK' : 'SUPERHERO'}
+                      <span 
+                        className="inline-block mt-1 px-2 py-1 rounded cursor-pointer transition-shadow duration-300 hover:shadow-[0_0_8px_2px_rgba(255,255,255,0.6)]"
+                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt', color: '#89CFF0' }}
+                      >
+                        {pair.relationship.franchise}
+                      </span>
+                    </Link>
+                  </div>
+
+                  <p style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt', color: '#ffffff', lineHeight: '1.6' }}>
+                    {pair.relationship.summary}
+                  </p>
+
+                  <div className="space-y-2">
+                    <div>
+                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt', color: '#89CFF0' }}>
+                        First Appearance:
+                      </span>
+                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt', color: '#ffffff', marginLeft: '8px' }}>
+                        {pair.relationship.firstAppearance}
+                      </span>
                     </div>
 
-                    {/* Character name */}
-                    <h3 
-                      className="text-white line-clamp-2"
-                      style={{ 
-                        fontFamily: 'Hind, sans-serif', 
-                        fontWeight: '300', 
-                        fontSize: '15pt' 
-                      }}
-                    >
-                      {hero.canonicalName}
-                    </h3>
+                    <div>
+                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt', color: '#89CFF0' }}>
+                        Key Issues:
+                      </span>
+                      <ul className="list-disc list-inside mt-1">
+                        {pair.relationship.keyIssues.map((issue, idx) => (
+                          <li key={idx} style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt', color: '#ffffff' }}>
+                            {issue}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
 
-                    {/* Significance text */}
-                    <p 
-                      className="text-white/80 line-clamp-2"
-                      style={{ 
-                        fontFamily: 'Hind, sans-serif', 
-                        fontWeight: '300', 
-                        fontSize: '12pt',
-                      }}
-                    >
-                      {getSignificanceText(hero)}
-                    </p>
-
-                    {/* Asset pricing section */}
-                    {price !== null && (
-                      <div className="flex items-center justify-between bg-black/50 backdrop-blur-sm rounded px-3 py-2 border border-white/10">
-                        <div className="flex items-center gap-2">
-                          <DollarSign className="w-4 h-4 text-[#50C878]" />
-                          <span 
-                            style={{ 
-                              fontFamily: 'Hind, sans-serif', 
-                              fontWeight: '300', 
-                              fontSize: '12pt',
-                              color: '#50C878',
-                            }}
-                          >
-                            ${price.toFixed(2)}
-                          </span>
+                    {pair.relationship.creators.length > 0 && (
+                      <div>
+                        <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt', color: '#89CFF0' }}>
+                          Creators:
+                        </span>
+                        <div className="flex gap-2 flex-wrap mt-1">
+                          {pair.relationship.creators.map((creator, idx) => (
+                            <Link 
+                              key={idx}
+                              href={`/creator/${encodeURIComponent(creator)}`}
+                              data-testid={`link-creator-${creator}`}
+                            >
+                              <span 
+                                className="px-2 py-1 rounded bg-black/50 cursor-pointer hover:bg-black/70 transition-colors"
+                                style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt', color: '#89CFF0' }}
+                              >
+                                {creator}
+                              </span>
+                            </Link>
+                          ))}
                         </div>
-                        
-                        {priceChange !== null && (
-                          <div className="flex items-center gap-1">
-                            {isPriceUp && (
-                              <>
-                                <TrendingUp className="w-4 h-4 text-[#50C878]" data-testid="icon-trending-up" />
-                                <span 
-                                  style={{ 
-                                    fontFamily: 'Hind, sans-serif', 
-                                    fontWeight: '300', 
-                                    fontSize: '12pt',
-                                    color: '#50C878',
-                                  }}
-                                >
-                                  +{Math.abs(priceChange).toFixed(2)}%
-                                </span>
-                              </>
-                            )}
-                            {isPriceDown && (
-                              <>
-                                <TrendingDown className="w-4 h-4 text-[#DC143C]" data-testid="icon-trending-down" />
-                                <span 
-                                  style={{ 
-                                    fontFamily: 'Hind, sans-serif', 
-                                    fontWeight: '300', 
-                                    fontSize: '12pt',
-                                    color: '#DC143C',
-                                  }}
-                                >
-                                  {priceChange.toFixed(2)}%
-                                </span>
-                              </>
-                            )}
-                          </div>
-                        )}
                       </div>
                     )}
+
+                    <div>
+                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt', color: '#89CFF0' }}>
+                        Price Impact:
+                      </span>
+                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt', color: '#50C878', marginLeft: '8px' }}>
+                        {pair.relationship.priceImpact}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </Link>
-            );
-          })}
+              </div>
+            </div>
+          ))}
         </div>
       </CardContent>
     </Card>
