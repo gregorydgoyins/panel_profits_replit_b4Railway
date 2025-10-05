@@ -40,9 +40,10 @@ export default function ComicBioPage() {
   const params = useParams();
   const comicId = params.id;
 
-  // Fetch comic data
+  // Fetch comic data based on the ID from the URL
   const { data, isLoading, error } = useQuery<{ success: boolean; data: any }>({
-    queryKey: ['/api/comic-covers/comic-of-the-day'],
+    queryKey: ['/api/comic-covers/comic', comicId],
+    enabled: !!comicId,
   });
 
   const comic = data?.data;

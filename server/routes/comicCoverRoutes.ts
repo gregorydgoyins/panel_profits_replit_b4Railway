@@ -4,6 +4,73 @@ import { comicDataService } from "../services/comicDataService";
 import { z } from "zod";
 
 export function registerComicCoverRoutes(app: Express) {
+  // Get specific comic by ID
+  app.get("/api/comic-covers/comic/:id", async (req, res) => {
+    try {
+      const comicIdNum = parseInt(req.params.id);
+      
+      if (isNaN(comicIdNum)) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "Invalid comic ID",
+          data: null
+        });
+      }
+      
+      const comic = await storage.getAssetById(comicIdNum.toString());
+      
+      if (!comic) {
+        return res.status(404).json({ 
+          success: false, 
+          error: "Comic not found",
+          data: null
+        });
+      }
+      
+      // Get current price
+      const price = await storage.getAssetCurrentPrice(comicIdNum.toString());
+      const currentSharePrice = price ? parseFloat(price.currentPrice) : 0;
+      
+      // Parse metadata for additional info
+      const metadata = comic.metadata as any || {};
+      
+      // Transform to match expected format
+      const transformedComic = {
+        id: comicIdNum,
+        title: metadata.title || comic.name,
+        series: metadata.series || 'Unknown Series',
+        issueNumber: metadata.issueNumber || 1,
+        coverUrl: comic.imageUrl || comic.coverImageUrl || '',
+        description: comic.description || 'No description available.',
+        onsaleDate: metadata.releaseDate || null,
+        currentPrice: currentSharePrice,
+        estimatedValue: currentSharePrice * 100, // Approximate
+        printPrice: 3.99,
+        format: comic.type || 'Comic',
+        pageCount: 32,
+        yearsOld: metadata.releaseDate ? new Date().getFullYear() - new Date(metadata.releaseDate).getFullYear() : 0,
+        creators: metadata.creators || [],
+        isFirstIssue: metadata.issueNumber === 1 || false,
+        isKeyIssue: metadata.variantDescription?.toLowerCase().includes('1st appearance') || false,
+        significance: metadata.variantDescription || '',
+        historicalContext: comic.description || '',
+        symbol: comic.symbol || `COMIC.${comic.id}`
+      };
+      
+      res.json({
+        success: true,
+        data: transformedComic
+      });
+    } catch (error) {
+      console.error('Error fetching comic by ID:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Failed to fetch comic",
+        data: null
+      });
+    }
+  });
+  
   // Get key issues comic covers
   app.get("/api/comic-covers/key-issues", async (req, res) => {
     try {
