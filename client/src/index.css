@@ -598,3 +598,23 @@
 .superhero-rimlight-hover:hover {
   box-shadow: 0 0 12px rgba(0, 206, 209, 0.8);
 }
+
+/* Location Rimlight Hover Effect - Brown glow for location theme */
+.location-rimlight-hover {
+  position: relative;
+  transition: box-shadow 200ms ease-in-out;
+}
+
+.location-rimlight-hover:hover {
+  box-shadow: 0 0 12px rgba(139, 69, 19, 0.8);
+}
+
+/* Gadget Rimlight Hover Effect - Goldenrod glow for gadget/artifact theme */
+.gadget-rimlight-hover {
+  position: relative;
+  transition: box-shadow 200ms ease-in-out;
+}
+
+.gadget-rimlight-hover:hover {
+  box-shadow: 0 0 12px rgba(218, 165, 32, 0.8);
+}

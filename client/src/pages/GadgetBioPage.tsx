@@ -3,64 +3,54 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Shield, Zap, ShieldAlert, Users, Book } from 'lucide-react';
+import { ArrowLeft, Zap, BookOpen, User, Wrench } from 'lucide-react';
 import { Link } from 'wouter';
 
-interface SuperheroDetail {
+interface GadgetDetail {
   id: string;
   canonicalName: string;
-  realName: string | null;
-  subtype: string;
-  biography: string | null;
+  subtype: string | null;
+  description: string | null;
   primaryImageUrl: string | null;
   alternateImageUrls: string[] | null;
-  teams: string[] | null;
-  allies: string[] | null;
   firstAppearance: string | null;
   universe: string;
   asset: {
     imageUrl: string | null;
     coverImageUrl: string | null;
   } | null;
-  powers: Array<{
-    id: string;
-    traitName: string;
-    description: string;
-    potencyLevel: number | null;
-  }>;
-  weaknesses: Array<{
+  capabilities: Array<{
     id: string;
     traitName: string;
     description: string;
   }>;
-  skills: Array<{
+  features: Array<{
     id: string;
     traitName: string;
     description: string;
-    masteryLevel: number | null;
   }>;
-  equipment: Array<{
+  owner: Array<{
     id: string;
     traitName: string;
     description: string;
   }>;
 }
 
-export default function SuperheroBioPage() {
+export default function GadgetBioPage() {
   const params = useParams();
-  const heroId = params.id;
+  const gadgetId = params.id;
 
-  const { data, isLoading, error } = useQuery<{ success: boolean; data: SuperheroDetail }>({
-    queryKey: ['/api/narrative/superhero', heroId],
-    enabled: !!heroId,
+  const { data, isLoading, error } = useQuery<{ success: boolean; data: GadgetDetail }>({
+    queryKey: ['/api/narrative/gadget', gadgetId],
+    enabled: !!gadgetId,
   });
 
-  const hero = data?.data;
+  const gadget = data?.data;
 
-  const getHeroImageUrl = () => {
-    return hero?.primaryImageUrl || 
-           hero?.asset?.imageUrl || 
-           hero?.asset?.coverImageUrl || 
+  const getGadgetImageUrl = () => {
+    return gadget?.primaryImageUrl || 
+           gadget?.asset?.imageUrl || 
+           gadget?.asset?.coverImageUrl || 
            '';
   };
 
@@ -76,7 +66,7 @@ export default function SuperheroBioPage() {
     );
   }
 
-  if (error || !hero) {
+  if (error || !gadget) {
     return (
       <div className="min-h-screen !bg-[#1A1F2E] p-8">
         <div className="max-w-6xl mx-auto">
@@ -88,7 +78,7 @@ export default function SuperheroBioPage() {
           </Link>
           <Card className="!bg-[#1A1F2E]">
             <CardContent className="text-center py-12">
-              <p className="text-muted-foreground">Superhero information not found.</p>
+              <p className="text-muted-foreground">Gadget information not found.</p>
             </CardContent>
           </Card>
         </div>
@@ -96,12 +86,11 @@ export default function SuperheroBioPage() {
     );
   }
 
-  const heroImageUrl = getHeroImageUrl();
+  const gadgetImageUrl = getGadgetImageUrl();
 
   return (
     <div className="min-h-screen !bg-[#1A1F2E] p-8">
       <div className="max-w-6xl mx-auto">
-        {/* Back Button */}
         <Link href="/" data-testid="link-back-home">
           <Button variant="ghost" className="mb-6" data-testid="button-back-to-dashboard">
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -109,57 +98,52 @@ export default function SuperheroBioPage() {
           </Button>
         </Link>
 
-        {/* Hero Image Section */}
         <div 
-          className="relative h-[800px] rounded-lg overflow-hidden mb-8 superhero-rimlight-hover"
+          className="relative h-[800px] rounded-lg overflow-hidden mb-8 gadget-rimlight-hover"
           style={{
-            backgroundImage: heroImageUrl ? `url(${heroImageUrl})` : 'none',
+            backgroundImage: gadgetImageUrl ? `url(${gadgetImageUrl})` : 'none',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            backgroundColor: heroImageUrl ? 'transparent' : '#1a1a1a',
+            backgroundColor: gadgetImageUrl ? 'transparent' : '#1a1a1a',
           }}
-          data-testid="hero-image-section"
+          data-testid="gadget-image-section"
         >
-          {/* Dark gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
           
-          {/* Hero info overlay */}
           <div className="absolute bottom-0 left-0 right-0 p-8">
-            <Badge className="mb-4" style={{ backgroundColor: '#00CED1', color: 'white' }}>
-              SUPERHERO
+            <Badge className="mb-4" style={{ backgroundColor: '#DAA520', color: 'white' }}>
+              GADGET
             </Badge>
             <h1 
               className="text-white mb-2"
               style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}
             >
-              {hero.canonicalName}
+              {gadget.canonicalName}
             </h1>
-            {hero.realName && (
+            {gadget.subtype && (
               <p 
                 className="text-white/80"
                 style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}
               >
-                {hero.realName}
+                {gadget.subtype}
               </p>
             )}
             <p 
               className="text-white/60 mt-2"
               style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}
             >
-              {hero.universe.toUpperCase()} Universe
+              {gadget.universe.toUpperCase()} Universe
             </p>
           </div>
 
-          {/* Placeholder if no image */}
-          {!heroImageUrl && (
+          {!gadgetImageUrl && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <Shield className="w-64 h-64 text-muted-foreground/20" />
+              <Wrench className="w-64 h-64 text-muted-foreground/20" />
             </div>
           )}
         </div>
 
-        {/* Alternate Images Gallery */}
-        {hero.alternateImageUrls && hero.alternateImageUrls.length > 0 && (
+        {gadget.alternateImageUrls && gadget.alternateImageUrls.length > 0 && (
           <div className="mb-8">
             <h2 
               className="mb-4"
@@ -168,7 +152,7 @@ export default function SuperheroBioPage() {
               Gallery
             </h2>
             <div className="grid grid-cols-4 gap-4">
-              {hero.alternateImageUrls.map((imageUrl, index) => (
+              {gadget.alternateImageUrls.map((imageUrl, index) => (
                 <div 
                   key={index}
                   className="aspect-square rounded-lg overflow-hidden"
@@ -184,16 +168,15 @@ export default function SuperheroBioPage() {
           </div>
         )}
 
-        {/* Biography Section */}
-        {hero.biography && (
+        {gadget.description && (
           <Card className="mb-8 !bg-[#1A1F2E]">
             <CardHeader>
               <h2 
                 className="flex items-center gap-2"
                 style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}
               >
-                <Book className="w-6 h-6" />
-                Biography
+                <BookOpen className="w-6 h-6" />
+                Description
               </h2>
             </CardHeader>
             <CardContent>
@@ -201,32 +184,31 @@ export default function SuperheroBioPage() {
                 className="text-muted-foreground"
                 style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt' }}
               >
-                {hero.biography}
+                {gadget.description}
               </p>
             </CardContent>
           </Card>
         )}
 
-        {/* Powers Section */}
-        {hero.powers && hero.powers.length > 0 && (
+        {gadget.capabilities && gadget.capabilities.length > 0 && (
           <Card className="mb-8 !bg-[#1A1F2E]">
             <CardHeader>
               <h2 
                 className="flex items-center gap-2"
                 style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}
               >
-                <Zap className="w-6 h-6" style={{ color: '#00CED1' }} />
-                Powers
+                <Zap className="w-6 h-6" style={{ color: '#DAA520' }} />
+                Capabilities
               </h2>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {hero.powers.map((power) => (
+                {gadget.capabilities.map((capability) => (
                   <div 
-                    key={power.id}
+                    key={capability.id}
                     className="p-4 rounded-lg border"
-                    style={{ borderColor: '#00CED1', backgroundColor: '#00CED1/10' }}
-                    data-testid={`power-${power.id}`}
+                    style={{ borderColor: '#DAA520', backgroundColor: 'rgba(218, 165, 32, 0.1)' }}
+                    data-testid={`capability-${capability.id}`}
                   >
                     <h3 
                       className="mb-2"
@@ -234,25 +216,17 @@ export default function SuperheroBioPage() {
                         fontFamily: 'Hind, sans-serif', 
                         fontWeight: '300', 
                         fontSize: '15pt',
-                        color: '#00CED1'
+                        color: '#DAA520'
                       }}
                     >
-                      {power.traitName}
+                      {capability.traitName}
                     </h3>
-                    {power.description && (
+                    {capability.description && (
                       <p 
                         className="text-muted-foreground"
                         style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt' }}
                       >
-                        {power.description}
-                      </p>
-                    )}
-                    {power.potencyLevel !== null && (
-                      <p 
-                        className="mt-2 text-sm"
-                        style={{ color: '#00CED1' }}
-                      >
-                        Potency Level: {power.potencyLevel}/10
+                        {capability.description}
                       </p>
                     )}
                   </div>
@@ -262,43 +236,41 @@ export default function SuperheroBioPage() {
           </Card>
         )}
 
-        {/* Weaknesses Section */}
-        {hero.weaknesses && hero.weaknesses.length > 0 && (
+        {gadget.features && gadget.features.length > 0 && (
           <Card className="mb-8 !bg-[#1A1F2E]">
             <CardHeader>
               <h2 
                 className="flex items-center gap-2"
                 style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}
               >
-                <ShieldAlert className="w-6 h-6" style={{ color: '#DC2626' }} />
-                Weaknesses
+                <Wrench className="w-6 h-6" />
+                Features
               </h2>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {hero.weaknesses.map((weakness) => (
+                {gadget.features.map((feature) => (
                   <div 
-                    key={weakness.id}
-                    className="p-4 rounded-lg border border-destructive/30 bg-destructive/5"
-                    data-testid={`weakness-${weakness.id}`}
+                    key={feature.id}
+                    className="p-4 rounded-lg border border-muted"
+                    data-testid={`feature-${feature.id}`}
                   >
                     <h3 
                       className="mb-2"
                       style={{ 
                         fontFamily: 'Hind, sans-serif', 
                         fontWeight: '300', 
-                        fontSize: '15pt',
-                        color: '#DC2626'
+                        fontSize: '15pt'
                       }}
                     >
-                      {weakness.traitName}
+                      {feature.traitName}
                     </h3>
-                    {weakness.description && (
+                    {feature.description && (
                       <p 
                         className="text-muted-foreground"
                         style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt' }}
                       >
-                        {weakness.description}
+                        {feature.description}
                       </p>
                     )}
                   </div>
@@ -308,28 +280,27 @@ export default function SuperheroBioPage() {
           </Card>
         )}
 
-        {/* Allies Section */}
-        {hero.allies && hero.allies.length > 0 && (
+        {gadget.owner && gadget.owner.length > 0 && (
           <Card className="mb-8 !bg-[#1A1F2E]">
             <CardHeader>
               <h2 
                 className="flex items-center gap-2"
                 style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}
               >
-                <Users className="w-6 h-6" />
-                Allies
+                <User className="w-6 h-6" />
+                Creator / Owner
               </h2>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                {hero.allies.map((ally, index) => (
+                {gadget.owner.map((ownerInfo, index) => (
                   <Badge 
                     key={index}
-                    variant="outline"
+                    style={{ backgroundColor: '#DAA520', color: 'white' }}
                     className="text-base py-1 px-3"
-                    data-testid={`ally-${index}`}
+                    data-testid={`owner-${index}`}
                   >
-                    {ally}
+                    {ownerInfo.traitName}
                   </Badge>
                 ))}
               </div>
@@ -337,37 +308,7 @@ export default function SuperheroBioPage() {
           </Card>
         )}
 
-        {/* Teams/Affiliations Section */}
-        {hero.teams && hero.teams.length > 0 && (
-          <Card className="mb-8 !bg-[#1A1F2E]">
-            <CardHeader>
-              <h2 
-                className="flex items-center gap-2"
-                style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}
-              >
-                <Users className="w-6 h-6" />
-                Teams & Affiliations
-              </h2>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {hero.teams.map((team, index) => (
-                  <Badge 
-                    key={index}
-                    style={{ backgroundColor: '#00CED1', color: 'white' }}
-                    className="text-base py-1 px-3"
-                    data-testid={`team-${index}`}
-                  >
-                    {team}
-                  </Badge>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* First Appearance Section */}
-        {hero.firstAppearance && (
+        {gadget.firstAppearance && (
           <Card className="mb-8 !bg-[#1A1F2E]">
             <CardHeader>
               <h2 
@@ -381,7 +322,7 @@ export default function SuperheroBioPage() {
               <p 
                 style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt' }}
               >
-                {hero.firstAppearance}
+                {gadget.firstAppearance}
               </p>
             </CardContent>
           </Card>

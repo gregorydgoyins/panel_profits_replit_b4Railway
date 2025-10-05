@@ -4625,6 +4625,137 @@ Respond with valid JSON in this exact format:
     }
   });
 
+  // Locations & Gadgets Routes - Narrative Entities System
+  
+  // Get list of locations and gadgets/artifacts
+  app.get('/api/narrative/locations', async (req: any, res) => {
+    try {
+      const locationsAndGadgets = await db
+        .select({
+          id: narrativeEntities.id,
+          canonicalName: narrativeEntities.canonicalName,
+          entityType: narrativeEntities.entityType,
+          subtype: narrativeEntities.subtype,
+          primaryImageUrl: narrativeEntities.primaryImageUrl,
+          alternateImageUrls: narrativeEntities.alternateImageUrls,
+          description: narrativeEntities.description,
+          assetImageUrl: assetsTable.imageUrl,
+          assetCoverImageUrl: assetsTable.coverImageUrl,
+        })
+        .from(narrativeEntities)
+        .leftJoin(assetsTable, eq(narrativeEntities.assetId, assetsTable.id))
+        .where(
+          or(
+            eq(narrativeEntities.entityType, 'location'),
+            eq(narrativeEntities.entityType, 'artifact')
+          )
+        )
+        .orderBy(desc(narrativeEntities.popularityScore))
+        .limit(20);
+
+      res.json({
+        success: true,
+        data: locationsAndGadgets
+      });
+    } catch (error) {
+      console.error('Error fetching locations/gadgets:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to fetch locations/gadgets' 
+      });
+    }
+  });
+
+  // Get single location detail with traits and market data
+  app.get('/api/narrative/location/:id', async (req: any, res) => {
+    try {
+      const { id } = req.params;
+
+      // Get location entity
+      const [location] = await db
+        .select()
+        .from(narrativeEntities)
+        .leftJoin(assetsTable, eq(narrativeEntities.assetId, assetsTable.id))
+        .where(eq(narrativeEntities.id, id))
+        .limit(1);
+
+      if (!location) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Location not found' 
+        });
+      }
+
+      // Get location's notable events and features
+      const traits = await db
+        .select()
+        .from(narrativeTraits)
+        .where(eq(narrativeTraits.entityId, id));
+
+      res.json({
+        success: true,
+        data: {
+          ...location.narrativeEntities,
+          asset: location.assets,
+          notableEvents: traits.filter(t => t.traitCategory === 'event'),
+          features: traits.filter(t => t.traitCategory === 'feature'),
+          associatedCharacters: traits.filter(t => t.traitCategory === 'character_link'),
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching location detail:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to fetch location detail' 
+      });
+    }
+  });
+
+  // Get single gadget/artifact detail with traits and market data
+  app.get('/api/narrative/gadget/:id', async (req: any, res) => {
+    try {
+      const { id } = req.params;
+
+      // Get gadget entity
+      const [gadget] = await db
+        .select()
+        .from(narrativeEntities)
+        .leftJoin(assetsTable, eq(narrativeEntities.assetId, assetsTable.id))
+        .where(eq(narrativeEntities.id, id))
+        .limit(1);
+
+      if (!gadget) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Gadget not found' 
+        });
+      }
+
+      // Get gadget's capabilities and owner info
+      const traits = await db
+        .select()
+        .from(narrativeTraits)
+        .where(eq(narrativeTraits.entityId, id));
+
+      res.json({
+        success: true,
+        data: {
+          ...gadget.narrativeEntities,
+          asset: gadget.assets,
+          capabilities: traits.filter(t => t.traitCategory === 'capability'),
+          features: traits.filter(t => t.traitCategory === 'feature'),
+          owner: traits.filter(t => t.traitCategory === 'owner'),
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching gadget detail:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to fetch gadget detail' 
+      });
+    }
+  });
+
   // Creator Affiliation Routes
   app.post('/api/creators/expand/stan-lee', async (req, res) => {
     try {

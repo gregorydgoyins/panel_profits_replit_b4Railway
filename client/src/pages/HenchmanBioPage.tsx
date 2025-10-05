@@ -134,14 +134,14 @@ export default function HenchmanBioPage() {
             </Badge>
             <h1 
               className="text-white mb-2"
-              style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '32pt' }}
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}
             >
               {henchman.canonicalName}
             </h1>
             {henchman.realName && (
               <p 
                 className="text-white/80"
-                style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}
               >
                 {henchman.realName}
               </p>
@@ -381,7 +381,7 @@ export default function HenchmanBioPage() {
             <CardContent>
               <p 
                 className="text-foreground/90"
-                style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt' }}
               >
                 {henchman.firstAppearance}
               </p>

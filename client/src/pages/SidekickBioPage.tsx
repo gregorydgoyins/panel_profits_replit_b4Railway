@@ -132,14 +132,14 @@ export default function SidekickBioPage() {
             </Badge>
             <h1 
               className="text-white mb-2"
-              style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '32pt' }}
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}
             >
               {sidekick.canonicalName}
             </h1>
             {sidekick.realName && (
               <p 
                 className="text-white/80"
-                style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}
               >
                 {sidekick.realName}
               </p>
@@ -418,7 +418,7 @@ export default function SidekickBioPage() {
             </CardHeader>
             <CardContent>
               <p 
-                style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt' }}
               >
                 {sidekick.firstAppearance}
               </p>

@@ -132,14 +132,14 @@ export default function VillainBioPage() {
             </Badge>
             <h1 
               className="text-white mb-2"
-              style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '32pt' }}
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}
             >
               {villain.canonicalName}
             </h1>
             {villain.realName && (
               <p 
                 className="text-white/80"
-                style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}
               >
                 {villain.realName}
               </p>
@@ -364,7 +364,7 @@ export default function VillainBioPage() {
             <CardContent>
               <p 
                 className="text-foreground/90"
-                style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}
+                style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt' }}
               >
                 {villain.firstAppearance}
               </p>

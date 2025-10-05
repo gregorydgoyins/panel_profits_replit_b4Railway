@@ -12,6 +12,7 @@ interface FeaturedComic {
   priceChange: number;
   priceChangePercent: number;
   symbol: string;
+  relevance: string;
 }
 
 export function FeaturedComicsSection() {
@@ -38,6 +39,9 @@ export function FeaturedComicsSection() {
     const priceChange = (Math.random() - 0.5) * 20;
     const priceChangePercent = (priceChange / basePrice) * 100;
 
+    // Generate relevance description based on comic significance
+    const relevance = comic.significance || comic.description || `Key issue from ${comic.series}`;
+
     return {
       id: comic.id,
       title: comic.title,
@@ -48,6 +52,7 @@ export function FeaturedComicsSection() {
       priceChange,
       priceChangePercent,
       symbol,
+      relevance,
     };
   });
 
@@ -118,6 +123,11 @@ export function FeaturedComicsSection() {
                 <div className="space-y-1">
                   <div className="text-foreground truncate" title={comic.symbol} style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt', whiteSpace: 'nowrap' }}>
                     {comic.symbol}
+                  </div>
+                  
+                  {/* Relevance/Significance Description */}
+                  <div className="text-muted-foreground line-clamp-2" title={comic.relevance} style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt' }}>
+                    {comic.relevance}
                   </div>
                   
                   {/* Price with Movement Icon */}
