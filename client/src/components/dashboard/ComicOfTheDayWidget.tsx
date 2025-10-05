@@ -86,9 +86,9 @@ export function ComicOfTheDayWidget() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="bg-[#252B3C] p-4 rounded-lg space-y-6">
+        <div className="bg-[#252B3C] p-4 rounded-lg">
         {/* Featured Comic Header */}
-        <div className="flex items-start gap-4">
+        <div className="flex items-start gap-4 mb-6">
           {/* Real Comic Cover from Marvel API - Clickable to Series Detail */}
           <Link href={`/series/${encodeURIComponent(comic.series)}`} data-testid="link-series-detail">
             <div className="w-32 aspect-[2/3] bg-muted rounded-lg overflow-visible shrink-0 border-2 border-white/40 white-rimlight-hover cursor-pointer">
@@ -158,6 +158,8 @@ export function ComicOfTheDayWidget() {
           </div>
         </div>
 
+        {/* Information Sections with Equal Spacing */}
+        <div className="space-y-4">
         {/* Historical Context - Storytelling - Clickable to Detail Page */}
         <Link href={`/historical-significance/${comic.id}`} data-testid="link-historical-significance">
           <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 white-rimlight-hover cursor-pointer overflow-visible">
@@ -204,9 +206,10 @@ export function ComicOfTheDayWidget() {
             </div>
           </div>
         )}
+        </div>
 
         {/* Key Facts - One Orange Box Around All Items */}
-        <div className="space-y-2">
+        <div className="space-y-2 mt-6">
           <h4 className="font-semibold text-foreground">Quick Facts</h4>
           <div className="border-2 border-orange-500 rounded-lg p-4 bg-orange-500/5 orange-rimlight-hover overflow-visible">
             <ul className="space-y-3">
@@ -239,7 +242,7 @@ export function ComicOfTheDayWidget() {
         </div>
 
         {/* Trading Actions */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 mt-6">
           <Link href={`/order-desk/${comic.id}`} data-testid="link-order-desk" className="flex-1">
             <div className="blue-rimlight-hover rounded-lg p-3 cursor-pointer overflow-visible flex items-center justify-center gap-2 font-semibold" data-testid="button-trade-comic-of-day">
               <DollarSign className="w-4 h-4" />
