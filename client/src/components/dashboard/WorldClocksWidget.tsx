@@ -259,16 +259,16 @@ export function WorldClocksWidget() {
               <AnalogClock time={market.localTime} status={market.status} />
               
               <div className="text-center space-y-0.5 w-full">
-                <div className="font-semibold text-sm text-foreground truncate">{market.name}</div>
-                <div className="text-sm text-muted-foreground truncate">{market.city}</div>
-                <div className="text-sm font-mono text-muted-foreground truncate whitespace-nowrap">
+                <div className="text-sm text-foreground truncate" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>{market.name}</div>
+                <div className="text-sm text-muted-foreground truncate" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>{market.city}</div>
+                <div className="text-sm text-muted-foreground truncate whitespace-nowrap" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
                   {market.localTime.toLocaleTimeString('en-US', { 
                     hour: '2-digit', 
                     minute: '2-digit',
                     hour12: true 
                   })}
                 </div>
-                <div className="text-sm text-muted-foreground leading-tight truncate whitespace-nowrap">
+                <div className="text-sm text-muted-foreground leading-tight truncate whitespace-nowrap" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
                   {market.openTime} - {market.closeTime}
                 </div>
                 {getStatusBadge(market.status)}
@@ -289,16 +289,16 @@ export function WorldClocksWidget() {
               <AnalogClock time={market.localTime} status={market.status} />
               
               <div className="text-center space-y-0.5 w-full">
-                <div className="font-semibold text-sm text-foreground truncate">{market.name}</div>
-                <div className="text-sm text-muted-foreground truncate">{market.city}</div>
-                <div className="text-sm font-mono text-muted-foreground truncate whitespace-nowrap">
+                <div className="text-sm text-foreground truncate" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>{market.name}</div>
+                <div className="text-sm text-muted-foreground truncate" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>{market.city}</div>
+                <div className="text-sm text-muted-foreground truncate whitespace-nowrap" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
                   {market.localTime.toLocaleTimeString('en-US', { 
                     hour: '2-digit', 
                     minute: '2-digit',
                     hour12: true 
                   })}
                 </div>
-                <div className="text-sm text-muted-foreground leading-tight truncate whitespace-nowrap">
+                <div className="text-sm text-muted-foreground leading-tight truncate whitespace-nowrap" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
                   {market.openTime} - {market.closeTime}
                 </div>
                 {getStatusBadge(market.status)}
