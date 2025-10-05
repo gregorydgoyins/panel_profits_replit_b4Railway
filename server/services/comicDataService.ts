@@ -606,6 +606,24 @@ class ComicDataService {
   }
 
   /**
+   * Fetch key issues - first appearances, #1s, significant events
+   */
+  async fetchKeyIssues(limit = 6): Promise<any[]> {
+    try {
+      // Fetch more comics to ensure we get enough key issues
+      const comics = await this.fetchRandomComicCovers(50);
+      
+      // Filter for key issues only
+      const keyComics = comics.filter(c => c.isKeyIssue || c.isFirstIssue);
+      
+      return keyComics.slice(0, limit);
+    } catch (error) {
+      console.error('Error fetching key issues:', error);
+      return [];
+    }
+  }
+
+  /**
    * Get comic of the day with historical context
    */
   async getComicOfTheDay(): Promise<any | null> {

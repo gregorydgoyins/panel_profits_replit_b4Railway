@@ -135,7 +135,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Market Ticker - Returns top movers for ticker display
   app.get('/api/market/ticker', async (req: any, res) => {
     try {
-      // Get comics with proper series names (major franchises for ticker display)
+      // Get diverse assets - mix of comics, characters, creators, franchises, series, collectibles
       const topMovers = await db
         .select({
           assetId: assetsTable.id,
@@ -150,27 +150,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .innerJoin(assetCurrentPrices, eq(assetsTable.id, assetCurrentPrices.assetId))
         .where(sql`
           ${assetCurrentPrices.currentPrice} IS NOT NULL 
-          AND ${assetsTable.type} = 'comic'
-          AND (
-            ${assetsTable.name} LIKE '%Spider-Man%'
-            OR ${assetsTable.name} LIKE '%Batman%'
-            OR ${assetsTable.name} LIKE '%Superman%'
-            OR ${assetsTable.name} LIKE '%Wonder Woman%'
-            OR ${assetsTable.name} LIKE '%X-Men%'
-            OR ${assetsTable.name} LIKE '%Avengers%'
-            OR ${assetsTable.name} LIKE '%Justice League%'
-            OR ${assetsTable.name} LIKE '%Flash%'
-            OR ${assetsTable.name} LIKE '%Captain America%'
-            OR ${assetsTable.name} LIKE '%Iron Man%'
-            OR ${assetsTable.name} LIKE '%Hulk%'
-            OR ${assetsTable.name} LIKE '%Thor%'
-            OR ${assetsTable.name} LIKE '%Fantastic Four%'
-            OR ${assetsTable.name} LIKE '%Daredevil%'
-            OR ${assetsTable.name} LIKE '%Deadpool%'
-            OR ${assetsTable.name} LIKE '%Wolverine%'
-            OR ${assetsTable.name} LIKE '%Green Lantern%'
-            OR ${assetsTable.name} LIKE '%Aquaman%'
-          )
+          AND ${assetsTable.type} IN ('comic', 'character', 'creator', 'franchise', 'series', 'collectible')
         `)
         .orderBy(sql`RANDOM()`)
         .limit(100);

@@ -495,60 +495,6 @@ export default function DashboardPage() {
       {/* Featured Comics Section */}
       <FeaturedComicsSection />
 
-      {/* Featured Comic Covers */}
-      {featuredCovers && featuredCovers.length > 0 && (
-        <Card className="bg-gradient-to-br from-gray-900 to-black border border-border">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>Featured Comics</CardTitle>
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/trading">View All</Link>
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {featuredCovers.slice(0, 6).map((cover: ComicCover) => (
-                <div key={cover.id} className="group cursor-pointer" data-testid={`cover-${cover.id}`}>
-                  <div className="relative aspect-[2/3] bg-gray-800 rounded-md overflow-hidden mb-2">
-                    {cover.imageUrl ? (
-                      <img 
-                        src={cover.imageUrl} 
-                        alt={cover.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-xs text-gray-600 text-center px-2">{cover.title}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <p 
-                      className="text-xs font-medium text-white truncate"
-                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                    >
-                      {cover.title}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span 
-                        className="text-sm font-bold text-white"
-                        style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
-                      >
-                        ${cover.price}
-                      </span>
-                      <span className={`text-xs ${cover.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                        {cover.change >= 0 ? '+' : ''}{cover.change}%
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Market Movers */}
       <div className="bg-slate-800/20 p-3 rounded-lg">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

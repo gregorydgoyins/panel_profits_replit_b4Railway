@@ -4,6 +4,28 @@ import { comicDataService } from "../services/comicDataService";
 import { z } from "zod";
 
 export function registerComicCoverRoutes(app: Express) {
+  // Get key issues comic covers
+  app.get("/api/comic-covers/key-issues", async (req, res) => {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 6;
+      const comics = await comicDataService.fetchKeyIssues(limit);
+      
+      res.json({
+        success: true,
+        data: comics,
+        count: comics.length
+      });
+    } catch (error) {
+      console.error('Error fetching key issues:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Failed to fetch key issues",
+        data: [],
+        count: 0
+      });
+    }
+  });
+
   // Get random comic covers from REAL Marvel API
   app.get("/api/comic-covers/random", async (req, res) => {
     try {
