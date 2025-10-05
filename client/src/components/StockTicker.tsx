@@ -32,7 +32,7 @@ export function StockTicker() {
     if (!scrollContainer || isPaused || topAssets.length === 0) return;
 
     let scrollPosition = 0;
-    const scrollSpeed = 0.5; // Increased speed for smoother, faster scrolling
+    const scrollSpeed = 0.625; // 25% faster scrolling speed
     let animationFrameId: number;
     
     const animate = () => {
@@ -51,7 +51,7 @@ export function StockTicker() {
 
     animationFrameId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [isPaused, topAssets.length]);
+  }, [isPaused, topAssets]);
 
   const handleAssetClick = (symbol: string) => {
     setLocation(`/asset/${symbol}`);
