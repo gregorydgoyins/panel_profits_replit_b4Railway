@@ -584,9 +584,19 @@
 
 .villain-rimlight-hover:hover {
   box-shadow: 
-    0 0 0 2px rgba(139, 0, 0, 1),      /* Solid blood-red rim */
-    0 0 12px rgba(139, 0, 0, 0.8),     /* Tight inner glow */
-    0 0 24px rgba(139, 0, 0, 0.4);     /* Minimal outer bleed */
+    0 0 0 3px rgba(139, 0, 0, 1),      /* Thicker solid blood-red rim */
+    0 0 20px rgba(139, 0, 0, 1),       /* Brighter inner glow */
+    0 0 40px rgba(139, 0, 0, 0.8),     /* Strong outer bleed */
+    0 0 60px rgba(139, 0, 0, 0.4);     /* Extended glow */
+}
+
+/* Villain Icon Glow - Makes skull icon glow on widget hover */
+.villain-icon-glow {
+  transition: filter 0.2s ease-in-out, drop-shadow 0.2s ease-in-out;
+}
+
+.villain-rimlight-hover:hover .villain-icon-glow {
+  filter: drop-shadow(0 0 8px rgba(139, 0, 0, 0.8)) drop-shadow(0 0 16px rgba(139, 0, 0, 0.6));
 }
 
 /* Sidekick Rimlight Hover Effect - Baby blue with minimal bleed */

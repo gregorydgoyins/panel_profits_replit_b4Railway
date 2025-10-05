@@ -52,7 +52,7 @@ export function VillainsHenchmenWidget() {
       <Card className="h-full !bg-[#1A1F2E] villain-rimlight-hover" data-testid="widget-villains-henchmen">
         <CardHeader className="pb-3 space-y-0">
           <div className="flex items-center gap-2">
-            <Skull className="w-12 h-12 text-[#8b0000]" data-testid="icon-skull" />
+            <Skull className="w-12 h-12 text-[#8b0000] villain-icon-glow" data-testid="icon-skull" />
             <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
               Villains & Henchmen
             </span>
@@ -74,7 +74,7 @@ export function VillainsHenchmenWidget() {
       <Card className="h-full !bg-[#1A1F2E] villain-rimlight-hover" data-testid="widget-villains-henchmen">
         <CardHeader className="pb-3 space-y-0">
           <div className="flex items-center gap-2">
-            <Skull className="w-12 h-12 text-[#8b0000]" data-testid="icon-skull" />
+            <Skull className="w-12 h-12 text-[#8b0000] villain-icon-glow" data-testid="icon-skull" />
             <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
               Villains & Henchmen
             </span>
@@ -93,7 +93,7 @@ export function VillainsHenchmenWidget() {
     <Card className="h-full !bg-[#1A1F2E] villain-rimlight-hover" data-testid="widget-villains-henchmen">
       <CardHeader className="pb-3 space-y-0 relative z-10">
         <div className="flex items-center gap-2">
-          <Skull className="w-12 h-12 text-[#8b0000]" data-testid="icon-skull" />
+          <Skull className="w-12 h-12 text-[#8b0000] villain-icon-glow" data-testid="icon-skull" />
           <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
             Villains & Henchmen
           </span>
