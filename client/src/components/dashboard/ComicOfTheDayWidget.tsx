@@ -161,7 +161,7 @@ export function ComicOfTheDayWidget() {
         {/* Information Sections with Equal Spacing */}
         <div className="space-y-4">
         {/* Historical Context - Storytelling - Clickable to Detail Page */}
-        <Link href={`/historical-significance/${comic.id}`} data-testid="link-historical-significance">
+        <Link href={`/historical-significance/${comic.id}`} data-testid="link-historical-significance" className="block">
           <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 white-rimlight-hover cursor-pointer overflow-visible">
             <h4 className="font-semibold text-foreground flex items-center gap-2 mb-2">
               <Landmark className="w-4 h-4 text-amber-500" />
@@ -175,7 +175,7 @@ export function ComicOfTheDayWidget() {
 
         {/* Description - About This Issue - Clickable to Issue Detail */}
         {comic.description && (
-          <Link href={`/issue/${comic.id}`} data-testid="link-issue-detail">
+          <Link href={`/issue/${comic.id}`} data-testid="link-issue-detail" className="block">
             <div className="bg-primary/5 border border-primary/10 rounded-lg p-4 white-rimlight-hover cursor-pointer overflow-visible">
               <h4 className="font-semibold text-foreground flex items-center gap-2 mb-2">
                 <FileText className="w-4 h-4 text-blue-500" />
