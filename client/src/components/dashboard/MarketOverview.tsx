@@ -225,7 +225,7 @@ export function MarketOverview() {
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-green-500" />
-              <h4 className="text-sm font-medium">Top Gainers</h4>
+              <h4 style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>Top Gainers</h4>
             </div>
             <div className="space-y-2">
               {topGainers.map((asset) => (
@@ -260,7 +260,7 @@ export function MarketOverview() {
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <TrendingDown className="w-4 h-4 text-red-500" />
-              <h4 className="text-sm font-medium">Top Losers</h4>
+              <h4 style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>Top Losers</h4>
             </div>
             <div className="space-y-2">
               {topLosers.map((asset) => (
