@@ -61,7 +61,7 @@ function AnalogClock({ time, status }: { time: Date; status: MarketStatus['statu
           y1="50"
           x2={50 + 25 * Math.cos(hourAngle * Math.PI / 180)}
           y2={50 + 25 * Math.sin(hourAngle * Math.PI / 180)}
-          className={`${getStatusColor()} stroke-[3]`}
+          className={`${getStatusColor()} stroke-[1.5]`}
           strokeLinecap="round"
         />
         
@@ -70,7 +70,7 @@ function AnalogClock({ time, status }: { time: Date; status: MarketStatus['statu
           y1="50"
           x2={50 + 35 * Math.cos(minuteAngle * Math.PI / 180)}
           y2={50 + 35 * Math.sin(minuteAngle * Math.PI / 180)}
-          className={`${getStatusColor()} stroke-[2]`}
+          className={`${getStatusColor()} stroke-[1]`}
           strokeLinecap="round"
         />
         
