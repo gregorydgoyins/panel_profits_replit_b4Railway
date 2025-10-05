@@ -4488,6 +4488,143 @@ Respond with valid JSON in this exact format:
     }
   });
 
+  // Sidekicks & Superheroes Routes - Narrative Entities System
+  
+  // Get list of sidekicks and superheroes
+  app.get('/api/narrative/sidekicks', async (req: any, res) => {
+    try {
+      const heroes = await db
+        .select({
+          id: narrativeEntities.id,
+          canonicalName: narrativeEntities.canonicalName,
+          subtype: narrativeEntities.subtype,
+          primaryImageUrl: narrativeEntities.primaryImageUrl,
+          alternateImageUrls: narrativeEntities.alternateImageUrls,
+          biography: narrativeEntities.biography,
+          teams: narrativeEntities.teams,
+          allies: narrativeEntities.allies,
+          assetImageUrl: assetsTable.imageUrl,
+          assetCoverImageUrl: assetsTable.coverImageUrl,
+        })
+        .from(narrativeEntities)
+        .leftJoin(assetsTable, eq(narrativeEntities.assetId, assetsTable.id))
+        .where(
+          and(
+            eq(narrativeEntities.entityType, 'character'),
+            or(
+              eq(narrativeEntities.subtype, 'sidekick'),
+              eq(narrativeEntities.subtype, 'hero')
+            )
+          )
+        )
+        .orderBy(desc(narrativeEntities.popularityScore))
+        .limit(20);
+
+      res.json({
+        success: true,
+        data: heroes
+      });
+    } catch (error) {
+      console.error('Error fetching sidekicks/superheroes:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to fetch sidekicks/superheroes' 
+      });
+    }
+  });
+
+  // Get single superhero detail with powers and market data
+  app.get('/api/narrative/superhero/:id', async (req: any, res) => {
+    try {
+      const { id } = req.params;
+
+      // Get superhero entity
+      const [hero] = await db
+        .select()
+        .from(narrativeEntities)
+        .leftJoin(assetsTable, eq(narrativeEntities.assetId, assetsTable.id))
+        .where(eq(narrativeEntities.id, id))
+        .limit(1);
+
+      if (!hero) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Superhero not found' 
+        });
+      }
+
+      // Get superhero's powers and weaknesses
+      const traits = await db
+        .select()
+        .from(narrativeTraits)
+        .where(eq(narrativeTraits.entityId, id));
+
+      res.json({
+        success: true,
+        data: {
+          ...hero.narrativeEntities,
+          asset: hero.assets,
+          powers: traits.filter(t => t.traitCategory === 'power'),
+          weaknesses: traits.filter(t => t.traitCategory === 'weakness'),
+          skills: traits.filter(t => t.traitCategory === 'skill'),
+          equipment: traits.filter(t => t.traitCategory === 'equipment'),
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching superhero detail:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to fetch superhero detail' 
+      });
+    }
+  });
+
+  // Get single sidekick detail with powers and market data
+  app.get('/api/narrative/sidekick/:id', async (req: any, res) => {
+    try {
+      const { id } = req.params;
+
+      // Get sidekick entity
+      const [sidekick] = await db
+        .select()
+        .from(narrativeEntities)
+        .leftJoin(assetsTable, eq(narrativeEntities.assetId, assetsTable.id))
+        .where(eq(narrativeEntities.id, id))
+        .limit(1);
+
+      if (!sidekick) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Sidekick not found' 
+        });
+      }
+
+      // Get sidekick's powers and weaknesses
+      const traits = await db
+        .select()
+        .from(narrativeTraits)
+        .where(eq(narrativeTraits.entityId, id));
+
+      res.json({
+        success: true,
+        data: {
+          ...sidekick.narrativeEntities,
+          asset: sidekick.assets,
+          powers: traits.filter(t => t.traitCategory === 'power'),
+          weaknesses: traits.filter(t => t.traitCategory === 'weakness'),
+          skills: traits.filter(t => t.traitCategory === 'skill'),
+          equipment: traits.filter(t => t.traitCategory === 'equipment'),
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching sidekick detail:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to fetch sidekick detail' 
+      });
+    }
+  });
+
   // Creator Affiliation Routes
   app.post('/api/creators/expand/stan-lee', async (req, res) => {
     try {

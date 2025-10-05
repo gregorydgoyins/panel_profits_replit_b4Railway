@@ -578,3 +578,23 @@
 .villain-rimlight-hover:hover {
   box-shadow: 0 0 12px rgba(139, 0, 0, 0.8);
 }
+
+/* Sidekick Rimlight Hover Effect - Navy glow for sidekick/hero theme */
+.sidekick-rimlight-hover {
+  position: relative;
+  transition: box-shadow 200ms ease-in-out;
+}
+
+.sidekick-rimlight-hover:hover {
+  box-shadow: 0 0 12px rgba(0, 31, 63, 0.8);
+}
+
+/* Superhero Rimlight Hover Effect - Cyan glow for superhero theme */
+.superhero-rimlight-hover {
+  position: relative;
+  transition: box-shadow 200ms ease-in-out;
+}
+
+.superhero-rimlight-hover:hover {
+  box-shadow: 0 0 12px rgba(0, 206, 209, 0.8);
+}
