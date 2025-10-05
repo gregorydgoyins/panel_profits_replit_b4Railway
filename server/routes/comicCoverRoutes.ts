@@ -17,7 +17,8 @@ export function registerComicCoverRoutes(app: Express) {
         });
       }
       
-      const comic = await storage.getAssetById(comicIdNum.toString());
+      // Fetch comic from Marvel API by ID
+      const comic = await comicDataService.fetchMarvelComicById(comicIdNum);
       
       if (!comic) {
         return res.status(404).json({ 
@@ -27,39 +28,9 @@ export function registerComicCoverRoutes(app: Express) {
         });
       }
       
-      // Get current price
-      const price = await storage.getAssetCurrentPrice(comicIdNum.toString());
-      const currentSharePrice = price ? parseFloat(price.currentPrice) : 0;
-      
-      // Parse metadata for additional info
-      const metadata = comic.metadata as any || {};
-      
-      // Transform to match expected format
-      const transformedComic = {
-        id: comicIdNum,
-        title: metadata.title || comic.name,
-        series: metadata.series || 'Unknown Series',
-        issueNumber: metadata.issueNumber || 1,
-        coverUrl: comic.imageUrl || comic.coverImageUrl || '',
-        description: comic.description || 'No description available.',
-        onsaleDate: metadata.releaseDate || null,
-        currentPrice: currentSharePrice,
-        estimatedValue: currentSharePrice * 100, // Approximate
-        printPrice: 3.99,
-        format: comic.type || 'Comic',
-        pageCount: 32,
-        yearsOld: metadata.releaseDate ? new Date().getFullYear() - new Date(metadata.releaseDate).getFullYear() : 0,
-        creators: metadata.creators || [],
-        isFirstIssue: metadata.issueNumber === 1 || false,
-        isKeyIssue: metadata.variantDescription?.toLowerCase().includes('1st appearance') || false,
-        significance: metadata.variantDescription || '',
-        historicalContext: comic.description || '',
-        symbol: comic.symbol || `COMIC.${comic.id}`
-      };
-      
       res.json({
         success: true,
-        data: transformedComic
+        data: comic
       });
     } catch (error) {
       console.error('Error fetching comic by ID:', error);

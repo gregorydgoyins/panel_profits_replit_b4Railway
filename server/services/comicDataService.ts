@@ -12,6 +12,8 @@ interface MarvelComic {
   issn: string;
   format: string;
   pageCount: number;
+  issueNumber?: number;
+  variantDescription?: string;
   textObjects: Array<{
     type: string;
     language: string;
@@ -277,6 +279,66 @@ class ComicDataService {
     }
   }
 
+  async fetchMarvelComicById(comicId: number): Promise<any | null> {
+    try {
+      const auth = this.generateMarvelAuth();
+      const url = `${this.marvelBaseUrl}/comics/${comicId}?ts=${auth.ts}&apikey=${auth.apikey}&hash=${auth.hash}`;
+      
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      if (data.code === 200 && data.data.results.length > 0) {
+        const comic = data.data.results[0];
+        
+        // Transform to match expected format
+        const printPrice = comic.prices.find((p: any) => p.type === 'printPrice')?.price || 3.99;
+        const issueAge = comic.dates.find((d: any) => d.type === 'onsaleDate')?.date;
+        const yearsOld = issueAge ? new Date().getFullYear() - new Date(issueAge).getFullYear() : 0;
+        
+        // Pricing formula
+        let estimatedValue = printPrice;
+        if (yearsOld > 40) estimatedValue *= (20 + Math.random() * 80);
+        else if (yearsOld > 20) estimatedValue *= (5 + Math.random() * 15);
+        else if (yearsOld > 10) estimatedValue *= (2 + Math.random() * 5);
+        else estimatedValue *= (1 + Math.random() * 2);
+        
+        const isFirstIssue = comic.title.includes('#1') || comic.issueNumber === 1;
+        if (isFirstIssue) estimatedValue *= (2 + Math.random() * 3);
+        
+        const finalPrice = Math.floor(estimatedValue * 100) / 100;
+        
+        return {
+          id: comic.id,
+          title: comic.title,
+          series: comic.series.name,
+          issueNumber: comic.issueNumber || 1,
+          coverUrl: comic.thumbnail ? `${comic.thumbnail.path}.${comic.thumbnail.extension}` : '',
+          description: comic.description || comic.textObjects[0]?.text || `A legendary issue from ${comic.series.name}`,
+          printPrice: printPrice,
+          estimatedValue: finalPrice,
+          onsaleDate: comic.dates.find((d: any) => d.type === 'onsaleDate')?.date || null,
+          creators: comic.creators.items.slice(0, 3).map((c: any) => ({
+            name: c.name,
+            role: c.role
+          })),
+          pageCount: comic.pageCount,
+          format: comic.format,
+          upc: comic.upc,
+          isbn: comic.isbn,
+          yearsOld,
+          isFirstIssue,
+          isKeyIssue: isFirstIssue || comic.variantDescription?.includes('1st appearance'),
+        };
+      } else {
+        console.error('Marvel API: Comic not found');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching Marvel comic by ID:', error);
+      return null;
+    }
+  }
+
   async fetchSuperHero(characterName: string): Promise<SuperHero | null> {
     try {
       const url = `${this.superHeroBaseUrl}/${this.superHeroToken}/search/${encodeURIComponent(characterName)}`;
@@ -293,25 +355,6 @@ class ComicDataService {
     } catch (error) {
       console.error('Error fetching SuperHero data:', error);
       return null;
-    }
-  }
-
-  async fetchComicVineVolumes(limit = 100, offset = 0): Promise<ComicVineVolume[]> {
-    try {
-      const url = `${this.comicVineBaseUrl}/volumes/?api_key=${this.comicVineApiKey}&format=json&limit=${limit}&offset=${offset}&field_list=id,name,start_year,publisher,count_of_issues,image,description,deck`;
-      
-      const response = await fetch(url);
-      const data = await response.json();
-      
-      if (data.error === 'OK') {
-        return data.results;
-      } else {
-        console.error('Comic Vine API error:', data.error);
-        return [];
-      }
-    } catch (error) {
-      console.error('Error fetching Comic Vine volumes:', error);
-      return [];
     }
   }
 
