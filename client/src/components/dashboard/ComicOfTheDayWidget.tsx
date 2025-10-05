@@ -223,29 +223,37 @@ export function ComicOfTheDayWidget() {
           <div className="border-2 border-orange-500 rounded-lg p-4 bg-orange-500/5 orange-rimlight-hover overflow-visible">
             <ul className="space-y-3">
               {comic.isFirstIssue && (
-                <li className="flex items-start gap-2 text-sm">
-                  <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                  <span className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>First issue of the series - highly collectible</span>
-                </li>
+                <Link href={`/issue/${comic.id}`} data-testid="link-quick-fact-first-issue">
+                  <li className="flex items-start gap-2 text-sm cursor-pointer hover-elevate transition-all duration-200">
+                    <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                    <span className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>First issue of the series - highly collectible</span>
+                  </li>
+                </Link>
               )}
               {comic.isKeyIssue && (
-                <li className="flex items-start gap-2 text-sm">
-                  <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                  <span className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>Key issue with significant historical importance</span>
-                </li>
+                <Link href={`/issue/${comic.id}`} data-testid="link-quick-fact-key-issue">
+                  <li className="flex items-start gap-2 text-sm cursor-pointer hover-elevate transition-all duration-200">
+                    <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                    <span className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>Key issue with significant historical importance</span>
+                  </li>
+                </Link>
               )}
               {comic.pageCount > 0 && (
-                <li className="flex items-start gap-2 text-sm">
-                  <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                  <span className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>{comic.pageCount} pages of storytelling excellence</span>
-                </li>
+                <Link href={`/issue/${comic.id}`} data-testid="link-quick-fact-page-count">
+                  <li className="flex items-start gap-2 text-sm cursor-pointer hover-elevate transition-all duration-200">
+                    <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                    <span className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>{comic.pageCount} pages of storytelling excellence</span>
+                  </li>
+                </Link>
               )}
-              <li className="flex items-start gap-2 text-sm">
-                <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                <span className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
-                  Value appreciation: {priceChangePercent > 0 ? '+' : ''}{priceChangePercent.toFixed(0)}% from print price
-                </span>
-              </li>
+              <Link href={`/issue/${comic.id}`} data-testid="link-quick-fact-value">
+                <li className="flex items-start gap-2 text-sm cursor-pointer hover-elevate transition-all duration-200">
+                  <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                  <span className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                    Value appreciation: {priceChangePercent > 0 ? '+' : ''}{priceChangePercent.toFixed(0)}% from print price
+                  </span>
+                </li>
+              </Link>
             </ul>
           </div>
         </div>
