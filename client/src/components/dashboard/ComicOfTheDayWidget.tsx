@@ -239,10 +239,12 @@ export function ComicOfTheDayWidget() {
 
         {/* Trading Actions */}
         <div className="flex gap-2">
-          <Button className="flex-1" data-testid="button-trade-comic-of-day">
-            <DollarSign className="w-4 h-4 mr-2" />
-            Trade Now
-          </Button>
+          <Link href={`/order-desk/${comic.id}`} data-testid="link-order-desk" className="flex-1">
+            <div className="blue-rimlight-hover rounded-lg p-3 bg-blue-500/10 cursor-pointer overflow-visible flex items-center justify-center gap-2 text-foreground font-semibold" data-testid="button-trade-comic-of-day">
+              <DollarSign className="w-4 h-4" />
+              Trade Now
+            </div>
+          </Link>
           <Button variant="outline" data-testid="button-view-details">
             View Details
           </Button>

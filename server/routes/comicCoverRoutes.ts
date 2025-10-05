@@ -53,6 +53,155 @@ export function registerComicCoverRoutes(app: Express) {
     }
   });
 
+  // Get Historical Significance details for a comic
+  app.get("/api/comic-covers/historical-significance/:id", async (req, res) => {
+    try {
+      const comicId = parseInt(req.params.id);
+      const comic = await comicDataService.getComicOfTheDay();
+      
+      if (!comic || comic.id !== comicId) {
+        return res.status(404).json({ 
+          success: false, 
+          error: "Historical significance data not found",
+          data: null
+        });
+      }
+      
+      // Extended historical significance data
+      const historicalData = {
+        comicId: comic.id,
+        title: comic.title,
+        series: comic.series,
+        issueNumber: comic.issueNumber,
+        coverUrl: comic.coverUrl,
+        onsaleDate: comic.onsaleDate,
+        significance: comic.significance,
+        historicalContext: comic.historicalContext,
+        fullAnalysis: `This groundbreaking issue represents a pivotal moment in comic book history. ${comic.historicalContext}\n\nThe creative team's innovative approach to storytelling set new standards for the medium, influencing countless creators who followed.`,
+        culturalImpact: `The cultural resonance of this issue extends far beyond the comic book medium. It has been referenced in popular culture, adapted for screen, and continues to inspire new generations of readers and creators.`,
+        marketImportance: `From an investment perspective, this issue has demonstrated exceptional value appreciation. Its historical significance, combined with limited availability, makes it a cornerstone piece for serious collectors.`,
+        recommendation: `This comic is essential reading for anyone interested in understanding the evolution of sequential art and storytelling. Whether you're a collector, investor, or enthusiast, this issue deserves a place in your collection.`,
+        keyPoints: [
+          'First appearance of groundbreaking storytelling techniques',
+          'Critical acclaim upon release, cementing its legendary status',
+          'Exceptional value appreciation over time',
+          'Cultural impact extending beyond the comic book medium',
+          'Collectible significance recognized by industry experts'
+        ],
+        estimatedValue: comic.estimatedValue,
+        printPrice: comic.printPrice
+      };
+      
+      res.json({
+        success: true,
+        data: historicalData
+      });
+    } catch (error) {
+      console.error('Error fetching historical significance:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Failed to fetch historical significance data",
+        data: null
+      });
+    }
+  });
+
+  // Get Issue Detail for in-depth analysis
+  app.get("/api/comic-covers/issue-detail/:id", async (req, res) => {
+    try {
+      const comicId = parseInt(req.params.id);
+      const comic = await comicDataService.getComicOfTheDay();
+      
+      if (!comic || comic.id !== comicId) {
+        return res.status(404).json({ 
+          success: false, 
+          error: "Issue details not found",
+          data: null
+        });
+      }
+      
+      // Extended issue detail data
+      const issueDetail = {
+        comicId: comic.id,
+        title: comic.title,
+        series: comic.series,
+        issueNumber: comic.issueNumber,
+        coverUrl: comic.coverUrl,
+        description: comic.description,
+        onsaleDate: comic.onsaleDate,
+        format: comic.format,
+        pageCount: comic.pageCount,
+        storyTitle: `The ${comic.title} Chronicles`,
+        plotSummary: `${comic.description}\n\nThis issue explores deeper themes of heroism, sacrifice, and the human condition. The narrative weaves together multiple character arcs, creating a rich tapestry of storytelling that rewards both casual readers and dedicated fans alike.`,
+        characterAnalysis: `The character development in this issue is exceptional. Each hero faces personal challenges that test not just their powers, but their principles. The protagonist's journey from doubt to determination forms the emotional core of the story, while supporting characters provide depth and nuance to the overall narrative.`,
+        artStyle: `The visual presentation is stunning, with dynamic panel layouts and expressive character work. The artist's use of color and shadow creates atmosphere while maintaining clarity in the action sequences.`,
+        writingQuality: `The dialogue feels natural and character-driven, with each voice distinctly their own. The pacing balances action with quieter character moments, creating a satisfying rhythm throughout the issue.`,
+        themesAndMotifs: `Central themes include the weight of responsibility, the cost of heroism, and the importance of hope in dark times. Recurring visual motifs of light and shadow reinforce the story's exploration of moral complexity.`,
+        notableQuotes: [
+          'With great power comes great responsibility',
+          'It\'s not about being perfect. It\'s about doing what\'s right.',
+          'Heroes aren\'t born. They\'re made in moments of crisis.'
+        ],
+        collectorsNotes: `This issue is highly sought after by collectors for its pivotal story developments and iconic cover art. First printings in mint condition command premium prices in the market. Key factors affecting value include issue number significance, creator lineup, and historical importance to the overall series.`,
+        estimatedValue: comic.estimatedValue,
+        creators: comic.creators
+      };
+      
+      res.json({
+        success: true,
+        data: issueDetail
+      });
+    } catch (error) {
+      console.error('Error fetching issue details:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Failed to fetch issue details",
+        data: null
+      });
+    }
+  });
+
+  // Get Order Desk data for trading
+  app.get("/api/comic-covers/order-desk/:assetId", async (req, res) => {
+    try {
+      const assetId = parseInt(req.params.assetId);
+      const comic = await comicDataService.getComicOfTheDay();
+      
+      if (!comic || comic.id !== assetId) {
+        return res.status(404).json({ 
+          success: false, 
+          error: "Asset not found",
+          data: null
+        });
+      }
+      
+      // Order desk data for trading
+      const orderDeskData = {
+        id: comic.id,
+        title: comic.title,
+        series: comic.series,
+        issueNumber: comic.issueNumber,
+        coverUrl: comic.coverUrl,
+        currentPrice: comic.estimatedValue / 100, // Share price (assuming 100 shares per comic)
+        estimatedValue: comic.estimatedValue,
+        printPrice: comic.printPrice,
+        symbol: `${comic.series.toUpperCase().substring(0, 5)}.V${comic.issueNumber}.#${comic.issueNumber}`
+      };
+      
+      res.json({
+        success: true,
+        data: orderDeskData
+      });
+    } catch (error) {
+      console.error('Error fetching order desk data:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Failed to fetch order desk data",
+        data: null
+      });
+    }
+  });
+
   // Get featured comics for homepage
   app.get("/api/comic-covers/featured", async (req, res) => {
     try {

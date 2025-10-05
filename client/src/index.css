@@ -486,3 +486,19 @@
     0 0 12px rgba(251, 146, 60, 0.8),     /* Tight inner glow */
     0 0 24px rgba(251, 146, 60, 0.4);     /* Minimal outer bleed */
 }
+
+/* Blue Rimlight Hover Effect - Bright with full box fill on hover */
+.blue-rimlight-hover {
+  position: relative;
+  transition: all 0.3s ease-in-out;
+  border: 2px solid rgb(59, 130, 246); /* Blue border */
+}
+
+.blue-rimlight-hover:hover {
+  background-color: rgb(59, 130, 246) !important; /* Fill entire box with blue */
+  color: white !important;
+  box-shadow: 
+    0 0 0 2px rgb(59, 130, 246),      /* Solid blue rim */
+    0 0 12px rgba(59, 130, 246, 0.8),     /* Tight inner glow */
+    0 0 24px rgba(59, 130, 246, 0.6);     /* Bright outer bleed */
+}
