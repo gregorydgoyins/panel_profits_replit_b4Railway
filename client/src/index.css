@@ -1,5 +1,5 @@
 /* INSTITUTIONAL TRADING PLATFORM DESIGN SYSTEM - RESTRAINED & PROFESSIONAL */
-@import url('https://fonts.googleapis.com/css2?family=Hind:wght@300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hind:wght@300;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -63,9 +63,13 @@
   --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.5);
   
-  /* Typography */
+  /* Typography - Hind 300 Bold Throughout */
   --font-primary: 'Hind', sans-serif;
-  --font-weight-primary: 300;
+  --font-body: 'Hind', sans-serif;
+  --font-header: 'Hind', sans-serif;
+  --font-weight-primary: 700;
+  --font-weight-light: 700;
+  --font-weight-semibold: 700;
   
   /* Minimal border radius - subtle softening only */
   --radius: 2px;

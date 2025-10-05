@@ -198,7 +198,7 @@ export default function ComicBioPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-3">
-                  {comic.creators.map((creator, idx) => (
+                  {comic.creators.map((creator: { name: string; role: string }, idx: number) => (
                     <Link key={idx} href={`/creator/${encodeURIComponent(creator.name)}`}>
                       <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 hover:bg-primary/10 cursor-pointer transition-colors">
                         <User className="w-4 h-4 text-purple-500" />

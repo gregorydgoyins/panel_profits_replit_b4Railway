@@ -48,11 +48,14 @@ export function FeaturedComicsSection() {
 
   if (isLoading || comics.length === 0) {
     return (
-      <div className="bg-slate-700/30 rounded-lg p-6 pink-rimlight-hover overflow-visible">
+      <div className="bg-[#252B3C] rounded-lg p-6 pink-rimlight-hover overflow-visible">
         <h3 className="text-xl font-semibold mb-4 text-foreground">Featured Comics</h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="aspect-[2/3] bg-muted rounded-lg animate-pulse" />
+            <div key={i} className="space-y-3">
+              <div className="aspect-[2/3] bg-muted rounded-lg animate-pulse" />
+              <div className="h-4 bg-muted rounded animate-pulse" />
+            </div>
           ))}
         </div>
       </div>
@@ -60,10 +63,10 @@ export function FeaturedComicsSection() {
   }
 
   return (
-    <div className="bg-slate-700/30 rounded-lg p-6 pink-rimlight-hover overflow-visible">
+    <div className="bg-[#252B3C] rounded-lg p-6 pink-rimlight-hover overflow-visible">
       <h3 className="text-xl font-semibold mb-4 text-foreground">Featured Comics</h3>
       
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
         {featuredComics.map((comic) => (
           <Link 
             key={comic.id} 
@@ -71,8 +74,8 @@ export function FeaturedComicsSection() {
             data-testid={`link-featured-comic-${comic.id}`}
           >
             <div className="group cursor-pointer">
-              {/* Comic Cover with Individual Rimlight */}
-              <div className="aspect-[2/3] bg-muted rounded-lg overflow-visible mb-2 white-rimlight-hover">
+              {/* Comic Cover with Pink Rimlight Hover and Active State */}
+              <div className="aspect-[2/3] bg-muted rounded-lg overflow-visible mb-3 pink-rimlight-hover active:brightness-125 transition-all">
                 {comic.coverUrl ? (
                   <img
                     src={comic.coverUrl}
