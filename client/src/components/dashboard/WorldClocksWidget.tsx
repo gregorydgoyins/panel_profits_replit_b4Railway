@@ -39,7 +39,7 @@ function AnalogClock({ time, status }: { time: Date; status: MarketStatus['statu
   };
 
   return (
-    <div className={`relative w-8 h-8 rounded-full border ${getFaceColor()} flex items-center justify-center`}>
+    <div className={`relative w-16 h-16 rounded-full border-2 ${getFaceColor()} flex items-center justify-center`}>
       <svg className="absolute w-full h-full" viewBox="0 0 100 100">
         {[...Array(12)].map((_, i) => {
           const angle = (i * 30 - 90) * (Math.PI / 180);
@@ -225,11 +225,11 @@ export function WorldClocksWidget() {
   const getStatusBadge = (status: MarketStatus['status']) => {
     switch (status) {
       case 'open':
-        return <Badge variant="default" className="bg-green-500 text-[8px] px-1 py-0">Open</Badge>;
+        return <Badge variant="default" className="bg-green-500 text-xs">Open</Badge>;
       case 'after-hours':
-        return <Badge variant="secondary" className="bg-yellow-500 text-black text-[8px] px-1 py-0">Extended</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-500 text-black text-xs">Extended</Badge>;
       case 'closed':
-        return <Badge variant="destructive" className="text-[8px] px-1 py-0">Closed</Badge>;
+        return <Badge variant="destructive" className="text-xs">Closed</Badge>;
     }
   };
 
@@ -238,29 +238,29 @@ export function WorldClocksWidget() {
 
   return (
     <Card className="!bg-[#1A1F2E]" data-testid="widget-world-clocks">
-      <CardHeader className="pb-1.5">
-        <CardTitle className="flex items-center gap-1 text-sm">
-          <Globe className="w-3 h-3" />
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Globe className="w-4 h-4" />
           Global Market Hours
         </CardTitle>
-        <p className="text-[10px] text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Real-time analog clocks - 8 major exchanges
         </p>
       </CardHeader>
-      <CardContent className="space-y-1.5">
-        <div className="bg-[#252B3C] p-2 rounded-lg">
-          <div className="grid grid-cols-4 gap-1">
+      <CardContent className="space-y-3">
+        <div className="bg-[#252B3C] p-4 rounded-lg">
+          <div className="grid grid-cols-4 gap-2">
             {topRowMarkets.map((market) => (
               <div
                 key={market.name}
-                className="flex flex-col items-center gap-0.5 p-1 rounded border border-border bg-[#2D3748] hover-elevate transition-all"
+                className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate transition-all"
                 onMouseEnter={(e) => {
                   const glowColor = market.status === 'open' 
                     ? 'rgba(34, 197, 94, 0.8)' 
                     : market.status === 'after-hours'
                     ? 'rgba(234, 179, 8, 0.8)'
                     : 'rgba(239, 68, 68, 0.8)';
-                  e.currentTarget.style.boxShadow = `0 0 4px ${glowColor}, 0 0 8px ${glowColor}`;
+                  e.currentTarget.style.boxShadow = `0 0 8px ${glowColor}, 0 0 15px ${glowColor}`;
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.boxShadow = '';
@@ -269,17 +269,17 @@ export function WorldClocksWidget() {
               >
               <AnalogClock time={market.localTime} status={market.status} />
               
-              <div className="text-center space-y-0 w-full">
-                <div className="font-semibold text-[10px] text-foreground">{market.name}</div>
-                <div className="text-[9px] text-muted-foreground">{market.city}</div>
-                <div className="text-[9px] font-mono text-muted-foreground">
+              <div className="text-center space-y-0.5 w-full">
+                <div className="font-semibold text-xs text-foreground">{market.name}</div>
+                <div className="text-xs text-muted-foreground">{market.city}</div>
+                <div className="text-xs font-mono text-muted-foreground">
                   {market.localTime.toLocaleTimeString('en-US', { 
                     hour: '2-digit', 
                     minute: '2-digit',
                     hour12: true 
                   })}
                 </div>
-                <div className="text-[8px] text-muted-foreground leading-tight">
+                <div className="text-[10px] text-muted-foreground leading-tight">
                   {market.openTime} - {market.closeTime}
                 </div>
                 {getStatusBadge(market.status)}
@@ -289,19 +289,19 @@ export function WorldClocksWidget() {
           </div>
         </div>
 
-        <div className="bg-[#252B3C] p-2 rounded-lg">
-          <div className="grid grid-cols-4 gap-1">
+        <div className="bg-[#252B3C] p-4 rounded-lg">
+          <div className="grid grid-cols-4 gap-2">
             {bottomRowMarkets.map((market) => (
               <div
                 key={market.name}
-                className="flex flex-col items-center gap-0.5 p-1 rounded border border-border bg-[#2D3748] hover-elevate transition-all"
+                className="flex flex-col items-center gap-1 p-2 rounded-lg border border-border bg-[#2D3748] hover-elevate transition-all"
                 onMouseEnter={(e) => {
                   const glowColor = market.status === 'open' 
                     ? 'rgba(34, 197, 94, 0.8)' 
                     : market.status === 'after-hours'
                     ? 'rgba(234, 179, 8, 0.8)'
                     : 'rgba(239, 68, 68, 0.8)';
-                  e.currentTarget.style.boxShadow = `0 0 4px ${glowColor}, 0 0 8px ${glowColor}`;
+                  e.currentTarget.style.boxShadow = `0 0 8px ${glowColor}, 0 0 15px ${glowColor}`;
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.boxShadow = '';
@@ -310,17 +310,17 @@ export function WorldClocksWidget() {
               >
               <AnalogClock time={market.localTime} status={market.status} />
               
-              <div className="text-center space-y-0 w-full">
-                <div className="font-semibold text-[10px] text-foreground">{market.name}</div>
-                <div className="text-[9px] text-muted-foreground">{market.city}</div>
-                <div className="text-[9px] font-mono text-muted-foreground">
+              <div className="text-center space-y-0.5 w-full">
+                <div className="font-semibold text-xs text-foreground">{market.name}</div>
+                <div className="text-xs text-muted-foreground">{market.city}</div>
+                <div className="text-xs font-mono text-muted-foreground">
                   {market.localTime.toLocaleTimeString('en-US', { 
                     hour: '2-digit', 
                     minute: '2-digit',
                     hour12: true 
                   })}
                 </div>
-                <div className="text-[8px] text-muted-foreground leading-tight">
+                <div className="text-[10px] text-muted-foreground leading-tight">
                   {market.openTime} - {market.closeTime}
                 </div>
                 {getStatusBadge(market.status)}
@@ -330,17 +330,17 @@ export function WorldClocksWidget() {
           </div>
         </div>
 
-        <div className="pt-1 border-t border-border flex flex-wrap gap-1 text-[9px] text-muted-foreground">
-          <div className="flex items-center gap-0.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+        <div className="pt-2 border-t border-border flex flex-wrap gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded-full bg-green-500" />
             <span>Open</span>
           </div>
-          <div className="flex items-center gap-0.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded-full bg-yellow-500" />
             <span>Extended</span>
           </div>
-          <div className="flex items-center gap-0.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded-full bg-red-500" />
             <span>Closed</span>
           </div>
         </div>
