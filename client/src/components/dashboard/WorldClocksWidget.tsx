@@ -39,7 +39,7 @@ function AnalogClock({ time, status }: { time: Date; status: MarketStatus['statu
   };
 
   return (
-    <div className={`relative w-5 h-5 rounded-full border ${getFaceColor()} flex items-center justify-center overflow-visible`}>
+    <div className={`relative w-16 h-16 rounded-full border ${getFaceColor()} flex items-center justify-center overflow-visible`}>
       <svg className="absolute w-full h-full" viewBox="0 0 100 100" style={{ transform: 'scale(4)' }}>
         {[...Array(12)].map((_, i) => {
           const angle = (i * 30 - 90) * (Math.PI / 180);
@@ -253,7 +253,7 @@ export function WorldClocksWidget() {
             {topRowMarkets.map((market) => (
               <div
                 key={market.name}
-                className="flex flex-col items-center gap-1 p-4 rounded-lg border border-border bg-[#2D3748] hover-elevate transition-all purple-rimlight-hover min-h-[180px] justify-between"
+                className="flex flex-col items-center gap-2 p-6 rounded-lg border border-border bg-[#2D3748] hover-elevate transition-all purple-rimlight-hover min-h-[220px] justify-between"
                 data-testid={`market-${market.name.toLowerCase().replace(/\//g, '-')}`}
               >
               <AnalogClock time={market.localTime} status={market.status} />
@@ -268,10 +268,12 @@ export function WorldClocksWidget() {
                     hour12: true 
                   })}
                 </div>
-                <div className="text-sm text-muted-foreground leading-tight truncate whitespace-nowrap" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', marginBottom: '-6px' }}>
+                <div className="text-sm text-muted-foreground leading-tight truncate whitespace-nowrap" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', marginBottom: '-4px' }}>
                   {market.openTime} - {market.closeTime}
                 </div>
-                {getStatusBadge(market.status)}
+                <div className="whitespace-nowrap">
+                  {getStatusBadge(market.status)}
+                </div>
               </div>
             </div>
             ))}
@@ -283,7 +285,7 @@ export function WorldClocksWidget() {
             {bottomRowMarkets.map((market) => (
               <div
                 key={market.name}
-                className="flex flex-col items-center gap-1 p-4 rounded-lg border border-border bg-[#2D3748] hover-elevate transition-all purple-rimlight-hover min-h-[180px] justify-between"
+                className="flex flex-col items-center gap-2 p-6 rounded-lg border border-border bg-[#2D3748] hover-elevate transition-all purple-rimlight-hover min-h-[220px] justify-between"
                 data-testid={`market-${market.name.toLowerCase().replace(/\//g, '-')}`}
               >
               <AnalogClock time={market.localTime} status={market.status} />
@@ -298,10 +300,12 @@ export function WorldClocksWidget() {
                     hour12: true 
                   })}
                 </div>
-                <div className="text-sm text-muted-foreground leading-tight truncate whitespace-nowrap" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', marginBottom: '-6px' }}>
+                <div className="text-sm text-muted-foreground leading-tight truncate whitespace-nowrap" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', marginBottom: '-4px' }}>
                   {market.openTime} - {market.closeTime}
                 </div>
-                {getStatusBadge(market.status)}
+                <div className="whitespace-nowrap">
+                  {getStatusBadge(market.status)}
+                </div>
               </div>
             </div>
           ))}
