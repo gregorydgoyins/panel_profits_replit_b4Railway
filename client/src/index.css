@@ -460,3 +460,16 @@
     0 0 12px rgba(168, 85, 247, 0.8),     /* Tight inner glow */
     0 0 24px rgba(168, 85, 247, 0.4);     /* Minimal outer bleed */
 }
+
+/* White Rimlight Hover Effect - Bright with minimal bleed */
+.white-rimlight-hover {
+  position: relative;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.white-rimlight-hover:hover {
+  box-shadow: 
+    0 0 0 2px rgba(255, 255, 255, 1),      /* Solid white rim */
+    0 0 12px rgba(255, 255, 255, 0.8),     /* Tight inner glow */
+    0 0 24px rgba(255, 255, 255, 0.4);     /* Minimal outer bleed */
+}
