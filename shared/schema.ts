@@ -4529,6 +4529,11 @@ export const narrativeEntities = pgTable("narrative_entities", {
   dataCompleteness: decimal("data_completeness", { precision: 3, scale: 2 }), // 0-1 how complete the data is
   verificationStatus: text("verification_status").default("unverified"), // 'verified', 'unverified', 'disputed'
   verifiedBy: varchar("verified_by").references(() => users.id),
+  lastVerifiedAt: timestamp("last_verified_at"), // Last multi-source verification date
+  // Data source tracking - for 401,666 assets, we need bulletproof provenance
+  dataSourceBreakdown: jsonb("data_source_breakdown"), // { biography: ['comic_vine', 'marvel_api'], creators: ['comic_vine'], powers: ['superhero_api'] }
+  sourceConflicts: jsonb("source_conflicts"), // Track when sources disagree: { creators: { comic_vine: 'Bob Kane', marvel_api: 'Bill Finger' } }
+  primaryDataSource: text("primary_data_source"), // 'comic_vine', 'marvel_api', 'superhero_api', 'wikipedia'
   // External references
   externalIds: jsonb("external_ids"), // IDs from other databases (wikia, imdb, etc.)
   sourceUrls: text("source_urls").array(), // Original source URLs
@@ -4540,7 +4545,6 @@ export const narrativeEntities = pgTable("narrative_entities", {
   // Timestamps
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-  lastVerifiedAt: timestamp("last_verified_at"),
 }, (table) => [
   index("idx_narrative_entities_type").on(table.entityType),
   index("idx_narrative_entities_universe").on(table.universe),

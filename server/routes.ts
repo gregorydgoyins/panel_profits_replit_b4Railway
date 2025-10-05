@@ -4893,6 +4893,103 @@ Respond with valid JSON in this exact format:
     }
   });
 
+  // DATA VERIFICATION ENDPOINTS - Multi-source verification for 401,666 assets
+  app.post('/api/narrative/verify-entity/:id', async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { multiSourceVerification } = await import('./services/multiSourceDataVerification.js');
+      
+      // Get entity name
+      const [entity] = await db
+        .select({ id: narrativeEntities.id, name: narrativeEntities.canonicalName })
+        .from(narrativeEntities)
+        .where(eq(narrativeEntities.id, id))
+        .limit(1);
+
+      if (!entity) {
+        return res.status(404).json({ success: false, error: 'Entity not found' });
+      }
+
+      const result = await multiSourceVerification.verifyEntity(entity.id, entity.name);
+      
+      res.json({
+        success: true,
+        data: result
+      });
+    } catch (error: any) {
+      console.error('Error verifying entity:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to verify entity' 
+      });
+    }
+  });
+
+  app.post('/api/narrative/batch-verify', async (req: any, res) => {
+    try {
+      const { entityIds } = req.body;
+      const { multiSourceVerification } = await import('./services/multiSourceDataVerification.js');
+      
+      if (!entityIds || !Array.isArray(entityIds)) {
+        return res.status(400).json({ success: false, error: 'entityIds array required' });
+      }
+
+      // Get entity names
+      const entities = await db
+        .select({ id: narrativeEntities.id, name: narrativeEntities.canonicalName })
+        .from(narrativeEntities)
+        .where(inArray(narrativeEntities.id, entityIds));
+
+      const results = await multiSourceVerification.batchVerify(entities, 3);
+      
+      res.json({
+        success: true,
+        data: {
+          verified: results.length,
+          results
+        }
+      });
+    } catch (error: any) {
+      console.error('Error batch verifying entities:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to batch verify entities' 
+      });
+    }
+  });
+
+  // Verify all unverified entities (for mass verification)
+  app.post('/api/narrative/verify-all-unverified', async (req: any, res) => {
+    try {
+      const { limit = 100 } = req.body;
+      const { multiSourceVerification } = await import('./services/multiSourceDataVerification.js');
+      
+      // Get unverified entities
+      const entities = await db
+        .select({ id: narrativeEntities.id, name: narrativeEntities.canonicalName })
+        .from(narrativeEntities)
+        .where(eq(narrativeEntities.verificationStatus, 'unverified'))
+        .limit(limit);
+
+      const results = await multiSourceVerification.batchVerify(entities, 5);
+      
+      res.json({
+        success: true,
+        data: {
+          totalUnverified: entities.length,
+          verified: results.length,
+          results
+        }
+      });
+    } catch (error: any) {
+      console.error('Error verifying all unverified entities:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to verify unverified entities' 
+      });
+    }
+  });
+
   // Get single sidekick detail with powers and market data
   app.get('/api/narrative/sidekick/:id', async (req: any, res) => {
     try {
