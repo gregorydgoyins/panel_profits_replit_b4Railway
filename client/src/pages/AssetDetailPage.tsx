@@ -248,7 +248,13 @@ export default function AssetDetailPage() {
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {asset.creators.map((creator, idx) => (
-                    <Badge key={idx} variant="outline">{creator}</Badge>
+                    <Badge 
+                      key={idx} 
+                      variant="outline"
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '12pt' }}
+                    >
+                      {creator}
+                    </Badge>
                   ))}
                 </div>
               </div>
