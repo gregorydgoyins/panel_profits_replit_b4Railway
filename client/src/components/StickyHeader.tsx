@@ -160,46 +160,34 @@ export function StickyHeader() {
                 style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                 data-testid="text-news-ticker"
               >
-                <Link href="/news/marvel-phase-6">
-                  <a className="inline-flex items-center gap-2 underline hover:text-white transition-colors" data-testid="link-news-marvel-phase-6">
-                    <TrendingUp className="w-3 h-3 text-green-500 flex-shrink-0" />
-                    BREAKING: Marvel announces Phase 6 slate - collector interest surging
-                  </a>
+                <Link href="/news/marvel-phase-6" className="inline-flex items-center gap-2 underline hover:text-white transition-colors" data-testid="link-news-marvel-phase-6">
+                  <TrendingUp className="w-3 h-3 text-green-500 flex-shrink-0" />
+                  BREAKING: Marvel announces Phase 6 slate - collector interest surging
                 </Link>
                 <span>•</span>
-                <Link href="/news/superman-ath">
-                  <a className="inline-flex items-center gap-2 underline hover:text-white transition-colors" data-testid="link-news-superman-ath">
-                    <TrendingUp className="w-3 h-3 text-green-500 flex-shrink-0" />
-                    ALERT: Golden Age Superman #1 reaches new all-time high
-                  </a>
+                <Link href="/news/superman-ath" className="inline-flex items-center gap-2 underline hover:text-white transition-colors" data-testid="link-news-superman-ath">
+                  <TrendingUp className="w-3 h-3 text-green-500 flex-shrink-0" />
+                  ALERT: Golden Age Superman #1 reaches new all-time high
                 </Link>
                 <span>•</span>
-                <Link href="/news/dc-restructuring">
-                  <a className="inline-flex items-center gap-2 underline hover:text-white transition-colors" data-testid="link-news-dc-restructuring">
-                    <TrendingUp className="w-3 h-3 text-green-500 flex-shrink-0" />
-                    UPDATE: DC Restructuring complete - institutional investors bullish
-                  </a>
+                <Link href="/news/dc-restructuring" className="inline-flex items-center gap-2 underline hover:text-white transition-colors" data-testid="link-news-dc-restructuring">
+                  <TrendingUp className="w-3 h-3 text-green-500 flex-shrink-0" />
+                  UPDATE: DC Restructuring complete - institutional investors bullish
                 </Link>
                 <span>•</span>
-                <Link href="/news/amazing-fantasy-variant">
-                  <a className="inline-flex items-center gap-2 underline hover:text-white transition-colors" data-testid="link-news-amazing-fantasy-variant">
-                    <Minus className="w-3 h-3 text-yellow-500 flex-shrink-0" />
-                    EXCLUSIVE: Rare Amazing Fantasy #15 variant discovered - market impact expected
-                  </a>
+                <Link href="/news/amazing-fantasy-variant" className="inline-flex items-center gap-2 underline hover:text-white transition-colors" data-testid="link-news-amazing-fantasy-variant">
+                  <Minus className="w-3 h-3 text-yellow-500 flex-shrink-0" />
+                  EXCLUSIVE: Rare Amazing Fantasy #15 variant discovered - market impact expected
                 </Link>
                 <span>•</span>
-                <Link href="/news/alex-ross-auction">
-                  <a className="inline-flex items-center gap-2 underline hover:text-white transition-colors" data-testid="link-news-alex-ross-auction">
-                    <TrendingUp className="w-3 h-3 text-green-500 flex-shrink-0" />
-                    RECORD: Alex Ross original art auction breaks records
-                  </a>
+                <Link href="/news/alex-ross-auction" className="inline-flex items-center gap-2 underline hover:text-white transition-colors" data-testid="link-news-alex-ross-auction">
+                  <TrendingUp className="w-3 h-3 text-green-500 flex-shrink-0" />
+                  RECORD: Alex Ross original art auction breaks records
                 </Link>
                 <span>•</span>
-                <Link href="/news/comic-con-attendance">
-                  <a className="inline-flex items-center gap-2 underline hover:text-white transition-colors" data-testid="link-news-comic-con-attendance">
-                    <TrendingUp className="w-3 h-3 text-green-500 flex-shrink-0" />
-                    DATA: Comic-Con attendance up 300% - signaling strong market demand
-                  </a>
+                <Link href="/news/comic-con-attendance" className="inline-flex items-center gap-2 underline hover:text-white transition-colors" data-testid="link-news-comic-con-attendance">
+                  <TrendingUp className="w-3 h-3 text-green-500 flex-shrink-0" />
+                  DATA: Comic-Con attendance up 300% - signaling strong market demand
                 </Link>
                 <span>•</span>
               </span>
