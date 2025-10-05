@@ -225,11 +225,11 @@ export function WorldClocksWidget() {
   const getStatusBadge = (status: MarketStatus['status']) => {
     switch (status) {
       case 'open':
-        return <Badge variant="default" className="bg-green-500 text-sm">Open</Badge>;
+        return <Badge variant="default" className="bg-green-500 text-sm" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>Open</Badge>;
       case 'after-hours':
-        return <Badge variant="secondary" className="bg-yellow-500 text-black text-sm">Extended</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-500 text-black text-sm" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>Extended</Badge>;
       case 'closed':
-        return <Badge variant="destructive" className="text-sm">Closed</Badge>;
+        return <Badge variant="destructive" className="text-sm" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>Closed</Badge>;
     }
   };
 
@@ -311,15 +311,15 @@ export function WorldClocksWidget() {
         <div className="pt-2 border-t border-border flex flex-wrap gap-2 text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 rounded-full bg-green-500" />
-            <span>Open</span>
+            <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>Open</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 rounded-full bg-yellow-500" />
-            <span>Extended</span>
+            <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>Extended</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 rounded-full bg-red-500" />
-            <span>Closed</span>
+            <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>Closed</span>
           </div>
         </div>
       </CardContent>
