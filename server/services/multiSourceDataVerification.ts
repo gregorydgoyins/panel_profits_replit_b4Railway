@@ -307,29 +307,22 @@ export class MultiSourceDataVerificationService {
       console.warn(`⚠️  Data conflicts detected for ${characterName}:`, conflicts);
     }
 
-    // Update database with verified data
+    // Update database with verified data (only fields that exist in DB)
     await db.update(narrativeEntities)
       .set({
         biography: verifiedData.biography || null,
-        realName: verifiedData.realName || null,
-        creators: verifiedData.creators || null,
+        createdBy: verifiedData.creators ? verifiedData.creators.join(', ') : null,
         teams: verifiedData.teams || null,
         allies: verifiedData.allies || null,
         enemies: verifiedData.enemies || null,
         firstAppearance: verifiedData.firstAppearance || null,
         primaryImageUrl: verifiedData.imageUrl || null,
-        gender: verifiedData.gender || null,
-        height: verifiedData.height ? parseFloat(verifiedData.height) : null,
-        weight: verifiedData.weight ? parseFloat(verifiedData.weight) : null,
-        eyeColor: verifiedData.eyeColor || null,
-        hairColor: verifiedData.hairColor || null,
         // Data provenance tracking
         dataSourceBreakdown,
         sourceConflicts: Object.keys(conflicts).length > 0 ? conflicts : null,
         primaryDataSource: primarySource,
         lastVerifiedAt: new Date(),
         verificationStatus: Object.keys(conflicts).length > 0 ? 'disputed' : 'verified',
-        dataCompleteness: (Object.keys(verifiedData).length / 15).toFixed(2), // Estimate completeness
       })
       .where(eq(narrativeEntities.id, entityId));
 
