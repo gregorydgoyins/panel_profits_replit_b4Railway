@@ -25,14 +25,8 @@ export function FeaturedComicsSection() {
 
   // Transform comics to include pricing data
   const featuredComics: FeaturedComic[] = comics.map((comic, index) => {
-    // Generate ticker symbol from series and issue - filter out special characters
-    const seriesAbbrev = comic.series
-      ?.split(' ')
-      .map((w: string) => w[0])
-      .filter((char: string) => /[A-Za-z0-9]/.test(char))
-      .join('')
-      .toUpperCase() || 'CMC';
-    const symbol = `${seriesAbbrev}.V1.#${comic.issueNumber || index + 1}`;
+    // Use backend-provided ticker symbol (already formatted with standardized nomenclature)
+    const symbol = comic.symbol || 'UNKNOWN';
     
     // Generate realistic price data
     const basePrice = comic.estimatedValue || (Math.random() * 500 + 50);
