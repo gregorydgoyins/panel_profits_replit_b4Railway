@@ -160,8 +160,8 @@ export function ComicOfTheDayWidget() {
 
         {/* Information Sections with Equal Spacing */}
         <div className="space-y-4">
-        {/* Historical Context - Storytelling - Clickable to Detail Page */}
-        <Link href={`/historical-significance/${comic.id}`} data-testid="link-historical-significance" className="block">
+        {/* Historical Context - Storytelling - Clickable to Comic of the Day Historical Page */}
+        <Link href="/comic-of-day/historical" data-testid="link-comic-of-day-historical" className="block">
           <div className="bg-primary/5 border-2 border-green-500 rounded-lg p-4 green-rimlight-hover cursor-pointer overflow-visible">
             <h4 className="text-foreground flex items-center gap-2 mb-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
               <Landmark className="w-4 h-4 text-amber-500" />
@@ -173,9 +173,9 @@ export function ComicOfTheDayWidget() {
           </div>
         </Link>
 
-        {/* Description - About This Issue - Clickable to Issue Detail */}
+        {/* Description - About This Issue - Clickable to Comic of the Day About Page */}
         {comic.description && (
-          <Link href={`/issue/${comic.id}`} data-testid="link-issue-detail" className="block">
+          <Link href="/comic-of-day/about" data-testid="link-comic-of-day-about" className="block">
             <div className="bg-primary/5 border-2 border-green-500 rounded-lg p-4 green-rimlight-hover cursor-pointer overflow-visible">
               <h4 className="text-foreground flex items-center gap-2 mb-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
                 <FileText className="w-4 h-4 text-blue-500" />
@@ -188,23 +188,23 @@ export function ComicOfTheDayWidget() {
           </Link>
         )}
 
-        {/* Creators - Creative Team with White Rimlight */}
+        {/* Creators - Creative Team - Clickable to Comic of the Day Creators Page */}
         {comic.creators && comic.creators.length > 0 && (
-          <div className="bg-primary/5 border-2 border-green-500 rounded-lg p-4 green-rimlight-hover overflow-visible">
-            <h4 className="text-foreground flex items-center gap-2 mb-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
-              <User className="w-4 h-4 text-purple-500" />
-              Creative Team
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {comic.creators.map((creator, idx) => (
-                <Link key={idx} href={`/creator/${encodeURIComponent(creator.name)}`} data-testid={`link-creator-${idx}`}>
-                  <Badge variant="outline" className="text-xs white-rimlight-hover cursor-pointer overflow-visible" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
+          <Link href="/comic-of-day/creators" data-testid="link-comic-of-day-creators" className="block">
+            <div className="bg-primary/5 border-2 border-green-500 rounded-lg p-4 green-rimlight-hover cursor-pointer overflow-visible">
+              <h4 className="text-foreground flex items-center gap-2 mb-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
+                <User className="w-4 h-4 text-purple-500" />
+                Creative Team
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {comic.creators.map((creator, idx) => (
+                  <Badge key={idx} variant="outline" className="text-xs" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
                     {creator.name} <span className="text-muted-foreground ml-1" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>({creator.role})</span>
                   </Badge>
-                </Link>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          </Link>
         )}
         </div>
 

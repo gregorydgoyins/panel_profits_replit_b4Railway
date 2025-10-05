@@ -79,6 +79,11 @@ import IssueDetailPage from '@/pages/IssueDetailPage';
 import ComicBioPage from '@/pages/ComicBioPage';
 import OrderDeskPage from '@/pages/OrderDeskPage';
 
+// Comic of the Day Dedicated Pages
+import ComicOfDayHistoricalPage from '@/pages/ComicOfDayHistoricalPage';
+import ComicOfDayCreatorsPage from '@/pages/ComicOfDayCreatorsPage';
+import ComicOfDayAboutPage from '@/pages/ComicOfDayAboutPage';
+
 function Router() {
   const { isAuthenticated } = useAuth();
 
@@ -132,6 +137,9 @@ function Router() {
       <Route path="/issue/:id" component={IssueDetailPage} />
       <Route path="/comic-bio/:id" component={ComicBioPage} />
       <Route path="/order-desk/:assetId" component={OrderDeskPage} />
+      <Route path="/comic-of-day/historical" component={ComicOfDayHistoricalPage} />
+      <Route path="/comic-of-day/creators" component={ComicOfDayCreatorsPage} />
+      <Route path="/comic-of-day/about" component={ComicOfDayAboutPage} />
       <Route path="/settings" component={SettingsPage} />
       <Route component={NotFound} />
     </Switch>

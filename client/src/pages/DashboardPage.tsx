@@ -104,8 +104,8 @@ export default function DashboardPage() {
     <div className="space-y-4">
       {/* Portfolio Outlook - Single Line Stats */}
       <Card className="!bg-[#1A1F2E] yellow-rimlight-hover" data-testid="widget-portfolio-outlook">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300 !important', fontSize: '20pt' }}>
+        <CardHeader className="pb-3 space-y-0">
+          <div className="flex items-center gap-2 mb-1" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>
             <Briefcase className="w-4 h-4" />
             <span style={{ fontWeight: '300' }}>Portfolio Outlook</span>
           </div>
@@ -129,7 +129,7 @@ export default function DashboardPage() {
                   </span>
                   <div className="flex items-baseline gap-2">
                     <span 
-                      className="text-sm font-bold text-white truncate"
+                      className="text-sm text-white truncate"
                       style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                       data-testid="text-portfolio-value"
                     >
@@ -157,7 +157,7 @@ export default function DashboardPage() {
                     </span>
                     <div className="flex items-baseline gap-2">
                       <span 
-                        className="text-sm font-bold text-white truncate"
+                        className="text-sm text-white truncate"
                         style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                         data-testid="text-cash-balance"
                       >
@@ -184,7 +184,7 @@ export default function DashboardPage() {
                   </span>
                   <div className="flex items-baseline gap-2">
                     <span 
-                      className="text-sm font-bold text-white truncate"
+                      className="text-sm text-white truncate"
                       style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                       data-testid="text-total-assets"
                     >
@@ -211,7 +211,7 @@ export default function DashboardPage() {
                   </span>
                   <div className="flex items-baseline gap-2">
                     <span 
-                      className={`text-sm font-bold truncate ${dayPL >= 0 ? 'text-green-500' : 'text-red-500'}`}
+                      className={`text-sm truncate ${dayPL >= 0 ? 'text-green-500' : 'text-red-500'}`}
                       style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                       data-testid="text-day-pl"
                     >
@@ -238,7 +238,7 @@ export default function DashboardPage() {
                   </span>
                   <div className="flex items-baseline gap-2">
                     <span 
-                      className={`text-sm font-bold truncate ${totalReturn >= 0 ? 'text-green-500' : 'text-red-500'}`}
+                      className={`text-sm truncate ${totalReturn >= 0 ? 'text-green-500' : 'text-red-500'}`}
                       style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                       data-testid="text-total-return"
                     >
@@ -265,7 +265,7 @@ export default function DashboardPage() {
                   </span>
                   <div className="flex items-baseline gap-2">
                     <span 
-                      className="text-sm font-bold text-white truncate"
+                      className="text-sm text-white truncate"
                       style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                       data-testid="text-buying-power"
                     >
@@ -292,7 +292,7 @@ export default function DashboardPage() {
                     </span>
                     <div className="flex items-baseline gap-2">
                       <span 
-                        className="text-sm font-bold text-white truncate"
+                        className="text-sm text-white truncate"
                         style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                         data-testid="text-open-orders"
                       >
@@ -319,7 +319,7 @@ export default function DashboardPage() {
                     </span>
                     <div className="flex items-baseline gap-2">
                       <span 
-                        className="text-sm font-bold text-white truncate"
+                        className="text-sm text-white truncate"
                         style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                         data-testid="text-active-positions"
                       >
@@ -346,7 +346,7 @@ export default function DashboardPage() {
                     </span>
                     <div className="flex items-baseline gap-2">
                       <span 
-                        className="text-sm font-bold text-white truncate"
+                        className="text-sm text-white truncate"
                         style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                         data-testid="text-win-rate"
                       >
@@ -375,7 +375,7 @@ export default function DashboardPage() {
                       {bestPerformer ? (
                         <>
                           <span 
-                            className="text-sm font-bold text-white truncate"
+                            className="text-sm text-white truncate"
                             style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                             data-testid="text-best-performer"
                           >
@@ -388,7 +388,7 @@ export default function DashboardPage() {
                       ) : (
                         <>
                           <span 
-                            className="text-sm font-bold text-gray-500 truncate"
+                            className="text-sm text-gray-500 truncate"
                             style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                             data-testid="text-best-performer"
                           >
@@ -419,7 +419,7 @@ export default function DashboardPage() {
                       {worstPerformer ? (
                         <>
                           <span 
-                            className="text-sm font-bold text-white truncate"
+                            className="text-sm text-white truncate"
                             style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                             data-testid="text-worst-performer"
                           >
@@ -432,7 +432,7 @@ export default function DashboardPage() {
                       ) : (
                         <>
                           <span 
-                            className="text-sm font-bold text-gray-500 truncate"
+                            className="text-sm text-gray-500 truncate"
                             style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                             data-testid="text-worst-performer"
                           >
@@ -461,7 +461,7 @@ export default function DashboardPage() {
                     </span>
                     <div className="flex items-baseline gap-2">
                       <span 
-                        className="text-sm font-bold text-white truncate"
+                        className="text-sm text-white truncate"
                         style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                         data-testid="text-total-account-value"
                       >
