@@ -495,8 +495,8 @@ export default function DashboardPage() {
           <Card className="bg-slate-700/30 border border-border">
           <CardHeader className="pb-3">
             <CardTitle 
-              className="text-lg flex items-center gap-2"
-              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+              className="flex items-center gap-2"
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '20pt' }}
             >
               <TrendingUp className="w-5 h-5 text-green-500" />
               Top Gainers
@@ -526,7 +526,7 @@ export default function DashboardPage() {
                     </div>
                     <div>
                       <p 
-                        className="text-sm font-medium text-white"
+                        className="text-sm text-white"
                         style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                       >
                         {asset.symbol}
@@ -541,12 +541,12 @@ export default function DashboardPage() {
                   </div>
                   <div className="text-right">
                     <p 
-                      className="text-sm font-medium text-white"
+                      className="text-sm text-white"
                       style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                     >
                       ${asset.currentPrice?.toFixed(2) ?? '0.00'}
                     </p>
-                    <p className="text-xs text-green-500">
+                    <p className="text-xs text-green-500" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
                       +{asset.changePercent?.toFixed(2) ?? '0.00'}%
                     </p>
                   </div>
@@ -562,8 +562,8 @@ export default function DashboardPage() {
           <Card className="bg-slate-700/30 border border-border">
           <CardHeader className="pb-3">
             <CardTitle 
-              className="text-lg flex items-center gap-2"
-              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
+              className="flex items-center gap-2"
+              style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '20pt' }}
             >
               <TrendingDown className="w-5 h-5 text-red-500" />
               Top Losers
@@ -593,7 +593,7 @@ export default function DashboardPage() {
                     </div>
                     <div>
                       <p 
-                        className="text-sm font-medium text-white"
+                        className="text-sm text-white"
                         style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                       >
                         {asset.symbol}
@@ -608,12 +608,12 @@ export default function DashboardPage() {
                   </div>
                   <div className="text-right">
                     <p 
-                      className="text-sm font-medium text-white"
+                      className="text-sm text-white"
                       style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                     >
                       ${asset.currentPrice?.toFixed(2) ?? '0.00'}
                     </p>
-                    <p className="text-xs text-red-500">
+                    <p className="text-xs text-red-500" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
                       {asset.changePercent?.toFixed(2) ?? '0.00'}%
                     </p>
                   </div>

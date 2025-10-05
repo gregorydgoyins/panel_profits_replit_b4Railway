@@ -2637,20 +2637,6 @@ Respond with valid JSON in this exact format:
   // MARKET SIMULATION ENGINE ROUTES
   // ================================
 
-  // Market Overview - Real-time market statistics
-  app.get("/api/market/overview", async (req, res) => {
-    try {
-      const overview = await marketSimulation.getMarketOverview();
-      res.json({
-        success: true,
-        data: overview
-      });
-    } catch (error) {
-      console.error('Error fetching market overview:', error);
-      res.status(500).json({ error: "Failed to fetch market overview" });
-    }
-  });
-
   // Current Asset Prices - Real-time prices with bid/ask spreads
   app.get("/api/market/prices", async (req, res) => {
     try {
