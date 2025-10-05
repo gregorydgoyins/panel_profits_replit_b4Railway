@@ -16,7 +16,7 @@ interface FeaturedComic {
 
 export function FeaturedComicsSection() {
   const { data, isLoading } = useQuery<{ success: boolean; data: any[] }>({
-    queryKey: ['/api/comic-covers/random', { limit: 6 }],
+    queryKey: ['/api/comic-covers/random?limit=6'],
     refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes
   });
 
