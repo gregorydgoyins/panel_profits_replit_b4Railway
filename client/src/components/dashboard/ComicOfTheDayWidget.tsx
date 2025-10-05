@@ -35,7 +35,7 @@ export function ComicOfTheDayWidget() {
 
   if (isLoading || !comic) {
     return (
-      <Card className="h-full !bg-[#1A1F2E] white-rimlight-hover">
+      <Card className="h-full !bg-[#1A1F2E] green-rimlight-hover">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Star className="w-5 h-5 text-yellow-500" />
@@ -58,7 +58,7 @@ export function ComicOfTheDayWidget() {
 
   if (error) {
     return (
-      <Card className="h-full !bg-[#1A1F2E] white-rimlight-hover">
+      <Card className="h-full !bg-[#1A1F2E] green-rimlight-hover">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Star className="w-5 h-5 text-yellow-500" />
