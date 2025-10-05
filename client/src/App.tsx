@@ -33,6 +33,20 @@ import PortfolioPage from '@/pages/portfolio';
 import WatchlistPage from '@/pages/watchlist';
 import LeaderboardPage from '@/pages/LeaderboardPage';
 
+// Portfolio detail pages
+import PortfolioValuePage from '@/pages/portfolio/PortfolioValuePage';
+import CashBalancePage from '@/pages/portfolio/CashBalancePage';
+import MarketAssetsPage from '@/pages/portfolio/MarketAssetsPage';
+import DayPLPage from '@/pages/portfolio/DayPLPage';
+import TotalReturnPage from '@/pages/portfolio/TotalReturnPage';
+import BuyingPowerPage from '@/pages/portfolio/BuyingPowerPage';
+import OpenOrdersPage from '@/pages/portfolio/OpenOrdersPage';
+import ActivePositionsPage from '@/pages/portfolio/ActivePositionsPage';
+import WinRatePage from '@/pages/portfolio/WinRatePage';
+import BestPerformerPage from '@/pages/portfolio/BestPerformerPage';
+import WorstPerformerPage from '@/pages/portfolio/WorstPerformerPage';
+import TotalAccountValuePage from '@/pages/portfolio/TotalAccountValuePage';
+
 // Settings
 import SettingsPage from '@/pages/settings';
 
@@ -81,6 +95,18 @@ function Router() {
       <Route path="/knowledge-test" component={KnowledgeTestPage} />
       <Route path="/trading" component={TradingPage} />
       <Route path="/terminal" component={TradingTerminalPage} />
+      <Route path="/portfolio/value" component={PortfolioValuePage} />
+      <Route path="/portfolio/cash" component={CashBalancePage} />
+      <Route path="/portfolio/assets" component={MarketAssetsPage} />
+      <Route path="/portfolio/pnl" component={DayPLPage} />
+      <Route path="/portfolio/returns" component={TotalReturnPage} />
+      <Route path="/portfolio/buying-power" component={BuyingPowerPage} />
+      <Route path="/portfolio/orders" component={OpenOrdersPage} />
+      <Route path="/portfolio/positions" component={ActivePositionsPage} />
+      <Route path="/portfolio/win-rate" component={WinRatePage} />
+      <Route path="/portfolio/best-performer" component={BestPerformerPage} />
+      <Route path="/portfolio/worst-performer" component={WorstPerformerPage} />
+      <Route path="/portfolio/account-value" component={TotalAccountValuePage} />
       <Route path="/portfolio" component={PortfolioPage} />
       <Route path="/watchlist" component={WatchlistPage} />
       <Route path="/leaderboard" component={LeaderboardPage} />

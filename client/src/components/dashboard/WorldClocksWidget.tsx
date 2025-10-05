@@ -237,7 +237,7 @@ export function WorldClocksWidget() {
   const bottomRowMarkets = markets.slice(4);
 
   return (
-    <Card className="!bg-[#1A1F2E]" data-testid="widget-world-clocks">
+    <Card className="!bg-[#1A1F2E] purple-rimlight-hover" data-testid="widget-world-clocks">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-sm">
           <Globe className="w-4 h-4" />

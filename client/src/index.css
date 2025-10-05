@@ -447,3 +447,16 @@
     0 0 12px rgba(234, 179, 8, 0.8),     /* Tight inner glow */
     0 0 24px rgba(234, 179, 8, 0.4);     /* Minimal outer bleed */
 }
+
+/* Purple Rimlight Hover Effect - Bright with minimal bleed */
+.purple-rimlight-hover {
+  position: relative;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.purple-rimlight-hover:hover {
+  box-shadow: 
+    0 0 0 2px rgba(168, 85, 247, 1),      /* Solid purple rim */
+    0 0 12px rgba(168, 85, 247, 0.8),     /* Tight inner glow */
+    0 0 24px rgba(168, 85, 247, 0.4);     /* Minimal outer bleed */
+}
