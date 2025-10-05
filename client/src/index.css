@@ -597,29 +597,29 @@
 }
 
 .narrative-foundation-villain::before {
-  background: hsl(var(--narrative-villain) / 0.03);
+  background: #1A1F2E;
 }
 
 .narrative-foundation-sidekick::before {
-  background: hsl(var(--narrative-sidekick) / 0.03);
+  background: #1A1F2E;
 }
 
 .narrative-foundation-superhero::before {
-  background: hsl(var(--narrative-superhero) / 0.03);
+  background: #1A1F2E;
 }
 
 .narrative-foundation-location::before {
-  background: hsl(var(--narrative-location) / 0.03);
+  background: #1A1F2E;
 }
 
 .narrative-foundation-gadget::before {
-  background: hsl(var(--narrative-gadget) / 0.03);
+  background: #1A1F2E;
 }
 
 /* SECONDARY LAYER UTILITIES - Content wells with backdrop blur */
 .narrative-secondary {
   position: relative;
-  background: hsl(var(--card) / 0.6);
+  background: #252B3C;
   backdrop-filter: blur(8px);
   border: 1px solid hsl(var(--border) / 0.3);
   z-index: 1;
