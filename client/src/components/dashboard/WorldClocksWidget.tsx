@@ -258,10 +258,10 @@ export function WorldClocksWidget() {
               >
               <AnalogClock time={market.localTime} status={market.status} />
               
-              <div className="text-center space-y-0.5 w-full">
-                <div className="text-sm text-foreground truncate" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>{market.name}</div>
-                <div className="text-sm text-muted-foreground truncate" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>{market.city}</div>
-                <div className="text-sm text-muted-foreground truncate whitespace-nowrap" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
+              <div className="text-center space-y-0 w-full">
+                <div className="text-sm text-foreground truncate leading-tight" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>{market.name}</div>
+                <div className="text-sm text-muted-foreground truncate leading-tight" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>{market.city}</div>
+                <div className="text-sm text-muted-foreground truncate whitespace-nowrap leading-tight" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
                   {market.localTime.toLocaleTimeString('en-US', { 
                     hour: '2-digit', 
                     minute: '2-digit',
@@ -288,10 +288,10 @@ export function WorldClocksWidget() {
               >
               <AnalogClock time={market.localTime} status={market.status} />
               
-              <div className="text-center space-y-0.5 w-full">
-                <div className="text-sm text-foreground truncate" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>{market.name}</div>
-                <div className="text-sm text-muted-foreground truncate" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>{market.city}</div>
-                <div className="text-sm text-muted-foreground truncate whitespace-nowrap" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
+              <div className="text-center space-y-0 w-full">
+                <div className="text-sm text-foreground truncate leading-tight" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>{market.name}</div>
+                <div className="text-sm text-muted-foreground truncate leading-tight" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>{market.city}</div>
+                <div className="text-sm text-muted-foreground truncate whitespace-nowrap leading-tight" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
                   {market.localTime.toLocaleTimeString('en-US', { 
                     hour: '2-digit', 
                     minute: '2-digit',
