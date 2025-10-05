@@ -40,7 +40,7 @@ function AnalogClock({ time, status }: { time: Date; status: MarketStatus['statu
 
   return (
     <div className={`relative w-5 h-5 rounded-full border ${getFaceColor()} flex items-center justify-center overflow-visible`}>
-      <svg className="absolute w-full h-full" viewBox="0 0 100 100" style={{ transform: 'scale(2)' }}>
+      <svg className="absolute w-full h-full" viewBox="0 0 100 100" style={{ transform: 'scale(4)' }}>
         {[...Array(12)].map((_, i) => {
           const angle = (i * 30 - 90) * (Math.PI / 180);
           const x = 50 + 38 * Math.cos(angle);
@@ -268,7 +268,7 @@ export function WorldClocksWidget() {
                     hour12: true 
                   })}
                 </div>
-                <div className="text-sm text-muted-foreground leading-tight truncate whitespace-nowrap" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
+                <div className="text-sm text-muted-foreground leading-tight truncate whitespace-nowrap" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', marginBottom: '-6px' }}>
                   {market.openTime} - {market.closeTime}
                 </div>
                 {getStatusBadge(market.status)}
@@ -298,7 +298,7 @@ export function WorldClocksWidget() {
                     hour12: true 
                   })}
                 </div>
-                <div className="text-sm text-muted-foreground leading-tight truncate whitespace-nowrap" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
+                <div className="text-sm text-muted-foreground leading-tight truncate whitespace-nowrap" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', marginBottom: '-6px' }}>
                   {market.openTime} - {market.closeTime}
                 </div>
                 {getStatusBadge(market.status)}
