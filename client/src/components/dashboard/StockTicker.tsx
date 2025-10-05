@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
@@ -12,17 +12,33 @@ interface TickerAsset {
 
 export function StockTicker() {
   const [isPaused, setIsPaused] = useState(false);
+  const [isFlashing, setIsFlashing] = useState(false);
+  const previousDataRef = useRef<TickerAsset[]>([]);
   
-  const { data: tickerAssets = [] } = useQuery<TickerAsset[]>({
+  const { data: tickerAssets = [], dataUpdatedAt } = useQuery<TickerAsset[]>({
     queryKey: ['/api/market/ticker'],
-    refetchInterval: 5000,
+    refetchInterval: 30000,
   });
+
+  useEffect(() => {
+    if (tickerAssets.length > 0 && previousDataRef.current.length > 0) {
+      const hasChanged = tickerAssets.some((asset, idx) => 
+        previousDataRef.current[idx]?.currentPrice !== asset.currentPrice
+      );
+      
+      if (hasChanged) {
+        setIsFlashing(true);
+        setTimeout(() => setIsFlashing(false), 600);
+      }
+    }
+    previousDataRef.current = tickerAssets;
+  }, [dataUpdatedAt]);
   
   const duplicatedItems = [...tickerAssets, ...tickerAssets, ...tickerAssets];
 
   return (
     <div 
-      className="bg-card/60 border-b border-border/50 overflow-hidden h-9"
+      className={`bg-card/60 border-b border-border/50 overflow-hidden h-9 transition-all duration-300 ${isFlashing ? 'bg-primary/10' : ''}`}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       data-testid="stock-ticker"
@@ -48,13 +64,13 @@ export function StockTicker() {
               return (
                 <div
                   key={`${item.symbol}-${index}`}
-                  className="flex items-center gap-2 text-xs whitespace-nowrap"
+                  className="flex items-center gap-2 text-xs whitespace-nowrap transition-all duration-500"
                   style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                   data-testid={`ticker-item-${item.symbol}`}
                 >
-                  <span className="font-bold text-foreground">{item.symbol}</span>
-                  <span className="text-muted-foreground">${item.currentPrice.toFixed(2)}</span>
-                  <span className={`flex items-center gap-0.5 ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
+                  <span className="font-bold text-foreground transition-colors duration-500">{item.symbol}</span>
+                  <span className="text-muted-foreground transition-all duration-500">${item.currentPrice.toFixed(2)}</span>
+                  <span className={`flex items-center gap-0.5 transition-colors duration-500 ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
                     {isPositive ? (
                       <TrendingUp className="w-3 h-3" />
                     ) : (
@@ -73,15 +89,16 @@ export function StockTicker() {
       <style>{`
         @keyframes stock-ticker {
           0% {
-            transform: translateX(100%);
+            transform: translateX(0%);
           }
           100% {
-            transform: translateX(-100%);
+            transform: translateX(-33.333%);
           }
         }
         
         .animate-stock-ticker {
-          animation: stock-ticker 180s linear infinite;
+          animation: stock-ticker 90s linear infinite;
+          will-change: transform;
         }
         
         .pause-stock-animation {

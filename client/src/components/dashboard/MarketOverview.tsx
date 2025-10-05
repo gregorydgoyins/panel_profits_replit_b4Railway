@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useState, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -39,22 +39,50 @@ interface MarketEvent {
   relatedAssets: string[];
 }
 
+interface MarketOverviewData {
+  topGainers: MarketMover[];
+  topLosers: MarketMover[];
+}
+
 export function MarketOverview() {
-  // Real API calls for market data
-  const { data: marketOverview, isLoading: isOverviewLoading, error: overviewError } = useQuery({ 
+  const [isFlashing, setIsFlashing] = useState(false);
+  const previousDataRef = useRef<MarketOverviewData | null>(null);
+
+  // Real API calls for market data - standardized to 30 second intervals
+  const { data: marketOverview, isLoading: isOverviewLoading, error: overviewError, dataUpdatedAt: overviewUpdatedAt } = useQuery<MarketOverviewData>({ 
     queryKey: ['/api/market/overview'],
-    refetchInterval: 30000 // Refetch every 30 seconds
+    refetchInterval: 30000
   });
   
-  const { data: marketIndices, isLoading: isIndicesLoading, error: indicesError } = useQuery({ 
+  const { data: marketIndices, isLoading: isIndicesLoading, error: indicesError } = useQuery<MarketIndex[]>({ 
     queryKey: ['/api/market/indices'],
-    refetchInterval: 60000 // Refetch every minute
+    refetchInterval: 30000
   });
   
-  const { data: marketEvents, isLoading: isEventsLoading, error: eventsError } = useQuery({ 
+  const { data: marketEvents, isLoading: isEventsLoading, error: eventsError } = useQuery<any[]>({ 
     queryKey: ['/api/market/events'],
-    refetchInterval: 120000 // Refetch every 2 minutes
+    refetchInterval: 30000
   });
+
+  useEffect(() => {
+    if (marketOverview && previousDataRef.current) {
+      const hasChanged = 
+        marketOverview.topGainers.some((asset, idx) => 
+          previousDataRef.current?.topGainers[idx]?.currentPrice !== asset.currentPrice
+        ) ||
+        marketOverview.topLosers.some((asset, idx) => 
+          previousDataRef.current?.topLosers[idx]?.currentPrice !== asset.currentPrice
+        );
+      
+      if (hasChanged) {
+        setIsFlashing(true);
+        setTimeout(() => setIsFlashing(false), 600);
+      }
+    }
+    if (marketOverview) {
+      previousDataRef.current = marketOverview;
+    }
+  }, [overviewUpdatedAt]);
 
   // Extract data from API responses
   const topGainers = useMemo(() => marketOverview?.topGainers || [], [marketOverview]);
@@ -167,7 +195,7 @@ export function MarketOverview() {
   };
 
   return (
-    <Card className="hover-elevate" data-testid="card-market-overview">
+    <Card className={`hover-elevate transition-all duration-300 ${isFlashing ? 'ring-2 ring-primary/50' : ''}`} data-testid="card-market-overview">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -178,8 +206,8 @@ export function MarketOverview() {
               Live
             </Badge>
           </div>
-          <Button variant="ghost" size="sm">
-            <RefreshCw className="w-4 h-4" />
+          <Button variant="ghost" size="sm" data-testid="button-refresh-market">
+            <RefreshCw className={`w-4 h-4 ${isFlashing ? 'animate-spin' : ''}`} />
           </Button>
         </div>
       </CardHeader>
@@ -189,10 +217,10 @@ export function MarketOverview() {
         <div className="space-y-3" data-testid="market-indices">
           <h4 className="text-sm font-medium">Market Indices</h4>
           <div className="space-y-2">
-            {marketIndices.map((index) => (
+            {(marketIndices || []).map((index: MarketIndex) => (
               <div 
                 key={index.id} 
-                className="flex items-center justify-between p-3 border rounded-lg"
+                className="flex items-center justify-between p-3 border rounded-lg transition-all duration-500"
                 data-testid={`index-${index.id}`}
               >
                 <div>
@@ -200,10 +228,10 @@ export function MarketOverview() {
                   <p className="text-xs text-muted-foreground">{index.description}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium" data-testid={`index-value-${index.id}`}>
+                  <p className="font-medium transition-all duration-500" data-testid={`index-value-${index.id}`}>
                     {formatNumber(index.value)}
                   </p>
-                  <div className={`flex items-center gap-1 text-xs ${getPerformanceColor(index.change)}`}>
+                  <div className={`flex items-center gap-1 text-xs transition-colors duration-500 ${getPerformanceColor(index.change)}`}>
                     {index.change > 0 ? (
                       <ArrowUpRight className="w-3 h-3" />
                     ) : (
@@ -228,10 +256,10 @@ export function MarketOverview() {
               <h4 style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '20pt' }}>Top Gainers</h4>
             </div>
             <div className="space-y-2">
-              {topGainers.map((asset) => (
+              {topGainers.map((asset: MarketMover) => (
                 <div 
                   key={asset.id} 
-                  className="flex items-center justify-between p-2 border rounded-lg"
+                  className="flex items-center justify-between p-2 border rounded-lg transition-all duration-500"
                   data-testid={`gainer-${asset.symbol.toLowerCase()}`}
                 >
                   <div className="flex items-center gap-2">
@@ -242,11 +270,11 @@ export function MarketOverview() {
                     </Avatar>
                     <div>
                       <p className="text-xs font-medium">{asset.symbol}</p>
-                      <p className="text-xs text-muted-foreground">{formatCurrency(asset.currentPrice)}</p>
+                      <p className="text-xs text-muted-foreground transition-all duration-500">{formatCurrency(asset.currentPrice)}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-medium text-green-500" data-testid={`gainer-change-${asset.symbol.toLowerCase()}`}>
+                    <p className="text-xs font-medium text-green-500 transition-all duration-500" data-testid={`gainer-change-${asset.symbol.toLowerCase()}`}>
                       +{asset.changePercent.toFixed(2)}%
                     </p>
                     <p className="text-xs text-muted-foreground">Vol: {formatNumber(asset.volume)}</p>
@@ -263,10 +291,10 @@ export function MarketOverview() {
               <h4 style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '20pt' }}>Top Losers</h4>
             </div>
             <div className="space-y-2">
-              {topLosers.map((asset) => (
+              {topLosers.map((asset: MarketMover) => (
                 <div 
                   key={asset.id} 
-                  className="flex items-center justify-between p-2 border rounded-lg"
+                  className="flex items-center justify-between p-2 border rounded-lg transition-all duration-500"
                   data-testid={`loser-${asset.symbol.toLowerCase()}`}
                 >
                   <div className="flex items-center gap-2">
@@ -277,11 +305,11 @@ export function MarketOverview() {
                     </Avatar>
                     <div>
                       <p className="text-xs font-medium">{asset.symbol}</p>
-                      <p className="text-xs text-muted-foreground">{formatCurrency(asset.currentPrice)}</p>
+                      <p className="text-xs text-muted-foreground transition-all duration-500">{formatCurrency(asset.currentPrice)}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-medium text-red-500" data-testid={`loser-change-${asset.symbol.toLowerCase()}`}>
+                    <p className="text-xs font-medium text-red-500 transition-all duration-500" data-testid={`loser-change-${asset.symbol.toLowerCase()}`}>
                       {asset.changePercent.toFixed(2)}%
                     </p>
                     <p className="text-xs text-muted-foreground">Vol: {formatNumber(asset.volume)}</p>
@@ -299,10 +327,10 @@ export function MarketOverview() {
             <h4 className="text-sm font-medium">Recent Market Events</h4>
           </div>
           <div className="space-y-2">
-            {recentEvents.map((event) => (
+            {recentEvents.map((event: MarketEvent) => (
               <div 
                 key={event.id} 
-                className={`p-3 border rounded-lg ${getEventImpactColor(event.impact)}`}
+                className={`p-3 border rounded-lg transition-all duration-300 ${getEventImpactColor(event.impact)}`}
                 data-testid={`event-${event.id}`}
               >
                 <div className="flex items-start gap-3">
@@ -319,7 +347,7 @@ export function MarketOverview() {
                     {event.relatedAssets.length > 0 && (
                       <div className="flex items-center gap-1 mt-2">
                         <span className="text-xs text-muted-foreground">Related:</span>
-                        {event.relatedAssets.map((asset, idx) => (
+                        {event.relatedAssets.map((asset: string, idx: number) => (
                           <Badge key={idx} variant="outline" className="text-xs">
                             {asset}
                           </Badge>
