@@ -122,7 +122,7 @@ export function VillainsHenchmenWidget() {
                       <img
                         src={getImageUrl(pair.villain)}
                         alt={pair.villain.canonicalName}
-                        className="absolute inset-0 w-full h-full object-contain z-10"
+                        className="absolute inset-0 w-full h-full object-cover z-10"
                         data-testid={`img-villain-${pair.villain.id}`}
                       />
                     )}
@@ -164,7 +164,7 @@ export function VillainsHenchmenWidget() {
                         <img
                           src={getImageUrl(pair.henchman)}
                           alt={pair.henchman.canonicalName}
-                          className="absolute inset-0 w-full h-full object-contain z-10"
+                          className="absolute inset-0 w-full h-full object-cover z-10"
                           data-testid={`img-henchman-${pair.henchman.id}`}
                         />
                       )}

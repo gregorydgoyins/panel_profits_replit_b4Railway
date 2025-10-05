@@ -122,7 +122,7 @@ export function LocationsGadgetsWidget() {
                       <img
                         src={getImageUrl(pair.location)}
                         alt={pair.location.canonicalName}
-                        className="absolute inset-0 w-full h-full object-contain z-10"
+                        className="absolute inset-0 w-full h-full object-cover z-10"
                         data-testid={`img-location-${pair.location.id}`}
                       />
                     )}
@@ -163,7 +163,7 @@ export function LocationsGadgetsWidget() {
                       <img
                         src={getImageUrl(pair.gadget)}
                         alt={pair.gadget.canonicalName}
-                        className="absolute inset-0 w-full h-full object-contain z-10"
+                        className="absolute inset-0 w-full h-full object-cover z-10"
                         data-testid={`img-gadget-${pair.gadget.id}`}
                       />
                     )}

@@ -5076,6 +5076,99 @@ Respond with valid JSON in this exact format:
     }
   });
 
+  // Unified Entity Detail - Works for any entity type
+  app.get('/api/narrative/entity/:id', async (req: any, res) => {
+    try {
+      const { id } = req.params;
+
+      // Get entity with asset and price data
+      const [entity] = await db
+        .select({
+          id: narrativeEntities.id,
+          canonicalName: narrativeEntities.canonicalName,
+          entityType: narrativeEntities.entityType,
+          subtype: narrativeEntities.subtype,
+          universe: narrativeEntities.universe,
+          primaryImageUrl: narrativeEntities.primaryImageUrl,
+          alternateImageUrls: narrativeEntities.alternateImageUrls,
+          biography: narrativeEntities.biography,
+          description: narrativeEntities.description,
+          teams: narrativeEntities.teams,
+          allies: narrativeEntities.allies,
+          enemies: narrativeEntities.enemies,
+          popularityScore: narrativeEntities.popularityScore,
+          assetId: narrativeEntities.assetId,
+          asset: {
+            id: assetsTable.id,
+            symbol: assetsTable.symbol,
+            name: assetsTable.name,
+            type: assetsTable.type,
+            imageUrl: assetsTable.imageUrl,
+            coverImageUrl: assetsTable.coverImageUrl,
+          },
+          price: {
+            current: assetCurrentPrices.currentPrice,
+            dayChange: assetCurrentPrices.dayChangePercent,
+            weekChange: assetCurrentPrices.weekChangePercent,
+            monthChange: assetCurrentPrices.monthChangePercent,
+            yearChange: assetCurrentPrices.yearChangePercent,
+            lastUpdated: assetCurrentPrices.lastUpdated,
+          }
+        })
+        .from(narrativeEntities)
+        .leftJoin(assetsTable, eq(narrativeEntities.assetId, assetsTable.id))
+        .leftJoin(assetCurrentPrices, eq(assetsTable.id, assetCurrentPrices.assetId))
+        .where(eq(narrativeEntities.id, id))
+        .limit(1);
+
+      if (!entity) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Entity not found' 
+        });
+      }
+
+      // Get entity's traits/characteristics
+      const traits = await db
+        .select()
+        .from(narrativeTraits)
+        .where(eq(narrativeTraits.entityId, id));
+
+      // Get related entities (same universe)
+      const relatedEntities = await db
+        .select({
+          id: narrativeEntities.id,
+          canonicalName: narrativeEntities.canonicalName,
+          entityType: narrativeEntities.entityType,
+          subtype: narrativeEntities.subtype,
+          primaryImageUrl: narrativeEntities.primaryImageUrl,
+        })
+        .from(narrativeEntities)
+        .where(
+          and(
+            eq(narrativeEntities.universe, entity.universe),
+            ne(narrativeEntities.id, id)
+          )
+        )
+        .limit(6);
+
+      res.json({
+        success: true,
+        data: {
+          ...entity,
+          traits,
+          relatedEntities
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching entity detail:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to fetch entity detail' 
+      });
+    }
+  });
+
   // Creator Affiliation Routes
   app.post('/api/creators/expand/stan-lee', async (req, res) => {
     try {

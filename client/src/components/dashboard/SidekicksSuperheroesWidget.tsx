@@ -122,7 +122,7 @@ export function SidekicksSuperheroesWidget() {
                       <img
                         src={getImageUrl(pair.superhero)}
                         alt={pair.superhero.canonicalName}
-                        className="absolute inset-0 w-full h-full object-contain z-10"
+                        className="absolute inset-0 w-full h-full object-cover z-10"
                         data-testid={`img-superhero-${pair.superhero.id}`}
                       />
                     )}
@@ -150,8 +150,9 @@ export function SidekicksSuperheroesWidget() {
                   </div>
                 </Link>
 
-                {/* Sidekick Image */}
-                <Link href={`/sidekick/${pair.sidekick.id}`} data-testid={`link-sidekick-${pair.sidekick.id}`}>
+                {/* Sidekick Image (only if exists) */}
+                {pair.sidekick && (
+                  <Link href={`/sidekick/${pair.sidekick.id}`} data-testid={`link-sidekick-${pair.sidekick.id}`}>
                   <div className="relative w-[280px] h-[380px] rounded-lg overflow-hidden shrink-0 cursor-pointer group">
                     {/* Background placeholder */}
                     <div className="absolute inset-0 bg-[#1a1a1a] flex items-center justify-center">
@@ -163,7 +164,7 @@ export function SidekicksSuperheroesWidget() {
                       <img
                         src={getImageUrl(pair.sidekick)}
                         alt={pair.sidekick.canonicalName}
-                        className="absolute inset-0 w-full h-full object-contain z-10"
+                        className="absolute inset-0 w-full h-full object-cover z-10"
                         data-testid={`img-sidekick-${pair.sidekick.id}`}
                       />
                     )}
@@ -190,12 +191,16 @@ export function SidekicksSuperheroesWidget() {
                     </div>
                   </div>
                 </Link>
+                )}
 
                 {/* Relationship Narrative */}
                 <div className="flex-1 space-y-4">
                   <div>
                     <h3 style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt', color: '#ffffff' }}>
-                      {pair.superhero.canonicalName} & {pair.sidekick.canonicalName}
+                      {pair.sidekick 
+                        ? `${pair.superhero.canonicalName} & ${pair.sidekick.canonicalName}`
+                        : pair.superhero.canonicalName
+                      }
                     </h3>
                     <Link 
                       href={`/franchise/${encodeURIComponent(pair.relationship.franchise)}`}
