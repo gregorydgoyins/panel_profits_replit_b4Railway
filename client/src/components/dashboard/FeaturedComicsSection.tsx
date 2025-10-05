@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { TrendingUp, TrendingDown, BookOpen } from 'lucide-react';
 
 interface FeaturedComic {
   id: number;
@@ -55,7 +55,10 @@ export function FeaturedComicsSection() {
     return (
       <div className="bg-[#1A1F2E] rounded-lg p-6 pink-rimlight-hover overflow-visible">
         <div className="mb-4">
-          <h3 className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt', marginBottom: '-4px' }}>Featured Comics</h3>
+          <div className="flex items-center gap-2" style={{ marginBottom: '-4px' }}>
+            <BookOpen className="w-4 h-4 text-pink-500" />
+            <h3 className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>Featured Comics</h3>
+          </div>
           <p className="text-muted-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
             Key issues and first appearances worth tracking
           </p>
@@ -77,7 +80,10 @@ export function FeaturedComicsSection() {
   return (
     <div className="bg-[#1A1F2E] rounded-lg p-6 pink-rimlight-hover overflow-visible">
       <div className="mb-4">
-        <h3 className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt', marginBottom: '-4px' }}>Featured Comics</h3>
+        <div className="flex items-center gap-2" style={{ marginBottom: '-4px' }}>
+          <BookOpen className="w-4 h-4 text-pink-500" />
+          <h3 className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>Featured Comics</h3>
+        </div>
         <p className="text-muted-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
           Key issues and first appearances worth tracking
         </p>
