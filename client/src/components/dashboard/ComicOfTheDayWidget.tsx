@@ -199,30 +199,38 @@ export function ComicOfTheDayWidget() {
         {/* Key Facts */}
         <div className="space-y-2">
           <h4 className="font-semibold text-foreground">Quick Facts</h4>
-          <ul className="space-y-2">
+          <ul className="space-y-3">
             {comic.isFirstIssue && (
-              <li className="flex items-start gap-2 text-sm text-muted-foreground">
-                <Star className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
-                <span>First issue of the series - highly collectible</span>
+              <li className="border-2 border-orange-500 rounded-lg p-3 bg-orange-500/5 orange-rimlight-hover overflow-visible">
+                <div className="flex items-start gap-2 text-sm">
+                  <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                  <span className="text-foreground underline decoration-orange-500 decoration-2">First issue of the series - highly collectible</span>
+                </div>
               </li>
             )}
             {comic.isKeyIssue && (
-              <li className="flex items-start gap-2 text-sm text-muted-foreground">
-                <Star className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
-                <span>Key issue with significant historical importance</span>
+              <li className="border-2 border-orange-500 rounded-lg p-3 bg-orange-500/5 orange-rimlight-hover overflow-visible">
+                <div className="flex items-start gap-2 text-sm">
+                  <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                  <span className="text-foreground underline decoration-orange-500 decoration-2">Key issue with significant historical importance</span>
+                </div>
               </li>
             )}
             {comic.pageCount > 0 && (
-              <li className="flex items-start gap-2 text-sm text-muted-foreground">
-                <Star className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
-                <span>{comic.pageCount} pages of storytelling excellence</span>
+              <li className="border-2 border-orange-500 rounded-lg p-3 bg-orange-500/5 orange-rimlight-hover overflow-visible">
+                <div className="flex items-start gap-2 text-sm">
+                  <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                  <span className="text-foreground underline decoration-orange-500 decoration-2">{comic.pageCount} pages of storytelling excellence</span>
+                </div>
               </li>
             )}
-            <li className="flex items-start gap-2 text-sm text-muted-foreground">
-              <Star className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
-              <span>
-                Value appreciation: {priceChangePercent > 0 ? '+' : ''}{priceChangePercent.toFixed(0)}% from print price
-              </span>
+            <li className="border-2 border-orange-500 rounded-lg p-3 bg-orange-500/5 orange-rimlight-hover overflow-visible">
+              <div className="flex items-start gap-2 text-sm">
+                <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                <span className="text-foreground underline decoration-orange-500 decoration-2">
+                  Value appreciation: {priceChangePercent > 0 ? '+' : ''}{priceChangePercent.toFixed(0)}% from print price
+                </span>
+              </div>
             </li>
           </ul>
         </div>
