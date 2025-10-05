@@ -5,15 +5,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Force all font-weight utilities to use Hind bold (700) */
+/* Typography utilities - Hind 300 for new narrative widgets */
 @layer utilities {
-  .font-light,
-  .font-normal,
-  .font-medium,
-  .font-semibold,
-  .font-bold,
-  .font-extrabold {
-    font-weight: 700 !important;
+  .font-hind-light {
+    font-family: 'Hind', sans-serif;
+    font-weight: 300;
   }
 }
 
@@ -571,4 +567,14 @@
     0 0 0 2px rgba(255, 255, 255, 1),      /* Solid white rim */
     0 0 12px rgba(255, 255, 255, 0.8),     /* Tight inner glow */
     0 0 24px rgba(255, 255, 255, 0.4);     /* Minimal outer bleed */
+}
+
+/* Villain Rimlight Hover Effect - Deep red glow for villain theme */
+.villain-rimlight-hover {
+  position: relative;
+  transition: box-shadow 200ms ease-in-out;
+}
+
+.villain-rimlight-hover:hover {
+  box-shadow: 0 0 12px rgba(139, 0, 0, 0.8);
 }

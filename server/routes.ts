@@ -80,10 +80,12 @@ import {
   npcTraderActivityLog,
   assets as assetsTable,
   assetCurrentPrices,
-  marketData
+  marketData,
+  narrativeEntities,
+  narrativeTraits
 } from "@shared/schema";
 import { z } from "zod";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, or, desc } from "drizzle-orm";
 import { entitySeedingService } from "./services/entitySeedingService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -4392,6 +4394,97 @@ Respond with valid JSON in this exact format:
     } catch (error) {
       console.error('Error fetching price trends:', error);
       res.status(500).json({ error: 'Failed to fetch price trends' });
+    }
+  });
+
+  // Villains & Henchmen Routes - Narrative Entities System
+  
+  // Get list of villains and henchmen
+  app.get('/api/narrative/villains', async (req: any, res) => {
+    try {
+      const villains = await db
+        .select({
+          id: narrativeEntities.id,
+          canonicalName: narrativeEntities.canonicalName,
+          subtype: narrativeEntities.subtype,
+          primaryImageUrl: narrativeEntities.primaryImageUrl,
+          alternateImageUrls: narrativeEntities.alternateImageUrls,
+          biography: narrativeEntities.biography,
+          teams: narrativeEntities.teams,
+          enemies: narrativeEntities.enemies,
+          assetImageUrl: assetsTable.imageUrl,
+          assetCoverImageUrl: assetsTable.coverImageUrl,
+        })
+        .from(narrativeEntities)
+        .leftJoin(assetsTable, eq(narrativeEntities.assetId, assetsTable.id))
+        .where(
+          and(
+            eq(narrativeEntities.entityType, 'character'),
+            or(
+              eq(narrativeEntities.subtype, 'villain'),
+              eq(narrativeEntities.subtype, 'henchman')
+            )
+          )
+        )
+        .orderBy(desc(narrativeEntities.popularityScore))
+        .limit(20);
+
+      res.json({
+        success: true,
+        data: villains
+      });
+    } catch (error) {
+      console.error('Error fetching villains:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to fetch villains' 
+      });
+    }
+  });
+
+  // Get single villain detail with powers and market data
+  app.get('/api/narrative/villain/:id', async (req: any, res) => {
+    try {
+      const { id } = req.params;
+
+      // Get villain entity
+      const [villain] = await db
+        .select()
+        .from(narrativeEntities)
+        .leftJoin(assetsTable, eq(narrativeEntities.assetId, assetsTable.id))
+        .where(eq(narrativeEntities.id, id))
+        .limit(1);
+
+      if (!villain) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Villain not found' 
+        });
+      }
+
+      // Get villain's powers and weaknesses
+      const traits = await db
+        .select()
+        .from(narrativeTraits)
+        .where(eq(narrativeTraits.entityId, id));
+
+      res.json({
+        success: true,
+        data: {
+          ...villain.narrativeEntities,
+          asset: villain.assets,
+          powers: traits.filter(t => t.traitCategory === 'power'),
+          weaknesses: traits.filter(t => t.traitCategory === 'weakness'),
+          skills: traits.filter(t => t.traitCategory === 'skill'),
+          equipment: traits.filter(t => t.traitCategory === 'equipment'),
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching villain detail:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to fetch villain detail' 
+      });
     }
   });
 
