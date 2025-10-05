@@ -4415,9 +4415,14 @@ Respond with valid JSON in this exact format:
           enemies: narrativeEntities.enemies,
           assetImageUrl: assetsTable.imageUrl,
           assetCoverImageUrl: assetsTable.coverImageUrl,
+          assetId: assetsTable.id,
+          assetSymbol: assetsTable.symbol,
+          assetPrice: assetCurrentPrices.currentPrice,
+          assetPriceChange: assetCurrentPrices.dailyChange,
         })
         .from(narrativeEntities)
         .leftJoin(assetsTable, eq(narrativeEntities.assetId, assetsTable.id))
+        .leftJoin(assetCurrentPrices, eq(assetsTable.id, assetCurrentPrices.assetId))
         .where(
           and(
             eq(narrativeEntities.entityType, 'character'),
@@ -4507,9 +4512,14 @@ Respond with valid JSON in this exact format:
           allies: narrativeEntities.allies,
           assetImageUrl: assetsTable.imageUrl,
           assetCoverImageUrl: assetsTable.coverImageUrl,
+          assetId: assetsTable.id,
+          assetSymbol: assetsTable.symbol,
+          assetPrice: assetCurrentPrices.currentPrice,
+          assetPriceChange: assetCurrentPrices.dailyChange,
         })
         .from(narrativeEntities)
         .leftJoin(assetsTable, eq(narrativeEntities.assetId, assetsTable.id))
+        .leftJoin(assetCurrentPrices, eq(assetsTable.id, assetCurrentPrices.assetId))
         .where(
           and(
             eq(narrativeEntities.entityType, 'character'),
@@ -4644,9 +4654,14 @@ Respond with valid JSON in this exact format:
           description: narrativeEntities.description,
           assetImageUrl: assetsTable.imageUrl,
           assetCoverImageUrl: assetsTable.coverImageUrl,
+          assetId: assetsTable.id,
+          assetSymbol: assetsTable.symbol,
+          assetPrice: assetCurrentPrices.currentPrice,
+          assetPriceChange: assetCurrentPrices.dailyChange,
         })
         .from(narrativeEntities)
         .leftJoin(assetsTable, eq(narrativeEntities.assetId, assetsTable.id))
+        .leftJoin(assetCurrentPrices, eq(assetsTable.id, assetCurrentPrices.assetId))
         .where(
           or(
             eq(narrativeEntities.entityType, 'location'),
