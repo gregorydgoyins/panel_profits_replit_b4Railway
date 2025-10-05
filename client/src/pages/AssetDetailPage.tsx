@@ -251,7 +251,7 @@ export default function AssetDetailPage() {
                     <Badge 
                       key={idx} 
                       variant="outline"
-                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '12pt' }}
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '13pt' }}
                     >
                       {creator}
                     </Badge>
