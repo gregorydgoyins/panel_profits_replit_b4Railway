@@ -34,7 +34,7 @@ export function ComicOfTheDayWidget() {
 
   if (isLoading || !comic) {
     return (
-      <Card className="h-full">
+      <Card className="h-full !bg-[#1A1F2E] white-rimlight-hover">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Star className="w-5 h-5 text-yellow-500" />
@@ -57,7 +57,7 @@ export function ComicOfTheDayWidget() {
 
   if (error) {
     return (
-      <Card className="h-full">
+      <Card className="h-full !bg-[#1A1F2E] white-rimlight-hover">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Star className="w-5 h-5 text-yellow-500" />
@@ -77,7 +77,7 @@ export function ComicOfTheDayWidget() {
   const priceChangePercent = ((comic.estimatedValue - comic.printPrice) / comic.printPrice) * 100;
 
   return (
-    <Card className="h-full" data-testid="widget-comic-of-the-day">
+    <Card className="h-full !bg-[#1A1F2E] white-rimlight-hover" data-testid="widget-comic-of-the-day">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Star className="w-5 h-5 text-yellow-500" />
