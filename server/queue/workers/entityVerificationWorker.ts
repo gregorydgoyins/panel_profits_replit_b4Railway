@@ -20,7 +20,19 @@ async function processEntityVerificationJob(job: Job<EntityVerificationJob>) {
   
   try {
     const entityResults = await db
-      .select()
+      .select({
+        id: narrativeEntities.id,
+        canonicalName: narrativeEntities.canonicalName,
+        verificationStatus: narrativeEntities.verificationStatus,
+        lastVerifiedAt: narrativeEntities.lastVerifiedAt,
+        biography: narrativeEntities.biography,
+        firstAppearance: narrativeEntities.firstAppearance,
+        creators: narrativeEntities.creators,
+        teams: narrativeEntities.teams,
+        allies: narrativeEntities.allies,
+        enemies: narrativeEntities.enemies,
+        primaryImageUrl: narrativeEntities.primaryImageUrl,
+      })
       .from(narrativeEntities)
       .where(eq(narrativeEntities.id, entityId))
       .limit(1);
