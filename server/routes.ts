@@ -5296,6 +5296,190 @@ Respond with valid JSON in this exact format:
     }
   });
 
+  // ============================================
+  // GOCOLLECT GRADED COMICS API
+  // ============================================
+
+  // Get recent graded comic sales (CGC, CBCS, PGX)
+  app.get('/api/gocollect/sales/recent', async (req: any, res) => {
+    try {
+      const limit = parseInt(req.query.limit) || 100;
+      const { goCollectService } = await import('./services/goCollectService.js');
+      
+      const sales = await goCollectService.getRecentSales(limit);
+
+      res.json({
+        success: true,
+        data: {
+          sales,
+          count: sales.length,
+          graders: {
+            cgc: sales.filter(s => s.grader === 'CGC').length,
+            cbcs: sales.filter(s => s.grader === 'CBCS').length,
+            pgx: sales.filter(s => s.grader === 'PGX').length,
+          }
+        }
+      });
+    } catch (error: any) {
+      console.error('Error fetching GoCollect sales:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to fetch sales data' 
+      });
+    }
+  });
+
+  // Get market data for specific issue
+  app.get('/api/gocollect/market-data', async (req: any, res) => {
+    try {
+      const { comic, issue, grader } = req.query;
+
+      if (!comic || !issue) {
+        return res.status(400).json({
+          success: false,
+          error: 'comic and issue parameters required'
+        });
+      }
+
+      const { goCollectService } = await import('./services/goCollectService.js');
+      
+      const marketData = await goCollectService.getMarketDataByIssue(
+        comic as string,
+        issue as string,
+        grader as 'CGC' | 'CBCS' | 'PGX' | undefined
+      );
+
+      if (!marketData) {
+        return res.status(404).json({
+          success: false,
+          error: 'Market data not found for this issue'
+        });
+      }
+
+      res.json({
+        success: true,
+        data: marketData
+      });
+    } catch (error: any) {
+      console.error('Error fetching market data:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to fetch market data' 
+      });
+    }
+  });
+
+  // Get trending graded comics
+  app.get('/api/gocollect/trending', async (req: any, res) => {
+    try {
+      const limit = parseInt(req.query.limit) || 50;
+      const { goCollectService } = await import('./services/goCollectService.js');
+      
+      const trending = await goCollectService.getTrendingGradedComics(limit);
+
+      res.json({
+        success: true,
+        data: {
+          trending,
+          count: trending.length
+        }
+      });
+    } catch (error: any) {
+      console.error('Error fetching trending comics:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to fetch trending data' 
+      });
+    }
+  });
+
+  // Get grader statistics (CGC, CBCS, PGX breakdown)
+  app.get('/api/gocollect/grader-stats', async (req: any, res) => {
+    try {
+      const { goCollectService } = await import('./services/goCollectService.js');
+      
+      const stats = await goCollectService.getGraderStatistics();
+
+      res.json({
+        success: true,
+        data: stats
+      });
+    } catch (error: any) {
+      console.error('Error fetching grader statistics:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to fetch grader statistics' 
+      });
+    }
+  });
+
+  // Get price history for specific graded comic
+  app.get('/api/gocollect/price-history', async (req: any, res) => {
+    try {
+      const { comic, issue, grade, grader, days } = req.query;
+
+      if (!comic || !issue || !grade) {
+        return res.status(400).json({
+          success: false,
+          error: 'comic, issue, and grade parameters required'
+        });
+      }
+
+      const { goCollectService } = await import('./services/goCollectService.js');
+      
+      const history = await goCollectService.getPriceHistory(
+        comic as string,
+        issue as string,
+        grade as string,
+        (grader as 'CGC' | 'CBCS' | 'PGX') || 'CGC',
+        days ? parseInt(days as string) : 365
+      );
+
+      res.json({
+        success: true,
+        data: {
+          history,
+          count: history.length,
+          period: `${days || 365} days`
+        }
+      });
+    } catch (error: any) {
+      console.error('Error fetching price history:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to fetch price history' 
+      });
+    }
+  });
+
+  // Get census data for a comic
+  app.get('/api/gocollect/census/:comicId', async (req: any, res) => {
+    try {
+      const { comicId } = req.params;
+      const { goCollectService } = await import('./services/goCollectService.js');
+      
+      const census = await goCollectService.getCensusData(comicId);
+
+      if (!census) {
+        return res.status(404).json({
+          success: false,
+          error: 'Census data not found'
+        });
+      }
+
+      res.json({
+        success: true,
+        data: census
+      });
+    } catch (error: any) {
+      console.error('Error fetching census data:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to fetch census data' 
+      });
+    }
+  });
+
   // Get single sidekick detail with powers and market data
   app.get('/api/narrative/sidekick/:id', async (req: any, res) => {
     try {

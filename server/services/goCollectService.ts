@@ -275,6 +275,265 @@ class GoCollectService {
     this.cache.clear();
     console.log('🗑️ GoCollect cache cleared');
   }
+
+  /**
+   * Fetch recent sales across all graders (CGC, CBCS, PGX)
+   */
+  async getRecentSales(limit = 100): Promise<GradedSale[]> {
+    if (!this.apiKey) {
+      console.warn('⚠️ Cannot fetch sales - API key not configured');
+      return [];
+    }
+
+    try {
+      console.log(`🔍 Fetching ${limit} recent sales from GoCollect...`);
+      
+      const url = `${this.baseUrl}/sales/recent?limit=${limit}&key=${this.apiKey}`;
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        console.error(`❌ GoCollect API error: ${response.status} ${response.statusText}`);
+        return [];
+      }
+
+      const data = await response.json();
+      const sales: GradedSale[] = (data.sales || []).map((sale: any) => ({
+        id: sale.id,
+        comicName: sale.comic_name,
+        issueNumber: sale.issue_number,
+        grade: sale.grade,
+        grader: sale.grader || 'CGC',
+        salePrice: parseFloat(sale.price),
+        saleDate: sale.date,
+        seller: sale.seller,
+        auction: sale.auction
+      }));
+
+      console.log(`✅ Retrieved ${sales.length} sales from GoCollect`);
+      return sales;
+    } catch (error) {
+      console.error('❌ Error fetching recent sales:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get market data by issue with multi-grader support
+   */
+  async getMarketDataByIssue(
+    comicName: string,
+    issueNumber: string,
+    grader?: 'CGC' | 'CBCS' | 'PGX'
+  ): Promise<MarketDataResult | null> {
+    if (!this.apiKey) {
+      console.warn('⚠️ Cannot fetch market data - API key not configured');
+      return null;
+    }
+
+    try {
+      const params = new URLSearchParams({
+        comic: comicName,
+        issue: issueNumber,
+        ...(grader && { grader })
+      });
+
+      const url = `${this.baseUrl}/market-data?${params}&key=${this.apiKey}`;
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        if (response.status === 404) return null;
+        console.error(`❌ GoCollect API error: ${response.status}`);
+        return null;
+      }
+
+      const data = await response.json();
+      
+      const result: MarketDataResult = {
+        avgPrice: data.avg_price || 0,
+        medianPrice: data.median_price || 0,
+        highPrice: data.high_price || 0,
+        lowPrice: data.low_price || 0,
+        salesCount: data.sales_count || 0,
+        marketIndex: data.market_index || 100,
+        priceTrend: data.trend || 'stable',
+        grader: grader || 'CGC',
+        lastUpdated: new Date().toISOString()
+      };
+
+      console.log(`✅ Market data for ${comicName} #${issueNumber} (${grader || 'CGC'}):`, result);
+      return result;
+    } catch (error) {
+      console.error(`❌ Error fetching market data:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Get grader breakdown statistics
+   */
+  async getGraderStatistics(): Promise<GraderStatistics> {
+    if (!this.apiKey) {
+      console.warn('⚠️ Cannot fetch grader statistics - API key not configured');
+      return { cgc: 0, cbcs: 0, pgx: 0, total: 0 };
+    }
+
+    try {
+      const url = `${this.baseUrl}/stats/graders?key=${this.apiKey}`;
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        console.error(`❌ GoCollect API error: ${response.status}`);
+        return { cgc: 0, cbcs: 0, pgx: 0, total: 0 };
+      }
+
+      const data = await response.json();
+      
+      return {
+        cgc: data.cgc || 0,
+        cbcs: data.cbcs || 0,
+        pgx: data.pgx || 0,
+        total: (data.cgc || 0) + (data.cbcs || 0) + (data.pgx || 0)
+      };
+    } catch (error) {
+      console.error('❌ Error fetching grader statistics:', error);
+      return { cgc: 0, cbcs: 0, pgx: 0, total: 0 };
+    }
+  }
+
+  /**
+   * Get trending graded comics across all platforms
+   */
+  async getTrendingGradedComics(limit = 50): Promise<TrendingComic[]> {
+    if (!this.apiKey) {
+      console.warn('⚠️ Cannot fetch trending comics - API key not configured');
+      return [];
+    }
+
+    try {
+      console.log(`🔥 Fetching top ${limit} trending graded comics...`);
+      
+      const url = `${this.baseUrl}/trending?limit=${limit}&key=${this.apiKey}`;
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        console.error(`❌ GoCollect API error: ${response.status}`);
+        return [];
+      }
+
+      const data = await response.json();
+      const trending: TrendingComic[] = (data.trending || []).map((item: any) => ({
+        rank: item.rank,
+        comicName: item.comic_name,
+        issueNumber: item.issue_number,
+        publisher: item.publisher,
+        priceChange24h: item.price_change_24h || 0,
+        priceChangePercent: item.price_change_percent || 0,
+        currentPrice: item.current_price || 0,
+        volume24h: item.volume_24h || 0,
+        marketIndex: item.market_index || 100
+      }));
+
+      console.log(`✅ Retrieved ${trending.length} trending comics`);
+      return trending;
+    } catch (error) {
+      console.error('❌ Error fetching trending comics:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get grade-specific price history
+   */
+  async getPriceHistory(
+    comicName: string,
+    issueNumber: string,
+    grade: string,
+    grader: 'CGC' | 'CBCS' | 'PGX' = 'CGC',
+    days = 365
+  ): Promise<PriceHistoryPoint[]> {
+    if (!this.apiKey) {
+      console.warn('⚠️ Cannot fetch price history - API key not configured');
+      return [];
+    }
+
+    try {
+      const params = new URLSearchParams({
+        comic: comicName,
+        issue: issueNumber,
+        grade,
+        grader,
+        days: days.toString()
+      });
+
+      const url = `${this.baseUrl}/price-history?${params}&key=${this.apiKey}`;
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        console.error(`❌ GoCollect API error: ${response.status}`);
+        return [];
+      }
+
+      const data = await response.json();
+      
+      return (data.history || []).map((point: any) => ({
+        date: point.date,
+        price: point.price,
+        volume: point.volume || 0
+      }));
+    } catch (error) {
+      console.error('❌ Error fetching price history:', error);
+      return [];
+    }
+  }
+}
+
+interface GradedSale {
+  id: string;
+  comicName: string;
+  issueNumber: string;
+  grade: string;
+  grader: 'CGC' | 'CBCS' | 'PGX';
+  salePrice: number;
+  saleDate: string;
+  seller?: string;
+  auction?: string;
+}
+
+interface MarketDataResult {
+  avgPrice: number;
+  medianPrice: number;
+  highPrice: number;
+  lowPrice: number;
+  salesCount: number;
+  marketIndex: number;
+  priceTrend: 'up' | 'down' | 'stable';
+  grader: 'CGC' | 'CBCS' | 'PGX';
+  lastUpdated: string;
+}
+
+interface GraderStatistics {
+  cgc: number;
+  cbcs: number;
+  pgx: number;
+  total: number;
+}
+
+interface TrendingComic {
+  rank: number;
+  comicName: string;
+  issueNumber: string;
+  publisher: string;
+  priceChange24h: number;
+  priceChangePercent: number;
+  currentPrice: number;
+  volume24h: number;
+  marketIndex: number;
+}
+
+interface PriceHistoryPoint {
+  date: string;
+  price: number;
+  volume: number;
 }
 
 export const goCollectService = new GoCollectService();
@@ -282,5 +541,10 @@ export const goCollectService = new GoCollectService();
 export type {
   CensusGradeData,
   ComicCensusData,
-  GoCollectSearchResult
+  GoCollectSearchResult,
+  GradedSale,
+  MarketDataResult,
+  GraderStatistics,
+  TrendingComic,
+  PriceHistoryPoint
 };
