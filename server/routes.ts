@@ -6017,6 +6017,90 @@ Respond with valid JSON in this exact format:
     }
   });
 
+  // Marvel API Asset Extraction
+  app.post('/api/marvel/extract', async (req: any, res) => {
+    try {
+      const { characterIds } = req.body;
+      
+      if (!characterIds || !Array.isArray(characterIds)) {
+        return res.status(400).json({ success: false, error: 'characterIds array required' });
+      }
+
+      const { marvelAssetExtractionService } = await import('./services/marvelAssetExtractionService.js');
+      
+      console.log(`🦸 Starting Marvel extraction for ${characterIds.length} characters...`);
+      
+      const result = await marvelAssetExtractionService.bulkExtractMarvelAssets(characterIds);
+
+      res.json({
+        success: true,
+        message: `Extracted ${result.totalAssetsCreated} assets from ${result.totalCharacters} Marvel characters`,
+        data: result
+      });
+    } catch (error: any) {
+      console.error('Error in Marvel extraction:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // Pinecone Vector Extraction - Extract all 63,934 vectors
+  app.post('/api/pinecone/extract', async (req: any, res) => {
+    try {
+      const { pineconeAssetExtractionService } = await import('./services/pineconeAssetExtractionService.js');
+      
+      console.log('🌲 Starting Pinecone extraction for all 63,934 vectors...');
+      
+      const result = await pineconeAssetExtractionService.extractWithPagination();
+
+      res.json({
+        success: true,
+        message: `Extracted ${result.assetsCreated} assets from ${result.totalVectors} Pinecone vectors`,
+        data: result
+      });
+    } catch (error: any) {
+      console.error('Error in Pinecone extraction:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // News Storage - Fetch and store 200 stories/day from NewsData.io + RSS
+  app.post('/api/news/fetch-and-store', async (req: any, res) => {
+    try {
+      const { newsStorageService } = await import('./services/newsStorageService.js');
+      
+      console.log('📰 Starting news fetch and storage (NewsData.io + RSS)...');
+      
+      const result = await newsStorageService.fetchAndStoreAllNews();
+
+      res.json({
+        success: true,
+        message: `Stored ${result.totalStored} news articles (${result.fromNewsDataIO} from NewsData.io, ${result.fromRSS} from RSS)`,
+        data: result
+      });
+    } catch (error: any) {
+      console.error('Error in news storage:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // Get recent news
+  app.get('/api/news/recent', async (req: any, res) => {
+    try {
+      const { newsStorageService } = await import('./services/newsStorageService.js');
+      const limit = parseInt(req.query.limit as string) || 50;
+      
+      const articles = await newsStorageService.getRecentNews(limit);
+
+      res.json({
+        success: true,
+        data: articles
+      });
+    } catch (error: any) {
+      console.error('Error fetching recent news:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
   // Initialize WebSocket notification service for real-time notifications
   console.log('🔔 Initializing WebSocket notification service...');
   wsNotificationService.initialize(httpServer, '/ws/notifications');
