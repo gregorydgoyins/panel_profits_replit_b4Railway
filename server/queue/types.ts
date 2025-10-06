@@ -6,6 +6,7 @@ export enum QueueName {
   COMIC_VINE_ISSUES = 'comic-vine-issues',
   ASSET_CREATION = 'asset-creation',
   ASSET_PRICING = 'asset-pricing',
+  ENTITY_VERIFICATION = 'entity-verification',
 }
 
 export enum JobType {
@@ -16,6 +17,8 @@ export enum JobType {
   FETCH_COMIC_VINE_ISSUES = 'fetch-comic-vine-issues',
   CREATE_ASSET = 'create-asset',
   PRICE_ASSET = 'price-asset',
+  VERIFY_ENTITY = 'verify-entity',
+  VERIFY_ENTITY_BATCH = 'verify-entity-batch',
 }
 
 export interface PineconeExpansionJob {
@@ -65,6 +68,21 @@ export interface AssetPricingJob {
   symbol: string;
   type: 'character' | 'creator' | 'comic' | 'series';
   metadata: Record<string, any>;
+}
+
+export interface EntityVerificationJob {
+  entityId: string;
+  canonicalName: string;
+  entityType: 'villain' | 'hero' | 'sidekick' | 'henchman' | 'location' | 'gadget' | 'other';
+  forceRefresh?: boolean;
+  priority?: number;
+}
+
+export interface EntityVerificationBatchJob {
+  entityIds: string[];
+  batchSize?: number;
+  skipRecentlyVerified?: boolean;
+  maxAgeHours?: number;
 }
 
 export interface AcquisitionMetrics {

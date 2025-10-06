@@ -1,5 +1,6 @@
 import { Worker } from 'bullmq';
 import { pineconeExpansionWorker } from './workers/pineconeExpansionWorker';
+import { createEntityVerificationWorker } from './workers/entityVerificationWorker';
 import { acquisitionMonitoring } from '../services/supabaseMonitoring';
 
 class WorkerOrchestrator {
@@ -26,6 +27,7 @@ class WorkerOrchestrator {
       // Register workers
       this.workers = [
         pineconeExpansionWorker,
+        createEntityVerificationWorker(),
         // Add more workers here as they're built:
         // marvelCharactersWorker,
         // comicVineCharactersWorker,

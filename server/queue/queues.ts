@@ -9,6 +9,7 @@ export const comicVineCharactersQueue = new Queue(QueueName.COMIC_VINE_CHARACTER
 export const comicVineIssuesQueue = new Queue(QueueName.COMIC_VINE_ISSUES, defaultQueueOptions);
 export const assetCreationQueue = new Queue(QueueName.ASSET_CREATION, defaultQueueOptions);
 export const assetPricingQueue = new Queue(QueueName.ASSET_PRICING, defaultQueueOptions);
+export const entityVerificationQueue = new Queue(QueueName.ENTITY_VERIFICATION, defaultQueueOptions);
 
 export const allQueues = [
   pineconeExpansionQueue,
@@ -18,6 +19,7 @@ export const allQueues = [
   comicVineIssuesQueue,
   assetCreationQueue,
   assetPricingQueue,
+  entityVerificationQueue,
 ];
 
 export async function getQueueMetrics(queueName: QueueName) {

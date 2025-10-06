@@ -85,7 +85,7 @@ import {
   narrativeTraits
 } from "@shared/schema";
 import { z } from "zod";
-import { eq, and, sql, or, desc } from "drizzle-orm";
+import { eq, and, sql, or, desc, lt } from "drizzle-orm";
 import { entitySeedingService } from "./services/entitySeedingService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -4986,6 +4986,210 @@ Respond with valid JSON in this exact format:
       res.status(500).json({ 
         success: false, 
         error: error.message || 'Failed to verify unverified entities' 
+      });
+    }
+  });
+
+  // ==========================================
+  // INDUSTRIAL-STRENGTH VERIFICATION ENDPOINTS
+  // Queue-based verification for 401,666 assets
+  // ==========================================
+
+  // Queue entity for verification (async, resilient)
+  app.post('/api/narrative/queue-verification/:id', async (req: any, res) => {
+    try {
+      const { id } = req.params;
+      const { forceRefresh = false, priority = 0 } = req.body;
+      const { entityVerificationQueue } = await import('./queue/queues.js');
+      
+      const [entity] = await db
+        .select({ id: narrativeEntities.id, name: narrativeEntities.canonicalName, type: narrativeEntities.entityType })
+        .from(narrativeEntities)
+        .where(eq(narrativeEntities.id, id))
+        .limit(1);
+
+      if (!entity) {
+        return res.status(404).json({ success: false, error: 'Entity not found' });
+      }
+
+      const job = await entityVerificationQueue.add('verify-entity', {
+        entityId: entity.id,
+        canonicalName: entity.name,
+        entityType: entity.type as any,
+        forceRefresh,
+        priority,
+      }, {
+        priority,
+      });
+
+      res.json({
+        success: true,
+        data: {
+          jobId: job.id,
+          entityId: entity.id,
+          entityName: entity.name,
+          queued: true,
+        }
+      });
+    } catch (error: any) {
+      console.error('Error queueing verification:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to queue verification' 
+      });
+    }
+  });
+
+  // Queue batch verification (async, resilient, scalable)
+  app.post('/api/narrative/queue-batch-verification', async (req: any, res) => {
+    try {
+      const { limit = 1000, skipRecentlyVerified = true, maxAgeHours = 168 } = req.body;
+      const { entityVerificationQueue } = await import('./queue/queues.js');
+      
+      let query = db
+        .select({ id: narrativeEntities.id, name: narrativeEntities.canonicalName, type: narrativeEntities.entityType })
+        .from(narrativeEntities);
+
+      if (skipRecentlyVerified) {
+        const cutoffDate = new Date(Date.now() - maxAgeHours * 60 * 60 * 1000);
+        query = query.where(
+          or(
+            eq(narrativeEntities.verificationStatus, 'unverified'),
+            lt(narrativeEntities.lastVerifiedAt, cutoffDate)
+          )
+        ) as any;
+      }
+
+      const entities = await query.limit(limit);
+
+      const jobs = await Promise.all(
+        entities.map((entity, index) => 
+          entityVerificationQueue.add('verify-entity', {
+            entityId: entity.id,
+            canonicalName: entity.name,
+            entityType: entity.type as any,
+            forceRefresh: false,
+            priority: 0,
+          }, {
+            priority: 0,
+            delay: index * 100,
+          })
+        )
+      );
+
+      res.json({
+        success: true,
+        data: {
+          queued: jobs.length,
+          jobIds: jobs.map(j => j.id),
+          entities: entities.map(e => ({ id: e.id, name: e.name })),
+        }
+      });
+    } catch (error: any) {
+      console.error('Error queueing batch verification:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to queue batch verification' 
+      });
+    }
+  });
+
+  // Get verification job status
+  app.get('/api/narrative/verification-job/:jobId', async (req: any, res) => {
+    try {
+      const { jobId } = req.params;
+      const { entityVerificationQueue } = await import('./queue/queues.js');
+      
+      const job = await entityVerificationQueue.getJob(jobId);
+      
+      if (!job) {
+        return res.status(404).json({ success: false, error: 'Job not found' });
+      }
+
+      const state = await job.getState();
+      const progress = job.progress;
+      const returnValue = job.returnvalue;
+      const failedReason = job.failedReason;
+
+      res.json({
+        success: true,
+        data: {
+          jobId: job.id,
+          state,
+          progress,
+          data: job.data,
+          result: returnValue,
+          error: failedReason,
+          timestamp: job.timestamp,
+          processedOn: job.processedOn,
+          finishedOn: job.finishedOn,
+        }
+      });
+    } catch (error: any) {
+      console.error('Error fetching job status:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to fetch job status' 
+      });
+    }
+  });
+
+  // Get verification queue metrics
+  app.get('/api/narrative/verification-metrics', async (req: any, res) => {
+    try {
+      const { entityVerificationQueue } = await import('./queue/queues.js');
+      const { resilientApiClient } = await import('./services/resilientApiClient.js');
+      
+      const [waiting, active, completed, failed, delayed] = await Promise.all([
+        entityVerificationQueue.getWaitingCount(),
+        entityVerificationQueue.getActiveCount(),
+        entityVerificationQueue.getCompletedCount(),
+        entityVerificationQueue.getFailedCount(),
+        entityVerificationQueue.getDelayedCount(),
+      ]);
+
+      const circuitBreakerStatus = resilientApiClient.getCircuitBreakerStatus();
+
+      res.json({
+        success: true,
+        data: {
+          queue: {
+            waiting,
+            active,
+            completed,
+            failed,
+            delayed,
+            total: waiting + active + completed + failed + delayed,
+          },
+          circuitBreakers: circuitBreakerStatus,
+        }
+      });
+    } catch (error: any) {
+      console.error('Error fetching verification metrics:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to fetch verification metrics' 
+      });
+    }
+  });
+
+  // Reset circuit breaker for a specific source
+  app.post('/api/narrative/reset-circuit-breaker/:source', async (req: any, res) => {
+    try {
+      const { source } = req.params;
+      const { resilientApiClient } = await import('./services/resilientApiClient.js');
+      
+      resilientApiClient.resetCircuitBreaker(source);
+
+      res.json({
+        success: true,
+        message: `Circuit breaker reset for ${source}`,
+      });
+    } catch (error: any) {
+      console.error('Error resetting circuit breaker:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to reset circuit breaker' 
       });
     }
   });
