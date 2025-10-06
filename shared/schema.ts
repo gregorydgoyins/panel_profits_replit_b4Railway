@@ -7124,7 +7124,7 @@ export const marvelComics = pgTable("marvel_comics", {
   currentPrice: decimal("current_price", { precision: 12, scale: 2 }),
   priceChangePercent: decimal("price_change_percent", { precision: 8, scale: 4 }),
   totalMarketValue: decimal("total_market_value", { precision: 15, scale: 2 }),
-  totalFloat: bigint("total_float"), // Number of tradeable shares
+  totalFloat: bigint("total_float", { mode: "number" }), // Number of tradeable shares
   
   // Key issue classification
   isKeyIssue: boolean("is_key_issue").default(false),
@@ -7188,7 +7188,7 @@ export const marvelCharacters = pgTable("marvel_characters", {
   currentPrice: decimal("current_price", { precision: 12, scale: 2 }),
   priceChangePercent: decimal("price_change_percent", { precision: 8, scale: 4 }),
   totalMarketValue: decimal("total_market_value", { precision: 15, scale: 2 }),
-  totalFloat: bigint("total_float"),
+  totalFloat: bigint("total_float", { mode: "number" }),
   
   // Relationship recency score (for news-driven pricing)
   relationshipRecencyScore: decimal("relationship_recency_score", { precision: 8, scale: 4 }).default("0.00"), // Bane is current, Solomon Grundy is not
@@ -7241,7 +7241,7 @@ export const marvelCreators = pgTable("marvel_creators", {
   currentPrice: decimal("current_price", { precision: 12, scale: 2 }),
   priceChangePercent: decimal("price_change_percent", { precision: 8, scale: 4 }),
   totalMarketValue: decimal("total_market_value", { precision: 15, scale: 2 }),
-  totalFloat: bigint("total_float"),
+  totalFloat: bigint("total_float", { mode: "number" }),
   
   // Relationship tracking
   relationshipRecencyScore: decimal("relationship_recency_score", { precision: 8, scale: 4 }).default("0.00"),
@@ -7289,7 +7289,7 @@ export const marvelSeries = pgTable("marvel_series", {
   currentPrice: decimal("current_price", { precision: 12, scale: 2 }),
   priceChangePercent: decimal("price_change_percent", { precision: 8, scale: 4 }),
   totalMarketValue: decimal("total_market_value", { precision: 15, scale: 2 }),
-  totalFloat: bigint("total_float"),
+  totalFloat: bigint("total_float", { mode: "number" }),
   
   // Metadata
   createdAt: timestamp("created_at").defaultNow(),
@@ -7325,7 +7325,7 @@ export const marvelTeams = pgTable("marvel_teams", {
   currentPrice: decimal("current_price", { precision: 12, scale: 2 }),
   priceChangePercent: decimal("price_change_percent", { precision: 8, scale: 4 }),
   totalMarketValue: decimal("total_market_value", { precision: 15, scale: 2 }),
-  totalFloat: bigint("total_float"),
+  totalFloat: bigint("total_float", { mode: "number" }),
   
   // Metadata
   createdAt: timestamp("created_at").defaultNow(),
@@ -7360,7 +7360,7 @@ export const marvelLocations = pgTable("marvel_locations", {
   currentPrice: decimal("current_price", { precision: 12, scale: 2 }),
   priceChangePercent: decimal("price_change_percent", { precision: 8, scale: 4 }),
   totalMarketValue: decimal("total_market_value", { precision: 15, scale: 2 }),
-  totalFloat: bigint("total_float"),
+  totalFloat: bigint("total_float", { mode: "number" }),
   
   // Metadata
   createdAt: timestamp("created_at").defaultNow(),
@@ -7399,7 +7399,7 @@ export const marvelGadgets = pgTable("marvel_gadgets", {
   currentPrice: decimal("current_price", { precision: 12, scale: 2 }),
   priceChangePercent: decimal("price_change_percent", { precision: 8, scale: 4 }),
   totalMarketValue: decimal("total_market_value", { precision: 15, scale: 2 }),
-  totalFloat: bigint("total_float"),
+  totalFloat: bigint("total_float", { mode: "number" }),
   
   // Metadata
   createdAt: timestamp("created_at").defaultNow(),
