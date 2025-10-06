@@ -5480,6 +5480,125 @@ Respond with valid JSON in this exact format:
     }
   });
 
+  // ============================================
+  // GOCOLLECT ASSET EXPANSION
+  // ============================================
+
+  // Expand trending comics into graded assets
+  app.post('/api/gocollect/expand/trending', async (req: any, res) => {
+    try {
+      const limit = parseInt(req.body.limit) || 100;
+      const { goCollectExpansionService } = await import('./services/goCollectExpansionService.js');
+      
+      console.log(`🚀 Starting GoCollect expansion for ${limit} trending comics...`);
+      
+      const result = await goCollectExpansionService.expandTrendingComics(limit);
+
+      res.json({
+        success: true,
+        message: `Expanded ${result.comicsProcessed} comics into ${result.totalCreated} new graded assets`,
+        data: result
+      });
+    } catch (error: any) {
+      console.error('Error expanding trending comics:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to expand trending comics' 
+      });
+    }
+  });
+
+  // Expand specific comic into all graded variants
+  app.post('/api/gocollect/expand/comic', async (req: any, res) => {
+    try {
+      const { title, issueNumber, publisher, year, coverDate, comicId } = req.body;
+
+      if (!title || !issueNumber || !publisher) {
+        return res.status(400).json({
+          success: false,
+          error: 'title, issueNumber, and publisher are required'
+        });
+      }
+
+      const { goCollectExpansionService } = await import('./services/goCollectExpansionService.js');
+      
+      const result = await goCollectExpansionService.expandComicToGradedAssets({
+        comicId: comicId || `${title}-${issueNumber}`,
+        title,
+        issueNumber,
+        publisher,
+        year: year || new Date().getFullYear(),
+        coverDate
+      });
+
+      res.json({
+        success: true,
+        message: `Created ${result.created} graded assets from ${title} #${issueNumber}`,
+        data: result
+      });
+    } catch (error: any) {
+      console.error('Error expanding comic:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to expand comic' 
+      });
+    }
+  });
+
+  // Expand entire comic series
+  app.post('/api/gocollect/expand/series', async (req: any, res) => {
+    try {
+      const { seriesName, startIssue, endIssue } = req.body;
+
+      if (!seriesName) {
+        return res.status(400).json({
+          success: false,
+          error: 'seriesName is required'
+        });
+      }
+
+      const { goCollectExpansionService } = await import('./services/goCollectExpansionService.js');
+      
+      const result = await goCollectExpansionService.expandComicSeries(
+        seriesName,
+        startIssue || 1,
+        endIssue || 100
+      );
+
+      res.json({
+        success: true,
+        message: `Expanded ${seriesName} series`,
+        data: result
+      });
+    } catch (error: any) {
+      console.error('Error expanding series:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to expand series' 
+      });
+    }
+  });
+
+  // Get graded asset statistics
+  app.get('/api/gocollect/expansion/stats', async (req: any, res) => {
+    try {
+      const { goCollectExpansionService } = await import('./services/goCollectExpansionService.js');
+      
+      const stats = await goCollectExpansionService.getGradedAssetStats();
+
+      res.json({
+        success: true,
+        data: stats
+      });
+    } catch (error: any) {
+      console.error('Error fetching expansion stats:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to fetch expansion stats' 
+      });
+    }
+  });
+
   // Get single sidekick detail with powers and market data
   app.get('/api/narrative/sidekick/:id', async (req: any, res) => {
     try {

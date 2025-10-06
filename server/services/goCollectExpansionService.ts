@@ -166,7 +166,7 @@ export class GoCollectExpansionService {
                 currentPrice: marketData.avgPrice.toFixed(2),
                 bidPrice: marketData.lowPrice.toFixed(2),
                 askPrice: marketData.highPrice.toFixed(2),
-                volume: marketData.salesCount.toString(),
+                volume: marketData.salesCount,
                 metadata: {
                   medianPrice: marketData.medianPrice,
                   grader,
@@ -200,7 +200,7 @@ export class GoCollectExpansionService {
                 currentPrice: marketData.avgPrice.toFixed(2),
                 bidPrice: marketData.lowPrice.toFixed(2),
                 askPrice: marketData.highPrice.toFixed(2),
-                volume: marketData.salesCount.toString(),
+                volume: marketData.salesCount,
                 metadata: {
                   medianPrice: marketData.medianPrice,
                   grader,
