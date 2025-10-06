@@ -6063,6 +6063,30 @@ Respond with valid JSON in this exact format:
     }
   });
 
+  // Marvel Data Population - Fetch fresh Marvel data and populate new tables
+  app.post('/api/marvel/populate', async (req: any, res) => {
+    try {
+      const { populateAllMarvelData } = await import('./services/marvelDataPopulationService.js');
+      
+      const charactersLimit = parseInt(req.body.charactersLimit as string) || 100;
+      const creatorsLimit = parseInt(req.body.creatorsLimit as string) || 100;
+      const comicsLimit = parseInt(req.body.comicsLimit as string) || 100;
+      const seriesLimit = parseInt(req.body.seriesLimit as string) || 50;
+      
+      console.log(`🦸 Starting Marvel data population (${charactersLimit} characters, ${creatorsLimit} creators, ${comicsLimit} comics, ${seriesLimit} series)...`);
+      
+      await populateAllMarvelData(charactersLimit, creatorsLimit, comicsLimit, seriesLimit);
+
+      res.json({
+        success: true,
+        message: `Successfully populated Marvel data`
+      });
+    } catch (error: any) {
+      console.error('Error in Marvel population:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
   // News Storage - Fetch and store 200 stories/day from NewsData.io + RSS
   app.post('/api/news/fetch-and-store', async (req: any, res) => {
     try {
