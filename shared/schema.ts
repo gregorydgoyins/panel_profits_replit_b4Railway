@@ -7733,3 +7733,116 @@ export type InsertMangaCreator = z.infer<typeof insertMangaCreatorSchema>;
 
 export type MangaSeries = typeof mangaSeries.$inferSelect;
 export type InsertMangaSeries = z.infer<typeof insertMangaSeriesSchema>;
+
+// ============================================================================
+// MARVEL LOCATIONS - Tradeable location assets
+// ============================================================================
+
+export const marvelLocations = pgTable("marvel_locations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  symbol: text("symbol").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description"),
+  imageUrl: text("image_url"),
+  
+  // Location classification
+  locationType: text("location_type"), // 'realm', 'nation', 'headquarters', 'prison', 'dimension', etc.
+  tier: integer("tier").notNull(), // 1=iconic, 2=headquarters, 3=regional
+  primaryUniverse: text("primary_universe"), // 'Earth-616', 'Asgardian', 'Dark Dimension', etc.
+  
+  // Comic reference
+  firstAppearance: text("first_appearance"),
+  firstAppearanceComicId: varchar("first_appearance_comic_id"),
+  
+  // Relationships
+  notableResidents: text("notable_residents").array(), // Character names/IDs
+  relatedCharacterIds: text("related_character_ids").array(),
+  franchiseTags: text("franchise_tags").array(),
+  
+  // Pricing data
+  totalFloat: integer("total_float"),
+  baseMarketValue: decimal("base_market_value", { precision: 15, scale: 2 }),
+  currentPrice: decimal("current_price", { precision: 10, scale: 2 }),
+  totalMarketValue: decimal("total_market_value", { precision: 15, scale: 2 }),
+  
+  // Source tracking
+  dataSource: text("data_source").default("marvel_curated"),
+  metadata: jsonb("metadata"),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_marvel_locations_symbol").on(table.symbol),
+  index("idx_marvel_locations_tier").on(table.tier),
+  index("idx_marvel_locations_type").on(table.locationType),
+]);
+
+// ============================================================================
+// MARVEL GADGETS - Tradeable gadget/artifact assets
+// ============================================================================
+
+export const marvelGadgets = pgTable("marvel_gadgets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  symbol: text("symbol").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description"),
+  imageUrl: text("image_url"),
+  
+  // Gadget classification
+  gadgetCategory: text("gadget_category"), // 'weapon', 'cosmic_artifact', 'powered_armor', 'vehicle', etc.
+  tier: integer("tier").notNull(), // 1=cosmic artifacts, 2=signature items, 3=support tech
+  
+  // Creation info
+  creator: text("creator"), // Character/entity who created it
+  creatorCharacterId: varchar("creator_character_id"),
+  powerSource: text("power_source"), // What powers/enables the gadget
+  
+  // Comic reference
+  firstAppearance: text("first_appearance"),
+  firstAppearanceComicId: varchar("first_appearance_comic_id"),
+  
+  // Relationships
+  associatedCharacters: text("associated_characters").array(), // Who uses/wields it
+  associatedTeams: text("associated_teams").array(),
+  relatedCharacterIds: text("related_character_ids").array(),
+  franchiseTags: text("franchise_tags").array(),
+  
+  // Pricing data
+  totalFloat: integer("total_float"),
+  baseMarketValue: decimal("base_market_value", { precision: 15, scale: 2 }),
+  currentPrice: decimal("current_price", { precision: 10, scale: 2 }),
+  totalMarketValue: decimal("total_market_value", { precision: 15, scale: 2 }),
+  
+  // Source tracking
+  dataSource: text("data_source").default("marvel_curated"),
+  metadata: jsonb("metadata"),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_marvel_gadgets_symbol").on(table.symbol),
+  index("idx_marvel_gadgets_tier").on(table.tier),
+  index("idx_marvel_gadgets_category").on(table.gadgetCategory),
+]);
+
+// Insert Schemas
+export const insertMarvelLocationSchema = createInsertSchema(marvelLocations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertMarvelGadgetSchema = createInsertSchema(marvelGadgets).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// TypeScript Types
+export type MarvelLocation = typeof marvelLocations.$inferSelect;
+export type InsertMarvelLocation = z.infer<typeof insertMarvelLocationSchema>;
+
+export type MarvelGadget = typeof marvelGadgets.$inferSelect;
+export type InsertMarvelGadget = z.infer<typeof insertMarvelGadgetSchema>;
