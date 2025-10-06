@@ -5599,6 +5599,30 @@ Respond with valid JSON in this exact format:
     }
   });
 
+  // DEMO: Expand existing comics into graded variants
+  app.post('/api/gocollect/expand/demo', async (req: any, res) => {
+    try {
+      const limit = parseInt(req.body.limit) || 10;
+      const { goCollectDemoExpansion } = await import('./services/goCollectDemoExpansion.js');
+      
+      console.log(`🚀 Starting DEMO expansion for ${limit} existing comics...`);
+      
+      const result = await goCollectDemoExpansion.expandExistingComics(limit);
+
+      res.json({
+        success: true,
+        message: `Expanded ${result.comicsProcessed} comics into ${result.totalCreated} graded assets`,
+        data: result
+      });
+    } catch (error: any) {
+      console.error('Error in demo expansion:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to expand comics' 
+      });
+    }
+  });
+
   // Get single sidekick detail with powers and market data
   app.get('/api/narrative/sidekick/:id', async (req: any, res) => {
     try {
