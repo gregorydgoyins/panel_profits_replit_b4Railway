@@ -22,16 +22,33 @@ interface MarvelCharacter {
   id: number;
   name: string;
   description: string;
+  modified: string;
   thumbnail: {
     path: string;
     extension: string;
   };
+  resourceURI: string;
   comics: {
     available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string }>;
   };
   series: {
     available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string }>;
   };
+  stories: {
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string; type: string }>;
+  };
+  events: {
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string }>;
+  };
+  urls: Array<{ type: string; url: string }>;
 }
 
 interface MarvelCreator {
@@ -39,38 +56,88 @@ interface MarvelCreator {
   firstName: string;
   middleName: string;
   lastName: string;
+  suffix: string;
   fullName: string;
+  modified: string;
   thumbnail: {
     path: string;
     extension: string;
   };
+  resourceURI: string;
   comics: {
     available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string }>;
   };
   series: {
     available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string }>;
   };
+  stories: {
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string; type: string }>;
+  };
+  events: {
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string }>;
+  };
+  urls: Array<{ type: string; url: string }>;
 }
 
 interface MarvelComic {
   id: number;
+  digitalId: number;
   title: string;
   issueNumber: number;
+  variantDescription: string;
   description: string;
+  modified: string;
+  isbn: string;
+  upc: string;
+  diamondCode: string;
+  ean: string;
+  issn: string;
+  format: string;
   pageCount: number;
+  textObjects: Array<{ type: string; language: string; text: string }>;
+  resourceURI: string;
+  urls: Array<{ type: string; url: string }>;
   series: {
+    resourceURI: string;
     name: string;
   };
+  variants: Array<{ resourceURI: string; name: string }>;
+  collections: Array<{ resourceURI: string; name: string }>;
+  collectedIssues: Array<{ resourceURI: string; name: string }>;
   dates: Array<{ type: string; date: string }>;
+  prices: Array<{ type: string; price: number }>;
   thumbnail: {
     path: string;
     extension: string;
   };
+  images: Array<{ path: string; extension: string }>;
   creators: {
-    items: Array<{ name: string; role: string }>;
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string; role: string }>;
   };
   characters: {
-    items: Array<{ name: string }>;
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string }>;
+  };
+  stories: {
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string; type: string }>;
+  };
+  events: {
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string }>;
   };
 }
 
@@ -78,15 +145,44 @@ interface MarvelSeries {
   id: number;
   title: string;
   description: string;
+  resourceURI: string;
+  urls: Array<{ type: string; url: string }>;
   startYear: number;
   endYear: number;
+  rating: string;
+  type: string;
+  modified: string;
   thumbnail: {
     path: string;
     extension: string;
   };
+  creators: {
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string; role: string }>;
+  };
+  characters: {
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string }>;
+  };
+  stories: {
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string; type: string }>;
+  };
+  events: {
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string }>;
+  };
   comics: {
     available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string }>;
   };
+  next: { resourceURI: string; name: string } | null;
+  previous: { resourceURI: string; name: string } | null;
 }
 
 function generateAuthParams(): { ts: string; apikey: string; hash: string } {
