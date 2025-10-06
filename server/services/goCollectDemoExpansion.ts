@@ -221,7 +221,7 @@ export class GoCollectDemoExpansion {
         const batch = assetsToCreate.slice(i, i + BATCH_SIZE);
 
         try {
-          // OPTIMIZATION: Single transaction with RETURNING to get IDs
+          // OPTIMIZATION: Single transaction with RETURNING only id and symbol (memory-efficient)
           const insertedAssets = await db
             .insert(assetsTable)
             .values(batch)
@@ -234,7 +234,7 @@ export class GoCollectDemoExpansion {
                 lastVerifiedAt: drizzleSql`excluded.last_verified_at`,
               },
             })
-            .returning();
+            .returning({ id: assetsTable.id, symbol: assetsTable.symbol });
 
           // OPTIMIZATION: Batch insert all prices in a single query with ON CONFLICT
           const pricesToInsert = insertedAssets.map(asset => {
@@ -326,7 +326,7 @@ export class GoCollectDemoExpansion {
     let totalUpdated = 0;
     let totalErrors = 0;
 
-    // Process comics with controlled concurrency
+    // Process comics with TRUE parallel concurrency using semaphore
     for (let i = 0; i < existingComics.length; i += MAX_CONCURRENT_COMICS) {
       // Check health before each batch
       if (!poolManager.isHealthy()) {
@@ -339,24 +339,35 @@ export class GoCollectDemoExpansion {
       console.log(`\n📊 Processing batch ${Math.floor(i / MAX_CONCURRENT_COMICS) + 1} (comics ${i + 1}-${Math.min(i + MAX_CONCURRENT_COMICS, existingComics.length)}/${existingComics.length})`);
       console.log(`   Pool: ${poolManager.getStats().active}/${MAX_DB_CONNECTIONS} connections`);
       
-      // Process batch with sequential processing to reduce connection pressure
-      for (const comic of batch) {
-        try {
-          const result = await this.processSingleComic(comic);
-          totalCreated += result.created;
-          totalUpdated += result.updated;
-          totalErrors += result.errors;
-          
-          // Delay between comics
-          await this.sleep(DELAY_BETWEEN_COMICS);
-        } catch (error: any) {
-          console.error('❌ Comic processing failed:', error.message);
-          totalErrors += STANDARD_GRADES.length * GRADERS.length * LABEL_TYPES.length;
-          
-          if (!poolManager.isHealthy()) {
-            break;
+      // Process batch with TRUE PARALLELISM - semaphore controls connection limits
+      const batchResults = await Promise.all(
+        batch.map(async (comic) => {
+          try {
+            const result = await this.processSingleComic(comic);
+            await this.sleep(DELAY_BETWEEN_COMICS);
+            return result;
+          } catch (error: any) {
+            console.error('❌ Comic processing failed:', error.message);
+            return { 
+              created: 0, 
+              updated: 0, 
+              errors: STANDARD_GRADES.length * GRADERS.length * LABEL_TYPES.length 
+            };
           }
-        }
+        })
+      );
+
+      // Aggregate batch results
+      for (const result of batchResults) {
+        totalCreated += result.created;
+        totalUpdated += result.updated;
+        totalErrors += result.errors;
+      }
+
+      // Stop if circuit breaker triggered during batch
+      if (!poolManager.isHealthy()) {
+        console.error('🚨 Circuit breaker triggered - stopping expansion');
+        break;
       }
     }
 
