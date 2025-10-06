@@ -195,6 +195,13 @@ export const assets = pgTable("assets", {
   
   // Vector embeddings for semantic search and recommendations
   metadataEmbedding: vector("metadata_embedding", { dimensions: 1536 }), // OpenAI ada-002 embedding dimensions
+  
+  // Verification tracking
+  verificationStatus: text("verification_status"), // 'verified', 'unverified', 'failed'
+  primaryDataSource: text("primary_data_source"), // 'comic_vine', 'superhero_api', 'marvel_api', etc.
+  lastVerifiedAt: timestamp("last_verified_at"),
+  verificationMetadata: jsonb("verification_metadata"), // Source IDs, confidence scores, etc.
+  
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -872,6 +879,13 @@ export const comicCreators = pgTable("comic_creators", {
   trendingScore: decimal("trending_score", { precision: 8, scale: 2 }), // Current trending
   // Vector embeddings for creator search and style matching
   creatorEmbedding: vector("creator_embedding", { dimensions: 1536 }),
+  
+  // Verification tracking
+  verificationStatus: text("verification_status"), // 'verified', 'unverified', 'failed'
+  primaryDataSource: text("primary_data_source"), // 'comic_vine', 'marvel_api', etc.
+  lastVerifiedAt: timestamp("last_verified_at"),
+  verificationMetadata: jsonb("verification_metadata"), // Source IDs, confidence scores, etc.
+  
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

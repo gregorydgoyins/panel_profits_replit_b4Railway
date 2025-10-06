@@ -82,10 +82,11 @@ import {
   assetCurrentPrices,
   marketData,
   narrativeEntities,
-  narrativeTraits
+  narrativeTraits,
+  comicCreators
 } from "@shared/schema";
 import { z } from "zod";
-import { eq, and, sql, or, desc, lt } from "drizzle-orm";
+import { eq, and, sql, or, desc, lt, isNull } from "drizzle-orm";
 import { entitySeedingService } from "./services/entitySeedingService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -5130,6 +5131,67 @@ Respond with valid JSON in this exact format:
       res.status(500).json({ 
         success: false, 
         error: error.message || 'Failed to fetch job status' 
+      });
+    }
+  });
+
+  // Queue ALL assets for verification (545k+ items)
+  app.post('/api/assets/queue-all-verification', async (req: any, res) => {
+    try {
+      const { batchSize = 1000, delayMs = 50, tableType = 'assets' } = req.body;
+      const { entityVerificationQueue } = await import('./queue/queues.js');
+      
+      // Determine which table to query
+      const table = tableType === 'creators' ? comicCreators : assetsTable;
+      const nameField = tableType === 'creators' ? 'name' : 'name';
+      
+      // Query unverified items
+      const items = await db
+        .select({ 
+          id: table.id, 
+          name: tableType === 'creators' ? comicCreators.name : assetsTable.name,
+          type: tableType === 'creators' ? comicCreators.role : assetsTable.type
+        })
+        .from(table)
+        .where(
+          or(
+            isNull(table.verificationStatus),
+            eq(table.verificationStatus, 'unverified')
+          )
+        )
+        .limit(batchSize);
+
+      // Queue all items with staggered delays
+      const jobs = await Promise.all(
+        items.map((item, index) => 
+          entityVerificationQueue.add('verify-entity', {
+            entityId: item.id,
+            canonicalName: item.name,
+            entityType: item.type || 'unknown',
+            tableType, // 'assets' or 'creators'
+            forceRefresh: false,
+            priority: 0,
+          }, {
+            priority: 0,
+            delay: index * delayMs,
+          })
+        )
+      );
+
+      res.json({
+        success: true,
+        data: {
+          tableType,
+          queued: jobs.length,
+          jobIds: jobs.map(j => j.id),
+          sample: items.slice(0, 10).map(i => ({ id: i.id, name: i.name })),
+        }
+      });
+    } catch (error: any) {
+      console.error('Error queueing asset verification:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to queue asset verification' 
       });
     }
   });

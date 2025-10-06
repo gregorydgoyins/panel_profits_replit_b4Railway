@@ -2,7 +2,7 @@ import { Worker, Job } from 'bullmq';
 import { redisConnectionConfig, defaultWorkerOptions } from '../config';
 import { QueueName, EntityVerificationJob } from '../types';
 import { db } from '../../databaseStorage';
-import { narrativeEntities } from '@shared/schema';
+import { narrativeEntities, assets, comicCreators } from '@shared/schema';
 import { eq, and, sql, lt } from 'drizzle-orm';
 import { resilientApiClient } from '../../services/resilientApiClient';
 import { nameCanonicalizer } from '../../services/nameCanonicalizer';
@@ -14,7 +14,7 @@ interface DataSource {
 }
 
 async function processEntityVerificationJob(job: Job<EntityVerificationJob>) {
-  const { entityId, canonicalName, entityType, forceRefresh = false } = job.data;
+  const { entityId, canonicalName, entityType, forceRefresh = false, tableType = 'narrative_entities' } = job.data;
   
   console.log(`🔍 Verifying entity: ${canonicalName} (${entityType})`);
   
