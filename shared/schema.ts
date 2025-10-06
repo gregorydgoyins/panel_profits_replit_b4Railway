@@ -7081,3 +7081,163 @@ export const insertArticlePageSchema = createInsertSchema(articlePages).omit({
 
 export type ArticlePage = typeof articlePages.$inferSelect;
 export type InsertArticlePage = z.infer<typeof insertArticlePageSchema>;
+
+// ============================================================================
+// MANGA SEPARATION - Isolated manga/anime assets for future expansion
+// ============================================================================
+
+// Manga Comics - Separated from main superhero assets
+export const mangaComics = pgTable("manga_comics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  symbol: text("symbol").notNull().unique(),
+  title: text("title").notNull(),
+  description: text("description"),
+  coverImageUrl: text("cover_image_url"),
+  
+  // Manga-specific metadata
+  mangaType: text("manga_type"), // 'manga', 'manhwa', 'manhua', 'webtoon'
+  genres: text("genres").array(), // ['Action', 'Romance', 'Fantasy']
+  tags: text("tags").array(), // More specific classification
+  year: integer("year"),
+  rating: decimal("rating", { precision: 3, scale: 1 }), // 0.0 to 5.0
+  
+  // Pricing data (from Kaggle dataset)
+  totalFloat: integer("total_float"),
+  baseMarketValue: decimal("base_market_value", { precision: 15, scale: 2 }),
+  currentPrice: decimal("current_price", { precision: 10, scale: 2 }),
+  totalMarketValue: decimal("total_market_value", { precision: 15, scale: 2 }),
+  
+  // Pricing breakdown
+  regionalScalar: decimal("regional_scalar", { precision: 5, scale: 2 }),
+  tierMultiplier: decimal("tier_multiplier", { precision: 5, scale: 2 }),
+  franchiseWeight: decimal("franchise_weight", { precision: 5, scale: 2 }),
+  appearanceModifier: decimal("appearance_modifier", { precision: 5, scale: 2 }),
+  
+  // Source tracking
+  dataSource: text("data_source").default("kaggle_manga_comprehensive"),
+  sourceMetadata: jsonb("source_metadata"),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_manga_comics_symbol").on(table.symbol),
+  index("idx_manga_comics_year").on(table.year),
+  index("idx_manga_comics_manga_type").on(table.mangaType),
+]);
+
+// Manga Characters - For future character-level trading
+export const mangaCharacters = pgTable("manga_characters", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  symbol: text("symbol").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description"),
+  imageUrl: text("image_url"),
+  
+  // Character details
+  series: text("series"), // Which manga/anime they're from
+  role: text("role"), // 'protagonist', 'antagonist', 'supporting'
+  
+  // Metadata
+  metadata: jsonb("metadata"),
+  dataSource: text("data_source"),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_manga_characters_symbol").on(table.symbol),
+  index("idx_manga_characters_series").on(table.series),
+]);
+
+// Manga Creators - Authors, artists, studios
+export const mangaCreators = pgTable("manga_creators", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  symbol: text("symbol").notNull().unique(),
+  name: text("name").notNull(),
+  role: text("role"), // 'author', 'artist', 'studio'
+  bio: text("bio"),
+  imageUrl: text("image_url"),
+  
+  // Notable works
+  notableWorks: text("notable_works").array(),
+  
+  // Metadata
+  metadata: jsonb("metadata"),
+  dataSource: text("data_source"),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_manga_creators_symbol").on(table.symbol),
+  index("idx_manga_creators_role").on(table.role),
+]);
+
+// Manga Series - Grouping for manga series
+export const mangaSeries = pgTable("manga_series", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  seriesName: text("series_name").notNull().unique(),
+  description: text("description"),
+  coverImageUrl: text("cover_image_url"),
+  
+  // Series details
+  totalVolumes: integer("total_volumes"),
+  totalChapters: integer("total_chapters"),
+  status: text("status"), // 'ongoing', 'completed', 'hiatus'
+  startYear: integer("start_year"),
+  endYear: integer("end_year"),
+  
+  // Classification
+  genres: text("genres").array(),
+  tags: text("tags").array(),
+  
+  // Metadata
+  metadata: jsonb("metadata"),
+  dataSource: text("data_source"),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_manga_series_name").on(table.seriesName),
+  index("idx_manga_series_status").on(table.status),
+]);
+
+// Manga Insert Schemas
+export const insertMangaComicSchema = createInsertSchema(mangaComics).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertMangaCharacterSchema = createInsertSchema(mangaCharacters).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertMangaCreatorSchema = createInsertSchema(mangaCreators).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertMangaSeriesSchema = createInsertSchema(mangaSeries).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Manga TypeScript Types
+export type MangaComic = typeof mangaComics.$inferSelect;
+export type InsertMangaComic = z.infer<typeof insertMangaComicSchema>;
+
+export type MangaCharacter = typeof mangaCharacters.$inferSelect;
+export type InsertMangaCharacter = z.infer<typeof insertMangaCharacterSchema>;
+
+export type MangaCreator = typeof mangaCreators.$inferSelect;
+export type InsertMangaCreator = z.infer<typeof insertMangaCreatorSchema>;
+
+export type MangaSeries = typeof mangaSeries.$inferSelect;
+export type InsertMangaSeries = z.infer<typeof insertMangaSeriesSchema>;
