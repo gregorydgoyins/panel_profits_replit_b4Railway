@@ -1,16 +1,62 @@
-import { Queue, Worker, QueueOptions, WorkerOptions } from 'bullmq';
+import { Queue, Worker, QueueOptions, WorkerOptions, ConnectionOptions } from 'bullmq';
+import { URL } from 'url';
 
-const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
-const REDIS_PORT = parseInt(process.env.REDIS_PORT || '6379');
-const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
+// Support multiple Redis credential formats
+function getRedisConfig(): ConnectionOptions {
+  // Option 1: Full Redis URL (redis://...)
+  const redisUrl = process.env.REDIS_URL;
+  if (redisUrl && (redisUrl.startsWith('redis://') || redisUrl.startsWith('rediss://'))) {
+    console.log('📡 Using Redis URL connection');
+    
+    // Parse URL to extract credentials
+    try {
+      const parsedUrl = new URL(redisUrl);
+      const config: ConnectionOptions = {
+        host: parsedUrl.hostname,
+        port: parseInt(parsedUrl.port) || 6379,
+        password: parsedUrl.password || undefined,
+        maxRetriesPerRequest: null,
+        enableReadyCheck: false,
+      };
 
-export const redisConnectionConfig = {
-  host: REDIS_HOST,
-  port: REDIS_PORT,
-  password: REDIS_PASSWORD,
-  maxRetriesPerRequest: null,
-  enableReadyCheck: false,
-};
+      // Add TLS for rediss:// protocol
+      if (parsedUrl.protocol === 'rediss:') {
+        config.tls = { rejectUnauthorized: false };
+      }
+
+      return config;
+    } catch (error) {
+      console.error('❌ Failed to parse REDIS_URL:', error);
+      // Fall through to individual credentials
+    }
+  }
+
+  // Option 2: Individual credentials (Upstash native format)
+  const host = process.env.REDIS_HOST || 'localhost';
+  const port = parseInt(process.env.REDIS_PORT || '6379');
+  const password = process.env.REDIS_PASSWORD;
+
+  if (host !== 'localhost' || password) {
+    console.log(`📡 Using Redis connection: ${host}:${port}`);
+  }
+
+  const config: ConnectionOptions = {
+    host,
+    port,
+    password,
+    maxRetriesPerRequest: null,
+    enableReadyCheck: false,
+  };
+
+  // Upstash-specific: TLS for secure connections
+  if (host.includes('upstash.io')) {
+    config.tls = { rejectUnauthorized: false };
+  }
+
+  return config;
+}
+
+export const redisConnectionConfig = getRedisConfig();
 
 export const defaultQueueOptions: QueueOptions = {
   connection: redisConnectionConfig,
