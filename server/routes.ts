@@ -5135,63 +5135,103 @@ Respond with valid JSON in this exact format:
     }
   });
 
-  // Queue ALL assets for verification (545k+ items)
-  app.post('/api/assets/queue-all-verification', async (req: any, res) => {
+  // Start bulk verification process (545k+ items)
+  app.post('/api/bulk-verification/start', async (req: any, res) => {
     try {
-      const { batchSize = 1000, delayMs = 50, tableType = 'assets' } = req.body;
-      const { entityVerificationQueue } = await import('./queue/queues.js');
-      
-      // Determine which table to query
-      const table = tableType === 'creators' ? comicCreators : assetsTable;
-      const nameField = tableType === 'creators' ? 'name' : 'name';
-      
-      // Query unverified items
-      const items = await db
-        .select({ 
-          id: table.id, 
-          name: tableType === 'creators' ? comicCreators.name : assetsTable.name,
-          type: tableType === 'creators' ? comicCreators.role : assetsTable.type
-        })
-        .from(table)
-        .where(
-          or(
-            isNull(table.verificationStatus),
-            eq(table.verificationStatus, 'unverified')
-          )
-        )
-        .limit(batchSize);
+      const { 
+        tableType = 'assets',
+        batchSize = 500,
+        delayBetweenBatches = 2000,
+        totalBatches = 1100
+      } = req.body;
 
-      // Queue all items with staggered delays
-      const jobs = await Promise.all(
-        items.map((item, index) => 
-          entityVerificationQueue.add('verify-entity', {
-            entityId: item.id,
-            canonicalName: item.name,
-            entityType: item.type || 'unknown',
-            tableType, // 'assets' or 'creators'
-            forceRefresh: false,
-            priority: 0,
-          }, {
-            priority: 0,
-            delay: index * delayMs,
-          })
-        )
+      if (tableType !== 'assets' && tableType !== 'creators') {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid tableType. Must be "assets" or "creators"'
+        });
+      }
+
+      const { bulkVerificationService } = await import('./services/bulkVerificationService.js');
+      
+      const result = await bulkVerificationService.startBulkVerification(
+        tableType,
+        batchSize,
+        delayBetweenBatches,
+        totalBatches
       );
 
       res.json({
         success: true,
-        data: {
-          tableType,
-          queued: jobs.length,
-          jobIds: jobs.map(j => j.id),
-          sample: items.slice(0, 10).map(i => ({ id: i.id, name: i.name })),
-        }
+        data: result
       });
     } catch (error: any) {
-      console.error('Error queueing asset verification:', error);
+      console.error('Error starting bulk verification:', error);
       res.status(500).json({ 
         success: false, 
-        error: error.message || 'Failed to queue asset verification' 
+        error: error.message || 'Failed to start bulk verification' 
+      });
+    }
+  });
+
+  // Get bulk verification progress
+  app.get('/api/bulk-verification/progress/:jobId?', async (req: any, res) => {
+    try {
+      const { jobId } = req.params;
+      const { bulkVerificationService } = await import('./services/bulkVerificationService.js');
+
+      if (jobId) {
+        const progress = bulkVerificationService.getProgress(jobId);
+        if (!progress) {
+          return res.status(404).json({
+            success: false,
+            error: 'Job not found'
+          });
+        }
+        res.json({
+          success: true,
+          data: progress
+        });
+      } else {
+        const allProgress = bulkVerificationService.getAllProgress();
+        res.json({
+          success: true,
+          data: allProgress
+        });
+      }
+    } catch (error: any) {
+      console.error('Error fetching bulk verification progress:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to fetch progress' 
+      });
+    }
+  });
+
+  // Stop bulk verification process
+  app.post('/api/bulk-verification/stop/:jobId', async (req: any, res) => {
+    try {
+      const { jobId } = req.params;
+      const { bulkVerificationService } = await import('./services/bulkVerificationService.js');
+
+      const stopped = await bulkVerificationService.stopBulkVerification(jobId);
+
+      if (!stopped) {
+        return res.status(404).json({
+          success: false,
+          error: 'Job not found or already stopped'
+        });
+      }
+
+      res.json({
+        success: true,
+        message: `Bulk verification job ${jobId} stopped`
+      });
+    } catch (error: any) {
+      console.error('Error stopping bulk verification:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Failed to stop bulk verification' 
       });
     }
   });

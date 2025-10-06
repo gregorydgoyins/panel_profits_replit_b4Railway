@@ -2,7 +2,7 @@ import { Worker, Job } from 'bullmq';
 import { redisConnectionConfig, defaultWorkerOptions } from '../config';
 import { QueueName, EntityVerificationJob } from '../types';
 import { db } from '../../databaseStorage';
-import { narrativeEntities, assets, comicCreators } from '@shared/schema';
+import { narrativeEntities, assets as assetsTable, comicCreators } from '@shared/schema';
 import { eq, and, sql, lt } from 'drizzle-orm';
 import { resilientApiClient } from '../../services/resilientApiClient';
 import { nameCanonicalizer } from '../../services/nameCanonicalizer';
@@ -19,22 +19,14 @@ async function processEntityVerificationJob(job: Job<EntityVerificationJob>) {
   console.log(`🔍 Verifying entity: ${canonicalName} (${entityType})`);
   
   try {
+    const table = tableType === 'creators' ? comicCreators : 
+                  tableType === 'assets' ? assetsTable : 
+                  narrativeEntities;
+
     const entityResults = await db
-      .select({
-        id: narrativeEntities.id,
-        canonicalName: narrativeEntities.canonicalName,
-        verificationStatus: narrativeEntities.verificationStatus,
-        lastVerifiedAt: narrativeEntities.lastVerifiedAt,
-        biography: narrativeEntities.biography,
-        firstAppearance: narrativeEntities.firstAppearance,
-        creators: narrativeEntities.creators,
-        teams: narrativeEntities.teams,
-        allies: narrativeEntities.allies,
-        enemies: narrativeEntities.enemies,
-        primaryImageUrl: narrativeEntities.primaryImageUrl,
-      })
-      .from(narrativeEntities)
-      .where(eq(narrativeEntities.id, entityId))
+      .select()
+      .from(table)
+      .where(eq(table.id, entityId))
       .limit(1);
 
     const entity = entityResults[0];
@@ -115,12 +107,12 @@ async function processEntityVerificationJob(job: Job<EntityVerificationJob>) {
       console.warn(`⚠️ No data sources returned results for: ${canonicalName}`);
       
       await db
-        .update(narrativeEntities)
+        .update(table)
         .set({
           verificationStatus: 'failed',
           lastVerifiedAt: new Date(),
         })
-        .where(eq(narrativeEntities.id, entityId));
+        .where(eq(table.id, entityId));
 
       return {
         success: false,
@@ -139,23 +131,35 @@ async function processEntityVerificationJob(job: Job<EntityVerificationJob>) {
     const conflicts = detectConflicts(dataSources, mergedData);
     const primarySource = selectPrimarySource(dataSources);
 
-    await db
-      .update(narrativeEntities)
-      .set({
-        biography: mergedData.biography || entity.biography,
-        firstAppearance: mergedData.firstAppearance || entity.firstAppearance,
-        creators: mergedData.creators || entity.creators,
-        teams: mergedData.teams || entity.teams,
-        allies: mergedData.allies || entity.allies,
-        enemies: mergedData.enemies || entity.enemies,
-        primaryImageUrl: mergedData.imageUrl || entity.primaryImageUrl,
-        verificationStatus: 'verified' as const,
-        primaryDataSource: primarySource,
-        dataSourceBreakdown: dataSourceBreakdown,
-        sourceConflicts: Object.keys(conflicts).length > 0 ? conflicts : null,
-        lastVerifiedAt: new Date(),
-      })
-      .where(eq(narrativeEntities.id, entityId));
+    if (tableType === 'narrative_entities') {
+      const narrativeEntity = entity as typeof narrativeEntities.$inferSelect;
+      await db
+        .update(narrativeEntities)
+        .set({
+          biography: mergedData.biography || narrativeEntity.biography,
+          firstAppearance: mergedData.firstAppearance || narrativeEntity.firstAppearance,
+          creators: mergedData.creators || narrativeEntity.creators,
+          teams: mergedData.teams || narrativeEntity.teams,
+          allies: mergedData.allies || narrativeEntity.allies,
+          enemies: mergedData.enemies || narrativeEntity.enemies,
+          primaryImageUrl: mergedData.imageUrl || narrativeEntity.primaryImageUrl,
+          verificationStatus: 'verified' as const,
+          primaryDataSource: primarySource,
+          dataSourceBreakdown: dataSourceBreakdown,
+          sourceConflicts: Object.keys(conflicts).length > 0 ? conflicts : null,
+          lastVerifiedAt: new Date(),
+        })
+        .where(eq(narrativeEntities.id, entityId));
+    } else {
+      await db
+        .update(table)
+        .set({
+          verificationStatus: 'verified' as const,
+          primaryDataSource: primarySource,
+          lastVerifiedAt: new Date(),
+        })
+        .where(eq(table.id, entityId));
+    }
 
     console.log(`✅ Successfully verified: ${canonicalName}`);
 
@@ -301,10 +305,12 @@ async function fetchMarvelData(characterName: string): Promise<DataSource | null
     name: 'marvel',
     confidence: 0.95,
     data: {
+      realName: character.name,
       biography: character.description,
-      imageUrl: character.thumbnail ? `${character.thumbnail.path}.${character.thumbnail.extension}` : undefined,
+      firstAppearance: character.comics?.items?.[0]?.name,
+      teams: character.series?.items?.map((s: any) => s.name) || [],
+      imageUrl: character.thumbnail ? `${character.thumbnail.path}.${character.thumbnail.extension}` : null,
       externalId: character.id,
-      teams: character.comics?.items?.map((c: any) => c.name) || [],
       publisher: 'Marvel Comics',
     }
   };
@@ -312,20 +318,26 @@ async function fetchMarvelData(characterName: string): Promise<DataSource | null
 
 function mergeDataSources(sources: DataSource[]): Record<string, any> {
   const merged: Record<string, any> = {};
-  const fieldScores: Record<string, { value: any; score: number }> = {};
+  const fieldCoverage: Record<string, DataSource[]> = {};
 
   for (const source of sources) {
     for (const [key, value] of Object.entries(source.data)) {
-      if (value === null || value === undefined || value === '') continue;
+      if (!value) continue;
+      
+      if (!fieldCoverage[key]) {
+        fieldCoverage[key] = [];
+      }
+      fieldCoverage[key].push(source);
 
-      if (!fieldScores[key] || source.confidence > fieldScores[key].score) {
-        fieldScores[key] = { value, score: source.confidence };
+      if (!merged[key]) {
+        merged[key] = value;
+      } else {
+        const existingSource = fieldCoverage[key].find(s => s.data[key] === merged[key]);
+        if (!existingSource || source.confidence > existingSource.confidence) {
+          merged[key] = value;
+        }
       }
     }
-  }
-
-  for (const [key, { value }] of Object.entries(fieldScores)) {
-    merged[key] = value;
   }
 
   return merged;
@@ -334,31 +346,39 @@ function mergeDataSources(sources: DataSource[]): Record<string, any> {
 function buildSourceBreakdown(sources: DataSource[], mergedData: Record<string, any>): Record<string, string[]> {
   const breakdown: Record<string, string[]> = {};
 
-  for (const [key] of Object.entries(mergedData)) {
-    breakdown[key] = sources
-      .filter(s => s.data[key] !== null && s.data[key] !== undefined)
+  for (const [field, value] of Object.entries(mergedData)) {
+    const sourcesForField = sources
+      .filter(s => s.data[field] === value)
       .map(s => s.name);
+    
+    if (sourcesForField.length > 0) {
+      breakdown[field] = sourcesForField;
+    }
   }
 
   return breakdown;
 }
 
-function detectConflicts(sources: DataSource[], mergedData: Record<string, any>): Record<string, Record<string, any>> {
-  const conflicts: Record<string, Record<string, any>> = {};
+function detectConflicts(sources: DataSource[], mergedData: Record<string, any>): Record<string, any> {
+  const conflicts: Record<string, any> = {};
 
-  for (const key of Object.keys(mergedData)) {
-    const values = sources
-      .filter(s => s.data[key] !== null && s.data[key] !== undefined)
-      .map(s => ({ source: s.name, value: s.data[key] }));
+  const allFields: string[] = [];
+  sources.forEach(s => Object.keys(s.data).forEach(k => {
+    if (!allFields.includes(k)) {
+      allFields.push(k);
+    }
+  }));
 
-    if (values.length > 1) {
-      const uniqueValuesSet = new Set(values.map(v => JSON.stringify(v.value)));
-      const uniqueValues = Array.from(uniqueValuesSet);
-      if (uniqueValues.length > 1) {
-        conflicts[key] = Object.fromEntries(
-          values.map(v => [v.source, v.value])
-        );
-      }
+  for (const field of allFields) {
+    const values = new Set(sources.map(s => s.data[field]).filter(Boolean));
+    
+    if (values.size > 1) {
+      conflicts[field] = {
+        merged: mergedData[field],
+        alternatives: sources
+          .map(s => ({ source: s.name, value: s.data[field], confidence: s.confidence }))
+          .filter(x => x.value)
+      };
     }
   }
 
@@ -366,22 +386,24 @@ function detectConflicts(sources: DataSource[], mergedData: Record<string, any>)
 }
 
 function selectPrimarySource(sources: DataSource[]): string {
-  return sources.sort((a, b) => b.confidence - a.confidence)[0]?.name || 'unknown';
+  if (sources.length === 0) return 'none';
+  return sources.reduce((prev, curr) => 
+    curr.confidence > prev.confidence ? curr : prev
+  ).name;
 }
 
 export function createEntityVerificationWorker() {
-  const worker = new Worker(
+  const worker = new Worker<EntityVerificationJob>(
     QueueName.ENTITY_VERIFICATION,
     processEntityVerificationJob,
     {
       connection: redisConnectionConfig,
       ...defaultWorkerOptions,
-      concurrency: 5,
     }
   );
 
   worker.on('completed', (job) => {
-    console.log(`✅ Verification job ${job.id} completed`);
+    console.log(`✅ Verification job ${job.id} completed successfully`);
   });
 
   worker.on('failed', (job, err) => {
@@ -391,6 +413,8 @@ export function createEntityVerificationWorker() {
   worker.on('error', (err) => {
     console.error('❌ Verification worker error:', err);
   });
+
+  console.log('🚀 Entity Verification Worker started');
 
   return worker;
 }

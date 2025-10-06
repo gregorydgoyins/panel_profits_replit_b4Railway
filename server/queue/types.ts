@@ -73,7 +73,8 @@ export interface AssetPricingJob {
 export interface EntityVerificationJob {
   entityId: string;
   canonicalName: string;
-  entityType: 'villain' | 'hero' | 'sidekick' | 'henchman' | 'location' | 'gadget' | 'other';
+  entityType: 'villain' | 'hero' | 'sidekick' | 'henchman' | 'location' | 'gadget' | 'other' | 'character' | 'creator' | 'comic' | 'series' | 'unknown';
+  tableType?: 'narrative_entities' | 'assets' | 'creators';
   forceRefresh?: boolean;
   priority?: number;
 }
