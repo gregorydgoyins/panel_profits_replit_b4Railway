@@ -121,12 +121,16 @@ app.use((req, res, next) => {
     }
 
     // QUEUE SYSTEM: Start BullMQ workers for async processing
-    try {
-      await workerOrchestrator.start();
-      log('⚙️  Queue System: Workers ready for async verification pipeline!');
-    } catch (error) {
-      console.error('❌ Failed to start queue workers:', error);
-      console.error('Error stack:', error instanceof Error ? error.stack : 'no stack');
-    }
+    // TEMPORARILY DISABLED: Redis has exceeded monthly request limit (500,000)
+    // Re-enable when Redis resets or upgrade Upstash plan
+    // try {
+    //   await workerOrchestrator.start();
+    //   log('⚙️  Queue System: Workers ready for async verification pipeline!');
+    // } catch (error) {
+    //   console.error('❌ Failed to start queue workers:', error);
+    //   console.error('Error stack:', error instanceof Error ? error.stack : 'no stack');
+    // }
+    console.log('⚠️  Queue workers disabled - Redis limit exceeded (500K requests/month)');
+    console.log('💡 GoCollect and core trading features remain fully operational!');
   });
 })();
