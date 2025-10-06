@@ -6,6 +6,7 @@ import { phase1Services } from "./phase1ScheduledServices.js";
 import { phase2Services } from "./phase2ScheduledServices.js";
 import { pineconeService } from "./services/pineconeService";
 import { openaiService } from "./services/openaiService";
+import { workerOrchestrator } from "./queue/workerOrchestrator";
 
 
 const app = express();
@@ -117,6 +118,15 @@ app.use((req, res, next) => {
       log('📖 Phase 2 Narrative Trading: Storytelling engines are now LIVE!');
     } catch (error) {
       console.error('Failed to start Phase 2 scheduled services:', error);
+    }
+
+    // QUEUE SYSTEM: Start BullMQ workers for async processing
+    try {
+      await workerOrchestrator.start();
+      log('⚙️  Queue System: Workers ready for async verification pipeline!');
+    } catch (error) {
+      console.error('❌ Failed to start queue workers:', error);
+      console.error('Error stack:', error instanceof Error ? error.stack : 'no stack');
     }
   });
 })();

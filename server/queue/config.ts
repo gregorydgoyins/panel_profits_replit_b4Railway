@@ -4,26 +4,43 @@ import { URL } from 'url';
 // Support multiple Redis credential formats
 function getRedisConfig(): ConnectionOptions {
   // Option 1: Full Redis URL (redis://...)
-  const redisUrl = process.env.REDIS_URL;
+  let redisUrl = process.env.REDIS_URL;
+  
+  // Handle Upstash format: "redis-cli --tls -u redis://..."
+  if (redisUrl && redisUrl.includes('redis-cli')) {
+    const match = redisUrl.match(/(rediss?:\/\/.+)/);
+    if (match) {
+      redisUrl = match[1];
+      console.log('📡 Extracted Redis URL from CLI format');
+    }
+  }
+  
   if (redisUrl && (redisUrl.startsWith('redis://') || redisUrl.startsWith('rediss://'))) {
     console.log('📡 Using Redis URL connection');
     
     // Parse URL to extract credentials
     try {
       const parsedUrl = new URL(redisUrl);
+      
+      // IMPORTANT: Use UPSTASH_REDIS_URL (the actual token) as password if available
+      // The password in REDIS_URL may be masked in the environment
+      const password = process.env.UPSTASH_REDIS_URL || parsedUrl.password || undefined;
+      
       const config: ConnectionOptions = {
         host: parsedUrl.hostname,
         port: parseInt(parsedUrl.port) || 6379,
-        password: parsedUrl.password || undefined,
+        password,
         maxRetriesPerRequest: null,
         enableReadyCheck: false,
       };
 
-      // Add TLS for rediss:// protocol
-      if (parsedUrl.protocol === 'rediss:') {
+      // Add TLS for rediss:// protocol OR if URL contains upstash.io
+      if (parsedUrl.protocol === 'rediss:' || parsedUrl.hostname.includes('upstash.io')) {
         config.tls = { rejectUnauthorized: false };
+        console.log('📡 TLS enabled for secure Redis connection');
       }
 
+      console.log(`📡 Redis connected to: ${parsedUrl.hostname}:${config.port} (password length: ${password ? password.length : 0})`);
       return config;
     } catch (error) {
       console.error('❌ Failed to parse REDIS_URL:', error);
