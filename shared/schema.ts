@@ -7083,6 +7083,106 @@ export type ArticlePage = typeof articlePages.$inferSelect;
 export type InsertArticlePage = z.infer<typeof insertArticlePageSchema>;
 
 // ============================================================================
+// PUBLISHER-SPECIFIC COMIC TABLES - Organized by major publishers
+// ============================================================================
+
+// DC Comics - Separated from Marvel for clear distinction
+export const dcComics = pgTable("dc_comics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  seriesId: varchar("series_id"),
+  comicName: text("comic_name").notNull(),
+  issueNumber: integer("issue_number"),
+  volume: integer("volume"),
+  issueTitle: text("issue_title"),
+  publishDate: text("publish_date"),
+  issueDescription: text("issue_description"),
+  
+  // Credits
+  writer: text("writer"),
+  penciler: text("penciler"),
+  coverArtist: text("cover_artist"),
+  inker: text("inker"),
+  colorist: text("colorist"),
+  letterer: text("letterer"),
+  editor: text("editor"),
+  
+  // Publishing details
+  imprint: text("imprint"), // DC, Vertigo, Wildstorm, etc.
+  format: text("format"),
+  rating: text("rating"),
+  price: text("price"),
+  
+  // Visual assets
+  coverImageUrl: text("cover_image_url"),
+  
+  // Market data
+  currentValue: decimal("current_value", { precision: 10, scale: 2 }),
+  gradeCondition: text("grade_condition"),
+  marketTrend: text("market_trend"),
+  
+  // Search and metadata
+  activeYears: text("active_years"),
+  contentEmbedding: vector("content_embedding", { dimensions: 1536 }),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_dc_comics_series_id").on(table.seriesId),
+  index("idx_dc_comics_issue_number").on(table.issueNumber),
+  index("idx_dc_comics_comic_name").on(table.comicName),
+]);
+
+// Other/Indie Comics - Image, Dark Horse, IDW, Valiant, BOOM!, etc.
+export const otherComics = pgTable("other_comics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  seriesId: varchar("series_id"),
+  comicName: text("comic_name").notNull(),
+  publisher: text("publisher").notNull(), // Image, Dark Horse, IDW, etc.
+  issueNumber: integer("issue_number"),
+  volume: integer("volume"),
+  issueTitle: text("issue_title"),
+  publishDate: text("publish_date"),
+  issueDescription: text("issue_description"),
+  
+  // Credits
+  writer: text("writer"),
+  penciler: text("penciler"),
+  coverArtist: text("cover_artist"),
+  inker: text("inker"),
+  colorist: text("colorist"),
+  letterer: text("letterer"),
+  editor: text("editor"),
+  
+  // Publishing details
+  imprint: text("imprint"),
+  format: text("format"),
+  rating: text("rating"),
+  price: text("price"),
+  
+  // Visual assets
+  coverImageUrl: text("cover_image_url"),
+  
+  // Market data
+  currentValue: decimal("current_value", { precision: 10, scale: 2 }),
+  gradeCondition: text("grade_condition"),
+  marketTrend: text("market_trend"),
+  
+  // Search and metadata
+  activeYears: text("active_years"),
+  contentEmbedding: vector("content_embedding", { dimensions: 1536 }),
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_other_comics_series_id").on(table.seriesId),
+  index("idx_other_comics_publisher").on(table.publisher),
+  index("idx_other_comics_issue_number").on(table.issueNumber),
+  index("idx_other_comics_comic_name").on(table.comicName),
+]);
+
+// ============================================================================
 // MANGA SEPARATION - Isolated manga/anime assets for future expansion
 // ============================================================================
 
