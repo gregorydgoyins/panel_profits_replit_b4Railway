@@ -7083,6 +7083,398 @@ export type ArticlePage = typeof articlePages.$inferSelect;
 export type InsertArticlePage = z.infer<typeof insertArticlePageSchema>;
 
 // ============================================================================
+// MARVEL UNIVERSE SCHEMA - Comprehensive tradeable asset system
+// ============================================================================
+// Design philosophy: EVERYTHING is tradeable (characters, gadgets, locations, 
+// teams, creators, series, key issues, family members). News-driven price 
+// mechanics based on relationship strength and franchise tier classification.
+
+// Marvel Comics - Core comic book issues
+export const marvelComics = pgTable("marvel_comics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Comic identification
+  comicName: text("comic_name").notNull(),
+  seriesId: varchar("series_id"), // Links to marvel_series
+  issueNumber: integer("issue_number"),
+  volume: integer("volume"),
+  issueTitle: text("issue_title"),
+  publishDate: text("publish_date"),
+  activeYears: text("active_years"),
+  
+  // Content & description
+  issueDescription: text("issue_description"),
+  storyArcs: text("story_arcs").array(),
+  keyEvents: text("key_events").array(), // Major plot events for relationship tracking
+  
+  // Cover & visual assets
+  coverImageUrl: text("cover_image_url"),
+  variantCovers: jsonb("variant_covers"), // Array of variant cover URLs
+  
+  // Publishing details
+  format: text("format"), // 'standard', 'annual', 'special', 'one-shot'
+  pageCount: integer("page_count"),
+  price: text("price"),
+  
+  // Trading platform integration
+  symbol: text("symbol").notNull().unique(), // Trading symbol (e.g., UNCXM.V1.#141)
+  franchiseTier: text("franchise_tier"), // 'blue-chip', 'mid-cap', 'small-cap', 'penny-stock'
+  seriesPrestigeMultiplier: decimal("series_prestige_multiplier", { precision: 5, scale: 2 }).default("1.00"), // Watchmen vs Action Comics #1
+  baseMarketValue: decimal("base_market_value", { precision: 12, scale: 2 }),
+  currentPrice: decimal("current_price", { precision: 12, scale: 2 }),
+  priceChangePercent: decimal("price_change_percent", { precision: 8, scale: 4 }),
+  totalMarketValue: decimal("total_market_value", { precision: 15, scale: 2 }),
+  totalFloat: bigint("total_float"), // Number of tradeable shares
+  
+  // Key issue classification
+  isKeyIssue: boolean("is_key_issue").default(false),
+  keyIssueType: text("key_issue_type"), // 'first-appearance', 'death', 'origin', 'team-debut'
+  keyIssueDescription: text("key_issue_description"),
+  
+  // Search & discovery
+  contentEmbedding: vector("content_embedding", { dimensions: 1536 }),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_marvel_comics_series_id").on(table.seriesId),
+  index("idx_marvel_comics_symbol").on(table.symbol),
+  index("idx_marvel_comics_franchise_tier").on(table.franchiseTier),
+  index("idx_marvel_comics_key_issue").on(table.isKeyIssue),
+]);
+
+// Marvel Characters - Heroes, villains, supporting cast (ALL tradeable)
+export const marvelCharacters = pgTable("marvel_characters", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Character identification
+  name: text("name").notNull(),
+  aliases: text("aliases").array(), // Spider-Man, Peter Parker, Friendly Neighborhood Spider-Man
+  realName: text("real_name"),
+  
+  // Character type & role
+  characterType: text("character_type").notNull(), // 'hero', 'villain', 'anti-hero', 'supporting', 'civilian'
+  characterRole: text("character_role"), // 'protagonist', 'antagonist', 'sidekick', 'mentor', 'love-interest', 'family-member'
+  
+  // Franchise tier classification (critical for pricing)
+  franchiseTier: text("franchise_tier").notNull(), // 'blue-chip' (Spider-Man), 'mid-cap' (Watchmen), 'small-cap', 'penny-stock'
+  franchiseImportance: text("franchise_importance"), // 'franchise-hero', 'critically-important', 'recurring', 'minor', 'obscure'
+  
+  // Character details
+  description: text("description"),
+  powers: text("powers").array(),
+  abilities: text("abilities").array(),
+  weaknesses: text("weaknesses").array(),
+  
+  // Affiliations & relationships
+  teams: text("teams").array(), // Avengers, X-Men, Fantastic Four
+  familyMembers: text("family_members").array(), // Tradeable relationships!
+  enemies: text("enemies").array(),
+  allies: text("allies").array(),
+  
+  // Visual assets
+  imageUrl: text("image_url"),
+  thumbnailUrl: text("thumbnail_url"),
+  
+  // First appearance & history
+  firstAppearanceComicId: varchar("first_appearance_comic_id"),
+  firstAppearanceDate: text("first_appearance_date"),
+  appearanceCount: integer("appearance_count").default(0),
+  
+  // Trading platform integration
+  symbol: text("symbol").notNull().unique(),
+  baseMarketValue: decimal("base_market_value", { precision: 12, scale: 2 }),
+  currentPrice: decimal("current_price", { precision: 12, scale: 2 }),
+  priceChangePercent: decimal("price_change_percent", { precision: 8, scale: 4 }),
+  totalMarketValue: decimal("total_market_value", { precision: 15, scale: 2 }),
+  totalFloat: bigint("total_float"),
+  
+  // Relationship recency score (for news-driven pricing)
+  relationshipRecencyScore: decimal("relationship_recency_score", { precision: 8, scale: 4 }).default("0.00"), // Bane is current, Solomon Grundy is not
+  lastMediaMention: timestamp("last_media_mention"),
+  
+  // Search & discovery
+  contentEmbedding: vector("content_embedding", { dimensions: 1536 }),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_marvel_characters_symbol").on(table.symbol),
+  index("idx_marvel_characters_franchise_tier").on(table.franchiseTier),
+  index("idx_marvel_characters_character_type").on(table.characterType),
+  index("idx_marvel_characters_name").on(table.name),
+]);
+
+// Marvel Creators - Writers, artists, editors (ALL tradeable)
+export const marvelCreators = pgTable("marvel_creators", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Creator identification
+  name: text("name").notNull(),
+  
+  // Creator roles
+  primaryRole: text("primary_role").notNull(), // 'writer', 'penciler', 'inker', 'colorist', 'letterer', 'editor', 'cover-artist'
+  allRoles: text("all_roles").array(), // All roles they've performed
+  
+  // Career & achievements
+  biography: text("biography"),
+  notableWorks: text("notable_works").array(),
+  awards: text("awards").array(),
+  yearsActive: text("years_active"),
+  
+  // Franchise importance (Stan Lee vs random inker)
+  franchiseTier: text("franchise_tier"), // 'legendary', 'acclaimed', 'established', 'emerging', 'minor'
+  creatorImportance: text("creator_importance"), // 'franchise-defining', 'critically-important', 'prolific', 'occasional'
+  
+  // Visual assets
+  imageUrl: text("image_url"),
+  
+  // Statistics
+  totalWorks: integer("total_works").default(0),
+  totalCharactersCreated: integer("total_characters_created").default(0),
+  
+  // Trading platform integration
+  symbol: text("symbol").notNull().unique(),
+  baseMarketValue: decimal("base_market_value", { precision: 12, scale: 2 }),
+  currentPrice: decimal("current_price", { precision: 12, scale: 2 }),
+  priceChangePercent: decimal("price_change_percent", { precision: 8, scale: 4 }),
+  totalMarketValue: decimal("total_market_value", { precision: 15, scale: 2 }),
+  totalFloat: bigint("total_float"),
+  
+  // Relationship tracking
+  relationshipRecencyScore: decimal("relationship_recency_score", { precision: 8, scale: 4 }).default("0.00"),
+  lastMediaMention: timestamp("last_media_mention"),
+  
+  // Search & discovery
+  contentEmbedding: vector("content_embedding", { dimensions: 1536 }),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_marvel_creators_symbol").on(table.symbol),
+  index("idx_marvel_creators_name").on(table.name),
+  index("idx_marvel_creators_primary_role").on(table.primaryRole),
+]);
+
+// Marvel Series - Comic book series (tradeable)
+export const marvelSeries = pgTable("marvel_series", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Series identification
+  name: text("name").notNull(),
+  volume: integer("volume"),
+  startYear: integer("start_year"),
+  endYear: integer("end_year"),
+  activeYears: text("active_years"),
+  
+  // Series details
+  description: text("description"),
+  totalIssues: integer("total_issues").default(0),
+  publishingStatus: text("publishing_status"), // 'ongoing', 'completed', 'cancelled', 'on-hiatus'
+  
+  // Critical acclaim & prestige
+  seriesPrestigeLevel: text("series_prestige_level"), // 'iconic', 'acclaimed', 'popular', 'standard', 'obscure'
+  criticalAcclaim: text("critical_acclaim").array(), // TIME Magazine top 10, Eisner Awards, etc.
+  
+  // Visual assets
+  coverImageUrl: text("cover_image_url"),
+  
+  // Trading platform integration
+  symbol: text("symbol").notNull().unique(),
+  franchiseTier: text("franchise_tier"),
+  baseMarketValue: decimal("base_market_value", { precision: 12, scale: 2 }),
+  currentPrice: decimal("current_price", { precision: 12, scale: 2 }),
+  priceChangePercent: decimal("price_change_percent", { precision: 8, scale: 4 }),
+  totalMarketValue: decimal("total_market_value", { precision: 15, scale: 2 }),
+  totalFloat: bigint("total_float"),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_marvel_series_symbol").on(table.symbol),
+  index("idx_marvel_series_name").on(table.name),
+]);
+
+// Marvel Teams - Superhero teams (tradeable)
+export const marvelTeams = pgTable("marvel_teams", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Team identification
+  name: text("name").notNull(),
+  aliases: text("aliases").array(),
+  
+  // Team details
+  description: text("description"),
+  foundedDate: text("founded_date"),
+  status: text("status"), // 'active', 'disbanded', 'reformed'
+  
+  // Franchise tier
+  franchiseTier: text("franchise_tier"), // Avengers vs Great Lakes Avengers
+  
+  // Visual assets
+  imageUrl: text("image_url"),
+  logoUrl: text("logo_url"),
+  
+  // Trading platform integration
+  symbol: text("symbol").notNull().unique(),
+  baseMarketValue: decimal("base_market_value", { precision: 12, scale: 2 }),
+  currentPrice: decimal("current_price", { precision: 12, scale: 2 }),
+  priceChangePercent: decimal("price_change_percent", { precision: 8, scale: 4 }),
+  totalMarketValue: decimal("total_market_value", { precision: 15, scale: 2 }),
+  totalFloat: bigint("total_float"),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_marvel_teams_symbol").on(table.symbol),
+  index("idx_marvel_teams_name").on(table.name),
+]);
+
+// Marvel Locations - Tradeable locations (Wakanda, Asgard, X-Mansion)
+export const marvelLocations = pgTable("marvel_locations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Location identification
+  name: text("name").notNull(),
+  aliases: text("aliases").array(),
+  
+  // Location details
+  description: text("description"),
+  locationType: text("location_type"), // 'city', 'country', 'dimension', 'building', 'planet'
+  universe: text("universe"), // 'Earth-616', 'Earth-1610', etc.
+  
+  // Franchise importance
+  franchiseTier: text("franchise_tier"), // Wakanda vs random warehouse
+  
+  // Visual assets
+  imageUrl: text("image_url"),
+  
+  // Trading platform integration
+  symbol: text("symbol").notNull().unique(),
+  baseMarketValue: decimal("base_market_value", { precision: 12, scale: 2 }),
+  currentPrice: decimal("current_price", { precision: 12, scale: 2 }),
+  priceChangePercent: decimal("price_change_percent", { precision: 8, scale: 4 }),
+  totalMarketValue: decimal("total_market_value", { precision: 15, scale: 2 }),
+  totalFloat: bigint("total_float"),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_marvel_locations_symbol").on(table.symbol),
+  index("idx_marvel_locations_name").on(table.name),
+]);
+
+// Marvel Gadgets - Tradeable items (Mjolnir, Web-Shooters, Iron Man Armor)
+export const marvelGadgets = pgTable("marvel_gadgets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Gadget identification
+  name: text("name").notNull(),
+  aliases: text("aliases").array(),
+  
+  // Gadget details
+  description: text("description"),
+  gadgetType: text("gadget_type"), // 'weapon', 'armor', 'vehicle', 'artifact', 'technology'
+  powers: text("powers").array(),
+  
+  // Associations
+  primaryUser: text("primary_user"), // Character who uses this
+  creator: text("creator"), // Who made it
+  
+  // Franchise importance
+  franchiseTier: text("franchise_tier"), // Mjolnir vs random alien device
+  
+  // Visual assets
+  imageUrl: text("image_url"),
+  
+  // Trading platform integration
+  symbol: text("symbol").notNull().unique(),
+  baseMarketValue: decimal("base_market_value", { precision: 12, scale: 2 }),
+  currentPrice: decimal("current_price", { precision: 12, scale: 2 }),
+  priceChangePercent: decimal("price_change_percent", { precision: 8, scale: 4 }),
+  totalMarketValue: decimal("total_market_value", { precision: 15, scale: 2 }),
+  totalFloat: bigint("total_float"),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_marvel_gadgets_symbol").on(table.symbol),
+  index("idx_marvel_gadgets_name").on(table.name),
+]);
+
+// Relationship tracking for news-driven pricing
+export const marvelRelationships = pgTable("marvel_relationships", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Relationship entities
+  entityType1: text("entity_type_1").notNull(), // 'character', 'creator', 'series', 'team', 'location', 'gadget'
+  entityId1: varchar("entity_id_1").notNull(),
+  entityType2: text("entity_type_2").notNull(),
+  entityId2: varchar("entity_id_2").notNull(),
+  
+  // Relationship strength & recency
+  relationshipType: text("relationship_type"), // 'appears-with', 'created-by', 'member-of', 'located-in', 'wields'
+  relationshipStrength: decimal("relationship_strength", { precision: 5, scale: 2 }).default("1.00"), // 0-100
+  relationshipRecency: decimal("relationship_recency", { precision: 5, scale: 2 }).default("0.00"), // Decay over time
+  lastRefreshed: timestamp("last_refreshed"), // When relationship was last mentioned in new content
+  
+  // Appearance tracking
+  comicAppearances: integer("comic_appearances").default(0),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_marvel_relationships_entity1").on(table.entityId1),
+  index("idx_marvel_relationships_entity2").on(table.entityId2),
+  index("idx_marvel_relationships_type").on(table.relationshipType),
+]);
+
+// Character appearances in comics (for relationship tracking)
+export const marvelCharacterAppearances = pgTable("marvel_character_appearances", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  comicId: varchar("comic_id").notNull().references(() => marvelComics.id),
+  characterId: varchar("character_id").notNull().references(() => marvelCharacters.id),
+  
+  // Appearance details
+  appearanceType: text("appearance_type"), // 'main', 'supporting', 'cameo', 'mentioned'
+  pageCount: integer("page_count"), // How many pages character appears on
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_marvel_appearances_comic").on(table.comicId),
+  index("idx_marvel_appearances_character").on(table.characterId),
+]);
+
+// Creator credits in comics (for relationship tracking)
+export const marvelCreatorCredits = pgTable("marvel_creator_credits", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  comicId: varchar("comic_id").notNull().references(() => marvelComics.id),
+  creatorId: varchar("creator_id").notNull().references(() => marvelCreators.id),
+  
+  // Credit details
+  role: text("role").notNull(), // 'writer', 'penciler', 'inker', 'colorist', 'letterer', 'editor', 'cover-artist'
+  creditOrder: integer("credit_order"), // For determining primary vs secondary credits
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_marvel_credits_comic").on(table.comicId),
+  index("idx_marvel_credits_creator").on(table.creatorId),
+  index("idx_marvel_credits_role").on(table.role),
+]);
+
+// ============================================================================
 // PUBLISHER-SPECIFIC COMIC TABLES - Organized by major publishers
 // ============================================================================
 
