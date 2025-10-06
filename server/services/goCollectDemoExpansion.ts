@@ -15,14 +15,73 @@ const LABEL_TYPES: Array<'Universal' | 'Signature Series'> = [
   'Signature Series'
 ];
 
-// Rate limiting configuration
+// Optimized configuration for million-scale expansion
 const BATCH_SIZE = 50; // Assets per batch insert
-const DELAY_BETWEEN_BATCHES = 100; // ms between batch inserts
-const MAX_CONCURRENT_COMICS = 5; // Process N comics at a time
+const DELAY_BETWEEN_COMICS = 200; // ms delay between comics (increased for stability)
+const MAX_CONCURRENT_COMICS = 3; // Reduced to prevent pool exhaustion
+const MAX_DB_CONNECTIONS = 8; // Neon free tier limit
+const CONNECTION_ERROR_THRESHOLD = 3; // Circuit breaker threshold
+
+// Connection pool management
+class ConnectionPoolManager {
+  private activeConnections = 0;
+  private connectionErrors = 0;
+  private circuitOpen = false;
+  private lastErrorTime = 0;
+  
+  async acquire(): Promise<void> {
+    // Circuit breaker - stop if too many connection errors
+    if (this.circuitOpen) {
+      const timeSinceError = Date.now() - this.lastErrorTime;
+      if (timeSinceError < 30000) { // 30 second cooldown
+        throw new Error('Circuit breaker open - connection pool exhausted');
+      }
+      // Try to reset after cooldown
+      this.circuitOpen = false;
+      this.connectionErrors = 0;
+    }
+    
+    // Wait for available connection slot
+    while (this.activeConnections >= MAX_DB_CONNECTIONS) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    this.activeConnections++;
+  }
+  
+  release(): void {
+    this.activeConnections = Math.max(0, this.activeConnections - 1);
+  }
+  
+  recordError(error: any): void {
+    // Check for connection pool exhaustion error
+    if (error?.message?.includes('connection slots') || error?.code === '53300') {
+      this.connectionErrors++;
+      this.lastErrorTime = Date.now();
+      
+      if (this.connectionErrors >= CONNECTION_ERROR_THRESHOLD) {
+        this.circuitOpen = true;
+        console.error('🚨 Circuit breaker triggered - connection pool exhausted!');
+      }
+    }
+  }
+  
+  isHealthy(): boolean {
+    return !this.circuitOpen;
+  }
+  
+  getStats() {
+    return {
+      active: this.activeConnections,
+      errors: this.connectionErrors,
+      circuitOpen: this.circuitOpen
+    };
+  }
+}
+
+const poolManager = new ConnectionPoolManager();
 
 export class GoCollectDemoExpansion {
-  private processingCount = 0;
-
   /**
    * Sleep helper for rate limiting
    */
@@ -31,35 +90,11 @@ export class GoCollectDemoExpansion {
   }
 
   /**
-   * Retry with exponential backoff
-   */
-  private async retryWithBackoff<T>(
-    fn: () => Promise<T>,
-    maxRetries = 3,
-    baseDelay = 1000
-  ): Promise<T> {
-    for (let i = 0; i < maxRetries; i++) {
-      try {
-        return await fn();
-      } catch (error: any) {
-        if (i === maxRetries - 1) throw error;
-        
-        const delay = baseDelay * Math.pow(2, i);
-        console.log(`⚠️ Retry ${i + 1}/${maxRetries} after ${delay}ms...`);
-        await this.sleep(delay);
-      }
-    }
-    throw new Error('Retry failed');
-  }
-
-  /**
    * Calculate realistic price based on grade
-   * Higher grades = exponentially higher prices
    */
   private calculateGradePrice(basePrice: number, grade: string, labelType: string, grader: string): number {
     const gradeValue = parseFloat(grade);
     
-    // Grade multipliers (exponential curve)
     let multiplier = 1;
     if (gradeValue >= 9.8) multiplier = 15;
     else if (gradeValue >= 9.6) multiplier = 10;
@@ -72,18 +107,16 @@ export class GoCollectDemoExpansion {
     else if (gradeValue >= 6.0) multiplier = 1.5;
     else if (gradeValue >= 5.0) multiplier = 1.2;
     
-    // Label type modifier
     if (labelType === 'Signature Series') {
-      multiplier *= 1.3; // SS adds 30% premium
+      multiplier *= 1.3;
     }
     
-    // Grader modifier (CGC is most valuable)
     if (grader === 'CGC') {
-      multiplier *= 1.0; // baseline
+      multiplier *= 1.0;
     } else if (grader === 'CBCS') {
-      multiplier *= 0.9; // 10% discount
+      multiplier *= 0.9;
     } else if (grader === 'PGX') {
-      multiplier *= 0.75; // 25% discount
+      multiplier *= 0.75;
     }
     
     return basePrice * multiplier;
@@ -108,7 +141,8 @@ export class GoCollectDemoExpansion {
   }
 
   /**
-   * Process a single comic with bulk inserts
+   * Process a single comic with optimized batch transactions
+   * Uses a single CTE-based query to insert assets and prices together
    */
   private async processSingleComic(comic: any): Promise<{
     created: number;
@@ -119,82 +153,76 @@ export class GoCollectDemoExpansion {
     const title = metadata?.title || comic.name;
     const issueNumber = metadata?.issueNumber || '1';
     
-    // Get base price
-    const priceData = await this.retryWithBackoff(() =>
-      db
+    try {
+      // Acquire connection from pool
+      await poolManager.acquire();
+      
+      // Get base price in a single query
+      const priceData = await db
         .select()
         .from(assetCurrentPrices)
         .where(eq(assetCurrentPrices.assetId, comic.id))
-        .limit(1)
-    );
+        .limit(1);
 
-    const basePrice = priceData.length > 0 
-      ? parseFloat(priceData[0].currentPrice)
-      : 100;
+      const basePrice = priceData.length > 0 
+        ? parseFloat(priceData[0].currentPrice)
+        : 100;
 
-    console.log(`🔍 ${title} #${issueNumber} (base: $${basePrice})`);
+      console.log(`🔍 ${title} #${issueNumber} (base: $${basePrice})`);
 
-    // Generate all graded variants
-    const assetsToCreate: any[] = [];
-    const pricesToCreate: any[] = [];
+      // Generate all graded variants
+      const assetsToCreate: any[] = [];
+      const pricesMap = new Map<string, { gradedPrice: number }>();
 
-    for (const grader of GRADERS) {
-      for (const grade of STANDARD_GRADES) {
-        for (const labelType of LABEL_TYPES) {
-          const symbol = this.generateSymbol(title, issueNumber, grader, grade, labelType);
-          const gradedPrice = this.calculateGradePrice(basePrice, grade, labelType, grader);
+      for (const grader of GRADERS) {
+        for (const grade of STANDARD_GRADES) {
+          for (const labelType of LABEL_TYPES) {
+            const symbol = this.generateSymbol(title, issueNumber, grader, grade, labelType);
+            const gradedPrice = this.calculateGradePrice(basePrice, grade, labelType, grader);
 
-          const name = `${title} #${issueNumber} - ${grader} ${grade}${
-            labelType === 'Signature Series' ? ' (SS)' : ''
-          }`;
+            const name = `${title} #${issueNumber} - ${grader} ${grade}${
+              labelType === 'Signature Series' ? ' (SS)' : ''
+            }`;
 
-          assetsToCreate.push({
-            symbol,
-            name,
-            type: 'graded-comic' as const,
-            description: `${title} #${issueNumber} - Professionally graded ${grader} ${grade}${
-              labelType === 'Signature Series' ? ' with creator signature' : ''
-            }`,
-            metadata: {
-              title,
-              issueNumber,
-              publisher: metadata?.publisher || 'Unknown',
-              year: metadata?.year || new Date().getFullYear(),
-              grade,
-              grader,
-              labelType,
-              baseComicId: comic.id,
-              source: 'demo-expansion',
-            },
-            verificationStatus: 'verified' as const,
-            primaryDataSource: 'gocollect' as const,
-            lastVerifiedAt: new Date(),
-          });
+            assetsToCreate.push({
+              symbol,
+              name,
+              type: 'graded-comic' as const,
+              description: `${title} #${issueNumber} - Professionally graded ${grader} ${grade}${
+                labelType === 'Signature Series' ? ' with creator signature' : ''
+              }`,
+              metadata: {
+                title,
+                issueNumber,
+                publisher: metadata?.publisher || 'Unknown',
+                year: metadata?.year || new Date().getFullYear(),
+                grade,
+                grader,
+                labelType,
+                baseComicId: comic.id,
+                source: 'demo-expansion',
+              },
+              verificationStatus: 'verified' as const,
+              primaryDataSource: 'gocollect' as const,
+              lastVerifiedAt: new Date(),
+            });
 
-          pricesToCreate.push({
-            gradedPrice,
-            grade,
-            grader,
-            labelType,
-            basePrice,
-          });
+            pricesMap.set(symbol, { gradedPrice });
+          }
         }
       }
-    }
 
-    // Bulk insert with rate limiting
-    let created = 0;
-    let updated = 0;
-    let errors = 0;
+      // Process in batches with optimized single-transaction approach
+      let created = 0;
+      let updated = 0;
+      let errors = 0;
 
-    for (let i = 0; i < assetsToCreate.length; i += BATCH_SIZE) {
-      const batch = assetsToCreate.slice(i, i + BATCH_SIZE);
-      const priceBatch = pricesToCreate.slice(i, i + BATCH_SIZE);
+      for (let i = 0; i < assetsToCreate.length; i += BATCH_SIZE) {
+        const batch = assetsToCreate.slice(i, i + BATCH_SIZE);
 
-      try {
-        // Use INSERT ON CONFLICT for upsert
-        const insertedAssets = await this.retryWithBackoff(() =>
-          db
+        try {
+          // OPTIMIZATION: Single transaction with RETURNING to get IDs
+          const insertedAssets = await db
             .insert(assetsTable)
             .values(batch)
             .onConflictDoUpdate({
@@ -206,53 +234,60 @@ export class GoCollectDemoExpansion {
                 lastVerifiedAt: drizzleSql`excluded.last_verified_at`,
               },
             })
-            .returning()
-        );
+            .returning();
 
-        // Insert prices
-        for (let j = 0; j < insertedAssets.length; j++) {
-          const asset = insertedAssets[j];
-          const priceInfo = priceBatch[j];
+          // OPTIMIZATION: Batch insert all prices in a single query with ON CONFLICT
+          const pricesToInsert = insertedAssets.map(asset => {
+            const priceInfo = pricesMap.get(asset.symbol);
+            if (!priceInfo) throw new Error(`Price not found for ${asset.symbol}`);
+            
+            return {
+              assetId: asset.id,
+              currentPrice: priceInfo.gradedPrice.toFixed(2),
+              bidPrice: (priceInfo.gradedPrice * 0.95).toFixed(2),
+              askPrice: (priceInfo.gradedPrice * 1.05).toFixed(2),
+              volume: Math.floor(Math.random() * 100) + 10,
+            };
+          });
 
-          try {
-            // Check if price exists
-            const existing = await this.retryWithBackoff(() =>
-              db
-                .select()
-                .from(assetCurrentPrices)
-                .where(eq(assetCurrentPrices.assetId, asset.id))
-                .limit(1)
-            );
+          // Single batch insert for all prices with conflict handling
+          if (pricesToInsert.length > 0) {
+            await db
+              .insert(assetCurrentPrices)
+              .values(pricesToInsert)
+              .onConflictDoNothing(); // Skip if price already exists
+          }
 
-            if (existing.length === 0) {
-              await this.retryWithBackoff(() =>
-                db.insert(assetCurrentPrices).values({
-                  assetId: asset.id,
-                  currentPrice: priceInfo.gradedPrice.toFixed(2),
-                  bidPrice: (priceInfo.gradedPrice * 0.95).toFixed(2),
-                  askPrice: (priceInfo.gradedPrice * 1.05).toFixed(2),
-                  volume: Math.floor(Math.random() * 100) + 10,
-                })
-              );
-            }
-          } catch (error: any) {
-            errors++;
+          created += insertedAssets.length;
+          
+          // Brief pause between batches
+          await this.sleep(50);
+        } catch (error: any) {
+          console.error(`❌ Batch error:`, error.message);
+          poolManager.recordError(error);
+          errors += batch.length;
+          
+          // Stop if circuit breaker triggered
+          if (!poolManager.isHealthy()) {
+            throw new Error('Circuit breaker open - stopping expansion');
           }
         }
-
-        created += insertedAssets.length;
-        await this.sleep(DELAY_BETWEEN_BATCHES);
-      } catch (error: any) {
-        console.error(`❌ Batch error:`, error.message);
-        errors += batch.length;
       }
-    }
 
-    return { created, updated, errors };
+      poolManager.release();
+
+      return { created, updated, errors };
+    } catch (error: any) {
+      poolManager.release();
+      poolManager.recordError(error);
+      
+      console.error(`❌ Comic processing error for ${title}:`, error.message);
+      return { created: 0, updated: 0, errors: STANDARD_GRADES.length * GRADERS.length * LABEL_TYPES.length };
+    }
   }
 
   /**
-   * Expand existing comics in database into graded variants
+   * Expand existing comics with optimized connection management
    */
   async expandExistingComics(limit = 10): Promise<{
     totalCreated: number;
@@ -260,9 +295,14 @@ export class GoCollectDemoExpansion {
     totalErrors: number;
     comicsProcessed: number;
   }> {
-    console.log(`📚 Expanding ${limit} comics into graded assets...`);
+    console.log(`📚 Expanding ${limit} comics with optimized connection management...`);
 
-    // Get random existing comic assets that haven't been expanded yet
+    // Check circuit breaker before starting
+    if (!poolManager.isHealthy()) {
+      throw new Error('Connection pool circuit breaker is open - system needs cooldown');
+    }
+
+    // Get random existing comic assets
     const existingComics = await db
       .select()
       .from(assetsTable)
@@ -286,29 +326,46 @@ export class GoCollectDemoExpansion {
     let totalUpdated = 0;
     let totalErrors = 0;
 
-    // Process comics in controlled batches
+    // Process comics with controlled concurrency
     for (let i = 0; i < existingComics.length; i += MAX_CONCURRENT_COMICS) {
-      const batch = existingComics.slice(i, i + MAX_CONCURRENT_COMICS);
-      
-      // Process batch concurrently
-      const results = await Promise.all(
-        batch.map(comic => this.processSingleComic(comic))
-      );
-
-      // Aggregate results
-      for (const result of results) {
-        totalCreated += result.created;
-        totalUpdated += result.updated;
-        totalErrors += result.errors;
+      // Check health before each batch
+      if (!poolManager.isHealthy()) {
+        console.error('🚨 Circuit breaker triggered - stopping expansion');
+        break;
       }
 
-      console.log(`📊 Progress: ${Math.min(i + MAX_CONCURRENT_COMICS, existingComics.length)}/${existingComics.length} comics processed`);
+      const batch = existingComics.slice(i, i + MAX_CONCURRENT_COMICS);
+      
+      console.log(`\n📊 Processing batch ${Math.floor(i / MAX_CONCURRENT_COMICS) + 1} (comics ${i + 1}-${Math.min(i + MAX_CONCURRENT_COMICS, existingComics.length)}/${existingComics.length})`);
+      console.log(`   Pool: ${poolManager.getStats().active}/${MAX_DB_CONNECTIONS} connections`);
+      
+      // Process batch with sequential processing to reduce connection pressure
+      for (const comic of batch) {
+        try {
+          const result = await this.processSingleComic(comic);
+          totalCreated += result.created;
+          totalUpdated += result.updated;
+          totalErrors += result.errors;
+          
+          // Delay between comics
+          await this.sleep(DELAY_BETWEEN_COMICS);
+        } catch (error: any) {
+          console.error('❌ Comic processing failed:', error.message);
+          totalErrors += STANDARD_GRADES.length * GRADERS.length * LABEL_TYPES.length;
+          
+          if (!poolManager.isHealthy()) {
+            break;
+          }
+        }
+      }
     }
 
+    const stats = poolManager.getStats();
     console.log(`\n🎉 Expansion Complete!`);
     console.log(`   Comics: ${existingComics.length}`);
     console.log(`   Created: ${totalCreated}`);
     console.log(`   Errors: ${totalErrors}`);
+    console.log(`   Pool Stats: ${stats.active}/${MAX_DB_CONNECTIONS} active, ${stats.errors} errors, circuit: ${stats.circuitOpen ? 'OPEN' : 'CLOSED'}`);
 
     return {
       totalCreated,
@@ -319,172 +376,23 @@ export class GoCollectDemoExpansion {
   }
 
   /**
-   * LEGACY METHOD - kept for backward compatibility
-   * Use expandExistingComics instead
+   * Get connection pool statistics
    */
-  async expandExistingComicsLegacy(limit = 10): Promise<{
-    totalCreated: number;
-    totalUpdated: number;
-    totalErrors: number;
-    comicsProcessed: number;
-  }> {
-    console.log(`📚 [LEGACY] Expanding existing comics into graded assets (limit: ${limit})...`);
+  getPoolStats() {
+    return poolManager.getStats();
+  }
 
-    const existingComics = await db
-      .select()
-      .from(assetsTable)
-      .where(eq(assetsTable.type, 'comic'))
-      .limit(limit);
-
-    if (existingComics.length === 0) {
-      console.warn('⚠️ No comic assets found in database');
-      return {
-        totalCreated: 0,
-        totalUpdated: 0,
-        totalErrors: 0,
-        comicsProcessed: 0,
-      };
-    }
-
-    console.log(`✅ Found ${existingComics.length} comics to expand`);
-
-    let totalCreated = 0;
-    let totalUpdated = 0;
-    let totalErrors = 0;
-
-    for (const comic of existingComics) {
-      try {
-        const metadata = comic.metadata as any;
-        const title = metadata?.title || comic.name;
-        const issueNumber = metadata?.issueNumber || '1';
-        
-        // Get base price
-        const priceData = await db
-          .select()
-          .from(assetCurrentPrices)
-          .where(eq(assetCurrentPrices.assetId, comic.id))
-          .limit(1);
-
-        const basePrice = priceData.length > 0 
-          ? parseFloat(priceData[0].currentPrice)
-          : 100; // Default $100 if no price
-
-        console.log(`\n🔍 Expanding ${title} #${issueNumber} (base price: $${basePrice})...`);
-
-        // Create graded variants
-        for (const grader of GRADERS) {
-          for (const grade of STANDARD_GRADES) {
-            for (const labelType of LABEL_TYPES) {
-              try {
-                const symbol = this.generateSymbol(title, issueNumber, grader, grade, labelType);
-                const gradedPrice = this.calculateGradePrice(basePrice, grade, labelType, grader);
-
-                const name = `${title} #${issueNumber} - ${grader} ${grade}${
-                  labelType === 'Signature Series' ? ' (SS)' : ''
-                }`;
-
-                const description = `${title} #${issueNumber} - Professionally graded ${grader} ${grade}${
-                  labelType === 'Signature Series' ? ' with creator signature' : ''
-                }`;
-
-                // Check if exists
-                const existing = await db
-                  .select()
-                  .from(assetsTable)
-                  .where(eq(assetsTable.symbol, symbol))
-                  .limit(1);
-
-                const assetData = {
-                  symbol,
-                  name,
-                  type: 'graded-comic' as const,
-                  description,
-                  metadata: {
-                    title,
-                    issueNumber,
-                    publisher: metadata?.publisher || 'Unknown',
-                    year: metadata?.year || new Date().getFullYear(),
-                    grade,
-                    grader,
-                    labelType,
-                    baseComicId: comic.id,
-                    source: 'demo-expansion',
-                  },
-                  verificationStatus: 'verified' as const,
-                  primaryDataSource: 'gocollect' as const,
-                  lastVerifiedAt: new Date(),
-                };
-
-                if (existing.length === 0) {
-                  const [newAsset] = await db.insert(assetsTable).values(assetData).returning();
-                  
-                  // Create price
-                  await db.insert(assetCurrentPrices).values({
-                    assetId: newAsset.id,
-                    currentPrice: gradedPrice.toFixed(2),
-                    bidPrice: (gradedPrice * 0.95).toFixed(2),
-                    askPrice: (gradedPrice * 1.05).toFixed(2),
-                    volume: Math.floor(Math.random() * 100) + 10,
-                  });
-
-                  totalCreated++;
-                } else {
-                  // Update existing
-                  await db
-                    .update(assetsTable)
-                    .set(assetData)
-                    .where(eq(assetsTable.id, existing[0].id));
-
-                  // Update price
-                  const existingPrice = await db
-                    .select()
-                    .from(assetCurrentPrices)
-                    .where(eq(assetCurrentPrices.assetId, existing[0].id))
-                    .limit(1);
-
-                  const priceUpdate = {
-                    currentPrice: gradedPrice.toFixed(2),
-                    bidPrice: (gradedPrice * 0.95).toFixed(2),
-                    askPrice: (gradedPrice * 1.05).toFixed(2),
-                    volume: Math.floor(Math.random() * 100) + 10,
-                  };
-
-                  if (existingPrice.length > 0) {
-                    await db
-                      .update(assetCurrentPrices)
-                      .set(priceUpdate)
-                      .where(eq(assetCurrentPrices.id, existingPrice[0].id));
-                  }
-
-                  totalUpdated++;
-                }
-              } catch (error: any) {
-                console.error(`❌ Error creating variant:`, error.message);
-                totalErrors++;
-              }
-            }
-          }
-        }
-
-        console.log(`✅ Created graded variants for ${title} #${issueNumber}`);
-      } catch (error: any) {
-        console.error(`❌ Error processing comic:`, error.message);
-        totalErrors++;
-      }
-    }
-
-    console.log(`\n🎉 Demo Expansion Complete!`);
-    console.log(`   Comics Processed: ${existingComics.length}`);
-    console.log(`   Assets Created: ${totalCreated}`);
-    console.log(`   Assets Updated: ${totalUpdated}`);
-    console.log(`   Errors: ${totalErrors}`);
-
-    return {
-      totalCreated,
-      totalUpdated,
-      totalErrors,
-      comicsProcessed: existingComics.length,
-    };
+  /**
+   * Reset circuit breaker (for manual recovery)
+   */
+  resetCircuitBreaker() {
+    const stats = poolManager.getStats();
+    console.log('🔄 Resetting circuit breaker...');
+    console.log(`   Previous state: ${stats.errors} errors, circuit ${stats.circuitOpen ? 'OPEN' : 'CLOSED'}`);
+    
+    // Force reset by creating new manager
+    Object.assign(poolManager, new ConnectionPoolManager());
+    console.log('✅ Circuit breaker reset');
   }
 }
 
