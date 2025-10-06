@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { db } from '../databaseStorage';
 import { marvelCharacters, marvelCreators, marvelComics, marvelSeries } from '../../shared/schema';
+import { sql } from 'drizzle-orm';
 
 const MARVEL_PUBLIC_KEY = process.env.MARVEL_API_PUBLIC_KEY!;
 const MARVEL_PRIVATE_KEY = process.env.MARVEL_API_PRIVATE_KEY!;
@@ -195,8 +196,97 @@ function generateAuthParams(): { ts: string; apikey: string; hash: string } {
   return { ts, apikey: MARVEL_PUBLIC_KEY, hash };
 }
 
+interface MarvelEvent {
+  id: number;
+  title: string;
+  description: string;
+  resourceURI: string;
+  urls: Array<{ type: string; url: string }>;
+  modified: string;
+  start: string;
+  end: string;
+  thumbnail: {
+    path: string;
+    extension: string;
+  };
+  comics: {
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string }>;
+  };
+  series: {
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string }>;
+  };
+  stories: {
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string; type: string }>;
+  };
+  creators: {
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string; role: string }>;
+  };
+  characters: {
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string }>;
+  };
+  next: { resourceURI: string; name: string } | null;
+  previous: { resourceURI: string; name: string } | null;
+}
+
+interface MarvelStory {
+  id: number;
+  title: string;
+  description: string;
+  resourceURI: string;
+  type: string;
+  modified: string;
+  thumbnail: {
+    path: string;
+    extension: string;
+  } | null;
+  comics: {
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string }>;
+  };
+  series: {
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string }>;
+  };
+  events: {
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string }>;
+  };
+  creators: {
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string; role: string }>;
+  };
+  characters: {
+    available: number;
+    collectionURI: string;
+    items: Array<{ resourceURI: string; name: string }>;
+  };
+  originalIssue: { resourceURI: string; name: string } | null;
+}
+
 function generateTradingSymbol(type: string, name: string, id: number): string {
-  const prefix = type === 'character' ? 'CHAR' : type === 'creator' ? 'CRTR' : type === 'comic' ? 'COMC' : 'SERS';
+  const prefixMap: Record<string, string> = {
+    'character': 'CHAR',
+    'creator': 'CRTR',
+    'comic': 'COMC',
+    'series': 'SERS',
+    'event': 'EVNT',
+    'story': 'STRY'
+  };
+  const prefix = prefixMap[type] || 'UNKN';
   const hash = crypto.createHash('sha256').update(`${name}-${id}`).digest('hex').substring(0, 8).toUpperCase();
   return `${prefix}.${hash}`;
 }
@@ -425,13 +515,112 @@ export async function populateMarvelSeries(limit: number = 100): Promise<void> {
   console.log(`✓ Completed Marvel series population`);
 }
 
-export async function populateAllMarvelData(charactersLimit: number = 100, creatorsLimit: number = 100, comicsLimit: number = 100, seriesLimit: number = 50): Promise<void> {
-  console.log('Starting Marvel data population...');
+export async function populateMarvelEvents(limit: number = 50): Promise<void> {
+  console.log(`Fetching ${limit} Marvel events...`);
+  
+  const events = await fetchMarvelData<MarvelEvent>('/events', { limit: limit.toString() });
+  
+  console.log(`Fetched ${events.length} events. Inserting into database...`);
+  
+  for (const event of events) {
+    const imageUrl = event.thumbnail ? `${event.thumbnail.path}.${event.thumbnail.extension}` : null;
+    const impactScore = event.comics.available + event.series.available + event.characters.available;
+    const franchiseTier = impactScore > 100 ? 'blue-chip' : impactScore > 50 ? 'mid-cap' : 'small-cap';
+    const baseMarketValue = impactScore * 1000;
+    const symbol = generateTradingSymbol('event', event.title, event.id);
+    
+    try {
+      await db.execute(sql`
+        INSERT INTO marvel_events (
+          marvel_api_id, name, description, resource_uri, urls, modified_date,
+          start_date, end_date, comics_available, series_available, stories_available,
+          creators_available, characters_available, comics_list, series_list,
+          stories_list, creators_list, characters_list, next_event, previous_event,
+          symbol, franchise_tier, base_market_value, current_price, total_market_value,
+          total_float, thumbnail_url, story_stub
+        ) VALUES (
+          ${event.id}, ${event.title}, ${event.description || null}, ${event.resourceURI},
+          ${JSON.stringify(event.urls)}, ${event.modified}, ${event.start || null}, 
+          ${event.end || null}, ${event.comics.available}, ${event.series.available},
+          ${event.stories.available}, ${event.creators.available}, ${event.characters.available},
+          ${JSON.stringify(event.comics.items)}, ${JSON.stringify(event.series.items)},
+          ${JSON.stringify(event.stories.items)}, ${JSON.stringify(event.creators.items)},
+          ${JSON.stringify(event.characters.items)}, ${event.next ? JSON.stringify(event.next) : null},
+          ${event.previous ? JSON.stringify(event.previous) : null}, ${symbol}, ${franchiseTier},
+          ${baseMarketValue}, ${baseMarketValue}, ${baseMarketValue * 1000000}, 1000000,
+          ${imageUrl?.includes('image_not_available') ? null : imageUrl},
+          'Crossover events that reshape entire universes. Civil War, Secret Wars, and Infinity Saga moments become tradeable commemoratives—their value tied to lasting narrative impact and media adaptation potential.'
+        ) ON CONFLICT (marvel_api_id) DO NOTHING
+      `);
+      
+      console.log(`✓ Inserted event: ${event.title} (${franchiseTier})`);
+    } catch (error) {
+      console.error(`Error inserting event ${event.title}:`, error);
+    }
+  }
+  
+  console.log(`✓ Completed Marvel events population`);
+}
+
+export async function populateMarvelStories(limit: number = 100): Promise<void> {
+  console.log(`Fetching ${limit} Marvel stories...`);
+  
+  const stories = await fetchMarvelData<MarvelStory>('/stories', { limit: limit.toString() });
+  
+  console.log(`Fetched ${stories.length} stories. Inserting into database...`);
+  
+  for (const story of stories) {
+    const impactScore = story.comics.available + story.series.available + story.characters.available;
+    const franchiseTier = impactScore > 50 ? 'mid-cap' : impactScore > 20 ? 'small-cap' : 'penny-stock';
+    const baseMarketValue = impactScore * 500;
+    const symbol = generateTradingSymbol('story', story.title, story.id);
+    
+    try {
+      await db.execute(sql`
+        INSERT INTO marvel_stories (
+          marvel_api_id, title, description, resource_uri, story_type, modified_date,
+          comics_available, series_available, events_available, creators_available,
+          characters_available, comics_list, series_list, events_list, creators_list,
+          characters_list, original_issue, symbol, franchise_tier, base_market_value,
+          current_price, total_market_value, total_float, story_stub
+        ) VALUES (
+          ${story.id}, ${story.title}, ${story.description || null}, ${story.resourceURI},
+          ${story.type}, ${story.modified}, ${story.comics.available}, ${story.series.available},
+          ${story.events.available}, ${story.creators.available}, ${story.characters.available},
+          ${JSON.stringify(story.comics.items)}, ${JSON.stringify(story.series.items)},
+          ${JSON.stringify(story.events.items)}, ${JSON.stringify(story.creators.items)},
+          ${JSON.stringify(story.characters.items)}, ${story.originalIssue ? JSON.stringify(story.originalIssue) : null},
+          ${symbol}, ${franchiseTier}, ${baseMarketValue}, ${baseMarketValue},
+          ${baseMarketValue * 500000}, 500000,
+          'Individual story arcs within comics—the building blocks of Marvel mythology. Origin stories, death issues, and paradigm shifts trade as discrete narrative assets, their worth measured in cultural permanence.'
+        ) ON CONFLICT (marvel_api_id) DO NOTHING
+      `);
+      
+      console.log(`✓ Inserted story: ${story.title} (${story.type})`);
+    } catch (error) {
+      console.error(`Error inserting story ${story.title}:`, error);
+    }
+  }
+  
+  console.log(`✓ Completed Marvel stories population`);
+}
+
+export async function populateAllMarvelData(
+  charactersLimit: number = 100, 
+  creatorsLimit: number = 100, 
+  comicsLimit: number = 100, 
+  seriesLimit: number = 50,
+  eventsLimit: number = 50,
+  storiesLimit: number = 100
+): Promise<void> {
+  console.log('Starting comprehensive Marvel data population...');
   
   await populateMarvelCharacters(charactersLimit);
   await populateMarvelCreators(creatorsLimit);
   await populateMarvelComics(comicsLimit);
   await populateMarvelSeries(seriesLimit);
+  await populateMarvelEvents(eventsLimit);
+  await populateMarvelStories(storiesLimit);
   
   console.log('✓ All Marvel data population completed!');
 }
