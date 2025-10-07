@@ -4661,6 +4661,76 @@ export const narrativeTraits = pgTable("narrative_traits", {
   index("idx_narrative_traits_market_relevance").on(table.marketRelevance),
 ]);
 
+// Comic Covers - Library of 645,000+ cover images from multiple sources
+export const comicCovers = pgTable("comic_covers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Issue identification
+  publisher: text("publisher").notNull(), // 'marvel', 'dc', 'image', etc.
+  series: text("series").notNull(), // 'Amazing Spider-Man', 'Batman', etc.
+  issueNumber: text("issue_number").notNull(), // '1', '500', 'Annual 1', etc.
+  variant: text("variant").default("regular"), // 'regular', 'variant_a', 'sketch', '1_in_25', etc.
+  volumeYear: integer("volume_year"), // Series volume/year for disambiguation
+  // Storage reference
+  storagePath: text("storage_path").notNull(), // '/public/covers/marvel/amazing-spider-man/001_regular.jpg'
+  imageUrl: text("image_url").notNull(), // Full URL for serving: '/public-objects/covers/...'
+  thumbnailPath: text("thumbnail_path"), // Optional thumbnail for faster loading
+  // Image metadata
+  fileSize: integer("file_size"), // Bytes
+  width: integer("width"), // Pixels
+  height: integer("height"), // Pixels
+  format: text("format").default("jpeg"), // 'jpeg', 'png', 'webp'
+  // Source tracking
+  sourceType: text("source_type").notNull(), // 'marvel_api', 'gocollect', 'comic_vine', 'manual_upload', 'community'
+  sourceId: text("source_id"), // External ID from source system
+  sourceUrl: text("source_url"), // Original source URL
+  sourceQuality: text("source_quality").default("standard"), // 'low', 'standard', 'high', 'ultra', 'raw_scan'
+  collectedAt: timestamp("collected_at").defaultNow(), // When bot collected it
+  collectedBy: text("collected_by").default("bot"), // 'marvel_bot', 'gocollect_bot', 'user_123', etc.
+  // Significance classification (Tier system for prioritization)
+  significanceTier: integer("significance_tier").default(3), // 1=key issues, 2=important, 3=standard
+  significanceTags: text("significance_tags").array(), // ['first_appearance', 'death', 'origin', 'key_issue', 'variant_cover']
+  keyCharacterAppearances: text("key_character_appearances").array(), // Entity IDs of characters with significant appearances
+  firstAppearanceOf: text("first_appearance_of").array(), // Entity IDs of characters/concepts debuting in this issue
+  // Character tracking - links to narrativeEntities
+  featuredCharacters: text("featured_characters").array(), // Entity IDs of main characters on cover
+  // Grading and condition (for high-value scans)
+  gradingCompany: text("grading_company"), // 'cgc', 'cbcs', 'pgx', null if raw
+  grade: decimal("grade", { precision: 3, scale: 1 }), // CGC grade: 9.8, 9.6, etc.
+  isSlabbed: boolean("is_slabbed").default(false), // Whether this is a graded/slabbed comic scan
+  // Historical pricing context (from GoCollect/auction data)
+  recordSalePrice: decimal("record_sale_price", { precision: 12, scale: 2 }), // Highest known sale price for this issue/grade
+  recordSaleDate: timestamp("record_sale_date"), // When record sale occurred
+  averagePrice: decimal("average_price", { precision: 10, scale: 2 }), // Average market price
+  // Verification and quality control
+  verificationStatus: text("verification_status").default("unverified"), // 'verified', 'unverified', 'disputed', 'flagged'
+  verifiedBy: varchar("verified_by").references(() => users.id),
+  verifiedAt: timestamp("verified_at"),
+  qualityIssues: text("quality_issues").array(), // ['watermark', 'low_res', 'cropped', 'color_shifted']
+  // Metadata
+  notes: text("notes"), // Admin notes about this cover
+  tags: text("tags").array(), // Additional searchable tags
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_comic_covers_publisher").on(table.publisher),
+  index("idx_comic_covers_series").on(table.series),
+  index("idx_comic_covers_issue").on(table.issueNumber),
+  index("idx_comic_covers_source_type").on(table.sourceType),
+  index("idx_comic_covers_significance_tier").on(table.significanceTier),
+  index("idx_comic_covers_verification").on(table.verificationStatus),
+  index("idx_comic_covers_collected_at").on(table.collectedAt),
+  // Unique constraint: one cover per publisher+series+issue+variant+volume
+  // Using COALESCE to treat NULL volume_year as 0 for uniqueness
+  index("idx_comic_covers_unique").on(
+    table.publisher, 
+    table.series, 
+    table.issueNumber, 
+    table.variant,
+    sql`COALESCE(${table.volumeYear}, 0)`
+  ),
+]);
+
 // Entity Aliases - Handle name variations and cross-universe mappings
 export const entityAliases = pgTable("entity_aliases", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -5506,6 +5576,12 @@ export const insertNarrativeTraitSchema = createInsertSchema(narrativeTraits).om
   createdAt: true,
   updatedAt: true,
   lastVerifiedAt: true,
+});
+
+export const insertComicCoverSchema = createInsertSchema(comicCovers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
 export const insertEntityAliasSchema = createInsertSchema(entityAliases).omit({
