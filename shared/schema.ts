@@ -5671,6 +5671,9 @@ export type InsertNarrativeEntity = z.infer<typeof insertNarrativeEntitySchema>;
 export type NarrativeTrait = typeof narrativeTraits.$inferSelect;
 export type InsertNarrativeTrait = z.infer<typeof insertNarrativeTraitSchema>;
 
+export type ComicCover = typeof comicCovers.$inferSelect;
+export type InsertComicCover = z.infer<typeof insertComicCoverSchema>;
+
 export type EntityAlias = typeof entityAliases.$inferSelect;
 export type InsertEntityAlias = z.infer<typeof insertEntityAliasSchema>;
 

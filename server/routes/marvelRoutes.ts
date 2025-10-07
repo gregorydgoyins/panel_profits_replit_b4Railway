@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import { marvelExpansionService } from '../services/marvelExpansionService';
+import { MarvelCoverBot } from '../services/marvelCoverBot';
 
 const router = Router();
+const coverBot = new MarvelCoverBot();
 
 /**
  * Get Marvel API status
@@ -193,6 +195,130 @@ router.get('/test/sample', async (req, res) => {
       }))
     });
   } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Marvel Cover Bot - Fetch and store comic cover images
+ * POST /api/marvel/covers/fetch
+ * Body: { limit?: number, titleStartsWith?: string, noVariants?: boolean }
+ */
+router.post('/covers/fetch', async (req, res) => {
+  try {
+    const { limit, titleStartsWith, noVariants } = req.body;
+    
+    console.log(`\n📸 Starting Marvel cover fetch`);
+    console.log(`   Limit: ${limit || 20}`);
+    console.log(`   Title filter: ${titleStartsWith || 'none'}`);
+    console.log(`   No variants: ${noVariants || false}`);
+    
+    const result = await coverBot.fetchAndStoreCovers({
+      limit: limit || 20,
+      titleStartsWith,
+      noVariants: noVariants || false,
+      skipExisting: true,
+    });
+    
+    res.json({
+      success: true,
+      result,
+      message: `Processed ${result.totalProcessed} comics: ${result.successCount} saved, ${result.skippedCount} skipped, ${result.failureCount} failed`
+    });
+  } catch (error: any) {
+    console.error('❌ Cover fetch error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Fetch key issues for a specific series
+ * POST /api/marvel/covers/key-issues
+ * Body: { series: string, limit?: number }
+ */
+router.post('/covers/key-issues', async (req, res) => {
+  try {
+    const { series, limit } = req.body;
+    
+    if (!series) {
+      return res.status(400).json({
+        success: false,
+        error: 'Series title is required'
+      });
+    }
+    
+    console.log(`\n🔑 Fetching key issues for: ${series}`);
+    
+    const result = await coverBot.fetchKeyIssues(series, limit || 50);
+    
+    res.json({
+      success: true,
+      result,
+      message: `Found ${result.successCount} key issues for ${series}`
+    });
+  } catch (error: any) {
+    console.error('❌ Key issues fetch error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Fetch first issues for multiple series
+ * POST /api/marvel/covers/first-issues
+ * Body: { series: string[] }
+ */
+router.post('/covers/first-issues', async (req, res) => {
+  try {
+    const { series } = req.body;
+    
+    if (!Array.isArray(series) || series.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Array of series titles is required'
+      });
+    }
+    
+    console.log(`\n#️⃣1️⃣ Fetching #1 issues for ${series.length} series`);
+    
+    const result = await coverBot.fetchSeriesFirstIssues(series);
+    
+    res.json({
+      success: true,
+      result,
+      message: `Collected ${result.successCount} first issues from ${series.length} series`
+    });
+  } catch (error: any) {
+    console.error('❌ First issues fetch error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Get cover collection statistics
+ * GET /api/marvel/covers/stats
+ */
+router.get('/covers/stats', async (req, res) => {
+  try {
+    const stats = await coverBot.getCoverStats();
+    
+    res.json({
+      success: true,
+      stats
+    });
+  } catch (error: any) {
+    console.error('❌ Stats fetch error:', error);
     res.status(500).json({
       success: false,
       error: error.message
