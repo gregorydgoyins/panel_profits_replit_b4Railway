@@ -1,6 +1,6 @@
 import { db } from "../databaseStorage";
-import { assets, assetRelationships, marvelLocations, marvelGadgets } from "@shared/schema";
-import { eq, and, sql, ilike } from "drizzle-orm";
+import { assets, assetRelationships } from "@shared/schema";
+import { eq, and, ilike } from "drizzle-orm";
 import type { InsertAssetRelationship } from "@shared/schema";
 
 /**
@@ -59,26 +59,36 @@ async function findCharacter(name: string): Promise<{ id: string; name: string }
 }
 
 /**
- * Find location by name
+ * Find location asset by name (from assets table, not marvelLocations)
  */
 async function findLocation(name: string): Promise<{ id: string; name: string } | null> {
   const results = await db
-    .select({ id: marvelLocations.id, name: marvelLocations.name })
-    .from(marvelLocations)
-    .where(ilike(marvelLocations.name, name))
+    .select({ id: assets.id, name: assets.name })
+    .from(assets)
+    .where(
+      and(
+        eq(assets.type, 'location'),
+        ilike(assets.name, name)
+      )
+    )
     .limit(1);
   
   return results[0] || null;
 }
 
 /**
- * Find gadget by name
+ * Find gadget asset by name (from assets table, not marvelGadgets)
  */
 async function findGadget(name: string): Promise<{ id: string; name: string } | null> {
   const results = await db
-    .select({ id: marvelGadgets.id, name: marvelGadgets.name })
-    .from(marvelGadgets)
-    .where(ilike(marvelGadgets.name, name))
+    .select({ id: assets.id, name: assets.name })
+    .from(assets)
+    .where(
+      and(
+        eq(assets.type, 'gadget'),
+        ilike(assets.name, name)
+      )
+    )
     .limit(1);
   
   return results[0] || null;

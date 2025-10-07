@@ -22,12 +22,12 @@ interface RelationshipBatch {
  * Build teammate relationships from shared team tags
  * Strategy: Extract teams from metadata.characterAttributes.teams and find overlaps
  */
-export async function buildTeammateRelationships(batchSize = 1000): Promise<RelationshipBatch> {
-  console.log("🔗 Building teammate relationships from shared teams...");
+export async function buildTeammateRelationships(batchSize = 1000, offset = 0): Promise<RelationshipBatch> {
+  console.log(`🔗 Building teammate relationships (batch: ${offset}-${offset + batchSize})...`);
   
   const relationships: InsertAssetRelationship[] = [];
   
-  // Get all characters with metadata
+  // Get all characters with metadata (with offset for pagination)
   const characters = await db
     .select({
       id: assets.id,
@@ -36,7 +36,8 @@ export async function buildTeammateRelationships(batchSize = 1000): Promise<Rela
     })
     .from(assets)
     .where(eq(assets.type, "character"))
-    .limit(batchSize);
+    .limit(batchSize)
+    .offset(offset);
 
   // Extract teams from metadata
   const charactersWithTeams = characters
@@ -98,12 +99,12 @@ export async function buildTeammateRelationships(batchSize = 1000): Promise<Rela
  * Build franchise relationships from shared publishers
  * Strategy: Characters from same publisher are allies (weaker relationship)
  */
-export async function buildFranchiseRelationships(batchSize = 1000): Promise<RelationshipBatch> {
-  console.log("🔗 Building franchise/publisher relationships...");
+export async function buildFranchiseRelationships(batchSize = 1000, offset = 0): Promise<RelationshipBatch> {
+  console.log(`🔗 Building franchise/publisher relationships (batch: ${offset}-${offset + batchSize})...`);
   
   const relationships: InsertAssetRelationship[] = [];
   
-  // Get all characters with metadata
+  // Get all characters with metadata (with offset for pagination)
   const characters = await db
     .select({
       id: assets.id,
@@ -112,7 +113,8 @@ export async function buildFranchiseRelationships(batchSize = 1000): Promise<Rel
     })
     .from(assets)
     .where(eq(assets.type, "character"))
-    .limit(batchSize);
+    .limit(batchSize)
+    .offset(offset);
 
   // Extract publishers from metadata
   const charactersWithPublishers = characters
@@ -178,12 +180,12 @@ export async function buildFranchiseRelationships(batchSize = 1000): Promise<Rel
  * Build creator relationships
  * Strategy: Link characters to their creators
  */
-export async function buildCreatorRelationships(batchSize = 5000): Promise<RelationshipBatch> {
-  console.log("🔗 Building creator-character relationships...");
+export async function buildCreatorRelationships(batchSize = 5000, offset = 0): Promise<RelationshipBatch> {
+  console.log(`🔗 Building creator-character relationships (batch: ${offset}-${offset + batchSize})...`);
   
   const relationships: InsertAssetRelationship[] = [];
   
-  // Get all characters
+  // Get all characters (with offset for pagination)
   const characters = await db
     .select({
       id: assets.id,
@@ -192,7 +194,8 @@ export async function buildCreatorRelationships(batchSize = 5000): Promise<Relat
     })
     .from(assets)
     .where(eq(assets.type, "character"))
-    .limit(batchSize);
+    .limit(batchSize)
+    .offset(offset);
 
   // Get all creators
   const creators = await db
@@ -381,7 +384,8 @@ export async function buildGadgetRelationships(): Promise<RelationshipBatch> {
 }
 
 /**
- * Insert relationships in batches to avoid overwhelming the database
+ * Insert relationships in batches with deduplication
+ * Uses ON CONFLICT to avoid inserting duplicates
  */
 export async function insertRelationshipBatch(
   relationships: InsertAssetRelationship[],
@@ -397,9 +401,31 @@ export async function insertRelationshipBatch(
     const batch = relationships.slice(i, i + batchSize);
     
     try {
-      await db.insert(assetRelationships).values(batch);
+      // Use raw SQL with ON CONFLICT to handle duplicates
+      for (const rel of batch) {
+        await db.execute(sql`
+          INSERT INTO asset_relationships (
+            source_asset_id, 
+            target_asset_id, 
+            relationship_type, 
+            relationship_strength, 
+            description, 
+            metadata
+          )
+          VALUES (
+            ${rel.sourceAssetId},
+            ${rel.targetAssetId},
+            ${rel.relationshipType},
+            ${rel.relationshipStrength},
+            ${rel.description},
+            ${rel.metadata}::jsonb
+          )
+          ON CONFLICT (source_asset_id, target_asset_id, relationship_type) 
+          DO NOTHING
+        `);
+      }
       inserted += batch.length;
-      console.log(`  💾 Inserted ${inserted}/${relationships.length} relationships`);
+      console.log(`  💾 Processed ${inserted}/${relationships.length} relationships (duplicates skipped)`);
     } catch (error: any) {
       console.error(`  ❌ Error inserting batch: ${error.message}`);
     }
