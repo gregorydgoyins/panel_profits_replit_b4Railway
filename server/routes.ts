@@ -4663,52 +4663,45 @@ Respond with valid JSON in this exact format:
         )
         .orderBy(desc(narrativeEntities.popularityScore));
 
-      // Create villain pairs/singles
+      // Create villain-henchman pairs
       const villains = allEntities.filter(e => e.subtype === 'villain');
+      const henchmen = allEntities.filter(e => e.subtype === 'henchman');
       const pairs = [];
       const usedVillains = new Set();
+      const usedHenchmen = new Set();
       
       for (const villain of villains) {
         if (usedVillains.has(villain.id)) continue;
+        usedVillains.add(villain.id);
         
-        // Try to find partner villain who shares a team
-        const partner = villains.find(v => 
-          v.id !== villain.id && 
-          !usedVillains.has(v.id) &&
-          v.teams && villain.teams &&
-          v.teams.some(team => villain.teams?.includes(team))
-        );
+        // Try to find a henchman for this villain
+        const henchman = henchmen.find(h => !usedHenchmen.has(h.id));
         
-        if (partner) {
-          // Team pair
-          usedVillains.add(villain.id);
-          usedVillains.add(partner.id);
-          const sharedTeam = villain.teams?.find(team => partner.teams?.includes(team)) || villain.universe;
+        if (henchman) {
+          // Villain with henchman
+          usedHenchmen.add(henchman.id);
           
           // Build relationships list
           const relationships = [];
-          if (villain.allies?.includes(partner.canonicalName)) relationships.push(`${villain.canonicalName} & ${partner.canonicalName}`);
+          relationships.push(`${villain.canonicalName} & ${henchman.canonicalName}`);
           if (villain.enemies && villain.enemies.length > 0) relationships.push(`vs ${villain.enemies[0]}`);
           
           pairs.push({
             villain,
-            henchman: partner,
+            henchman,
             relationship: {
               firstAppearance: villain.firstAppearance || `${villain.universe} Comics`,
-              keyIssues: [`${sharedTeam} formation`, `Major team operations`],
+              keyIssues: [`${villain.canonicalName}'s criminal operations`, `${henchman.canonicalName} serves as loyal enforcer`],
               creators: villain.creators && villain.creators.length > 0 ? villain.creators : ['Unknown'],
               franchise: villain.universe,
-              summary: `${villain.canonicalName} and ${partner.canonicalName} are partners in crime as members of ${sharedTeam}, terrorizing heroes across the ${villain.universe} universe.`,
-              relationships: relationships.length > 0 ? relationships : [`${villain.canonicalName} & ${partner.canonicalName}`],
+              summary: `${henchman.canonicalName} serves as the loyal enforcer for ${villain.canonicalName}, carrying out their villainous schemes across the ${villain.universe} universe.`,
+              relationships: relationships,
               assetPrice: villain.assetPrice,
               assetPriceChange: villain.assetPriceChange
             }
           });
         } else {
-          // Solo villain
-          usedVillains.add(villain.id);
-          
-          // Build relationships list
+          // Solo villain (no henchmen available)
           const relationships = [];
           if (villain.allies && villain.allies.length > 0) relationships.push(`${villain.canonicalName} & ${villain.allies[0]}`);
           if (villain.enemies && villain.enemies.length > 0) relationships.push(`vs ${villain.enemies[0]}`);
