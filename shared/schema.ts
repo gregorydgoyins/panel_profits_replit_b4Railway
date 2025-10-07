@@ -7962,6 +7962,246 @@ export const comicOfTheDay = pgTable("comic_of_the_day", {
   index("idx_comic_of_day_era").on(table.era),
 ]);
 
+// ============================================================================
+// ENTITY INTELLIGENCE SYSTEM - Multi-Source Comic Entity Database
+// ============================================================================
+
+// Entity First Appearances - Maps any entity to its first appearance comic
+export const entityFirstAppearances = pgTable("entity_first_appearances", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Entity identification (universal - works across all publishers)
+  entityId: varchar("entity_id").notNull(), // Asset ID or external entity reference
+  entityName: text("entity_name").notNull(),
+  entityType: text("entity_type").notNull(), // 'character', 'creator', 'location', 'gadget', 'team', 'concept'
+  
+  // First appearance comic reference
+  firstAppearanceComicId: varchar("first_appearance_comic_id"), // References assets.id if available
+  firstAppearanceTitle: text("first_appearance_title").notNull(), // "Detective Comics #27"
+  firstAppearanceIssue: text("first_appearance_issue"), // "#27"
+  firstAppearanceYear: integer("first_appearance_year"),
+  firstAppearanceMonth: text("first_appearance_month"),
+  firstAppearanceCoverUrl: text("first_appearance_cover_url"), // Direct cover image URL
+  
+  // Publisher and franchise context
+  publisher: text("publisher"), // 'Marvel', 'DC Comics', 'Image', 'Dark Horse', etc.
+  franchise: text("franchise"), // 'Batman Family', 'Spider-Man', 'X-Men', etc.
+  universe: text("universe"), // 'Earth-616', 'Earth-1', 'Ultimate Universe', etc.
+  
+  // Data source tracking for multi-source aggregation
+  primarySource: text("primary_source").notNull(), // 'metron', 'marvel_api', 'dc_wiki', 'gcd', 'superhero_api'
+  sourceConsensusCount: integer("source_consensus_count").default(1), // How many sources agree
+  sourceIds: jsonb("source_ids"), // {"comic_vine": "4005-1234", "marvel_api": "1009220", "metron": "567"}
+  
+  // Verification status
+  isVerified: boolean("is_verified").default(false), // True if 3+ sources confirm
+  verifiedAt: timestamp("verified_at"),
+  verificationNotes: text("verification_notes"),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_entity_first_app_entity").on(table.entityId),
+  index("idx_entity_first_app_type").on(table.entityType),
+  index("idx_entity_first_app_name").on(table.entityName),
+  index("idx_entity_first_app_year").on(table.firstAppearanceYear),
+  index("idx_entity_first_app_publisher").on(table.publisher),
+  index("idx_entity_first_app_source").on(table.primarySource),
+]);
+
+// Entity Attributes - Powers, weaknesses, origins, deaths, resurrections
+export const entityAttributes = pgTable("entity_attributes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Entity identification
+  entityId: varchar("entity_id").notNull(),
+  entityName: text("entity_name").notNull(),
+  entityType: text("entity_type").notNull(), // 'character', 'location', 'gadget', 'team'
+  
+  // Attribute classification
+  attributeCategory: text("attribute_category").notNull(), // 'power', 'weakness', 'origin', 'death', 'resurrection', 'ability', 'equipment'
+  attributeName: text("attribute_name").notNull(), // "Super Strength", "Kryptonite Vulnerability", "Radioactive Spider Bite"
+  attributeDescription: text("attribute_description"), // Detailed explanation
+  
+  // Attribute strength/importance
+  attributeLevel: text("attribute_level"), // 'primary', 'secondary', 'situational', 'former'
+  isActive: boolean("is_active").default(true), // Currently possesses this attribute
+  
+  // Comic references
+  firstMentionedIn: text("first_mentioned_in"), // Comic where attribute first appeared/mentioned
+  keyAppearances: text("key_appearances").array(), // Comics where this attribute was significant
+  
+  // Origin story details (for origin attributes)
+  originType: text("origin_type"), // 'accident', 'birth', 'experiment', 'magic', 'technology', 'mutation'
+  originDescription: text("origin_description"),
+  
+  // Death/resurrection tracking (for death/resurrection attributes)
+  deathDate: text("death_date"), // In-universe date or issue reference
+  resurrectionDate: text("resurrection_date"),
+  permanenceStatus: text("permanence_status"), // 'temporary', 'permanent', 'recurring', 'ambiguous'
+  
+  // Data source tracking
+  primarySource: text("primary_source").notNull(),
+  sourceConsensusCount: integer("source_consensus_count").default(1),
+  sourceIds: jsonb("source_ids"),
+  
+  // Verification
+  isVerified: boolean("is_verified").default(false),
+  verifiedAt: timestamp("verified_at"),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_entity_attr_entity").on(table.entityId),
+  index("idx_entity_attr_category").on(table.attributeCategory),
+  index("idx_entity_attr_name").on(table.attributeName),
+  index("idx_entity_attr_level").on(table.attributeLevel),
+  index("idx_entity_attr_active").on(table.isActive),
+]);
+
+// Entity Appearances - All comic appearances (universal, cross-publisher)
+export const entityAppearances = pgTable("entity_appearances", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Entity identification
+  entityId: varchar("entity_id").notNull(),
+  entityName: text("entity_name").notNull(),
+  entityType: text("entity_type").notNull(),
+  
+  // Comic appearance reference
+  comicId: varchar("comic_id"), // References assets.id if available
+  comicTitle: text("comic_title").notNull(),
+  issueNumber: text("issue_number"),
+  publicationYear: integer("publication_year"),
+  publicationMonth: text("publication_month"),
+  publisher: text("publisher"),
+  
+  // Appearance details
+  appearanceType: text("appearance_type"), // 'main', 'supporting', 'cameo', 'mentioned', 'flashback'
+  appearanceSignificance: text("appearance_significance"), // 'death', 'first_use_of_power', 'team_formation', 'origin_retold'
+  pageCount: integer("page_count"), // Estimated pages entity appears on
+  
+  // Cover appearance
+  isOnCover: boolean("is_on_cover").default(false),
+  coverImageUrl: text("cover_image_url"),
+  
+  // Data source tracking
+  primarySource: text("primary_source").notNull(),
+  sourceIds: jsonb("source_ids"),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_entity_app_entity").on(table.entityId),
+  index("idx_entity_app_comic").on(table.comicId),
+  index("idx_entity_app_type").on(table.appearanceType),
+  index("idx_entity_app_year").on(table.publicationYear),
+  index("idx_entity_app_publisher").on(table.publisher),
+  index("idx_entity_app_cover").on(table.isOnCover),
+]);
+
+// Entity Data Sources - Tracks which sources have data for each entity
+export const entityDataSources = pgTable("entity_data_sources", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Entity identification
+  entityId: varchar("entity_id").notNull(),
+  entityName: text("entity_name").notNull(),
+  entityType: text("entity_type").notNull(),
+  
+  // Data source details
+  sourceName: text("source_name").notNull(), // 'metron', 'marvel_api', 'dc_wiki', 'gcd', 'superhero_api', 'mycomicshop', 'league_of_geeks'
+  sourceEntityId: text("source_entity_id").notNull(), // ID in the source system
+  sourceUrl: text("source_url"), // Direct link to entity in source
+  
+  // Data availability flags
+  hasFirstAppearance: boolean("has_first_appearance").default(false),
+  hasAttributes: boolean("has_attributes").default(false),
+  hasRelationships: boolean("has_relationships").default(false),
+  hasAppearances: boolean("has_appearances").default(false),
+  hasImages: boolean("has_images").default(false),
+  hasBiography: boolean("has_biography").default(false),
+  
+  // Data quality metrics
+  dataCompleteness: decimal("data_completeness", { precision: 3, scale: 2 }), // 0.00 to 1.00
+  dataFreshness: timestamp("data_freshness"), // When data was last updated in source
+  sourceReliability: decimal("source_reliability", { precision: 3, scale: 2 }).default("0.50"), // 0.00 to 1.00
+  
+  // Source-specific data
+  sourceData: jsonb("source_data"), // Raw data from source for reference
+  
+  // Sync tracking
+  lastSyncedAt: timestamp("last_synced_at"),
+  nextSyncScheduled: timestamp("next_sync_scheduled"),
+  syncStatus: text("sync_status"), // 'pending', 'synced', 'failed', 'outdated'
+  syncErrorMessage: text("sync_error_message"),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_entity_sources_entity").on(table.entityId),
+  index("idx_entity_sources_source").on(table.sourceName),
+  index("idx_entity_sources_sync").on(table.syncStatus),
+  index("idx_entity_sources_freshness").on(table.dataFreshness),
+  index("idx_entity_sources_entity_source").on(table.entityId, table.sourceName),
+]);
+
+// Entity Relationships - Universal relationship graph (extends assetRelationships for external entities)
+export const entityRelationships = pgTable("entity_relationships", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Source entity
+  sourceEntityId: varchar("source_entity_id").notNull(),
+  sourceEntityName: text("source_entity_name").notNull(),
+  sourceEntityType: text("source_entity_type").notNull(),
+  
+  // Target entity
+  targetEntityId: varchar("target_entity_id").notNull(),
+  targetEntityName: text("target_entity_name").notNull(),
+  targetEntityType: text("target_entity_type").notNull(),
+  
+  // Relationship classification
+  relationshipType: text("relationship_type").notNull(), // 'ally', 'enemy', 'nemesis', 'sidekick', 'mentor', 'teammate', 'family', 'romantic', 'rival', 'creator', 'wields', 'located_in'
+  relationshipSubtype: text("relationship_subtype"), // 'arch-enemy', 'partner', 'father', 'love_interest', 'former_ally'
+  
+  // Relationship strength
+  relationshipStrength: decimal("relationship_strength", { precision: 3, scale: 2 }).default("0.50"), // 0.00 to 1.00
+  isActive: boolean("is_active").default(true), // Current vs historical relationship
+  
+  // Comic references
+  firstEstablishedIn: text("first_established_in"), // Comic where relationship began
+  firstEstablishedComicId: varchar("first_established_comic_id"),
+  keyMoments: text("key_moments").array(), // Significant comics featuring this relationship
+  relationshipNotes: text("relationship_notes"),
+  
+  // Publisher context
+  publisher: text("publisher"),
+  universe: text("universe"),
+  
+  // Data source tracking
+  primarySource: text("primary_source").notNull(),
+  sourceConsensusCount: integer("source_consensus_count").default(1),
+  sourceIds: jsonb("source_ids"),
+  
+  // Verification
+  isVerified: boolean("is_verified").default(false),
+  verifiedAt: timestamp("verified_at"),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_entity_rel_source").on(table.sourceEntityId),
+  index("idx_entity_rel_target").on(table.targetEntityId),
+  index("idx_entity_rel_type").on(table.relationshipType),
+  index("idx_entity_rel_active").on(table.isActive),
+  index("idx_entity_rel_publisher").on(table.publisher),
+  index("idx_entity_rel_source_type").on(table.sourceEntityId, table.relationshipType),
+]);
+
 // Insert Schemas
 export const insertMarvelLocationSchema = createInsertSchema(marvelLocations).omit({
   id: true,
@@ -8011,3 +8251,48 @@ export const insertAssetRelationshipSchema = createInsertSchema(assetRelationshi
 
 export type AssetRelationship = typeof assetRelationships.$inferSelect;
 export type InsertAssetRelationship = z.infer<typeof insertAssetRelationshipSchema>;
+
+// Entity Intelligence System Insert Schemas & Types
+export const insertEntityFirstAppearanceSchema = createInsertSchema(entityFirstAppearances).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertEntityAttributeSchema = createInsertSchema(entityAttributes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertEntityAppearanceSchema = createInsertSchema(entityAppearances).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertEntityDataSourceSchema = createInsertSchema(entityDataSources).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertEntityRelationshipSchema = createInsertSchema(entityRelationships).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type EntityFirstAppearance = typeof entityFirstAppearances.$inferSelect;
+export type InsertEntityFirstAppearance = z.infer<typeof insertEntityFirstAppearanceSchema>;
+
+export type EntityAttribute = typeof entityAttributes.$inferSelect;
+export type InsertEntityAttribute = z.infer<typeof insertEntityAttributeSchema>;
+
+export type EntityAppearance = typeof entityAppearances.$inferSelect;
+export type InsertEntityAppearance = z.infer<typeof insertEntityAppearanceSchema>;
+
+export type EntityDataSource = typeof entityDataSources.$inferSelect;
+export type InsertEntityDataSource = z.infer<typeof insertEntityDataSourceSchema>;
+
+export type EntityRelationship = typeof entityRelationships.$inferSelect;
+export type InsertEntityRelationship = z.infer<typeof insertEntityRelationshipSchema>;
