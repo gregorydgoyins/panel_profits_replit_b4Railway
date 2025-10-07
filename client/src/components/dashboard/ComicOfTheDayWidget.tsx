@@ -177,7 +177,7 @@ export function ComicOfTheDayWidget() {
                   <Landmark className="w-4 h-4 text-amber-500" />
                   Historical Significance
                 </h4>
-                <p className="text-sm text-foreground/80 leading-relaxed" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
+                <p className="text-foreground/80 leading-relaxed" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt' }}>
                   {comic.historicalContext}
                 </p>
               </div>
@@ -191,7 +191,7 @@ export function ComicOfTheDayWidget() {
                     <FileText className="w-4 h-4 text-blue-500" />
                     About This Issue
                   </h4>
-                  <p className="text-sm text-foreground/80 leading-relaxed line-clamp-3" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
+                  <p className="text-foreground/80 leading-relaxed line-clamp-3" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt' }}>
                     {comic.description}
                   </p>
                 </div>
