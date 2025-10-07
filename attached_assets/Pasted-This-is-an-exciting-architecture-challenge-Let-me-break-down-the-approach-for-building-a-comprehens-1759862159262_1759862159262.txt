@@ -1,0 +1,51 @@
+This is an exciting architecture challenge! Let me break down the approach for building a comprehensive cover image library system:
+
+Storage Strategy
+Since you mentioned Supabase in your notes, that's a great choice. I can see there's already a Supabase integration in the codebase. Supabase offers:
+
+Object Storage (similar to S3) for the actual image files
+PostgreSQL database for metadata (issue info, character appearances, storylines, etc.)
+Built-in CDN for fast image delivery
+Cover Prioritization Strategy
+For your 6,000 classic titles from 645,000 assets, I'd suggest this priority system:
+
+Tier 1 - Essential Covers (~6,000 covers)
+
+First appearances of major characters
+First cameo appearances
+Issue #1s of major series
+Major storyline beginnings (Dark Phoenix Saga, Infinity Gauntlet, etc.)
+Death issues and resurrections
+Major crossover events
+Tier 2 - Important Covers (~15,000 covers)
+
+Key villain debuts
+Team formations
+Costume changes
+Major creative team runs (Miller's Daredevil, Claremont's X-Men)
+Tier 3 - Era Representation (~30,000 covers)
+
+Representative covers from each era (1000 per decade spanning Golden Age to Modern)
+Cover Bot Architecture
+I'd recommend building specialized bots:
+
+Marvel API Bot - Already have this partially set up
+Comic Database Scraper Bots (League of Comic Geeks, Comic Vine backup data, Grand Comics Database)
+Auction Site Bots (Heritage Auctions, ComicLink for verified high-quality scans)
+Cover Deduplication Service - Compare and keep highest quality version
+Central Orchestrator Pattern
+The orchestrator would:
+
+Ingest: Accept covers from all bots → Supabase Storage
+Enrich: Add metadata (characters, creators, significance tags)
+Index: Create searchable database entries
+Serve: API endpoints that pages query for covers by character, storyline, era, etc.
+For the Villains & Henchmen page, it would query: "Give me the cover for Joker's first appearance" and get back the cover URL + metadata.
+
+Would you like me to start building this system? I can create a task list covering:
+
+Setting up Supabase storage structure
+Building the first cover bot (Marvel API)
+Creating the metadata schema
+Building the orchestrator API
+Integrating with existing widgets
