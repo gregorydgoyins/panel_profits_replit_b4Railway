@@ -13,6 +13,7 @@ import {
 } from '@shared/schema';
 import type { BaseEntityScraper, EntityData, ScraperResult } from './BaseEntityScraper';
 import { MetronScraper } from './MetronScraper';
+import { normalizationService } from './NormalizationService';
 
 export interface OrchestratorConfig {
   enabledSources: string[]; // Source names to use
@@ -162,16 +163,30 @@ export class ScraperOrchestrator {
   }
   
   /**
-   * Group entities by normalized name for deduplication
+   * Group entities by fuzzy matching for intelligent deduplication
+   * Uses normalization service with Levenshtein distance fuzzy matching
    */
   private groupEntitiesByName(entities: EntityData[]): Map<string, EntityData[]> {
     const groups = new Map<string, EntityData[]>();
     
-    for (const entity of entities) {
-      const key = this.normalizeEntityKey(entity.entityName, entity.entityType);
-      const existing = groups.get(key) || [];
-      existing.push(entity);
-      groups.set(key, existing);
+    // Use normalization service for fuzzy grouping
+    const entityGroups = normalizationService.groupSimilarEntities(
+      entities.map(e => ({
+        entityName: e.entityName,
+        entityType: e.entityType,
+        publisher: e.publisher,
+        original: e,
+      })),
+      0.85 // 85% similarity threshold
+    );
+    
+    // Convert to Map with best name as key
+    for (const group of entityGroups) {
+      const names = group.map(g => g.entityName);
+      const bestName = normalizationService.selectBestName(names);
+      const key = this.normalizeEntityKey(bestName, group[0].entityType);
+      
+      groups.set(key, group.map(g => g.original));
     }
     
     return groups;
@@ -179,9 +194,10 @@ export class ScraperOrchestrator {
   
   /**
    * Normalize entity key for matching across sources
+   * Now delegates to normalization service
    */
   private normalizeEntityKey(name: string, type: string): string {
-    return `${type}:${name.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+    return `${type}:${normalizationService.canonicalizeName(name)}`;
   }
   
   /**
