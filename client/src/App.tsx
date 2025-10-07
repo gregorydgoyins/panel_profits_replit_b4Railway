@@ -9,6 +9,7 @@ import { HouseThemeProvider } from '@/contexts/HouseThemeContext';
 import { LandingPage } from '@/components/LandingPage';
 import { StickyHeader } from '@/components/StickyHeader';
 import { TopNavbar } from '@/components/TopNavbar';
+import { CompactClocksWidget } from '@/components/dashboard/CompactClocksWidget';
 import { Footer } from '@/components/Footer';
 import { EntryTestGuard } from '@/components/EntryTestGuard';
 import KnowledgeTestGuard from '@/components/KnowledgeTestGuard';
@@ -215,10 +216,13 @@ function AuthenticatedLayout() {
           <KnowledgeTestGuard>
             <EasterEggMonitor />
             <div className="min-h-screen bg-background text-foreground">
-              {/* Sticky header group: Welcome banner + News + Stock tickers + Top Nav */}
+              {/* Sticky header group: Welcome banner + News + Stock tickers + Top Nav + Global Markets */}
               <div className="sticky top-0 z-50">
                 <StickyHeader />
                 <TopNavbar />
+                <div className="px-6 py-2 bg-background border-b border-border">
+                  <CompactClocksWidget />
+                </div>
               </div>
               
               {/* Main content area with footer at end */}
