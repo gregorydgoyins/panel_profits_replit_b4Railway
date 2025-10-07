@@ -4720,14 +4720,13 @@ export const comicCovers = pgTable("comic_covers", {
   index("idx_comic_covers_significance_tier").on(table.significanceTier),
   index("idx_comic_covers_verification").on(table.verificationStatus),
   index("idx_comic_covers_collected_at").on(table.collectedAt),
-  // Unique constraint: one cover per publisher+series+issue+variant+volume
-  // Using COALESCE to treat NULL volume_year as 0 for uniqueness
-  index("idx_comic_covers_unique").on(
+  // Composite index for cover lookups (publisher+series+issue+variant+volume)
+  index("idx_comic_covers_composite").on(
     table.publisher, 
     table.series, 
     table.issueNumber, 
     table.variant,
-    sql`COALESCE(${table.volumeYear}, 0)`
+    table.volumeYear
   ),
 ]);
 
