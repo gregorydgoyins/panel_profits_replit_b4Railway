@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { formatTickerSymbol } from '../utils/tickerFormatter.js';
+import { comicFactChecker } from './comicFactChecker.js';
 
 interface MarvelComic {
   id: number;
@@ -303,7 +304,9 @@ class ComicDataService {
         else if (yearsOld > 10) estimatedValue *= (2 + Math.random() * 5);
         else estimatedValue *= (1 + Math.random() * 2);
         
-        const isFirstIssue = comic.title.includes('#1') || comic.issueNumber === 1;
+        // CRITICAL: A comic is ONLY a first issue if issueNumber === 1
+        // Never check title text - it's unreliable (e.g., "Fantastic Four #101" is NOT a first issue)
+        const isFirstIssue = comic.issueNumber === 1;
         if (isFirstIssue) estimatedValue *= (2 + Math.random() * 3);
         
         const finalPrice = Math.floor(estimatedValue * 100) / 100;
@@ -619,8 +622,9 @@ class ComicDataService {
           else if (yearsOld > 10) estimatedValue *= (2 + Math.random() * 5); // Modern Age
           else estimatedValue *= (1 + Math.random() * 2); // Recent issues
           
-          // Key issue multiplier (first appearances, #1s, etc.)
-          const isFirstIssue = comic.title.includes('#1') || comic.issueNumber === 1;
+          // CRITICAL: A comic is ONLY a first issue if issueNumber === 1
+          // Never check title text - it's unreliable (e.g., "Fantastic Four #101" is NOT a first issue)
+          const isFirstIssue = comic.issueNumber === 1;
           if (isFirstIssue) estimatedValue *= (2 + Math.random() * 3);
           
           const finalPrice = Math.floor(estimatedValue * 100) / 100;
@@ -745,7 +749,9 @@ class ComicDataService {
           else if (yearsOld > 10) estimatedValue *= (2 + Math.random() * 5);
           else estimatedValue *= (1 + Math.random() * 2);
           
-          const isFirstIssue = comic.title.includes('#1') || comic.issueNumber === 1;
+          // CRITICAL: A comic is ONLY a first issue if issueNumber === 1
+          // Never check title text - it's unreliable (e.g., "Fantastic Four #101" is NOT a first issue)
+          const isFirstIssue = comic.issueNumber === 1;
           if (isFirstIssue) estimatedValue *= (2 + Math.random() * 3);
           
           const volMatch = comic.title.match(/vol(?:ume)?\.?\s*(\d+)/i);
@@ -784,11 +790,23 @@ class ComicDataService {
       
       const historicalContext = this.generateHistoricalContext(featured);
       
-      return {
+      const comicWithContext = {
         ...featured,
         historicalContext,
         significance: featured.isFirstIssue ? 'First Issue' : featured.isKeyIssue ? 'Key Issue' : 'Classic Issue',
       };
+
+      // CRITICAL: Fact-check all comic information before displaying to users
+      const factCheckResult = await comicFactChecker.verifyComicFacts(comicWithContext);
+      comicFactChecker.logFactCheckResults(comicWithContext, factCheckResult);
+
+      // Apply corrections if any errors were found
+      if (Object.keys(factCheckResult.correctedFacts).length > 0) {
+        console.log(`📝 Applying ${Object.keys(factCheckResult.correctedFacts).length} fact corrections to ${comicWithContext.series} #${comicWithContext.issueNumber}`);
+        return comicFactChecker.applyCorrections(comicWithContext, factCheckResult.correctedFacts);
+      }
+
+      return comicWithContext;
     } catch (error) {
       console.error('Error fetching comic of the day:', error);
       return this.getFallbackComicOfTheDay();
@@ -808,11 +826,23 @@ class ComicDataService {
       
       const historicalContext = this.generateHistoricalContext(featured);
       
-      return {
+      const comicWithContext = {
         ...featured,
         historicalContext,
         significance: featured.isFirstIssue ? 'First Issue' : featured.isKeyIssue ? 'Key Issue' : 'Classic Issue',
       };
+
+      // CRITICAL: Fact-check all comic information before displaying to users
+      const factCheckResult = await comicFactChecker.verifyComicFacts(comicWithContext);
+      comicFactChecker.logFactCheckResults(comicWithContext, factCheckResult);
+
+      // Apply corrections if any errors were found
+      if (Object.keys(factCheckResult.correctedFacts).length > 0) {
+        console.log(`📝 Applying ${Object.keys(factCheckResult.correctedFacts).length} fact corrections to ${comicWithContext.series} #${comicWithContext.issueNumber}`);
+        return comicFactChecker.applyCorrections(comicWithContext, factCheckResult.correctedFacts);
+      }
+
+      return comicWithContext;
     } catch (error) {
       console.error('Fallback comic of the day failed:', error);
       return null;
