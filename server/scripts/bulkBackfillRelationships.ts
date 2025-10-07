@@ -58,29 +58,31 @@ async function main() {
       creator: 0,
     };
 
-    // Process in batches
+    // Process in batches with proper offset
     for (let batchNum = 1; batchNum <= totalBatches; batchNum++) {
+      const offset = (batchNum - 1) * BATCH_SIZE;
+      
       console.log(`\n${'='.repeat(70)}`);
-      console.log(`📦 BATCH ${batchNum}/${totalBatches}`);
+      console.log(`📦 BATCH ${batchNum}/${totalBatches} (offset: ${offset})`);
       console.log('='.repeat(70));
 
-      // Build teammate relationships
+      // Build teammate relationships with offset
       console.log('\n1️⃣  Building teammate relationships...');
-      const teammateResult = await buildTeammateRelationships(BATCH_SIZE);
+      const teammateResult = await buildTeammateRelationships(BATCH_SIZE, offset);
       const teammateCount = await insertRelationshipBatch(teammateResult.relationships);
       grandTotal.teammate += teammateCount;
       console.log(`   ✅ Added ${teammateCount} teammate relationships`);
 
-      // Build franchise/publisher relationships
+      // Build franchise/publisher relationships with offset
       console.log('\n2️⃣  Building franchise relationships...');
-      const franchiseResult = await buildFranchiseRelationships(BATCH_SIZE);
+      const franchiseResult = await buildFranchiseRelationships(BATCH_SIZE, offset);
       const franchiseCount = await insertRelationshipBatch(franchiseResult.relationships);
       grandTotal.franchise += franchiseCount;
       console.log(`   ✅ Added ${franchiseCount} franchise relationships`);
 
-      // Build creator relationships (larger batch)
+      // Build creator relationships with offset (larger batch)
       console.log('\n3️⃣  Building creator relationships...');
-      const creatorResult = await buildCreatorRelationships(BATCH_SIZE * 2);
+      const creatorResult = await buildCreatorRelationships(BATCH_SIZE * 2, offset * 2);
       const creatorCount = await insertRelationshipBatch(creatorResult.relationships);
       grandTotal.creator += creatorCount;
       console.log(`   ✅ Added ${creatorCount} creator relationships`);
