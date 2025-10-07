@@ -29,6 +29,7 @@ import pineconeRoutes from "./routes/pinecone.js";
 // Comic Vine API disabled - service no longer available
 // import comicVineRoutes from "./routes/comicVineRoutes.js";
 import marvelRoutes from "./routes/marvelRoutes.js";
+import coverRoutes from "./routes/coverRoutes.js";
 import dcRoutes from "./routes/dcRoutes.js";
 import kaggleComicsRoutes from "./routes/kaggleComicsRoutes.js";
 import characterAttributesRoutes from "./routes/characterAttributesRoutes.js";
@@ -2018,6 +2019,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Marvel API expansion routes
   app.use("/api/marvel", marvelRoutes);
+
+  // Cover Orchestrator API - central service for querying comic covers
+  app.use("/api/covers", coverRoutes);
 
   // DC multi-source expansion routes (Metron + GCD)
   app.use("/api/dc", dcRoutes);
