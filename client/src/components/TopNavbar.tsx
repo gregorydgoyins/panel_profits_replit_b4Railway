@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'wouter';
+import { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, 
   TrendingUp, 
@@ -23,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/hooks/useAuth';
+import { Badge } from '@/components/ui/badge';
 
 interface NavItem {
   path: string;
@@ -46,9 +48,77 @@ const navItems: NavItem[] = [
   { path: '/analytics', label: 'Analytics', icon: BarChart3, glowClass: 'rim-glow-analytics', categoryColor: '#E84A5F', hoverTextClass: 'hover:text-[#E84A5F]', activeBgClass: 'bg-[#E84A5F]', activeTextClass: 'text-white' },
 ];
 
+interface MarketClock {
+  code: string;
+  city: string;
+  timezone: string;
+  status: 'open' | 'closed' | 'extended';
+  time: Date;
+}
+
 export function TopNavbar() {
   const [location] = useLocation();
   const { user } = useAuth();
+  const [markets, setMarkets] = useState<MarketClock[]>([]);
+
+  const getMarketStatus = (
+    timezone: string,
+    openHour: number,
+    closeHour: number,
+    hasExtended: boolean = false,
+    extStart?: number,
+    extEnd?: number
+  ): 'open' | 'closed' | 'extended' => {
+    const now = new Date();
+    const marketTime = new Date(now.toLocaleString('en-US', { timeZone: timezone }));
+    const hour = marketTime.getHours() + marketTime.getMinutes() / 60;
+    const day = marketTime.getDay();
+    
+    if (day === 0 || day === 6) return 'closed';
+    
+    if (hasExtended && extStart !== undefined && extEnd !== undefined) {
+      if (hour >= extStart && hour < openHour) return 'extended';
+      if (hour >= closeHour && hour < extEnd) return 'extended';
+    }
+    
+    return hour >= openHour && hour < closeHour ? 'open' : 'closed';
+  };
+
+  const updateMarkets = () => {
+    const nyTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+    const lonTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/London' }));
+    const tkyTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));
+
+    setMarkets([
+      {
+        code: 'NYSE',
+        city: 'NY',
+        timezone: 'America/New_York',
+        status: getMarketStatus('America/New_York', 9.5, 16, true, 4, 20),
+        time: nyTime
+      },
+      {
+        code: 'LSE',
+        city: 'LON',
+        timezone: 'Europe/London',
+        status: getMarketStatus('Europe/London', 8, 16.5),
+        time: lonTime
+      },
+      {
+        code: 'TSE',
+        city: 'TYO',
+        timezone: 'Asia/Tokyo',
+        status: getMarketStatus('Asia/Tokyo', 9, 15),
+        time: tkyTime
+      }
+    ]);
+  };
+
+  useEffect(() => {
+    updateMarkets();
+    const interval = setInterval(updateMarkets, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -123,6 +193,31 @@ export function TopNavbar() {
         <div className="w-1.5 h-1.5 rounded-full bg-purple-500" data-testid="separator-2-dot-1" />
         <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" data-testid="separator-2-dot-2" />
         <div className="w-1.5 h-1.5 rounded-full bg-purple-500" data-testid="separator-2-dot-3" />
+      </div>
+
+      {/* Global Market Clocks */}
+      <div className="flex items-center gap-3 flex-shrink-0">
+        {markets.map((market) => (
+          <div key={market.code} className="flex items-center gap-1.5" data-testid={`market-clock-${market.code.toLowerCase()}`}>
+            <div className={`w-1.5 h-1.5 rounded-full ${
+              market.status === 'open' ? 'bg-green-500' : 
+              market.status === 'extended' ? 'bg-yellow-500' : 'bg-red-500'
+            }`} />
+            <span className="text-xs text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+              {market.code}
+            </span>
+            <span className="text-xs text-muted-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+              {market.time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Separator 3 */}
+      <div className="flex items-center gap-1 flex-shrink-0">
+        <div className="w-1.5 h-1.5 rounded-full bg-purple-500" data-testid="separator-3-dot-1" />
+        <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" data-testid="separator-3-dot-2" />
+        <div className="w-1.5 h-1.5 rounded-full bg-purple-500" data-testid="separator-3-dot-3" />
       </div>
 
       {/* Group 3: Notification, Settings, Profile Icons */}
