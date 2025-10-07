@@ -97,11 +97,11 @@ export function ComicOfTheDayWidget() {
       <CardContent>
         <div className="bg-[#252B3C] p-4 rounded-lg">
         {/* Main Content Area - Image + Info Sections Side by Side */}
-        <div className="flex flex-col lg:flex-row gap-6 mb-6">
+        <div className="flex flex-col lg:flex-row gap-6 mb-6 lg:items-stretch">
           {/* Left Side - Larger Comic Cover */}
-          <div className="lg:w-2/5">
-            <Link href={`/series/${encodeURIComponent(comic.series)}`} data-testid="link-series-detail">
-              <div className="w-full aspect-[2/3] bg-muted rounded-lg overflow-visible border-2 border-white/40 green-rimlight-hover cursor-pointer">
+          <div className="lg:w-2/5 flex">
+            <Link href={`/series/${encodeURIComponent(comic.series)}`} data-testid="link-series-detail" className="w-full">
+              <div className="w-full h-full min-h-[400px] bg-muted rounded-lg overflow-visible border-2 border-white/40 green-rimlight-hover cursor-pointer">
                 {comic.coverUrl ? (
                   <img
                     src={comic.coverUrl}
@@ -120,7 +120,7 @@ export function ComicOfTheDayWidget() {
           </div>
 
           {/* Right Side - Comic Info + Information Sections */}
-          <div className="lg:w-3/5 space-y-4">
+          <div className="lg:w-3/5 space-y-4 flex flex-col">
             {/* Comic Title & Metadata */}
             <div className="space-y-3 pb-2">
               <div>
