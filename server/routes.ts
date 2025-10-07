@@ -126,18 +126,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const now = new Date();
       const hours = now.getHours();
+      const minutes = now.getMinutes();
       const day = now.getDay();
+      const currentMinutes = hours * 60 + minutes; // Convert to total minutes since midnight
       
-      // Market open 9:30 AM - 4:00 PM EST Monday-Friday
+      // Market hours in minutes:
+      // Open: 9:30 AM (570 min) - 4:00 PM (960 min)
+      // Pre-market: 4:00 AM (240 min) - 9:30 AM (570 min) 
+      // After-hours: 4:00 PM (960 min) - 8:00 PM (1200 min)
       let status: 'open' | 'closed' | 'pre-market' | 'after-hours' = 'closed';
       
       if (day >= 1 && day <= 5) { // Monday-Friday
-        if (hours >= 9 && hours < 16) {
-          status = 'open';
-        } else if (hours >= 4 && hours < 9) {
-          status = 'pre-market';
-        } else if (hours >= 16 || hours < 4) {
-          status = 'after-hours';
+        if (currentMinutes >= 570 && currentMinutes < 960) {
+          status = 'open'; // 9:30 AM - 4:00 PM
+        } else if (currentMinutes >= 240 && currentMinutes < 570) {
+          status = 'pre-market'; // 4:00 AM - 9:30 AM
+        } else if (currentMinutes >= 960 && currentMinutes < 1200) {
+          status = 'after-hours'; // 4:00 PM - 8:00 PM
         }
       }
       
@@ -2985,21 +2990,6 @@ Respond with valid JSON in this exact format:
     }
   });
 
-  // Market Status
-  app.get("/api/market/status", async (req, res) => {
-    try {
-      res.json({
-        success: true,
-        data: {
-          isOpen: marketSimulation.isMarketOpen(),
-          timestamp: new Date().toISOString()
-        }
-      });
-    } catch (error) {
-      console.error('Error fetching market status:', error);
-      res.status(500).json({ error: "Failed to fetch market status" });
-    }
-  });
 
   // Market Overview
   app.get("/api/market/overview", async (req, res) => {

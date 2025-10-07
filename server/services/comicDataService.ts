@@ -688,19 +688,100 @@ class ComicDataService {
   }
 
   /**
-   * Get comic of the day with historical context
+   * Get comic of the day with historical context - showcases ALL eras
    */
   async getComicOfTheDay(): Promise<any | null> {
     try {
-      const comics = await this.fetchRandomComicCovers(10);
+      // Define comic eras with date ranges for diversity
+      const eras = [
+        { name: 'Golden Age', startYear: 1938, endYear: 1956, weight: 1 },
+        { name: 'Silver Age', startYear: 1956, endYear: 1970, weight: 2 },
+        { name: 'Bronze Age', startYear: 1970, endYear: 1985, weight: 2 },
+        { name: 'Copper Age', startYear: 1985, endYear: 1992, weight: 2 },
+        { name: 'Modern Age', startYear: 1992, endYear: 2000, weight: 2 },
+        { name: 'Contemporary', startYear: 2000, endYear: 2015, weight: 1 },
+      ];
       
-      // Prefer key issues or older comics for "Comic of the Day"
-      const keyComics = comics.filter(c => c.isKeyIssue || c.yearsOld > 20);
-      const featured = keyComics.length > 0 ? keyComics[0] : comics[0];
+      // Randomly select an era (weighted to favor older comics)
+      const totalWeight = eras.reduce((sum, era) => sum + era.weight, 0);
+      let random = Math.random() * totalWeight;
+      let selectedEra = eras[0];
       
-      if (!featured) return null;
+      for (const era of eras) {
+        random -= era.weight;
+        if (random <= 0) {
+          selectedEra = era;
+          break;
+        }
+      }
       
-      // Add storytelling context
+      console.log(`[Comic of the Day] Selected era: ${selectedEra.name} (${selectedEra.startYear}-${selectedEra.endYear})`);
+      
+      // Fetch comics from the selected era
+      const auth = this.generateMarvelAuth();
+      const dateRangeStart = `${selectedEra.startYear}-01-01`;
+      const dateRangeEnd = `${selectedEra.endYear}-12-31`;
+      
+      const url = `${this.marvelBaseUrl}/comics?dateRange=${dateRangeStart},${dateRangeEnd}&limit=50&offset=${Math.floor(Math.random() * 100)}&format=comic&formatType=comic&ts=${auth.ts}&apikey=${auth.apikey}&hash=${auth.hash}`;
+      
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      if (data.code !== 200 || !data.data.results.length) {
+        console.log(`[Comic of the Day] No comics found for ${selectedEra.name}, falling back to random`);
+        return this.getFallbackComicOfTheDay();
+      }
+      
+      const comics = data.data.results
+        .filter((comic: any) => comic.thumbnail && !comic.thumbnail.path.includes('image_not_available'))
+        .map((comic: any) => {
+          const printPrice = comic.prices.find((p: any) => p.type === 'printPrice')?.price || 3.99;
+          const issueAge = comic.dates.find((d: any) => d.type === 'onsaleDate')?.date;
+          const yearsOld = issueAge ? new Date().getFullYear() - new Date(issueAge).getFullYear() : 0;
+          
+          let estimatedValue = printPrice;
+          if (yearsOld > 40) estimatedValue *= (20 + Math.random() * 80);
+          else if (yearsOld > 20) estimatedValue *= (5 + Math.random() * 15);
+          else if (yearsOld > 10) estimatedValue *= (2 + Math.random() * 5);
+          else estimatedValue *= (1 + Math.random() * 2);
+          
+          const isFirstIssue = comic.title.includes('#1') || comic.issueNumber === 1;
+          if (isFirstIssue) estimatedValue *= (2 + Math.random() * 3);
+          
+          const volMatch = comic.title.match(/vol(?:ume)?\.?\s*(\d+)/i);
+          const volume = volMatch ? volMatch[1] : '1';
+          const comicName = `${comic.series.name} Vol ${volume} #${comic.issueNumber || 1}`;
+          const tickerSymbol = formatTickerSymbol('', comicName);
+          
+          return {
+            id: comic.id,
+            title: comic.title,
+            series: comic.series.name,
+            issueNumber: comic.issueNumber || 1,
+            symbol: tickerSymbol,
+            coverUrl: `${comic.thumbnail.path}.${comic.thumbnail.extension}`,
+            description: comic.description || comic.textObjects[0]?.text || `A legendary ${selectedEra.name} issue from ${comic.series.name}`,
+            printPrice,
+            estimatedValue: Math.floor(estimatedValue * 100) / 100,
+            onsaleDate: comic.dates.find((d: any) => d.type === 'onsaleDate')?.date || null,
+            creators: comic.creators.items.slice(0, 3).map((c: any) => ({ name: c.name, role: c.role })),
+            pageCount: comic.pageCount,
+            format: comic.format,
+            yearsOld,
+            isFirstIssue,
+            isKeyIssue: isFirstIssue || comic.variantDescription?.includes('1st appearance'),
+            era: selectedEra.name,
+          };
+        });
+      
+      if (!comics.length) {
+        return this.getFallbackComicOfTheDay();
+      }
+      
+      // Prefer key issues from the selected era
+      const keyComics = comics.filter((c: any) => c.isKeyIssue || c.isFirstIssue);
+      const featured = keyComics.length > 0 ? keyComics[Math.floor(Math.random() * keyComics.length)] : comics[Math.floor(Math.random() * comics.length)];
+      
       const historicalContext = this.generateHistoricalContext(featured);
       
       return {
@@ -710,6 +791,30 @@ class ComicDataService {
       };
     } catch (error) {
       console.error('Error fetching comic of the day:', error);
+      return this.getFallbackComicOfTheDay();
+    }
+  }
+  
+  /**
+   * Fallback method when era-based selection fails
+   */
+  private async getFallbackComicOfTheDay(): Promise<any | null> {
+    try {
+      const comics = await this.fetchRandomComicCovers(10);
+      const keyComics = comics.filter(c => c.isKeyIssue || c.yearsOld > 20);
+      const featured = keyComics.length > 0 ? keyComics[0] : comics[0];
+      
+      if (!featured) return null;
+      
+      const historicalContext = this.generateHistoricalContext(featured);
+      
+      return {
+        ...featured,
+        historicalContext,
+        significance: featured.isFirstIssue ? 'First Issue' : featured.isKeyIssue ? 'Key Issue' : 'Classic Issue',
+      };
+    } catch (error) {
+      console.error('Fallback comic of the day failed:', error);
       return null;
     }
   }

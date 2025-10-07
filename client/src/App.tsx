@@ -9,7 +9,7 @@ import { HouseThemeProvider } from '@/contexts/HouseThemeContext';
 import { LandingPage } from '@/components/LandingPage';
 import { StickyHeader } from '@/components/StickyHeader';
 import { TopNavbar } from '@/components/TopNavbar';
-import { CompactClocksWidget } from '@/components/dashboard/CompactClocksWidget';
+import { GlobalMarketClocks } from '@/components/GlobalMarketClocks';
 import { Footer } from '@/components/Footer';
 import { EntryTestGuard } from '@/components/EntryTestGuard';
 import KnowledgeTestGuard from '@/components/KnowledgeTestGuard';
@@ -220,9 +220,7 @@ function AuthenticatedLayout() {
               <div className="sticky top-0 z-50">
                 <StickyHeader />
                 <TopNavbar />
-                <div className="px-6 py-2 bg-background border-b border-border">
-                  <CompactClocksWidget />
-                </div>
+                <GlobalMarketClocks />
               </div>
               
               {/* Main content area with footer at end */}
