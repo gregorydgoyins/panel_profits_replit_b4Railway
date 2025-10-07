@@ -26,7 +26,6 @@ import KnowledgeTestPage from '@/pages/KnowledgeTestPage';
 import DashboardPage from '@/pages/DashboardPage';
 
 // Trading pages
-import TradingPage from '@/pages/trading';
 import TradingTerminalPage from '@/pages/TradingTerminal';
 
 // Portfolio pages
@@ -114,7 +113,6 @@ function Router() {
       <Route path="/dashboard" component={DashboardPage} />
       <Route path="/entry-test" component={EntryTestPage} />
       <Route path="/knowledge-test" component={KnowledgeTestPage} />
-      <Route path="/trading" component={TradingPage} />
       <Route path="/terminal" component={TradingTerminalPage} />
       <Route path="/portfolio/value" component={PortfolioValuePage} />
       <Route path="/portfolio/cash" component={CashBalancePage} />
