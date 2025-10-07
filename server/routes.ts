@@ -6249,6 +6249,70 @@ Respond with valid JSON in this exact format:
     }
   });
 
+  // Comics Worth Watching - Bloomberg-style institutional signals
+  app.get('/api/comics-worth-watching', async (req: any, res) => {
+    try {
+      const result = await db.execute(sql`
+        SELECT 
+          cw.*,
+          cc.image_url,
+          cc.series,
+          cc.issue_number,
+          cc.publisher
+        FROM comics_worth_watching cw
+        JOIN comic_covers cc ON cw.comic_cover_id = cc.id
+        WHERE cw.expires_at > NOW()
+        ORDER BY cw.rank ASC
+        LIMIT 10
+      `);
+      
+      res.json({
+        success: true,
+        data: result.rows
+      });
+    } catch (error: any) {
+      console.error('Error fetching comics worth watching:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  // Comic of the Day - Historical significance
+  app.get('/api/comic-of-the-day', async (req: any, res) => {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const result = await db.execute(sql`
+        SELECT 
+          cod.*,
+          cc.image_url,
+          cc.series,
+          cc.issue_number,
+          cc.publisher,
+          cc.volume_year
+        FROM comic_of_the_day cod
+        JOIN comic_covers cc ON cod.comic_cover_id = cc.id
+        WHERE DATE(cod.feature_date) = DATE(${today.toISOString()})
+        LIMIT 1
+      `);
+      
+      if (result.rows.length === 0) {
+        return res.json({
+          success: true,
+          data: null
+        });
+      }
+      
+      res.json({
+        success: true,
+        data: result.rows[0]
+      });
+    } catch (error: any) {
+      console.error('Error fetching comic of the day:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
   // WebSocket support disabled - using polling instead
   // Initialize WebSocket notification service for real-time notifications
   // console.log('🔔 Initializing WebSocket notification service...');
