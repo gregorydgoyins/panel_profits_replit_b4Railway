@@ -7860,6 +7860,88 @@ export const marvelGadgets = pgTable("marvel_gadgets", {
   index("idx_marvel_gadgets_category").on(table.gadgetCategory),
 ]);
 
+// Comics Worth Watching - Institutional/whale activity signals (like Bloomberg movers)
+export const comicsWorthWatching = pgTable("comics_worth_watching", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  comicCoverId: varchar("comic_cover_id").notNull().references(() => comicCovers.id),
+  assetId: varchar("asset_id"), // Link to tradeable asset if exists
+  
+  // Why this comic is worth watching
+  primarySignal: text("primary_signal").notNull(), // 'whale_accumulation', 'institutional_buying', 'smart_money_flow', 'unusual_volume', 'dark_pool_activity'
+  signalStrength: decimal("signal_strength", { precision: 5, scale: 2 }).notNull(), // 0-100 strength score
+  rank: integer("rank"), // Daily ranking (1 = most significant)
+  
+  // Institutional/sophisticated trader activity
+  whaleActivity: jsonb("whale_activity"), // {buyOrders: 12, sellOrders: 3, netVolume: 45000, largestOrder: 15000}
+  institutionalFlow: jsonb("institutional_flow"), // {funds: ['heroes', 'villains'], netBuying: 25000, concentration: 0.65}
+  smartMoneyMetrics: jsonb("smart_money_metrics"), // {aiTraders: 145, successRate: 0.78, avgHoldTime: '7d', conviction: 0.82}
+  
+  // Market consensus and recommendations
+  streetConsensus: text("street_consensus"), // 'strong_buy', 'buy', 'hold', 'sell', 'strong_sell'
+  consensusConfidence: decimal("consensus_confidence", { precision: 3, scale: 2 }), // 0-1 confidence level
+  analystTargets: jsonb("analyst_targets"), // {low: 100, avg: 150, high: 200, timeframe: '30d'}
+  
+  // Financial context
+  priceMetrics: jsonb("price_metrics"), // {current: 125, dayChange: 0.15, weekChange: 0.34, monthChange: 0.89}
+  volumeMetrics: jsonb("volume_metrics"), // {current: 12500, avgVolume: 3200, volumeRatio: 3.9, zScore: 4.2}
+  technicalIndicators: jsonb("technical_indicators"), // {rsi: 72, macd: 'bullish', bollingerBand: 'upper'}
+  
+  // Why it matters (detail page content)
+  detailedAnalysis: text("detailed_analysis"), // Rich explanation of why this is significant
+  catalysts: text("catalysts").array(), // ['Whale accumulation detected', 'Institutional buying by Heroes fund', 'AI traders showing 78% conviction']
+  risks: text("risks").array(), // ['Overbought RSI', 'Low liquidity', 'Concentration risk']
+  keyLevels: jsonb("key_levels"), // {support: [100, 90], resistance: [150, 175], stopLoss: 85}
+  
+  // Timing
+  selectedDate: timestamp("selected_date").defaultNow(),
+  expiresAt: timestamp("expires_at"), // When signal becomes stale
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_comics_watching_date").on(table.selectedDate),
+  index("idx_comics_watching_rank").on(table.rank),
+  index("idx_comics_watching_signal").on(table.primarySignal),
+  index("idx_comics_watching_strength").on(table.signalStrength),
+  index("idx_comics_watching_consensus").on(table.streetConsensus),
+  index("idx_comics_watching_cover").on(table.comicCoverId),
+]);
+
+// Comic of the Day - Historical significance selection
+export const comicOfTheDay = pgTable("comic_of_the_day", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  comicCoverId: varchar("comic_cover_id").notNull().references(() => comicCovers.id),
+  
+  // Date this comic is featured
+  featureDate: timestamp("feature_date").notNull().unique(),
+  
+  // Historical significance
+  significanceType: text("significance_type").notNull(), // 'first_appearance', 'revolutionary_art', 'cultural_milestone', 'creator_breakthrough'
+  significanceDescription: text("significance_description").notNull(), // "First appearance of Wolverine in Hulk #181"
+  
+  // What makes it special
+  revolutionaryAspect: text("revolutionary_aspect"), // "Gibbons broke panel boundaries", "Silent issue - no dialogue"
+  culturalImpact: text("cultural_impact"), // "Deadpool parodies Deathstroke (Wade Wilson vs Slade Wilson)"
+  
+  // Related entities
+  firstAppearanceEntities: text("first_appearance_entities").array(), // Entity IDs that debuted
+  featuredCreators: text("featured_creators").array(), // Creator entity IDs
+  featuredCharacters: text("featured_characters").array(), // Character entity IDs
+  
+  // Historical context
+  historicalNotes: text("historical_notes"), // Additional context about era, impact, legacy
+  era: text("era"), // 'golden', 'silver', 'bronze', 'copper', 'modern', 'contemporary'
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_comic_of_day_date").on(table.featureDate),
+  index("idx_comic_of_day_type").on(table.significanceType),
+  index("idx_comic_of_day_era").on(table.era),
+]);
+
 // Insert Schemas
 export const insertMarvelLocationSchema = createInsertSchema(marvelLocations).omit({
   id: true,
@@ -7879,6 +7961,26 @@ export type InsertMarvelLocation = z.infer<typeof insertMarvelLocationSchema>;
 
 export type MarvelGadget = typeof marvelGadgets.$inferSelect;
 export type InsertMarvelGadget = z.infer<typeof insertMarvelGadgetSchema>;
+
+// Comics Worth Watching Insert Schema & Types
+export const insertComicsWorthWatchingSchema = createInsertSchema(comicsWorthWatching).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type ComicsWorthWatching = typeof comicsWorthWatching.$inferSelect;
+export type InsertComicsWorthWatching = z.infer<typeof insertComicsWorthWatchingSchema>;
+
+// Comic of the Day Insert Schema & Types
+export const insertComicOfTheDaySchema = createInsertSchema(comicOfTheDay).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type ComicOfTheDay = typeof comicOfTheDay.$inferSelect;
+export type InsertComicOfTheDay = z.infer<typeof insertComicOfTheDaySchema>;
 
 // Asset Relationships Insert Schema & Types
 export const insertAssetRelationshipSchema = createInsertSchema(assetRelationships).omit({
