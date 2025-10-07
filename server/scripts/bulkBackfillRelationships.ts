@@ -17,7 +17,7 @@
 
 import { db } from '../databaseStorage';
 import { assets } from '@shared/schema';
-import { eq } from 'drizzle-orm';
+import { eq, count } from 'drizzle-orm';
 import { 
   buildTeammateRelationships, 
   buildFranchiseRelationships,
@@ -25,12 +25,12 @@ import {
   insertRelationshipBatch 
 } from '../services/relationshipBuilder';
 
-const BATCH_SIZE = 2000; // Process 2000 characters at a time
-const DELAY_BETWEEN_BATCHES = 1000; // 1 second delay to avoid overwhelming DB
+const BATCH_SIZE = 5000; // Process 5000 characters at a time
+const DELAY_BETWEEN_BATCHES = 500; // 0.5 second delay to avoid overwhelming DB
 
 async function getTotalCharacterCount(): Promise<number> {
   const result = await db
-    .select({ count: db.$count(assets.id) })
+    .select({ count: count() })
     .from(assets)
     .where(eq(assets.type, 'character'));
   
@@ -73,21 +73,18 @@ async function main() {
       grandTotal.teammate += teammateCount;
       console.log(`   ✅ Added ${teammateCount} teammate relationships`);
 
-      // Build franchise/publisher relationships with offset
-      console.log('\n2️⃣  Building franchise relationships...');
-      const franchiseResult = await buildFranchiseRelationships(BATCH_SIZE, offset);
-      const franchiseCount = await insertRelationshipBatch(franchiseResult.relationships);
-      grandTotal.franchise += franchiseCount;
-      console.log(`   ✅ Added ${franchiseCount} franchise relationships`);
+      // SKIP franchise relationships - they create millions of weak "ally" relationships
+      // that slow down the backfill. Focus on valuable relationships instead.
+      const franchiseCount = 0;
 
       // Build creator relationships with offset (larger batch)
-      console.log('\n3️⃣  Building creator relationships...');
+      console.log('\n2️⃣  Building creator relationships...');
       const creatorResult = await buildCreatorRelationships(BATCH_SIZE * 2, offset * 2);
       const creatorCount = await insertRelationshipBatch(creatorResult.relationships);
       grandTotal.creator += creatorCount;
       console.log(`   ✅ Added ${creatorCount} creator relationships`);
 
-      const batchTotal = teammateCount + franchiseCount + creatorCount;
+      const batchTotal = teammateCount + creatorCount;
       console.log(`\n📊 Batch ${batchNum} Total: ${batchTotal} relationships`);
       
       // Progress update

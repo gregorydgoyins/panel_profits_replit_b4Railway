@@ -138,17 +138,22 @@ export async function buildFranchiseRelationships(batchSize = 1000, offset = 0):
   }
 
   // Build relationships within each publisher group
+  // OPTIMIZATION: Only create franchise relationships for top 20 characters per publisher
+  // to avoid O(n²) explosion. Franchise relationships are weak "ally" connections anyway.
   Array.from(publisherGroups.entries()).forEach(([publisher, chars]) => {
     if (chars.length < 2) return;
     
     // Only build relationships for major publishers (> 5 characters)
     if (chars.length < 5) return;
 
-    for (let i = 0; i < Math.min(chars.length, 100); i++) {
-      for (let j = i + 1; j < Math.min(chars.length, 100); j++) {
+    // Limit to top 20 characters to prevent O(n²) explosion
+    const limitedChars = chars.slice(0, 20);
+    
+    for (let i = 0; i < limitedChars.length; i++) {
+      for (let j = i + 1; j < limitedChars.length; j++) {
         relationships.push({
-          sourceAssetId: chars[i].id,
-          targetAssetId: chars[j].id,
+          sourceAssetId: limitedChars[i].id,
+          targetAssetId: limitedChars[j].id,
           relationshipType: "ally",
           relationshipStrength: "0.15",
           description: `Same universe: ${publisher}`,
@@ -156,8 +161,8 @@ export async function buildFranchiseRelationships(batchSize = 1000, offset = 0):
         });
 
         relationships.push({
-          sourceAssetId: chars[j].id,
-          targetAssetId: chars[i].id,
+          sourceAssetId: limitedChars[j].id,
+          targetAssetId: limitedChars[i].id,
           relationshipType: "ally",
           relationshipStrength: "0.15",
           description: `Same universe: ${publisher}`,
