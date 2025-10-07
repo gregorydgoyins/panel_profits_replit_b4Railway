@@ -61,9 +61,7 @@ const RSS_FEEDS: RSSFeed[] = [
   { name: 'Comics Continuum', url: 'http://www.comicscontinuum.com/rss.xml' },
   
   // YouTube/Video (many have RSS)
-  { name: 'ComicPOP', url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCXMQWGhex2AgoN7pJW6G1
-
-sQ' },
+  { name: 'ComicPOP', url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCXMQWGhex2AgoN7pJW6G1sQ' },
   { name: 'Comics Explained', url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCKxQmKgrkUv4S7P5w0pLayw' },
   
   // Trade Publications

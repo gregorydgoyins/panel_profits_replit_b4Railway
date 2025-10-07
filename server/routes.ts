@@ -4637,6 +4637,9 @@ Respond with valid JSON in this exact format:
           biography: narrativeEntities.biography,
           teams: narrativeEntities.teams,
           enemies: narrativeEntities.enemies,
+          allies: narrativeEntities.allies,
+          firstAppearance: narrativeEntities.firstAppearance,
+          creators: narrativeEntities.creators,
           assetImageUrl: assetsTable.imageUrl,
           assetCoverImageUrl: assetsTable.coverImageUrl,
           assetId: assetsTable.id,
@@ -4680,31 +4683,46 @@ Respond with valid JSON in this exact format:
           usedVillains.add(partner.id);
           const sharedTeam = villain.teams?.find(team => partner.teams?.includes(team)) || villain.universe;
           
+          // Build relationships list
+          const relationships = [];
+          if (villain.allies?.includes(partner.canonicalName)) relationships.push(`${villain.canonicalName} & ${partner.canonicalName}`);
+          if (villain.enemies && villain.enemies.length > 0) relationships.push(`vs ${villain.enemies[0]}`);
+          
           pairs.push({
             villain,
             henchman: partner,
             relationship: {
-              firstAppearance: `${villain.universe} Comics`,
+              firstAppearance: villain.firstAppearance || `${villain.universe} Comics`,
               keyIssues: [`${sharedTeam} formation`, `Major team operations`],
-              creators: ['Stan Lee', 'Jack Kirby'],
+              creators: villain.creators && villain.creators.length > 0 ? villain.creators : ['Unknown'],
               franchise: villain.universe,
               summary: `${villain.canonicalName} and ${partner.canonicalName} are partners in crime as members of ${sharedTeam}, terrorizing heroes across the ${villain.universe} universe.`,
-              priceImpact: '+12.5%'
+              relationships: relationships.length > 0 ? relationships : [`${villain.canonicalName} & ${partner.canonicalName}`],
+              assetPrice: villain.assetPrice,
+              assetPriceChange: villain.assetPriceChange
             }
           });
         } else {
           // Solo villain
           usedVillains.add(villain.id);
+          
+          // Build relationships list
+          const relationships = [];
+          if (villain.allies && villain.allies.length > 0) relationships.push(`${villain.canonicalName} & ${villain.allies[0]}`);
+          if (villain.enemies && villain.enemies.length > 0) relationships.push(`vs ${villain.enemies[0]}`);
+          
           pairs.push({
             villain,
             henchman: null,
             relationship: {
-              firstAppearance: `${villain.universe} Comics`,
-              keyIssues: [`Solo criminal mastermind`, `Independent operations`],
-              creators: ['Stan Lee', 'Jack Kirby'],
+              firstAppearance: villain.firstAppearance || `${villain.universe} Comics`,
+              keyIssues: [`Solo criminal mastermind`],
+              creators: villain.creators && villain.creators.length > 0 ? villain.creators : ['Unknown'],
               franchise: villain.universe,
               summary: `${villain.canonicalName} operates as a solo threat in the ${villain.universe} universe, a force to be reckoned with.`,
-              priceImpact: '+12.5%'
+              relationships: relationships.length > 0 ? relationships : [`${villain.canonicalName} (solo)`],
+              assetPrice: villain.assetPrice,
+              assetPriceChange: villain.assetPriceChange
             }
           });
         }

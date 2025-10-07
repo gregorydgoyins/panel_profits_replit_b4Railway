@@ -32,7 +32,9 @@ interface VillainHenchmanPair {
     creators: string[];
     franchise: string;
     summary: string;
-    priceImpact: string;
+    relationships: string[];
+    assetPrice: string | null;
+    assetPriceChange: string | null;
   };
 }
 
@@ -105,7 +107,7 @@ export function VillainsHenchmenWidget() {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-[#8b0000]/30 scrollbar-track-transparent">
+        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
           {pairs.map((pair, index) => (
             <div key={index} className={`bg-[#252B3C] p-4 rounded-lg shrink-0 ${pair.henchman ? 'w-[900px]' : 'w-[600px]'}`} data-testid={`pair-villain-henchman-${index}`}>
               <div className={`flex gap-6 ${!pair.henchman ? 'justify-center' : ''}`}>
@@ -141,7 +143,7 @@ export function VillainsHenchmenWidget() {
                     
                     {/* Franchise Badge */}
                     <div className="absolute top-3 right-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm border border-white/20 z-30">
-                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '10pt', color: '#ffffff' }}>
+                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt', color: '#ffffff' }}>
                         {pair.villain.universe?.toUpperCase()}
                       </span>
                     </div>
@@ -188,7 +190,7 @@ export function VillainsHenchmenWidget() {
                       
                       {/* Franchise Badge */}
                       <div className="absolute top-3 right-3 px-3 py-1 rounded bg-black/70 backdrop-blur-sm border border-white/20 z-30">
-                        <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '10pt', color: '#ffffff' }}>
+                        <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt', color: '#ffffff' }}>
                           {pair.henchman.universe?.toUpperCase()}
                         </span>
                       </div>
@@ -276,14 +278,44 @@ export function VillainsHenchmenWidget() {
                       </div>
                     )}
 
-                    <div>
-                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt', color: '#8b0000' }}>
-                        Price Impact:
-                      </span>
-                      <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt', color: '#50C878', marginLeft: '8px' }}>
-                        {pair.relationship.priceImpact}
-                      </span>
-                    </div>
+                    {pair.relationship.assetPrice && (
+                      <div className="flex items-center gap-4">
+                        <div>
+                          <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt', color: '#8b0000' }}>
+                            Price Now:
+                          </span>
+                          <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt', color: '#ffffff', marginLeft: '8px' }}>
+                            ${parseFloat(pair.relationship.assetPrice).toFixed(2)}
+                          </span>
+                        </div>
+                        {pair.relationship.assetPriceChange && (
+                          <div className="flex items-center gap-1">
+                            <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt', color: parseFloat(pair.relationship.assetPriceChange) >= 0 ? '#50C878' : '#ff4444' }}>
+                              {parseFloat(pair.relationship.assetPriceChange) >= 0 ? '↑' : '↓'} {Math.abs(parseFloat(pair.relationship.assetPriceChange)).toFixed(2)}%
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {pair.relationship.relationships && pair.relationship.relationships.length > 0 && (
+                      <div>
+                        <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt', color: '#8b0000' }}>
+                          Relationships:
+                        </span>
+                        <div className="flex gap-2 flex-wrap mt-1">
+                          {pair.relationship.relationships.map((rel, idx) => (
+                            <span 
+                              key={idx}
+                              className="px-2 py-1 rounded bg-black/50"
+                              style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '12pt', color: '#ffffff' }}
+                            >
+                              {rel}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
