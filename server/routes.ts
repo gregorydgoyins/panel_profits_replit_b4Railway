@@ -4663,27 +4663,19 @@ Respond with valid JSON in this exact format:
         )
         .orderBy(desc(narrativeEntities.popularityScore));
 
-      // Create villain-henchman pairs
+      // Separate villains and henchmen
       const villains = allEntities.filter(e => e.subtype === 'villain');
       const henchmen = allEntities.filter(e => e.subtype === 'henchman');
       const pairs = [];
-      const usedVillains = new Set();
-      const usedHenchmen = new Set();
+      const usedHenchmen = new Set<string>();
       
+      // Pair each villain with an available henchman
       for (const villain of villains) {
-        if (usedVillains.has(villain.id)) continue;
-        usedVillains.add(villain.id);
-        
-        // Try to find a henchman for this villain
         const henchman = henchmen.find(h => !usedHenchmen.has(h.id));
         
         if (henchman) {
-          // Villain with henchman
           usedHenchmen.add(henchman.id);
-          
-          // Build relationships list
-          const relationships = [];
-          relationships.push(`${villain.canonicalName} & ${henchman.canonicalName}`);
+          const relationships = [`${villain.canonicalName} & ${henchman.canonicalName}`];
           if (villain.enemies && villain.enemies.length > 0) relationships.push(`vs ${villain.enemies[0]}`);
           
           pairs.push({
@@ -4691,17 +4683,17 @@ Respond with valid JSON in this exact format:
             henchman,
             relationship: {
               firstAppearance: villain.firstAppearance || `${villain.universe} Comics`,
-              keyIssues: [`${villain.canonicalName}'s criminal operations`, `${henchman.canonicalName} serves as loyal enforcer`],
+              keyIssues: [`${villain.canonicalName}'s criminal operations`, `${henchman.canonicalName} as enforcer`],
               creators: villain.creators && villain.creators.length > 0 ? villain.creators : ['Unknown'],
               franchise: villain.universe,
-              summary: `${henchman.canonicalName} serves as the loyal enforcer for ${villain.canonicalName}, carrying out their villainous schemes across the ${villain.universe} universe.`,
-              relationships: relationships,
+              summary: `${henchman.canonicalName} serves as loyal enforcer for ${villain.canonicalName}, carrying out villainous schemes across the ${villain.universe} universe.`,
+              relationships,
               assetPrice: villain.assetPrice,
               assetPriceChange: villain.assetPriceChange
             }
           });
         } else {
-          // Solo villain (no henchmen available)
+          // Standalone villain
           const relationships = [];
           if (villain.allies && villain.allies.length > 0) relationships.push(`${villain.canonicalName} & ${villain.allies[0]}`);
           if (villain.enemies && villain.enemies.length > 0) relationships.push(`vs ${villain.enemies[0]}`);
@@ -4711,13 +4703,36 @@ Respond with valid JSON in this exact format:
             henchman: null,
             relationship: {
               firstAppearance: villain.firstAppearance || `${villain.universe} Comics`,
-              keyIssues: [`Solo criminal mastermind`],
+              keyIssues: [`Criminal mastermind`],
               creators: villain.creators && villain.creators.length > 0 ? villain.creators : ['Unknown'],
               franchise: villain.universe,
-              summary: `${villain.canonicalName} operates as a solo threat in the ${villain.universe} universe, a force to be reckoned with.`,
-              relationships: relationships.length > 0 ? relationships : [`${villain.canonicalName} (solo)`],
+              summary: `${villain.canonicalName} terrorizes the ${villain.universe} universe with cunning schemes and ruthless ambition.`,
+              relationships: relationships.length > 0 ? relationships : [`${villain.canonicalName}`],
               assetPrice: villain.assetPrice,
               assetPriceChange: villain.assetPriceChange
+            }
+          });
+        }
+      }
+      
+      // Add standalone henchmen
+      for (const henchman of henchmen) {
+        if (!usedHenchmen.has(henchman.id)) {
+          const relationships = [`${henchman.canonicalName}`];
+          if (henchman.allies && henchman.allies.length > 0) relationships.push(`${henchman.canonicalName} & ${henchman.allies[0]}`);
+          
+          pairs.push({
+            villain: null,
+            henchman,
+            relationship: {
+              firstAppearance: henchman.firstAppearance || `${henchman.universe} Comics`,
+              keyIssues: [`Freelance enforcer`],
+              creators: henchman.creators && henchman.creators.length > 0 ? henchman.creators : ['Unknown'],
+              franchise: henchman.universe,
+              summary: `${henchman.canonicalName} operates as a freelance enforcer in the ${henchman.universe} criminal underworld.`,
+              relationships,
+              assetPrice: henchman.assetPrice,
+              assetPriceChange: henchman.assetPriceChange
             }
           });
         }
