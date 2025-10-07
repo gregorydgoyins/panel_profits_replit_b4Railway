@@ -106,6 +106,11 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-4">
+      {/* Global Markets - Sticky Widget */}
+      <div className="sticky top-[108px] z-40 -mx-6 px-6 pb-4 bg-background">
+        <CompactClocksWidget />
+      </div>
+
       {/* Portfolio Outlook - Single Line Stats */}
       <Card className="!bg-[#1A1F2E] yellow-rimlight-hover" data-testid="widget-portfolio-outlook">
         <CardHeader className="pb-3 space-y-0">
@@ -482,9 +487,6 @@ export default function DashboardPage() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Top 3 Global Market Clocks */}
-      <CompactClocksWidget />
 
       {/* Comic of the Day */}
       <ComicOfTheDayWidget />
