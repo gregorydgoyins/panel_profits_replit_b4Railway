@@ -1,1 +1,20 @@
-{"version":"7","dialect":"postgresql","entries":[{"idx":0,"version":"7","when":1727766549000,"tag":"0000_natural_venom","breakpoints":true}]}
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1727766549000,
+      "tag": "0000_natural_venom",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1759862857611,
+      "tag": "0001_dusty_black_cat",
+      "breakpoints": true
+    }
+  ]
+}
