@@ -28,7 +28,8 @@ import shadowRoutes from "./routes/shadowRoutes.js";
 import journalRoutes from "./routes/journalRoutes.js";
 import warfareRoutes from "./routes/warfareRoutes.js";
 import pineconeRoutes from "./routes/pinecone.js";
-import comicVineRoutes from "./routes/comicVineRoutes.js";
+// Comic Vine API disabled - service no longer available
+// import comicVineRoutes from "./routes/comicVineRoutes.js";
 import marvelRoutes from "./routes/marvelRoutes.js";
 import dcRoutes from "./routes/dcRoutes.js";
 import kaggleComicsRoutes from "./routes/kaggleComicsRoutes.js";
@@ -1999,8 +2000,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Pinecone vector search routes
   app.use("/api/pinecone", pineconeRoutes);
 
-  // Comic Vine API expansion routes
-  app.use("/api/comicvine", comicVineRoutes);
+  // Comic Vine API disabled - service no longer available
+  //   // Comic Vine API expansion routes
+  //   app.use("/api/comicvine", comicVineRoutes);
 
   // Marvel API expansion routes
   app.use("/api/marvel", marvelRoutes);
