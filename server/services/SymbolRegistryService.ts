@@ -203,12 +203,15 @@ class SymbolRegistry {
    * Example: ASM.V1.#300.S (Amazing Spider-Man Vol 1 #300, Silver Age)
    */
   generateComicSymbol(params: {
-    series: string;
+    series?: string;
+    title?: string;
     volume?: number;
     issue?: number;
     era?: 'golden' | 'silver' | 'bronze' | 'modern';
   }): string {
-    const core = this.getCoreSymbol(params.series, 4);
+    // Accept either series or title
+    const name = params.series || params.title || 'COMIC';
+    const core = this.getCoreSymbol(name, 4);
     const vol = params.volume || 1;
     const issue = params.issue || 1;
     
@@ -267,10 +270,13 @@ class SymbolRegistry {
     maturityYear: number;
   }): string {
     const core = this.getCoreSymbol(params.issuer, 5);
-    // Format coupon with up to 1 decimal place, removing trailing zeros
-    const coupon = (params.couponRate % 1 === 0) 
-      ? params.couponRate.toFixed(0)
-      : params.couponRate.toFixed(1);
+    
+    // Format coupon preserving decimal precision, removing trailing zeros
+    const couponStr = params.couponRate.toString();
+    const coupon = couponStr.includes('.') 
+      ? couponStr.replace(/\.?0+$/, '') // Remove trailing zeros
+      : couponStr;
+    
     const maturity = params.maturityYear.toString().slice(-2);
     return `${core}.B${coupon}.${maturity}`.slice(0, 16);
   }
@@ -282,14 +288,40 @@ class SymbolRegistry {
    */
   generateOptionSymbol(params: {
     underlying: string;
-    expiryDate: string; // MMDD format
+    expiryDate?: string; // MMDD format
+    expiry?: string; // ISO format (will be parsed to MMDD)
     type: 'call' | 'put';
-    strikePrice: number;
+    strikePrice?: number;
+    strike?: number;
   }): string {
     const core = this.getCoreSymbol(params.underlying, 4);
+    
+    // Parse and validate expiry
+    let expiryCode = '';
+    if (params.expiryDate) {
+      expiryCode = params.expiryDate;
+    } else if (params.expiry) {
+      // Parse ISO format (2025-01-17) to MMDD using UTC to avoid timezone issues
+      const date = new Date(params.expiry + 'T00:00:00Z');
+      if (isNaN(date.getTime())) {
+        throw new Error(`Invalid expiry date: ${params.expiry}`);
+      }
+      const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(date.getUTCDate()).padStart(2, '0');
+      expiryCode = month + day;
+    } else {
+      throw new Error('Option expiry is required (provide expiryDate or expiry)');
+    }
+    
+    // Validate strike price
+    const strikeValue = params.strikePrice ?? params.strike;
+    if (strikeValue === undefined || strikeValue <= 0) {
+      throw new Error('Option strike price is required and must be > 0');
+    }
+    
     const callPut = params.type === 'call' ? 'C' : 'P';
-    const strike = params.strikePrice.toFixed(0);
-    return `${core}.O${params.expiryDate}${callPut}${strike}`.slice(0, 16);
+    const strike = Math.floor(strikeValue);
+    return `${core}.O${expiryCode}${callPut}${strike}`.slice(0, 16);
   }
 
   /**
