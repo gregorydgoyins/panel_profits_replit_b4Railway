@@ -3,6 +3,26 @@ import { pgTable, text, varchar, decimal, integer, timestamp, boolean, jsonb, ve
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Comic Book Era Definitions - Industry Standard + Platform Extensions
+export const COMIC_ERAS = [
+  { name: 'Golden Age', startYear: 1938, endYear: 1956, description: 'Superman, Batman origins' },
+  { name: 'Silver Age', startYear: 1956, endYear: 1970, description: 'Marvel renaissance, Spider-Man debut' },
+  { name: 'Bronze Age', startYear: 1970, endYear: 1985, description: 'Darker themes, social issues' },
+  { name: 'Copper Age', startYear: 1985, endYear: 1991, description: 'Watchmen, Dark Knight Returns' },
+  { name: 'Modern Age', startYear: 1992, endYear: 2004, description: 'Image Comics, creator-owned boom' },
+  { name: 'Indie/Digital Age', startYear: 2005, endYear: 2010, description: 'Independent publishers rise' },
+  { name: 'Post-Modern Age', startYear: 2011, endYear: new Date().getFullYear(), description: 'DC New 52, digital acceleration' },
+] as const;
+
+export function getComicEra(year: number): string {
+  for (const era of COMIC_ERAS) {
+    if (year >= era.startYear && year <= era.endYear) {
+      return era.name;
+    }
+  }
+  return 'Unknown Era';
+}
+
 // Session storage table for Replit Auth
 // (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
 export const sessions = pgTable(

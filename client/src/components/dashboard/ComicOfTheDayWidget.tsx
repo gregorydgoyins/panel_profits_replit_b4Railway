@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Star, TrendingUp, TrendingDown, DollarSign, Calendar, Book, User, Landmark, FileText } from 'lucide-react';
+import { getComicEra } from '@shared/schema';
 
 interface ComicOfTheDay {
   id: number;
@@ -135,18 +136,32 @@ export function ComicOfTheDayWidget() {
 
               <div className="flex items-center gap-3 flex-wrap">
                 {comic.onsaleDate && (
-                  <Badge variant="outline" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
-                    <Calendar className="w-3 h-3 mr-1" />
-                    {new Date(comic.onsaleDate).getFullYear()}
-                  </Badge>
-                )}
-                <Badge variant="secondary" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
-                  {comic.yearsOld} years old
-                </Badge>
-                {comic.format && (
-                  <Badge variant="secondary" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
-                    {comic.format}
-                  </Badge>
+                  <>
+                    <Badge 
+                      variant="outline" 
+                      className="white-rimlight-hover overflow-visible cursor-default" 
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}
+                      data-testid="badge-publication-year"
+                    >
+                      {new Date(comic.onsaleDate).getFullYear()}
+                    </Badge>
+                    <Badge 
+                      variant="outline" 
+                      className="white-rimlight-hover overflow-visible cursor-default" 
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}
+                      data-testid="badge-comic-age"
+                    >
+                      {comic.yearsOld} years old
+                    </Badge>
+                    <Badge 
+                      variant="outline" 
+                      className="white-rimlight-hover overflow-visible cursor-default" 
+                      style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}
+                      data-testid="badge-comic-era"
+                    >
+                      {getComicEra(new Date(comic.onsaleDate).getFullYear())}
+                    </Badge>
+                  </>
                 )}
               </div>
 
