@@ -132,13 +132,13 @@ export function FooterClocksWidget() {
   const updateMarkets = () => {
     const allMarkets = [
       {
-        name: 'XETRA',
-        city: 'Frankfurt',
-        timezone: 'Europe/Berlin',
-        status: getMarketStatus('Europe/Berlin', 9, 17.5, true, 8, 22),
-        localTime: getLocalTime('Europe/Berlin'),
-        openTime: '9:00 AM',
-        closeTime: '5:30 PM',
+        name: 'TSX',
+        city: 'Toronto',
+        timezone: 'America/Toronto',
+        status: getMarketStatus('America/Toronto', 9.5, 16),
+        localTime: getLocalTime('America/Toronto'),
+        openTime: '9:30 AM',
+        closeTime: '4:00 PM',
       },
       {
         name: 'HKEx',
@@ -146,15 +146,6 @@ export function FooterClocksWidget() {
         timezone: 'Asia/Hong_Kong',
         status: getMarketStatus('Asia/Hong_Kong', 9.5, 16),
         localTime: getLocalTime('Asia/Hong_Kong'),
-        openTime: '9:30 AM',
-        closeTime: '4:00 PM',
-      },
-      {
-        name: 'TSX',
-        city: 'Toronto',
-        timezone: 'America/Toronto',
-        status: getMarketStatus('America/Toronto', 9.5, 16),
-        localTime: getLocalTime('America/Toronto'),
         openTime: '9:30 AM',
         closeTime: '4:00 PM',
       },
@@ -169,7 +160,7 @@ export function FooterClocksWidget() {
       },
       {
         name: 'NSE',
-        city: 'Mumbai',
+        city: 'New Delhi',
         timezone: 'Asia/Kolkata',
         status: getMarketStatus('Asia/Kolkata', 9.25, 15.5),
         localTime: getLocalTime('Asia/Kolkata'),
@@ -178,9 +169,8 @@ export function FooterClocksWidget() {
       }
     ];
 
-    // Filter: Show only open markets
-    const openMarkets = allMarkets.filter(m => m.status === 'open');
-    setMarkets(openMarkets);
+    // Show all markets (not just open ones)
+    setMarkets(allMarkets);
   };
 
   useEffect(() => {

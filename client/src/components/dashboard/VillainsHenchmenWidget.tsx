@@ -123,6 +123,11 @@ export function VillainsHenchmenWidget() {
                         src={getImageUrl(pair.villain)}
                         alt={pair.villain.canonicalName}
                         className="absolute inset-0 w-full h-full object-cover z-10"
+                        crossOrigin="anonymous"
+                        onError={(e) => {
+                          // Hide image on error, show placeholder instead
+                          e.currentTarget.style.display = 'none';
+                        }}
                         data-testid={`img-villain-${pair.villain.id}`}
                       />
                     )}
@@ -165,6 +170,11 @@ export function VillainsHenchmenWidget() {
                           src={getImageUrl(pair.henchman)}
                           alt={pair.henchman.canonicalName}
                           className="absolute inset-0 w-full h-full object-cover z-10"
+                          crossOrigin="anonymous"
+                          onError={(e) => {
+                            // Hide image on error, show placeholder instead
+                            e.currentTarget.style.display = 'none';
+                          }}
                           data-testid={`img-henchman-${pair.henchman.id}`}
                         />
                       )}
