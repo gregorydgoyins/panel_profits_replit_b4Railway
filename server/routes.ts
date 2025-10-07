@@ -83,7 +83,9 @@ import {
   marketData,
   narrativeEntities,
   narrativeTraits,
-  comicCreators
+  comicCreators,
+  marvelLocations,
+  marvelGadgets
 } from "@shared/schema";
 import { z } from "zod";
 import { eq, and, sql, or, desc, lt, isNull } from "drizzle-orm";
@@ -4452,38 +4454,49 @@ Respond with valid JSON in this exact format:
   // Get location-gadget pairs with relationship narratives
   app.get('/api/narrative/location-gadget-pairs', async (req: any, res) => {
     try {
-      // Fetch locations and gadgets separately
-      const allEntities = await db
+      // Fetch locations from marvel_locations table
+      const locations = await db
         .select({
-          id: narrativeEntities.id,
-          canonicalName: narrativeEntities.canonicalName,
-          entityType: narrativeEntities.entityType,
-          subtype: narrativeEntities.subtype,
-          universe: narrativeEntities.universe,
-          primaryImageUrl: narrativeEntities.primaryImageUrl,
-          alternateImageUrls: narrativeEntities.alternateImageUrls,
-          biography: narrativeEntities.biography,
-          assetImageUrl: assetsTable.imageUrl,
-          assetCoverImageUrl: assetsTable.coverImageUrl,
-          assetId: assetsTable.id,
-          assetSymbol: assetsTable.symbol,
-          assetPrice: assetCurrentPrices.currentPrice,
-          assetPriceChange: assetCurrentPrices.dayChangePercent,
+          id: marvelLocations.id,
+          canonicalName: marvelLocations.name,
+          entityType: sql<string>`'location'`,
+          subtype: marvelLocations.locationType,
+          universe: marvelLocations.primaryUniverse,
+          primaryImageUrl: marvelLocations.imageUrl,
+          alternateImageUrls: sql<string[] | null>`NULL`,
+          biography: marvelLocations.description,
+          assetImageUrl: marvelLocations.imageUrl,
+          assetCoverImageUrl: marvelLocations.imageUrl,
+          assetId: marvelLocations.id,
+          assetSymbol: marvelLocations.symbol,
+          assetPrice: marvelLocations.currentPrice,
+          assetPriceChange: sql<string | null>`NULL`,
         })
-        .from(narrativeEntities)
-        .leftJoin(assetsTable, eq(narrativeEntities.assetId, assetsTable.id))
-        .leftJoin(assetCurrentPrices, eq(assetsTable.id, assetCurrentPrices.assetId))
-        .where(
-          or(
-            eq(narrativeEntities.entityType, 'location'),
-            eq(narrativeEntities.entityType, 'gadget')
-          )
-        )
-        .orderBy(desc(narrativeEntities.popularityScore));
+        .from(marvelLocations)
+        .orderBy(desc(marvelLocations.tier))
+        .limit(10);
 
-      // Group by universe and create pairs
-      const locations = allEntities.filter(e => e.entityType === 'location');
-      const gadgets = allEntities.filter(e => e.entityType === 'gadget');
+      // Fetch gadgets from marvel_gadgets table
+      const gadgets = await db
+        .select({
+          id: marvelGadgets.id,
+          canonicalName: marvelGadgets.name,
+          entityType: sql<string>`'gadget'`,
+          subtype: marvelGadgets.gadgetType,
+          universe: marvelGadgets.primaryUniverse,
+          primaryImageUrl: marvelGadgets.imageUrl,
+          alternateImageUrls: sql<string[] | null>`NULL`,
+          biography: marvelGadgets.description,
+          assetImageUrl: marvelGadgets.imageUrl,
+          assetCoverImageUrl: marvelGadgets.imageUrl,
+          assetId: marvelGadgets.id,
+          assetSymbol: marvelGadgets.symbol,
+          assetPrice: marvelGadgets.currentPrice,
+          assetPriceChange: sql<string | null>`NULL`,
+        })
+        .from(marvelGadgets)
+        .orderBy(desc(marvelGadgets.tier))
+        .limit(10);
       
       const pairs = [];
       
@@ -4496,12 +4509,12 @@ Respond with valid JSON in this exact format:
             location,
             gadget,
             relationship: {
-              firstAppearance: `${location.universe} Comics`,
+              firstAppearance: `${location.universe || 'Marvel'} Comics`,
               keyIssues: [`Iconic scenes set in ${location.canonicalName}`, `${gadget.canonicalName} deployed at location`],
               creators: ['Stan Lee', 'Jack Kirby'],
-              franchise: location.universe,
-              summary: `${location.canonicalName} serves as a pivotal setting where ${gadget.canonicalName} has been deployed in critical moments within the ${location.universe} universe.`,
-              priceImpact: '+6.7%' // Mock data for now
+              franchise: location.universe || 'Marvel',
+              summary: `${location.canonicalName} serves as a pivotal setting where ${gadget.canonicalName} has been deployed in critical moments within the ${location.universe || 'Marvel'} universe.`,
+              priceImpact: '+6.7%'
             }
           });
         }
