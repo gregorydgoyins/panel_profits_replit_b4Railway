@@ -56,7 +56,7 @@ export function FeaturedComicsSection() {
         <div className="mb-4">
           <div className="flex items-center gap-2" style={{ marginBottom: '-4px' }}>
             <BookOpen className="w-4 h-4 text-pink-500" />
-            <h3 className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>Featured Comics</h3>
+            <h3 className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>Comics Worth Watching</h3>
           </div>
           <p className="text-muted-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
             Key issues and first appearances worth tracking
@@ -81,7 +81,7 @@ export function FeaturedComicsSection() {
       <div className="mb-4">
         <div className="flex items-center gap-2" style={{ marginBottom: '-4px' }}>
           <BookOpen className="w-4 h-4 text-pink-500" />
-          <h3 className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>Featured Comics</h3>
+          <h3 className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>Comics Worth Watching</h3>
         </div>
         <p className="text-muted-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
           Key issues and first appearances worth tracking

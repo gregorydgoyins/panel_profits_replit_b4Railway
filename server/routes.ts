@@ -4735,6 +4735,82 @@ Respond with valid JSON in this exact format:
     }
   });
 
+  // Get single featured villain/henchman
+  app.get('/api/narrative/featured-villain', async (req: any, res) => {
+    try {
+      // Fetch a random villain, supervillain, franchise_villain, or henchman
+      const allCharacters = await db
+        .select({
+          id: narrativeEntities.id,
+          canonicalName: narrativeEntities.canonicalName,
+          subtype: narrativeEntities.subtype,
+          universe: narrativeEntities.universe,
+          primaryImageUrl: narrativeEntities.primaryImageUrl,
+          biography: narrativeEntities.biography,
+          firstAppearance: narrativeEntities.firstAppearance,
+          creators: narrativeEntities.creators,
+        })
+        .from(narrativeEntities)
+        .where(
+          and(
+            eq(narrativeEntities.entityType, 'character'),
+            or(
+              eq(narrativeEntities.subtype, 'villain'),
+              eq(narrativeEntities.subtype, 'supervillain'),
+              eq(narrativeEntities.subtype, 'franchise_villain'),
+              eq(narrativeEntities.subtype, 'henchman')
+            )
+          )
+        )
+        .orderBy(desc(narrativeEntities.popularityScore))
+        .limit(20);
+
+      if (allCharacters.length === 0) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'No characters found' 
+        });
+      }
+
+      // Select a random character from the top 20
+      const character = allCharacters[Math.floor(Math.random() * allCharacters.length)];
+
+      // Format creators as array of objects with name and id
+      const formattedCreators = character.creators && Array.isArray(character.creators)
+        ? character.creators.map((creatorName: string) => ({
+            name: creatorName,
+            id: creatorName.toLowerCase().replace(/\s+/g, '-')
+          }))
+        : [];
+
+      // Determine publisher and publisher ID (use universe as publisher)
+      const publisher = character.universe || 'Unknown';
+      const publisherId = publisher.toLowerCase().replace(/\s+/g, '-');
+
+      res.json({
+        success: true,
+        data: {
+          id: character.id,
+          canonicalName: character.canonicalName,
+          type: character.subtype,
+          universe: character.universe,
+          publisher,
+          publisherId,
+          primaryImageUrl: character.primaryImageUrl,
+          biography: character.biography,
+          firstAppearance: character.firstAppearance,
+          creators: formattedCreators,
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching featured villain:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to fetch featured villain' 
+      });
+    }
+  });
+
   // Get franchise/universe information
   app.get('/api/narrative/franchise/:name', async (req: any, res) => {
     try {

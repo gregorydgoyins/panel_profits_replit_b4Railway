@@ -96,125 +96,127 @@ export function ComicOfTheDayWidget() {
       </CardHeader>
       <CardContent>
         <div className="bg-[#252B3C] p-4 rounded-lg">
-        {/* Featured Comic Header */}
-        <div className="flex items-start gap-4 mb-6">
-          {/* Real Comic Cover from Marvel API - Clickable to Series Detail */}
-          <Link href={`/series/${encodeURIComponent(comic.series)}`} data-testid="link-series-detail">
-            <div className="w-32 aspect-[2/3] bg-muted rounded-lg overflow-visible shrink-0 border-2 border-white/40 green-rimlight-hover cursor-pointer">
-              {comic.coverUrl ? (
-                <img
-                  src={comic.coverUrl}
-                  alt={comic.title}
-                  className="w-full h-full object-cover rounded-lg"
-                  loading="lazy"
-                  data-testid="img-comic-of-the-day-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 rounded-lg">
-                  <Book className="w-12 h-12 text-primary/50" />
-                </div>
-              )}
-            </div>
-          </Link>
-
-          {/* Comic Info */}
-          <div className="flex-1 space-y-3">
-            <div>
-              <Badge className="mb-2 bg-yellow-500 text-black">
-                {comic.significance}
-              </Badge>
-              <h3 className="text-2xl font-bold text-foreground line-clamp-2">
-                {comic.title}
-              </h3>
-              <p className="text-sm text-muted-foreground">{comic.series} #{comic.issueNumber}</p>
-            </div>
-
-            <div className="flex items-center gap-3 flex-wrap">
-              {comic.onsaleDate && (
-                <Badge variant="outline">
-                  <Calendar className="w-3 h-3 mr-1" />
-                  {new Date(comic.onsaleDate).getFullYear()}
-                </Badge>
-              )}
-              <Badge variant="secondary">
-                {comic.yearsOld} years old
-              </Badge>
-              {comic.format && (
-                <Badge variant="secondary">
-                  {comic.format}
-                </Badge>
-              )}
-            </div>
-
-            {/* Price and Valuation */}
-            <div className="flex items-center gap-6">
-              <div>
-                <p className="text-sm text-muted-foreground">Print Price</p>
-                <p className="text-lg font-semibold text-foreground">
-                  ${comic.printPrice.toFixed(2)}
-                </p>
+        {/* Main Content Area - Image + Info Sections Side by Side */}
+        <div className="flex flex-col lg:flex-row gap-6 mb-6">
+          {/* Left Side - Larger Comic Cover */}
+          <div className="lg:w-2/5">
+            <Link href={`/series/${encodeURIComponent(comic.series)}`} data-testid="link-series-detail">
+              <div className="w-full aspect-[2/3] bg-muted rounded-lg overflow-visible border-2 border-white/40 green-rimlight-hover cursor-pointer">
+                {comic.coverUrl ? (
+                  <img
+                    src={comic.coverUrl}
+                    alt={comic.title}
+                    className="w-full h-full object-cover rounded-lg"
+                    loading="lazy"
+                    data-testid="img-comic-of-the-day-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 rounded-lg">
+                    <Book className="w-12 h-12 text-primary/50" />
+                  </div>
+                )}
               </div>
-              <div className="flex items-center gap-2 text-green-500">
-                <TrendingUp className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {/* Right Side - Comic Info + Information Sections */}
+          <div className="lg:w-3/5 space-y-4">
+            {/* Comic Title & Metadata */}
+            <div className="space-y-3 pb-2">
+              <div>
+                <Badge className="mb-2 bg-yellow-500 text-black" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
+                  {comic.significance}
+                </Badge>
+                <h3 className="text-2xl text-foreground line-clamp-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
+                  {comic.title}
+                </h3>
+                <p className="text-sm text-muted-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>{comic.series} #{comic.issueNumber}</p>
+              </div>
+
+              <div className="flex items-center gap-3 flex-wrap">
+                {comic.onsaleDate && (
+                  <Badge variant="outline" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
+                    <Calendar className="w-3 h-3 mr-1" />
+                    {new Date(comic.onsaleDate).getFullYear()}
+                  </Badge>
+                )}
+                <Badge variant="secondary" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
+                  {comic.yearsOld} years old
+                </Badge>
+                {comic.format && (
+                  <Badge variant="secondary" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
+                    {comic.format}
+                  </Badge>
+                )}
+              </div>
+
+              {/* Price and Valuation */}
+              <div className="flex items-center gap-6">
                 <div>
-                  <p className="text-sm text-muted-foreground">Estimated Value</p>
-                  <p className="text-2xl font-bold">
-                    ${comic.estimatedValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  <p className="text-sm text-muted-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>Print Price</p>
+                  <p className="text-lg text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
+                    ${comic.printPrice.toFixed(2)}
                   </p>
                 </div>
+                <div className="flex items-center gap-2 text-green-500">
+                  <TrendingUp className="w-4 h-4" />
+                  <div>
+                    <p className="text-sm text-muted-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>Estimated Value</p>
+                    <p className="text-2xl" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
+                      ${comic.estimatedValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Information Sections with Equal Spacing */}
-        <div className="space-y-4">
-        {/* Historical Context - Storytelling - Clickable to Comic of the Day Historical Page */}
-        <Link href="/comic-of-day/historical" data-testid="link-comic-of-day-historical" className="block">
-          <div className="bg-primary/5 border-2 border-green-500 rounded-lg p-4 green-rimlight-hover cursor-pointer overflow-visible">
-            <h4 className="text-foreground flex items-center gap-2 mb-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
-              <Landmark className="w-4 h-4 text-amber-500" />
-              Historical Significance
-            </h4>
-            <p className="text-sm text-foreground/80 leading-relaxed" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
-              {comic.historicalContext}
-            </p>
-          </div>
-        </Link>
-
-        {/* Description - About This Issue - Clickable to Comic of the Day About Page */}
-        {comic.description && (
-          <Link href="/comic-of-day/about" data-testid="link-comic-of-day-about" className="block">
-            <div className="bg-primary/5 border-2 border-green-500 rounded-lg p-4 green-rimlight-hover cursor-pointer overflow-visible">
-              <h4 className="text-foreground flex items-center gap-2 mb-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
-                <FileText className="w-4 h-4 text-blue-500" />
-                About This Issue
-              </h4>
-              <p className="text-sm text-foreground/80 leading-relaxed line-clamp-3" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
-                {comic.description}
-              </p>
-            </div>
-          </Link>
-        )}
-
-        {/* Creators - Creative Team - Clickable to Comic of the Day Creators Page */}
-        {comic.creators && comic.creators.length > 0 && (
-          <Link href="/comic-of-day/creators" data-testid="link-comic-of-day-creators" className="block">
-            <div className="bg-primary/5 border-2 border-green-500 rounded-lg p-4 green-rimlight-hover cursor-pointer overflow-visible">
-              <h4 className="text-foreground flex items-center gap-2 mb-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
-                <User className="w-4 h-4 text-purple-500" />
-                Creative Team
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {comic.creators.map((creator, idx) => (
-                  <Badge key={idx} variant="outline" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '13pt' }}>
-                    {creator.name} <span className="text-muted-foreground ml-1" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>({creator.role})</span>
-                  </Badge>
-                ))}
+            {/* Historical Significance */}
+            <Link href="/comic-of-day/historical" data-testid="link-comic-of-day-historical" className="block">
+              <div className="bg-primary/5 border-2 border-green-500 rounded-lg p-4 green-rimlight-hover cursor-pointer overflow-visible">
+                <h4 className="text-foreground flex items-center gap-2 mb-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
+                  <Landmark className="w-4 h-4 text-amber-500" />
+                  Historical Significance
+                </h4>
+                <p className="text-sm text-foreground/80 leading-relaxed" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
+                  {comic.historicalContext}
+                </p>
               </div>
-            </div>
-          </Link>
-        )}
+            </Link>
+
+            {/* About This Issue */}
+            {comic.description && (
+              <Link href="/comic-of-day/about" data-testid="link-comic-of-day-about" className="block">
+                <div className="bg-primary/5 border-2 border-green-500 rounded-lg p-4 green-rimlight-hover cursor-pointer overflow-visible">
+                  <h4 className="text-foreground flex items-center gap-2 mb-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
+                    <FileText className="w-4 h-4 text-blue-500" />
+                    About This Issue
+                  </h4>
+                  <p className="text-sm text-foreground/80 leading-relaxed line-clamp-3" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
+                    {comic.description}
+                  </p>
+                </div>
+              </Link>
+            )}
+
+            {/* Creative Team */}
+            {comic.creators && comic.creators.length > 0 && (
+              <Link href="/comic-of-day/creators" data-testid="link-comic-of-day-creators" className="block">
+                <div className="bg-primary/5 border-2 border-green-500 rounded-lg p-4 green-rimlight-hover cursor-pointer overflow-visible">
+                  <h4 className="text-foreground flex items-center gap-2 mb-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '15pt' }}>
+                    <User className="w-4 h-4 text-purple-500" />
+                    Creative Team
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {comic.creators.map((creator, idx) => (
+                      <Badge key={idx} variant="outline" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '13pt' }}>
+                        {creator.name} <span className="text-muted-foreground ml-1" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>({creator.role})</span>
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* Key Facts - One Orange Box Around All Items */}
