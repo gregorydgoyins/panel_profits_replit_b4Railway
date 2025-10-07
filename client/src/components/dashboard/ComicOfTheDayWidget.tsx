@@ -227,7 +227,7 @@ export function ComicOfTheDayWidget() {
               {comic.isFirstIssue && (
                 <li className="flex items-start gap-2 text-sm">
                   <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                  <Link href={`/issue/${comic.id}`} data-testid="link-quick-fact-first-issue" className="text-foreground hover-elevate cursor-pointer transition-all duration-200" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                  <Link href={`/issue/${comic.id}`} data-testid="link-quick-fact-first-issue" className="text-foreground hover-elevate cursor-pointer transition-all duration-200" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '12pt' }}>
                     First issue of the series - highly collectible
                   </Link>
                 </li>
@@ -235,7 +235,7 @@ export function ComicOfTheDayWidget() {
               {comic.isKeyIssue && (
                 <li className="flex items-start gap-2 text-sm">
                   <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                  <Link href={`/issue/${comic.id}`} data-testid="link-quick-fact-key-issue" className="text-foreground hover-elevate cursor-pointer transition-all duration-200" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                  <Link href={`/issue/${comic.id}`} data-testid="link-quick-fact-key-issue" className="text-foreground hover-elevate cursor-pointer transition-all duration-200" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '12pt' }}>
                     Key issue with significant historical importance
                   </Link>
                 </li>
@@ -243,14 +243,14 @@ export function ComicOfTheDayWidget() {
               {comic.pageCount > 0 && (
                 <li className="flex items-start gap-2 text-sm">
                   <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                  <Link href={`/issue/${comic.id}`} data-testid="link-quick-fact-page-count" className="text-foreground hover-elevate cursor-pointer transition-all duration-200" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                  <Link href={`/issue/${comic.id}`} data-testid="link-quick-fact-page-count" className="text-foreground hover-elevate cursor-pointer transition-all duration-200" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '12pt' }}>
                     {comic.pageCount} pages of storytelling excellence
                   </Link>
                 </li>
               )}
               <li className="flex items-start gap-2 text-sm">
                 <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                <Link href={`/issue/${comic.id}`} data-testid="link-quick-fact-value" className="text-foreground hover-elevate cursor-pointer transition-all duration-200" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                <Link href={`/issue/${comic.id}`} data-testid="link-quick-fact-value" className="text-foreground hover-elevate cursor-pointer transition-all duration-200" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '12pt' }}>
                   Value appreciation: {priceChangePercent > 0 ? '+' : ''}{priceChangePercent.toFixed(0)}% from print price
                 </Link>
               </li>
