@@ -11,7 +11,8 @@ import {
   Calculator, LineChart, Minus
 } from 'lucide-react';
 import { Link } from 'wouter';
-import { WorldClocksWidget } from '@/components/dashboard/WorldClocksWidget';
+import { CompactClocksWidget } from '@/components/dashboard/CompactClocksWidget';
+import { FooterClocksWidget } from '@/components/dashboard/FooterClocksWidget';
 import { ComicOfTheDayWidget } from '@/components/dashboard/ComicOfTheDayWidget';
 import { FeaturedComicsSection } from '@/components/dashboard/FeaturedComicsSection';
 import { MarketMoversWidget } from '@/components/dashboard/MarketMoversWidget';
@@ -482,8 +483,8 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* World Clocks - Global Market Hours */}
-      <WorldClocksWidget />
+      {/* Top 3 Global Market Clocks */}
+      <CompactClocksWidget />
 
       {/* Comic of the Day */}
       <ComicOfTheDayWidget />
@@ -770,6 +771,9 @@ export default function DashboardPage() {
           <GadgetsMemorabiliaWidget />
         </div>
       </div>
+
+      {/* Footer Market Clocks */}
+      <FooterClocksWidget />
     </div>
   );
 }
