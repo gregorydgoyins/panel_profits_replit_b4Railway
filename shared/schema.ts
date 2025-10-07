@@ -4461,7 +4461,7 @@ export const stagingRecords = pgTable("staging_records", {
   dataInconsistencies: jsonb("data_inconsistencies"), // Detected data issues
   // Deduplication
   isDuplicate: boolean("is_duplicate").default(false),
-  duplicateOf: varchar("duplicate_of").references(() => stagingRecords.id), // Reference to original record
+  duplicateOf: varchar("duplicate_of"), // Reference to original record
   similarityScore: decimal("similarity_score", { precision: 3, scale: 2 }), // Similarity to potential duplicates
   // Error handling
   errorMessages: text("error_messages").array(),
@@ -4875,8 +4875,8 @@ export const mediaPerformanceMetrics = pgTable("media_performance_metrics", {
   isReboot: boolean("is_reboot").default(false),
   isSpinoff: boolean("is_spinoff").default(false),
   franchisePosition: integer("franchise_position"), // Position in franchise chronology
-  predecessorId: varchar("predecessor_id").references(() => mediaPerformanceMetrics.id),
-  successorId: varchar("successor_id").references(() => mediaPerformanceMetrics.id),
+  predecessorId: varchar("predecessor_id"),
+  successorId: varchar("successor_id"),
   // Data quality and sources
   dataCompleteness: decimal("data_completeness", { precision: 3, scale: 2 }), // 0-1 completeness score
   sourceReliability: decimal("source_reliability", { precision: 3, scale: 2 }), // 0-1 source reliability
@@ -5015,7 +5015,7 @@ export const ingestionRuns = pgTable("ingestion_runs", {
   runType: text("run_type").default("standard"), // 'standard', 'retry', 'partial', 'recovery', 'test'
   triggeredBy: text("triggered_by").default("system"), // 'system', 'user', 'scheduler', 'api', 'webhook'
   triggerUserId: varchar("trigger_user_id").references(() => users.id),
-  parentRunId: varchar("parent_run_id").references(() => ingestionRuns.id), // For retry runs
+  parentRunId: varchar("parent_run_id"), // For retry runs
   // Execution environment
   workerId: text("worker_id"), // Unique identifier of processing worker
   workerHost: text("worker_host"), // Hostname of processing machine
