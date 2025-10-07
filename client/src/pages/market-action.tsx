@@ -13,7 +13,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { useOptimizedWebSocket } from '@/hooks/useOptimizedWebSocket';
+// WebSocket support disabled - using polling instead
+// import { useOptimizedWebSocket } from '@/hooks/useOptimizedWebSocket';
 import { ComicChart } from '@/components/ComicChart';
 import { apiRequest } from '@/lib/queryClient';
 
@@ -357,16 +358,19 @@ export default function MarketActionPage() {
   const [autoScroll, setAutoScroll] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   
+  // WebSocket support disabled - using polling instead
   // WebSocket connection for real-time data
-  const { isConnected, lastMessage } = useOptimizedWebSocket({
-    url: '/ws/market-action',
-    onMessage: (data) => {
-      if (data.type === 'market_event') {
-        handleNewMarketEvent(data.event);
-      }
-    },
-    reconnectAttempts: 5
-  });
+  // const { isConnected, lastMessage } = useOptimizedWebSocket({
+  //   url: '/ws/market-action',
+  //   onMessage: (data) => {
+  //     if (data.type === 'market_event') {
+  //       handleNewMarketEvent(data.event);
+  //     }
+  //   },
+  //   reconnectAttempts: 5
+  // });
+  const isConnected = false; // Stub for WebSocket
+  const lastMessage = null; // Stub for WebSocket
   
   // Determine market event type based on price movement
   const determineEventType = (changePercent: number, volume: number): MarketEventType => {

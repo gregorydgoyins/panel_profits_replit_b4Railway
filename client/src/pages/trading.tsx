@@ -16,7 +16,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { useOptimizedWebSocket } from '@/hooks/useOptimizedWebSocket';
+// WebSocket support disabled - using polling instead
+// import { useOptimizedWebSocket } from '@/hooks/useOptimizedWebSocket';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import Highcharts from 'highcharts';
@@ -598,16 +599,21 @@ export default function NoirTradingPage() {
   const [showRain, setShowRain] = useState(true);
   const [showSmoke, setShowSmoke] = useState(true);
   
-  // WebSocket connection
-  const { 
-    getRealTimePrice,
-    getOrderBook,
-    isConnected
-  } = useOptimizedWebSocket({ 
-    subscribeTo: { 
-      assets: selectedAsset ? [selectedAsset.id] : []
-    }
-  });
+  // WebSocket support disabled - using polling instead
+  // const { 
+  //   getRealTimePrice,
+  //   getOrderBook,
+  //   isConnected
+  // } = useOptimizedWebSocket({ 
+  //   subscribeTo: { 
+  //     assets: selectedAsset ? [selectedAsset.id] : []
+  //   }
+  // });
+  
+  // Stub WebSocket functions - using polling instead
+  const isConnected = false; // Always show as offline since WebSocket disabled
+  const getRealTimePrice = (assetId: string) => undefined;
+  const getOrderBook = (assetId: string) => null;
   
   // Fetch assets
   const { data: assetsData, isLoading: assetsLoading } = useQuery({
@@ -657,15 +663,12 @@ export default function NoirTradingPage() {
     }
     
     try {
-      await apiRequest('/api/orders', {
-        method: 'POST',
-        body: JSON.stringify({
-          assetId: selectedAsset.id,
-          type: orderType,
-          quantity: parseFloat(orderQuantity),
-          price: parseFloat(orderPrice),
-          userId: user?.id,
-        }),
+      await apiRequest('/api/orders', 'POST', {
+        assetId: selectedAsset.id,
+        type: orderType,
+        quantity: parseFloat(orderQuantity),
+        price: parseFloat(orderPrice),
+        userId: user?.id,
       });
       
       toast({
@@ -889,13 +892,7 @@ export default function NoirTradingPage() {
         </div>
       </div>
       
-      {/* CSS for rain animation */}
-      <style jsx>{`
-        @keyframes rain {
-          0% { transform: translateY(-100%); }
-          100% { transform: translateY(100%); }
-        }
-      `}</style>
+      {/* Rain animation defined in global CSS */}
     </div>
   );
 }

@@ -6,9 +6,10 @@ import type {
   NotificationTemplate, InsertNotificationTemplate,
   Asset, AssetCurrentPrice, Order, User
 } from '@shared/schema.js';
-import { WebSocketServer, WebSocket as WSWebSocket } from 'ws';
-import { safeWebSocketClose, WebSocketCloseCodes } from '../utils/websocketSanitizer.js';
-import { wsNotificationService } from './websocketNotificationService.js';
+// WebSocket support disabled - using polling instead
+// import { WebSocketServer, WebSocket as WSWebSocket } from 'ws';
+// import { safeWebSocketClose, WebSocketCloseCodes } from '../utils/websocketSanitizer.js';
+// import { wsNotificationService } from './websocketNotificationService.js';
 
 /**
  * Comprehensive Notification Service for Panel Profits
@@ -42,9 +43,9 @@ export const DEFAULT_NOTIFICATION_CONFIG: NotificationServiceConfig = {
 
 export class NotificationService {
   private config: NotificationServiceConfig;
-  private wsServer?: WebSocketServer;
+  // private wsServer?: WebSocketServer;
   private priceCheckInterval?: NodeJS.Timeout;
-  private connectedClients: Map<string, WSWebSocket> = new Map();
+  // private connectedClients: Map<string, WSWebSocket> = new Map();
   
   constructor(config: NotificationServiceConfig = DEFAULT_NOTIFICATION_CONFIG) {
     this.config = config;
@@ -53,15 +54,16 @@ export class NotificationService {
   /**
    * Initialize the notification service
    */
-  async initialize(wsServer?: WebSocketServer): Promise<void> {
+  async initialize(): Promise<void> {
     console.log('🔔 Initializing Notification Service...');
     
-    this.wsServer = wsServer;
+    // WebSocket support disabled - using polling instead
+    // this.wsServer = wsServer;
     
     // Set up WebSocket handling for notifications
-    if (this.wsServer) {
-      this.setupWebSocketHandling();
-    }
+    // if (this.wsServer) {
+    //   this.setupWebSocketHandling();
+    // }
     
     // Initialize default notification templates
     await this.initializeNotificationTemplates();
@@ -77,64 +79,64 @@ export class NotificationService {
   /**
    * Set up WebSocket handling for real-time notifications
    */
-  private setupWebSocketHandling(): void {
-    if (!this.wsServer) return;
-
-    this.wsServer.on('connection', (ws, req) => {
-      // Extract user ID from connection (this would be set by auth middleware)
-      const userId = this.extractUserIdFromConnection(req);
-      
-      if (userId) {
-        console.log(`📡 User ${userId} connected to notification channel`);
-        this.connectedClients.set(userId, ws);
-        
-        ws.on('close', () => {
-          console.log(`📡 User ${userId} disconnected from notification channel`);
-          this.connectedClients.delete(userId);
-        });
-        
-        ws.on('message', (message) => {
-          try {
-            const data = JSON.parse(message.toString());
-            this.handleWebSocketMessage(userId, data);
-          } catch (error) {
-            console.error('Error parsing WebSocket message:', error);
-          }
-        });
-      }
-    });
-  }
+  //   private setupWebSocketHandling(): void {
+  //     if (!this.wsServer) return;
+  // 
+  //     this.wsServer.on('connection', (ws, req) => {
+  //       // Extract user ID from connection (this would be set by auth middleware)
+  //       const userId = this.extractUserIdFromConnection(req);
+  //       
+  //       if (userId) {
+  //         console.log(`📡 User ${userId} connected to notification channel`);
+  //         this.connectedClients.set(userId, ws);
+  //         
+  //         ws.on('close', () => {
+  //           console.log(`📡 User ${userId} disconnected from notification channel`);
+  //           this.connectedClients.delete(userId);
+  //         });
+  //         
+  //         ws.on('message', (message) => {
+  //           try {
+  //             const data = JSON.parse(message.toString());
+  //             this.handleWebSocketMessage(userId, data);
+  //           } catch (error) {
+  //             console.error('Error parsing WebSocket message:', error);
+  //           }
+  //         });
+  //       }
+  //     });
+  //   }
 
   /**
    * Extract user ID from WebSocket connection
    */
-  private extractUserIdFromConnection(req: any): string | null {
-    // This would extract user ID from session or JWT token
-    // For now, return null until auth integration is complete
-    return req.session?.user?.id || null;
-  }
+  //   private extractUserIdFromConnection(req: any): string | null {
+  //     // This would extract user ID from session or JWT token
+  //     // For now, return null until auth integration is complete
+  //     return req.session?.user?.id || null;
+  //   }
 
   /**
    * Handle incoming WebSocket messages
    */
-  private handleWebSocketMessage(userId: string, data: any): void {
-    switch (data.type) {
-      case 'mark_read':
-        if (data.notificationId) {
-          this.markNotificationAsRead(userId, data.notificationId);
-        }
-        break;
-      case 'mark_all_read':
-        this.markAllNotificationsAsRead(userId);
-        break;
-      case 'subscribe':
-        // User explicitly subscribing to real-time notifications
-        console.log(`User ${userId} subscribed to real-time notifications`);
-        break;
-      default:
-        console.warn(`Unknown WebSocket message type: ${data.type}`);
-    }
-  }
+  //   private handleWebSocketMessage(userId: string, data: any): void {
+  //     switch (data.type) {
+  //       case 'mark_read':
+  //         if (data.notificationId) {
+  //           this.markNotificationAsRead(userId, data.notificationId);
+  //         }
+  //         break;
+  //       case 'mark_all_read':
+  //         this.markAllNotificationsAsRead(userId);
+  //         break;
+  //       case 'subscribe':
+  //         // User explicitly subscribing to real-time notifications
+  //         console.log(`User ${userId} subscribed to real-time notifications`);
+  //         break;
+  //       default:
+  //         console.warn(`Unknown WebSocket message type: ${data.type}`);
+  //     }
+  //   }
 
   /**
    * Create a new notification
@@ -158,10 +160,11 @@ export class NotificationService {
     // Create notification in database
     const createdNotification = await storage.createNotification(notification);
     
+    // WebSocket support disabled - using polling instead
     // Send real-time notification via WebSocket
-    if (this.config.enableWebSocketNotifications) {
-      await this.sendWebSocketNotification(notification.userId, createdNotification);
-    }
+    // if (this.config.enableWebSocketNotifications) {
+    //   await this.sendWebSocketNotification(notification.userId, createdNotification);
+    // }
     
     // Send push notification if enabled and user has permission
     if (this.config.enablePushNotifications && preferences?.pushNotifications) {
@@ -174,19 +177,19 @@ export class NotificationService {
   /**
    * Send WebSocket notification to connected user
    */
-  private async sendWebSocketNotification(userId: string, notification: Notification): Promise<void> {
-    // Use the dedicated WebSocket notification service
-    try {
-      wsNotificationService.sendNotification(userId, {
-        type: 'notification',
-        data: notification,
-        timestamp: new Date().toISOString()
-      });
-      console.log(`📤 WebSocket notification sent to user ${userId}`);
-    } catch (error) {
-      console.error(`Error sending WebSocket notification to user ${userId}:`, error);
-    }
-  }
+  //   private async sendWebSocketNotification(userId: string, notification: Notification): Promise<void> {
+  //     // Use the dedicated WebSocket notification service
+  //     try {
+  //       wsNotificationService.sendNotification(userId, {
+  //         type: 'notification',
+  //         data: notification,
+  //         timestamp: new Date().toISOString()
+  //       });
+  //       console.log(`📤 WebSocket notification sent to user ${userId}`);
+  //     } catch (error) {
+  //       console.error(`Error sending WebSocket notification to user ${userId}:`, error);
+  //     }
+  //   }
 
   /**
    * Send browser push notification

@@ -11,7 +11,7 @@ Preferred communication style: Simple, everyday language.
 ### Frontend
 - **Frameworks**: React with TypeScript (Vite), Wouter for routing, Zustand for state management.
 - **UI**: Custom component library on Radix UI primitives, shadcn/ui styling, Tailwind CSS (dark mode), Google Fonts.
-- **Data Fetching**: TanStack Query for server state management and caching.
+- **Data Fetching**: TanStack Query for server state management and caching with polling-based updates (WebSocket support removed - polling is sufficient for market data and notifications).
 
 ### Backend
 - **Runtime**: Node.js with Express.js.

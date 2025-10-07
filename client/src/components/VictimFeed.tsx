@@ -3,7 +3,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertTriangle, User, DollarSign, Calendar } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
-import { useOptimizedWebSocket } from '@/hooks/useOptimizedWebSocket';
+// WebSocket support disabled - using polling instead
+// import { useOptimizedWebSocket } from '@/hooks/useOptimizedWebSocket';
 
 interface TradingVictim {
   id: string;
@@ -105,14 +106,16 @@ export const VictimFeed = memo(function VictimFeed({
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // WebSocket support disabled - using polling instead
   // Subscribe to WebSocket for real-time victim updates with optimizations
-  const { isConnected } = useOptimizedWebSocket({ 
-    subscribeTo: { 
-      victims: true 
-    },
-    throttleMs: isMobile ? 500 : 200, // Slower updates on mobile
-    enableBatching: true
-  });
+  // const { isConnected } = useOptimizedWebSocket({ 
+  //   subscribeTo: { 
+  //     victims: true 
+  //   },
+  //   throttleMs: isMobile ? 500 : 200, // Slower updates on mobile
+  //   enableBatching: true
+  // });
+  const isConnected = false; // Stub for WebSocket
 
   // Fetch victims from API with optimized intervals
   const { data: apiVictims = [], isLoading } = useQuery<TradingVictim[]>({

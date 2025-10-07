@@ -801,3 +801,9 @@
 .narrative-hover:hover {
   transform: translateY(-2px);
 }
+
+/* Rain animation for trading page */
+@keyframes rain {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}

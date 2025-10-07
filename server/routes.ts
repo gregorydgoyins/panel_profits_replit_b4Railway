@@ -3,7 +3,6 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { db } from "./databaseStorage";
-import { WebSocketServer } from 'ws';
 import comicDataRoutes from "./routes/comicData.js";
 import vectorRoutes from "./routes/vectorRoutes.js";
 import dataImportRoutes from "./routes/dataImportRoutes.js";
@@ -16,7 +15,6 @@ import collectorRoutes from "./routes/collectorRoutes.js";
 import { registerComicRoutes } from "./routes/comicRoutes";
 import { registerComicCoverRoutes } from "./routes/comicCoverRoutes.js";
 import { registerNotificationRoutes } from "./routes/notificationRoutes.js";
-import { wsNotificationService } from "./services/websocketNotificationService.js";
 import enhancedDataRoutes from "./routes/enhancedDataRoutes.js";
 import enhancedAiRoutes from "./routes/enhancedAiRoutes.js";
 import visualStorytellingRoutes from "./routes/visualStorytellingRoutes.js";
@@ -39,19 +37,7 @@ import analyticsRoutes from "./routes/analyticsRoutes.js";
 import symbolGenerationRoutes from "./routes/symbolGeneration.js";
 import { marketSimulation, orderMatching } from "./marketSimulation.js";
 import { leaderboardService } from "./leaderboardService.js";
-import { priceStreamingService } from "./services/priceStreamingService.js";
 import { narrativeEventService } from "./services/narrativeEventService.js";
-import { 
-  patchWebSocketWithSanitization, 
-  safeWebSocketClose,
-  safeWebSocketSend,
-  sanitizeWebSocketData,
-  WebSocketCloseCodes 
-} from "./utils/websocketSanitizer.js";
-import { 
-  initializeWebSocketProtocolOverride,
-  applyEmergencyProtocolOverride 
-} from "./utils/webSocketProtocolOverride.js";
 import { 
   insertAssetSchema, 
   insertMarketDataSchema,
@@ -3354,9 +3340,10 @@ Respond with valid JSON in this exact format:
   // Simple REST endpoint for market data snapshots (replaces WebSocket)
   // ================================
   
+  // WebSocket support disabled - using polling instead
   // Start the price streaming service (for data generation only)
-  await priceStreamingService.start();
-  console.log('💹 Price streaming service started (polling mode)');
+  // await priceStreamingService.start();
+  // console.log('💹 Price streaming service started (polling mode)');
 
   // DISABLED: WebSocket real-time streaming (replaced with polling)
   // Keeping code commented for reference in case we want to re-enable later
@@ -6166,10 +6153,11 @@ Respond with valid JSON in this exact format:
     }
   });
 
+  // WebSocket support disabled - using polling instead
   // Initialize WebSocket notification service for real-time notifications
-  console.log('🔔 Initializing WebSocket notification service...');
-  wsNotificationService.initialize(httpServer, '/ws/notifications');
-  console.log('✅ WebSocket notification service initialized');
+  // console.log('🔔 Initializing WebSocket notification service...');
+  // wsNotificationService.initialize(httpServer, '/ws/notifications');
+  // console.log('✅ WebSocket notification service initialized');
 
   return httpServer;
 }
