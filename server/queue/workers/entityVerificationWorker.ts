@@ -61,20 +61,7 @@ async function processEntityVerificationJob(job: Job<EntityVerificationJob>) {
     const dataSources: DataSource[] = [];
     const errors: Record<string, any> = {};
 
-    const comicVineResult = await resilientApiClient.fetchWithResilience(
-      'comic_vine',
-      () => fetchComicVineData(nameVariants.searchTerms[0]),
-      { maxAttempts: 2 }
-    );
-
-    if (comicVineResult.data) {
-      dataSources.push(comicVineResult.data);
-    } else if (comicVineResult.error) {
-      errors.comic_vine = comicVineResult.error;
-    }
-
-    await job.updateProgress(40);
-
+    // Primary: Superhero API (free and working)
     const superheroResult = await resilientApiClient.fetchWithResilience(
       'superhero',
       () => fetchSuperheroData(nameVariants.searchTerms),
@@ -87,8 +74,9 @@ async function processEntityVerificationJob(job: Job<EntityVerificationJob>) {
       errors.superhero = superheroResult.error;
     }
 
-    await job.updateProgress(60);
+    await job.updateProgress(50);
 
+    // Secondary: Marvel API
     const marvelResult = await resilientApiClient.fetchWithResilience(
       'marvel',
       () => fetchMarvelData(canonicalName),
@@ -119,7 +107,6 @@ async function processEntityVerificationJob(job: Job<EntityVerificationJob>) {
         error: 'no_data_sources',
         errors,
         attempts: {
-          comic_vine: comicVineResult.attempts,
           superhero: superheroResult.attempts,
           marvel: marvelResult.attempts,
         },
@@ -177,58 +164,6 @@ async function processEntityVerificationJob(job: Job<EntityVerificationJob>) {
     console.error(`❌ Error verifying entity ${canonicalName}:`, error);
     throw error;
   }
-}
-
-async function fetchComicVineData(characterName: string): Promise<DataSource | null> {
-  const apiKey = process.env.COMIC_VINE_API_KEY;
-  if (!apiKey) return null;
-
-  const searchUrl = `https://comicvine.gamespot.com/api/search/?api_key=${apiKey}&format=json&query=${encodeURIComponent(characterName)}&resources=character&limit=1`;
-  const searchResponse = await fetch(searchUrl, {
-    headers: { 'User-Agent': 'Panel Profits Trading Platform' }
-  });
-  
-  if (!searchResponse.ok) {
-    throw new Error(`Comic Vine search failed: ${searchResponse.status}`);
-  }
-
-  const searchData = await searchResponse.json();
-  
-  if (!searchData.results || searchData.results.length === 0) {
-    return null;
-  }
-
-  const characterId = searchData.results[0].id;
-  
-  const detailUrl = `https://comicvine.gamespot.com/api/character/4005-${characterId}/?api_key=${apiKey}&format=json`;
-  const detailResponse = await fetch(detailUrl, {
-    headers: { 'User-Agent': 'Panel Profits Trading Platform' }
-  });
-
-  if (!detailResponse.ok) {
-    throw new Error(`Comic Vine detail fetch failed: ${detailResponse.status}`);
-  }
-
-  const detailData = await detailResponse.json();
-  const character = detailData.results;
-
-  return {
-    name: 'comic_vine',
-    confidence: 0.9,
-    data: {
-      realName: character.real_name,
-      biography: character.deck || character.description?.replace(/<[^>]*>/g, ''),
-      firstAppearance: character.first_appeared_in_issue?.name,
-      creators: character.creators?.map((c: any) => c.name) || [],
-      teams: character.teams?.map((t: any) => t.name) || [],
-      allies: character.allies?.map((a: any) => a.name) || [],
-      enemies: character.enemies?.map((e: any) => e.name) || [],
-      powers: character.powers?.map((p: any) => p.name) || [],
-      imageUrl: character.image?.medium_url,
-      externalId: character.id,
-      publisher: character.publisher?.name,
-    }
-  };
 }
 
 async function fetchSuperheroData(searchTerms: string[]): Promise<DataSource | null> {

@@ -125,7 +125,7 @@ export class ResilientApiClient {
   }
 
   private initializeCircuitBreakers() {
-    const sources = ['comic_vine', 'marvel', 'superhero', 'metron', 'gcd'];
+    const sources = ['marvel', 'superhero', 'metron', 'gcd'];
     sources.forEach(source => {
       this.circuitBreakers.set(
         source,
