@@ -206,6 +206,35 @@ export const assets = pgTable("assets", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Asset Relationships - Junction table for structured many-to-many relationships
+export const assetRelationships = pgTable("asset_relationships", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sourceAssetId: varchar("source_asset_id").notNull().references(() => assets.id),
+  targetAssetId: varchar("target_asset_id").notNull().references(() => assets.id),
+  
+  // Relationship classification
+  relationshipType: text("relationship_type").notNull(), // 'teammate', 'enemy', 'creator', 'location', 'gadget', 'franchise', 'appears_in', 'uses', 'ally', 'rival'
+  relationshipStrength: decimal("relationship_strength", { precision: 3, scale: 2 }).default("0.50"), // 0.00 to 1.00 (importance/weight)
+  
+  // Context and metadata
+  firstAppearance: text("first_appearance"), // Comic/issue where relationship established
+  firstAppearanceComicId: varchar("first_appearance_comic_id"),
+  keyIssues: text("key_issues").array(), // Notable issues featuring this relationship
+  description: text("description"), // Brief description of the relationship
+  
+  // Additional context
+  metadata: jsonb("metadata"), // Flexible data: duration, status (active/former), context, etc.
+  
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_asset_rel_source").on(table.sourceAssetId),
+  index("idx_asset_rel_target").on(table.targetAssetId),
+  index("idx_asset_rel_type").on(table.relationshipType),
+  index("idx_asset_rel_source_type").on(table.sourceAssetId, table.relationshipType),
+]);
+
 // Market data for OHLC candlestick data and technical indicators
 export const marketData = pgTable("market_data", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -7772,3 +7801,13 @@ export type InsertMarvelLocation = z.infer<typeof insertMarvelLocationSchema>;
 
 export type MarvelGadget = typeof marvelGadgets.$inferSelect;
 export type InsertMarvelGadget = z.infer<typeof insertMarvelGadgetSchema>;
+
+// Asset Relationships Insert Schema & Types
+export const insertAssetRelationshipSchema = createInsertSchema(assetRelationships).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type AssetRelationship = typeof assetRelationships.$inferSelect;
+export type InsertAssetRelationship = z.infer<typeof insertAssetRelationshipSchema>;
