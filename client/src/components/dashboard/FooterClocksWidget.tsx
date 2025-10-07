@@ -130,18 +130,12 @@ export function FooterClocksWidget() {
   };
 
   const updateMarkets = () => {
-    const xetraStatus = getMarketStatus('Europe/Berlin', 9, 17.5, true, 8, 22);
-    const hkexStatus = getMarketStatus('Asia/Hong_Kong', 9.5, 16);
-    const tsxStatus = getMarketStatus('America/Toronto', 9.5, 16);
-    const dfmStatus = getMarketStatus('Asia/Dubai', 10, 14);
-    const nseStatus = getMarketStatus('Asia/Kolkata', 9.25, 15.5);
-
-    setMarkets([
+    const allMarkets = [
       {
         name: 'XETRA',
         city: 'Frankfurt',
         timezone: 'Europe/Berlin',
-        status: xetraStatus,
+        status: getMarketStatus('Europe/Berlin', 9, 17.5, true, 8, 22),
         localTime: getLocalTime('Europe/Berlin'),
         openTime: '9:00 AM',
         closeTime: '5:30 PM',
@@ -150,7 +144,7 @@ export function FooterClocksWidget() {
         name: 'HKEx',
         city: 'Hong Kong',
         timezone: 'Asia/Hong_Kong',
-        status: hkexStatus,
+        status: getMarketStatus('Asia/Hong_Kong', 9.5, 16),
         localTime: getLocalTime('Asia/Hong_Kong'),
         openTime: '9:30 AM',
         closeTime: '4:00 PM',
@@ -159,7 +153,7 @@ export function FooterClocksWidget() {
         name: 'TSX',
         city: 'Toronto',
         timezone: 'America/Toronto',
-        status: tsxStatus,
+        status: getMarketStatus('America/Toronto', 9.5, 16),
         localTime: getLocalTime('America/Toronto'),
         openTime: '9:30 AM',
         closeTime: '4:00 PM',
@@ -168,7 +162,7 @@ export function FooterClocksWidget() {
         name: 'DFM',
         city: 'Dubai',
         timezone: 'Asia/Dubai',
-        status: dfmStatus,
+        status: getMarketStatus('Asia/Dubai', 10, 14),
         localTime: getLocalTime('Asia/Dubai'),
         openTime: '10:00 AM',
         closeTime: '2:00 PM',
@@ -177,12 +171,16 @@ export function FooterClocksWidget() {
         name: 'NSE',
         city: 'Mumbai',
         timezone: 'Asia/Kolkata',
-        status: nseStatus,
+        status: getMarketStatus('Asia/Kolkata', 9.25, 15.5),
         localTime: getLocalTime('Asia/Kolkata'),
         openTime: '9:15 AM',
         closeTime: '3:30 PM',
-      },
-    ]);
+      }
+    ];
+
+    // Filter: Show only open markets
+    const openMarkets = allMarkets.filter(m => m.status === 'open');
+    setMarkets(openMarkets);
   };
 
   useEffect(() => {

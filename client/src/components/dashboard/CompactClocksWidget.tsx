@@ -130,16 +130,12 @@ export function CompactClocksWidget() {
   };
 
   const updateMarkets = () => {
-    const nyseStatus = getMarketStatus('America/New_York', 9.5, 16, true, 4, 20);
-    const lseStatus = getMarketStatus('Europe/London', 8, 16.5);
-    const tseStatus = getMarketStatus('Asia/Tokyo', 9, 15);
-
-    setMarkets([
+    const allMarkets = [
       {
         name: 'NYSE',
         city: 'New York',
         timezone: 'America/New_York',
-        status: nyseStatus,
+        status: getMarketStatus('America/New_York', 9.5, 16, true, 4, 20),
         localTime: getLocalTime('America/New_York'),
         openTime: '9:30 AM',
         closeTime: '4:00 PM',
@@ -148,7 +144,7 @@ export function CompactClocksWidget() {
         name: 'LSE',
         city: 'London',
         timezone: 'Europe/London',
-        status: lseStatus,
+        status: getMarketStatus('Europe/London', 8, 16.5),
         localTime: getLocalTime('Europe/London'),
         openTime: '8:00 AM',
         closeTime: '4:30 PM',
@@ -157,12 +153,38 @@ export function CompactClocksWidget() {
         name: 'TSE',
         city: 'Tokyo',
         timezone: 'Asia/Tokyo',
-        status: tseStatus,
+        status: getMarketStatus('Asia/Tokyo', 9, 15),
         localTime: getLocalTime('Asia/Tokyo'),
         openTime: '9:00 AM',
         closeTime: '3:00 PM',
       },
-    ]);
+      {
+        name: 'HKEX',
+        city: 'Hong Kong',
+        timezone: 'Asia/Hong_Kong',
+        status: getMarketStatus('Asia/Hong_Kong', 9.5, 16),
+        localTime: getLocalTime('Asia/Hong_Kong'),
+        openTime: '9:30 AM',
+        closeTime: '4:00 PM',
+      },
+      {
+        name: 'SSE',
+        city: 'Shanghai',
+        timezone: 'Asia/Shanghai',
+        status: getMarketStatus('Asia/Shanghai', 9.5, 15),
+        localTime: getLocalTime('Asia/Shanghai'),
+        openTime: '9:30 AM',
+        closeTime: '3:00 PM',
+      },
+    ];
+
+    // Filter: NYSE always first, then up to 2 more open markets
+    const nyse = allMarkets.find(m => m.name === 'NYSE')!;
+    const otherOpenMarkets = allMarkets
+      .filter(m => m.name !== 'NYSE' && m.status === 'open')
+      .slice(0, 2);
+    
+    setMarkets([nyse, ...otherOpenMarkets]);
   };
 
   useEffect(() => {
