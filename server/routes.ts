@@ -131,24 +131,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const currentMinutes = hours * 60 + minutes; // Convert to total minutes since midnight
       
       // Market hours in minutes:
-      // Open: 9:30 AM (570 min) - 4:00 PM (960 min)
+      // Open: 9:30 AM (570 min) - 3:30 PM (870 min)
       // Pre-market: 4:00 AM (240 min) - 9:30 AM (570 min) 
-      // After-hours: 4:00 PM (960 min) - 8:00 PM (1200 min)
+      // After-hours: 3:30 PM (870 min) - 8:00 PM (1200 min)
       let status: 'open' | 'closed' | 'pre-market' | 'after-hours' = 'closed';
       
       if (day >= 1 && day <= 5) { // Monday-Friday
-        if (currentMinutes >= 570 && currentMinutes < 960) {
-          status = 'open'; // 9:30 AM - 4:00 PM
+        if (currentMinutes >= 570 && currentMinutes < 870) {
+          status = 'open'; // 9:30 AM - 3:30 PM
         } else if (currentMinutes >= 240 && currentMinutes < 570) {
           status = 'pre-market'; // 4:00 AM - 9:30 AM
-        } else if (currentMinutes >= 960 && currentMinutes < 1200) {
-          status = 'after-hours'; // 4:00 PM - 8:00 PM
+        } else if (currentMinutes >= 870 && currentMinutes < 1200) {
+          status = 'after-hours'; // 3:30 PM - 8:00 PM
         }
       }
       
       res.json({
         status,
-        nextChange: status === 'open' ? '4:00 PM EST' : '9:30 AM EST'
+        nextChange: status === 'open' ? '3:30 PM EST' : '9:30 AM EST'
       });
     } catch (error) {
       console.error("Error fetching market status:", error);
