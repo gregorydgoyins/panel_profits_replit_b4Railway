@@ -259,15 +259,18 @@ class SymbolRegistry {
   /**
    * Generate bond symbol
    * Format: CORE.B{coupon%}{maturity}
-   * Example: OSCORP.B5.25 (Oscorp 5% coupon, 2025 maturity)
+   * Example: OSCORP.B5.5.25 (Oscorp 5.5% coupon, 2025 maturity)
    */
   generateBondSymbol(params: {
     issuer: string;
     couponRate: number;
     maturityYear: number;
   }): string {
-    const core = this.getCoreSymbol(params.issuer, 6);
-    const coupon = params.couponRate.toFixed(0);
+    const core = this.getCoreSymbol(params.issuer, 5);
+    // Format coupon with up to 1 decimal place, removing trailing zeros
+    const coupon = (params.couponRate % 1 === 0) 
+      ? params.couponRate.toFixed(0)
+      : params.couponRate.toFixed(1);
     const maturity = params.maturityYear.toString().slice(-2);
     return `${core}.B${coupon}.${maturity}`.slice(0, 16);
   }
@@ -386,16 +389,17 @@ class SymbolRegistry {
   /**
    * Generate location symbol
    * Format: CORE.L{country}{city}
-   * Example: GOTH.LUS (Gotham City, USA)
+   * Example: GOTH.LUSNY (Gotham City, USA, New York) or METR.LUS (Metropolis, USA)
    */
   generateLocationSymbol(params: {
     name: string;
     country?: string;
     city?: string;
   }): string {
-    const core = this.getCoreSymbol(params.name, 6);
-    const countryCode = params.country ? this.abbreviate(params.country, 2) : '';
-    return `${core}.L${countryCode}`.slice(0, 16);
+    const core = this.getCoreSymbol(params.name, 4);
+    const countryCode = params.country ? this.abbreviate(params.country, 2) : 'US';
+    const cityCode = params.city ? this.abbreviate(params.city, 2) : '';
+    return `${core}.L${countryCode}${cityCode}`.slice(0, 16);
   }
 
   /**

@@ -19,6 +19,42 @@ router.get('/migration-status', (req, res) => {
 });
 
 /**
+ * Test new Symbol Registry (without DB writes)
+ * POST /api/symbols/test-registry
+ */
+router.post('/test-registry', async (req, res) => {
+  try {
+    if (!isNewSymbolRegistryEnabled()) {
+      return res.status(403).json({
+        error: 'New Symbol Registry is not enabled',
+        hint: 'Enable it in ticker migration config'
+      });
+    }
+
+    const { type, params } = req.body;
+    
+    if (!type || !params) {
+      return res.status(400).json({ error: 'Type and params are required' });
+    }
+
+    // Mock check function (always returns false for testing)
+    const mockCheckExists = async () => false;
+    
+    const symbol = await symbolRegistry.generateSymbol(type, params, mockCheckExists);
+    
+    res.json({
+      success: true,
+      input: { type, params },
+      generatedSymbol: symbol,
+      system: 'New Symbol Registry v2.0'
+    });
+  } catch (error: any) {
+    console.error('Symbol Registry test error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
  * Test symbol generation without creating assets
  * POST /api/symbols/test
  */
