@@ -261,13 +261,13 @@ export function ComicOfTheDayWidget() {
         {/* Trading Actions */}
         <div className="flex gap-2 mt-6">
           <Link href={`/order-desk/${comic.id}`} data-testid="link-order-desk" className="flex-1">
-            <div className="blue-white-rimlight-hover rounded-lg p-3 cursor-pointer overflow-visible flex items-center justify-center gap-2 font-semibold text-white" data-testid="button-trade-comic-of-day">
+            <div className="blue-white-rimlight-hover rounded-lg p-3 cursor-pointer overflow-visible flex items-center justify-center gap-2 text-white" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }} data-testid="button-trade-comic-of-day">
               <DollarSign className="w-4 h-4" />
               Trade Now
             </div>
           </Link>
           <Link href={`/issue/${comic.id}`} data-testid="link-learn-more" className="flex-1">
-            <div className="orange-white-rimlight-hover rounded-lg p-3 cursor-pointer overflow-visible flex items-center justify-center gap-2 font-semibold text-white" data-testid="button-learn-more">
+            <div className="orange-white-rimlight-hover rounded-lg p-3 cursor-pointer overflow-visible flex items-center justify-center gap-2 text-white" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }} data-testid="button-learn-more">
               Learn More
             </div>
           </Link>
