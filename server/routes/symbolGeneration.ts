@@ -1,14 +1,36 @@
 import { Router } from 'express';
 import { storage } from '../storage';
 import { symbolGeneratorService } from '../services/SymbolGeneratorService';
+import { symbolRegistry } from '../services/SymbolRegistryService';
+import { isTickerGenerationFrozen, isNewSymbolRegistryEnabled, getMigrationStatus } from '../config/tickerMigration';
 
 const router = Router();
+
+/**
+ * Get migration status
+ * GET /api/symbols/migration-status
+ */
+router.get('/migration-status', (req, res) => {
+  res.json({
+    status: getMigrationStatus(),
+    frozenOldGeneration: isTickerGenerationFrozen(),
+    newRegistryEnabled: isNewSymbolRegistryEnabled(),
+  });
+});
 
 /**
  * Test symbol generation without creating assets
  * POST /api/symbols/test
  */
 router.post('/test', async (req, res) => {
+  // Check if old ticker generation is frozen
+  if (isTickerGenerationFrozen() && !req.body.forceOld) {
+    return res.status(423).json({
+      error: 'Ticker generation is currently frozen for migration',
+      status: getMigrationStatus(),
+      hint: 'Use the new Symbol Registry or set forceOld=true to bypass'
+    });
+  }
   try {
     const { type, name, metadata } = req.body;
     
