@@ -37,12 +37,22 @@ Preferred communication style: Simple, everyday language.
     - **External Scraper Infrastructure**: Production-ready services for Superhero API, Metron DB, and Grand Comic Database (GCD) enable millions-scale asset growth, all feeding into the unified pricing engine and database schema.
 - **Entity Seeding System**: Populates the database with publishers, characters, creators, franchises, and comic assets using data from Comic Vine, Kaggle, and PriceCharting.
 - **Multi-Source Entity Intelligence System**: Comprehensive entity database aggregating 15-20 free data sources (Metron API, Marvel API, SuperHero API, Grand Comics Database, Marvel/DC Wikis, MyComicShop, League of Comic Geeks) to replace Comic Vine. Features:
-    - **Active Data Sources** (5 scrapers operational):
+    - **Active Data Sources** (5 scrapers operational, expanding to 15-20):
         - **Metron API**: Comic metadata, character appearances, publisher data (reliability: 0.90)
         - **Marvel Comics API**: Official Marvel character/comic data with authenticated MD5 hash access (reliability: 0.95)
         - **SuperHero API**: Character powers, powerstats, biography, team affiliations, family relationships across Marvel/DC/Image (reliability: 0.85)
         - **Marvel Wiki (Fandom)**: MediaWiki API extraction of detailed character powers, weaknesses, first appearances, relationships (reliability: 0.80)
         - **DC Wiki (Fandom)**: MediaWiki API extraction of DC character data, abilities, team affiliations, enemies/allies (reliability: 0.80)
+    - **Planned Multi-Publisher Sources** (comprehensive expansion):
+        - **Comic Vine API**: Universal coverage (Dark Horse, Image, IDW, Valiant, Boom, Dynamite + Marvel/DC), 200 req/hour, JSON/XML (reliability: 0.92)
+        - **Grand Comics Database (GCD)**: Worldwide comics, volunteer-run, comprehensive creator credits and publication data (reliability: 0.88)
+        - **Dark Horse Wiki**: 3,692+ articles on Hellboy, Sin City, 300, BPRD characters (reliability: 0.75)
+        - **Image Comics Wiki**: Spawn, Saga, The Walking Dead, Invincible character database (reliability: 0.75)
+        - **IDW Wiki**: TMNT, Transformers legacy, crossover events (reliability: 0.75)
+    - **Anime/Manga Sources** (500k+ entries):
+        - **AniList GraphQL API**: 500k+ anime/manga, characters, staff, studios, genres, no auth required, 90 req/min (reliability: 0.90)
+        - **Jikan API**: Unofficial MyAnimeList REST API, manga/characters/creators, free, 3 req/sec (reliability: 0.85)
+        - **Kitsu JSON:API**: 500k+ entries, JSON:API standard, Algolia search, OAuth optional (reliability: 0.88)
     - **Infrastructure Components**:
         - **BaseEntityScraper**: Abstract base class with rate limiting, retry logic, error handling, data normalization
         - **ScraperOrchestrator**: Multi-source aggregation with parallel scraping, fuzzy deduplication, consensus verification
