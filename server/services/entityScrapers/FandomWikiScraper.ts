@@ -165,6 +165,190 @@ export class FandomWikiScraper extends BaseEntityScraper {
   }
 
   /**
+   * Scrape narrative milestones for characters from Fandom wiki
+   * Extracts costume changes, power upgrades, deaths/resurrections from character pages
+   */
+  async scrapeNarrativeMilestones(query?: {
+    entityName?: string;
+    entityType?: 'character' | 'team' | 'location';
+    milestoneType?: string;
+    startYear?: number;
+    endYear?: number;
+    limit?: number;
+    offset?: number;
+  }): Promise<import('./BaseEntityScraper').NarrativeMilestoneData[]> {
+    try {
+      const limit = query?.limit || 10;
+      const entityName = query?.entityName;
+      
+      // If specific entity requested, search for that character
+      if (entityName) {
+        const milestones = await this.extractCharacterMilestones(entityName);
+        return milestones.slice(0, limit);
+      }
+      
+      // Otherwise, get random characters and extract milestones
+      const characterPages = await this.getCategoryMembers('Category:Characters', limit * 2);
+      const milestones: import('./BaseEntityScraper').NarrativeMilestoneData[] = [];
+      
+      for (const charName of characterPages.slice(0, limit)) {
+        const charMilestones = await this.extractCharacterMilestones(charName);
+        milestones.push(...charMilestones);
+        
+        if (milestones.length >= limit) break;
+      }
+      
+      return milestones.slice(0, limit);
+    } catch (error) {
+      console.error(`Error scraping Fandom narrative milestones:`, error);
+      return [];
+    }
+  }
+
+  /**
+   * Extract narrative milestones from a character page
+   */
+  private async extractCharacterMilestones(characterName: string): Promise<import('./BaseEntityScraper').NarrativeMilestoneData[]> {
+    try {
+      const pages = await this.getPageContent([characterName]);
+      if (!pages || pages.length === 0) return [];
+      
+      const page = pages[0];
+      const wikitext = page.revisions?.[0]?.slots?.main?.['*'];
+      if (!wikitext) return [];
+      
+      const milestones: import('./BaseEntityScraper').NarrativeMilestoneData[] = [];
+      
+      // Pattern 1: Costume/suit changes
+      const costumePatterns = [
+        /(?:gained?|received?|wore|donned?)\s+(?:a\s+)?(?:new\s+)?(?:black|red|blue|symbiote|cosmic|iron)\s+(?:suit|costume|uniform|armor)/gi,
+        /(?:costume|suit)\s+(?:change|transformation|upgrade)/gi
+      ];
+      
+      for (const pattern of costumePatterns) {
+        const matches = wikitext.matchAll(pattern);
+        for (const match of matches) {
+          const milestone = this.createMilestoneFromText(
+            characterName,
+            'costume_change',
+            match[0],
+            wikitext,
+            match.index || 0
+          );
+          if (milestone) milestones.push(milestone);
+        }
+      }
+      
+      // Pattern 2: Power upgrades/changes
+      const powerPatterns = [
+        /(?:gained?|received?|acquired?|lost)\s+(?:new\s+)?(?:cosmic|super|enhanced?|ultimate)\s+(?:power|ability|strength)/gi,
+        /power\s+(?:upgrade|enhancement|loss|transformation)/gi
+      ];
+      
+      for (const pattern of powerPatterns) {
+        const matches = wikitext.matchAll(pattern);
+        for (const match of matches) {
+          const milestone = this.createMilestoneFromText(
+            characterName,
+            'power_upgrade',
+            match[0],
+            wikitext,
+            match.index || 0
+          );
+          if (milestone) milestones.push(milestone);
+        }
+      }
+      
+      // Pattern 3: Deaths/Resurrections
+      const deathPatterns = [
+        /(?:death|died|killed|murdered)\s+(?:in|during|by)/gi,
+        /(?:resurrected?|returned?|revived?)\s+(?:in|from|after)/gi
+      ];
+      
+      for (const pattern of deathPatterns) {
+        const matches = wikitext.matchAll(pattern);
+        for (const match of matches) {
+          const type = match[0].toLowerCase().includes('resurrect') || match[0].toLowerCase().includes('return') ? 'resurrection' : 'death';
+          const milestone = this.createMilestoneFromText(
+            characterName,
+            type as any,
+            match[0],
+            wikitext,
+            match.index || 0
+          );
+          if (milestone) milestones.push(milestone);
+        }
+      }
+      
+      // Pattern 4: Identity reveals
+      const identityPatterns = [
+        /identity\s+(?:revealed?|exposed?|unmasked?)/gi,
+        /(?:secret|true)\s+identity.*(?:revealed?|discovered?)/gi
+      ];
+      
+      for (const pattern of identityPatterns) {
+        const matches = wikitext.matchAll(pattern);
+        for (const match of matches) {
+          const milestone = this.createMilestoneFromText(
+            characterName,
+            'identity_reveal',
+            match[0],
+            wikitext,
+            match.index || 0
+          );
+          if (milestone) milestones.push(milestone);
+        }
+      }
+      
+      return milestones;
+    } catch (error) {
+      console.error(`Error extracting milestones for ${characterName}:`, error);
+      return [];
+    }
+  }
+
+  /**
+   * Create milestone data from matched text
+   */
+  private createMilestoneFromText(
+    characterName: string,
+    milestoneType: 'costume_change' | 'power_upgrade' | 'identity_reveal' | 'death' | 'resurrection',
+    matchedText: string,
+    fullText: string,
+    matchIndex: number
+  ): import('./BaseEntityScraper').NarrativeMilestoneData | null {
+    // Extract comic reference from surrounding context (look for [[Comic Title #123]])
+    const contextStart = Math.max(0, matchIndex - 200);
+    const contextEnd = Math.min(fullText.length, matchIndex + 200);
+    const context = fullText.substring(contextStart, contextEnd);
+    
+    const comicRefMatch = context.match(/\[\[([^\]]+#\d+)\]\]/);
+    const comicTitle = comicRefMatch ? comicRefMatch[1] : 'Unknown Comic';
+    
+    // Extract issue number
+    const issueMatch = comicTitle.match(/#(\d+)/);
+    const issue = issueMatch ? `#${issueMatch[1]}` : undefined;
+    
+    // Extract year (look for 4-digit year near the match)
+    const yearMatch = context.match(/\b(19\d{2}|20\d{2})\b/);
+    const year = yearMatch ? parseInt(yearMatch[1]) : undefined;
+    
+    return {
+      entityId: characterName.replace(/\s+/g, '_'),
+      entityName: characterName,
+      entityType: 'character',
+      milestoneType,
+      milestoneName: `${characterName} - ${matchedText}`,
+      milestoneDescription: context.substring(0, 150).replace(/\[\[|\]\]/g, '').trim(),
+      occurredInComicTitle: comicTitle,
+      occurredInIssue: issue,
+      occurredYear: year,
+      sourceEntityId: characterName.replace(/\s+/g, '_'),
+      sourceUrl: `${this.wikiConfig.baseUrl}/wiki/${encodeURIComponent(characterName.replace(/\s+/g, '_'))}`
+    };
+  }
+
+  /**
    * Parse a story arc page to extract StoryArcData
    */
   private async parseStoryArcPage(title: string): Promise<import('./BaseEntityScraper').StoryArcData | null> {

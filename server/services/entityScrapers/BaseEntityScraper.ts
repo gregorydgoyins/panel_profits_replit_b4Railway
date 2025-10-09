@@ -51,6 +51,43 @@ export interface StoryArcData {
   sourceUrl?: string;
 }
 
+export interface NarrativeMilestoneData {
+  // Entity identification
+  entityId: string;
+  entityName: string;
+  entityType: 'character' | 'team' | 'location';
+  
+  // Milestone classification
+  milestoneType: 'costume_change' | 'power_upgrade' | 'identity_reveal' | 'origin_retold' | 'team_formation' | 'team_departure' | 'title_change' | 'alignment_shift' | 'mentor_relationship' | 'major_defeat' | 'major_victory' | 'death' | 'resurrection';
+  milestoneSubtype?: string; // 'symbiote_suit', 'cosmic_powers', 'public_reveal', 'secret_revealed_to_ally'
+  
+  // Milestone details
+  milestoneName: string; // "Spider-Man Gets Black Suit", "Captain America Loses Super Soldier Serum"
+  milestoneDescription?: string; // Full context and impact
+  
+  // Comic reference
+  occurredInComicId?: string;
+  occurredInComicTitle: string; // "Secret Wars #8"
+  occurredInIssue?: string; // "#8"
+  occurredYear?: number;
+  occurredMonth?: string;
+  coverImageUrl?: string;
+  
+  // Impact tracking
+  isPermanent?: boolean; // Lasting change or temporary
+  wasReversed?: boolean; // Later undone
+  reversedInComicTitle?: string;
+  reversedYear?: number;
+  
+  // Character impact
+  narrativeImpact?: string; // "Gained alien symbiote", "Lost powers permanently"
+  powerLevelChange?: string; // 'increase', 'decrease', 'transformation'
+  
+  // Source tracking
+  sourceEntityId: string;
+  sourceUrl?: string;
+}
+
 export interface EntityData {
   entityId: string;
   entityName: string;
@@ -162,6 +199,20 @@ export abstract class BaseEntityScraper {
     limit?: number;
     offset?: number;
   }): Promise<StoryArcData[]>;
+  
+  /**
+   * Scrape narrative milestones (optional - not all sources have this data)
+   * Extracts major character evolution moments like costume changes, power upgrades, deaths/resurrections
+   */
+  async scrapeNarrativeMilestones?(query?: {
+    entityName?: string;
+    entityType?: 'character' | 'team' | 'location';
+    milestoneType?: string;
+    startYear?: number;
+    endYear?: number;
+    limit?: number;
+    offset?: number;
+  }): Promise<NarrativeMilestoneData[]>;
   
   /**
    * Rate limiting - ensures we don't exceed source limits
