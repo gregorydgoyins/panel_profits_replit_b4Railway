@@ -6313,6 +6313,53 @@ Respond with valid JSON in this exact format:
     }
   });
 
+  // TEST ENDPOINT: Entity scraper validation
+  app.get('/api/test/entity-scraper/:publisher', async (req: any, res) => {
+    console.log(`✅ TEST ENDPOINT HIT: /api/test/entity-scraper/${req.params.publisher}`);
+    try {
+      const { ComicVineScraper } = await import('./services/entityScrapers/ComicVineScraper.js');
+      const apiKey = process.env.COMIC_VINE_API_KEY;
+      
+      if (!apiKey) {
+        console.error('❌ COMIC_VINE_API_KEY not configured');
+        return res.status(500).json({ error: 'COMIC_VINE_API_KEY not configured' });
+      }
+      
+      const scraper = new ComicVineScraper(apiKey);
+      const publisher = req.params.publisher;
+      
+      console.log(`🔍 Testing Comic Vine scraper for publisher: ${publisher}`);
+      
+      const entities = await scraper.scrapeEntities({
+        entityType: 'character',
+        publisher: publisher,
+        limit: 5
+      });
+      
+      console.log(`✅ Comic Vine test complete: ${entities.length} entities for ${publisher}`);
+      
+      const result = {
+        success: true,
+        publisher,
+        entityCount: entities.length,
+        entities: entities.map(e => ({
+          id: e.entityId,
+          name: e.entityName,
+          publisher: e.publisher,
+          firstAppearance: e.firstAppearance,
+          relationships: e.relationships?.length || 0,
+          attributes: e.attributes?.length || 0
+        }))
+      };
+      
+      console.log(`📤 Sending response:`, JSON.stringify(result).substring(0, 200));
+      res.json(result);
+    } catch (error: any) {
+      console.error('❌ Entity scraper test error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // WebSocket support disabled - using polling instead
   // Initialize WebSocket notification service for real-time notifications
   // console.log('🔔 Initializing WebSocket notification service...');

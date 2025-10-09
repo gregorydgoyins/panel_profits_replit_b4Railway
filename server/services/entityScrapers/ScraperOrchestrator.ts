@@ -16,6 +16,8 @@ import { MetronScraper } from './MetronScraper';
 import { MarvelScraper } from './MarvelScraper';
 import { SuperHeroScraper } from './SuperHeroScraper';
 import { createMarvelWikiScraper, createDCWikiScraper } from './WikiScraper';
+import { ComicVineScraper } from './ComicVineScraper';
+import { AniListScraper } from './AniListScraper';
 import { normalizationService } from './NormalizationService';
 
 export interface OrchestratorConfig {
@@ -46,9 +48,9 @@ export class ScraperOrchestrator {
   
   constructor(config?: Partial<OrchestratorConfig>) {
     this.config = {
-      enabledSources: ['metron', 'marvel', 'superhero-api', 'marvel-wiki', 'dc-wiki'], // All 5 active sources
+      enabledSources: ['metron', 'marvel', 'superhero-api', 'marvel-wiki', 'dc-wiki', 'comic-vine', 'anilist'], // All 7 active sources (5 original + 2 new)
       consensusThreshold: 2, // Realistic threshold with current scrapers (will increase when more sources added)
-      concurrentScrapers: 5,
+      concurrentScrapers: 7,
       batchSize: 100,
       ...config,
     };
@@ -65,18 +67,30 @@ export class ScraperOrchestrator {
    * Initialize all enabled scrapers
    */
   private initializeScrapers(): void {
-    const scraperMap: Record<string, () => BaseEntityScraper> = {
+    const scraperMap: Record<string, () => BaseEntityScraper | null> = {
       metron: () => new MetronScraper(),
       marvel: () => new MarvelScraper(),
       'superhero-api': () => new SuperHeroScraper(),
       'marvel-wiki': () => createMarvelWikiScraper(),
       'dc-wiki': () => createDCWikiScraper(),
+      'comic-vine': () => {
+        const apiKey = process.env.COMIC_VINE_API_KEY;
+        if (!apiKey) {
+          console.warn('COMIC_VINE_API_KEY not found, skipping Comic Vine scraper');
+          return null;
+        }
+        return new ComicVineScraper(apiKey);
+      },
+      'anilist': () => new AniListScraper(),
     };
     
     for (const sourceName of this.config.enabledSources) {
       const scraperFactory = scraperMap[sourceName];
       if (scraperFactory) {
-        this.scrapers.set(sourceName, scraperFactory());
+        const scraper = scraperFactory();
+        if (scraper) {
+          this.scrapers.set(sourceName, scraper);
+        }
       }
     }
   }
