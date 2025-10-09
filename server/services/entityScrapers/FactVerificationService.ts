@@ -183,14 +183,6 @@ export class FactVerificationService {
     const verified: VerifiedFact<EntityData['attributes']>[] = [];
     
     for (const [key, group] of grouped.entries()) {
-      const sourceCount = group.length;
-      const isConsensus = sourceCount >= this.consensusThreshold;
-      const sources = group.map(a => a.source);
-      
-      const avgReliability = group.reduce((sum, a) => sum + a.reliability, 0) / sourceCount;
-      const sourceCountWeight = Math.min(1, sourceCount / this.consensusThreshold);
-      const confidence = avgReliability * sourceCountWeight;
-      
       // Check for value conflicts by comparing ALL significant fields
       const uniqueVariants = group.map(a => ({
         description: a.value.description || '',
@@ -230,8 +222,18 @@ export class FactVerificationService {
       }));
       const mostCommonVariant = variantCounts.sort((a, b) => b.count - a.count)[0];
       
-      // Pick most complete from most common
-      const verifiedAttr = mostCommonVariant.variants
+      // Calculate confidence based ONLY on consensus variant sources (not all sources)
+      const consensusVariants = mostCommonVariant.variants;
+      const sourceCount = consensusVariants.length;
+      const isConsensus = sourceCount >= this.consensusThreshold;
+      const sources = consensusVariants.map(v => v.source);
+      
+      const avgReliability = consensusVariants.reduce((sum, v) => sum + v.reliability, 0) / sourceCount;
+      const sourceCountWeight = Math.min(1, sourceCount / this.consensusThreshold);
+      const confidence = avgReliability * sourceCountWeight;
+      
+      // Pick most complete from consensus variant
+      const verifiedAttr = consensusVariants
         .sort((a, b) => {
           const aComplete = (a.description ? 1 : 0) + (a.level ? 1 : 0) + (a.originType ? 1 : 0);
           const bComplete = (b.description ? 1 : 0) + (b.level ? 1 : 0) + (b.originType ? 1 : 0);
@@ -277,14 +279,6 @@ export class FactVerificationService {
     const verified: VerifiedFact<EntityData['relationships']>[] = [];
     
     for (const [key, group] of grouped.entries()) {
-      const sourceCount = group.length;
-      const isConsensus = sourceCount >= this.consensusThreshold;
-      const sources = group.map(r => r.source);
-      
-      const avgReliability = group.reduce((sum, r) => sum + r.reliability, 0) / sourceCount;
-      const sourceCountWeight = Math.min(1, sourceCount / this.consensusThreshold);
-      const confidence = avgReliability * sourceCountWeight;
-      
       // Check for conflicts by comparing ALL relationship fields
       const uniqueVariants = group.map(r => ({
         relationshipType: r.value.relationshipType,
@@ -325,8 +319,18 @@ export class FactVerificationService {
       }));
       const mostCommonVariant = variantCounts.sort((a, b) => b.count - a.count)[0];
       
-      // Pick most complete from most common
-      const verifiedRel = mostCommonVariant.variants
+      // Calculate confidence based ONLY on consensus variant sources (not all sources)
+      const consensusVariants = mostCommonVariant.variants;
+      const sourceCount = consensusVariants.length;
+      const isConsensus = sourceCount >= this.consensusThreshold;
+      const sources = consensusVariants.map(v => v.source);
+      
+      const avgReliability = consensusVariants.reduce((sum, v) => sum + v.reliability, 0) / sourceCount;
+      const sourceCountWeight = Math.min(1, sourceCount / this.consensusThreshold);
+      const confidence = avgReliability * sourceCountWeight;
+      
+      // Pick most complete from consensus variant
+      const verifiedRel = consensusVariants
         .sort((a, b) => {
           const aComplete = (a.relationshipSubtype ? 1 : 0) + (a.strength > 0 ? 1 : 0);
           const bComplete = (b.relationshipSubtype ? 1 : 0) + (b.strength > 0 ? 1 : 0);
