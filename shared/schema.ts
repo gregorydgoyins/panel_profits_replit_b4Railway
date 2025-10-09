@@ -8202,6 +8202,239 @@ export const entityRelationships = pgTable("entity_relationships", {
   index("idx_entity_rel_source_type").on(table.sourceEntityId, table.relationshipType),
 ]);
 
+// Entity Story Arcs - Major storylines, plot events, crossover events
+export const entityStoryArcs = pgTable("entity_story_arcs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Story arc identification
+  arcName: text("arc_name").notNull(), // "Civil War", "Infinity Gauntlet", "Crisis on Infinite Earths"
+  arcType: text("arc_type").notNull(), // 'major_event', 'character_arc', 'team_storyline', 'crossover', 'origin_story', 'death_arc', 'resurrection_arc'
+  arcDescription: text("arc_description"), // Full story summary
+  
+  // Publisher and scope
+  publisher: text("publisher").notNull(), // 'Marvel', 'DC Comics', 'Image', 'Dark Horse', etc.
+  universe: text("universe"), // 'Earth-616', 'Earth-1', 'Ultimate Universe'
+  arcScope: text("arc_scope"), // 'universal', 'street_level', 'cosmic', 'multiversal', 'single_series'
+  
+  // Timeline
+  startYear: integer("start_year"),
+  endYear: integer("end_year"),
+  startIssue: text("start_issue"), // "Iron Man #225"
+  endIssue: text("end_issue"), // "Iron Man #232"
+  issueCount: integer("issue_count"), // Total issues in arc
+  
+  // Comic references
+  keyIssues: text("key_issues").array(), // Major issues in the arc
+  tieInIssues: text("tie_in_issues").array(), // Crossover tie-ins
+  coverImageUrl: text("cover_image_url"), // Cover of first or most iconic issue
+  
+  // Participating entities
+  featuredCharacters: text("featured_characters").array(), // Entity IDs of main characters
+  featuredCreators: text("featured_creators").array(), // Writer/artist entity IDs
+  featuredLocations: text("featured_locations").array(), // Location entity IDs
+  featuredGadgets: text("featured_gadgets").array(), // Gadget entity IDs
+  
+  // Story impact
+  narrativeImpact: text("narrative_impact"), // "Introduction of symbiote", "Death of Superman", "Spider-Man reveals identity"
+  characterImpacts: jsonb("character_impacts"), // {"spider-man": "identity_revealed", "iron-man": "became_director_of_shield"}
+  universeImpacts: text("universe_impacts"), // Long-term changes to continuity
+  
+  // Cultural significance
+  culturalImpact: text("cultural_impact"), // "Became major film storyline", "Changed superhero team dynamics"
+  criticalReception: text("critical_reception"), // "Critically acclaimed", "Controversial ending"
+  commercialSuccess: text("commercial_success"), // "Best-selling storyline of 1991"
+  
+  // Data source tracking
+  primarySource: text("primary_source").notNull(),
+  sourceConsensusCount: integer("source_consensus_count").default(1),
+  sourceIds: jsonb("source_ids"),
+  
+  // Verification
+  isVerified: boolean("is_verified").default(false),
+  verifiedAt: timestamp("verified_at"),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_entity_arc_name").on(table.arcName),
+  index("idx_entity_arc_type").on(table.arcType),
+  index("idx_entity_arc_publisher").on(table.publisher),
+  index("idx_entity_arc_year").on(table.startYear),
+  index("idx_entity_arc_scope").on(table.arcScope),
+]);
+
+// Entity Creator Contributions - Detailed creator work beyond first appearances
+export const entityCreatorContributions = pgTable("entity_creator_contributions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Creator identification
+  creatorEntityId: varchar("creator_entity_id").notNull(), // Entity ID of creator
+  creatorName: text("creator_name").notNull(),
+  
+  // Work identification
+  workType: text("work_type").notNull(), // 'character_creation', 'series_run', 'story_arc', 'single_issue', 'cover_art', 'variant_cover'
+  workEntityId: varchar("work_entity_id"), // Entity ID of character/series they worked on
+  workEntityName: text("work_entity_name"), // Name of character/series
+  workEntityType: text("work_entity_type"), // 'character', 'series', 'story_arc', 'comic'
+  
+  // Role details
+  creatorRole: text("creator_role").notNull(), // 'writer', 'penciller', 'inker', 'colorist', 'letterer', 'editor', 'co-creator'
+  isPrimaryCreator: boolean("is_primary_creator").default(false), // Main creator vs contributor
+  isCoCreator: boolean("is_co_creator").default(false), // Co-created the character/concept
+  
+  // Comic/series references
+  comicTitle: text("comic_title"), // "Amazing Spider-Man"
+  issueRange: text("issue_range"), // "#1-38", "#500", "Vol 1 #1-100"
+  publicationYear: integer("publication_year"),
+  publisher: text("publisher"),
+  
+  // Work significance
+  contributionSignificance: text("contribution_significance"), // 'iconic_run', 'character_defining', 'award_winning', 'first_appearance'
+  notableWorks: text("notable_works").array(), // Specific issues or storylines
+  awards: text("awards").array(), // "Eisner Award 1992", "Harvey Award"
+  
+  // Collaboration
+  collaborators: text("collaborators").array(), // Other creator entity IDs who worked on this
+  collaborationNotes: text("collaboration_notes"),
+  
+  // Data source tracking
+  primarySource: text("primary_source").notNull(),
+  sourceConsensusCount: integer("source_consensus_count").default(1),
+  sourceIds: jsonb("source_ids"),
+  
+  // Verification
+  isVerified: boolean("is_verified").default(false),
+  verifiedAt: timestamp("verified_at"),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_creator_contrib_creator").on(table.creatorEntityId),
+  index("idx_creator_contrib_work").on(table.workEntityId),
+  index("idx_creator_contrib_role").on(table.creatorRole),
+  index("idx_creator_contrib_type").on(table.workType),
+  index("idx_creator_contrib_primary").on(table.isPrimaryCreator),
+  index("idx_creator_contrib_publisher").on(table.publisher),
+]);
+
+// Entity Narrative Milestones - Major character evolution moments
+export const entityNarrativeMilestones = pgTable("entity_narrative_milestones", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Entity identification
+  entityId: varchar("entity_id").notNull(),
+  entityName: text("entity_name").notNull(),
+  entityType: text("entity_type").notNull(), // 'character', 'team', 'location'
+  
+  // Milestone classification
+  milestoneType: text("milestone_type").notNull(), // 'costume_change', 'power_upgrade', 'identity_reveal', 'origin_retold', 'team_formation', 'team_departure', 'title_change', 'alignment_shift', 'mentor_relationship', 'major_defeat', 'major_victory'
+  milestoneSubtype: text("milestone_subtype"), // 'symbiote_suit', 'cosmic_powers', 'public_reveal', 'secret_revealed_to_ally'
+  
+  // Milestone details
+  milestoneName: text("milestone_name").notNull(), // "Spider-Man Gets Black Suit", "Captain America Loses Super Soldier Serum"
+  milestoneDescription: text("milestone_description"), // Full context and impact
+  
+  // Comic reference
+  occurredInComicId: varchar("occurred_in_comic_id"),
+  occurredInComicTitle: text("occurred_in_comic_title").notNull(), // "Secret Wars #8"
+  occurredInIssue: text("occurred_in_issue"), // "#8"
+  occurredYear: integer("occurred_year"),
+  occurredMonth: text("occurred_month"),
+  coverImageUrl: text("cover_image_url"),
+  
+  // Impact tracking
+  isPermanent: boolean("is_permanent").default(true), // Lasting change or temporary
+  wasReversed: boolean("was_reversed").default(false), // Later undone
+  reversedInComicTitle: text("reversed_in_comic_title"),
+  reversedYear: integer("reversed_year"),
+  
+  // Character impact
+  characterImpact: text("character_impact"), // "Became more aggressive and violent", "Lost connection to cosmic awareness"
+  powerChanges: text("power_changes"), // "Gained web-shooting without web-shooters", "Lost flight ability"
+  relationshipChanges: text("relationship_changes"), // "Turned friends into enemies", "Revealed identity to Mary Jane"
+  
+  // Related entities
+  relatedEntities: text("related_entities").array(), // Other entity IDs involved
+  relatedStoryArcId: varchar("related_story_arc_id"), // Link to story arc if part of larger event
+  
+  // Publisher context
+  publisher: text("publisher"),
+  universe: text("universe"),
+  
+  // Data source tracking
+  primarySource: text("primary_source").notNull(),
+  sourceConsensusCount: integer("source_consensus_count").default(1),
+  sourceIds: jsonb("source_ids"),
+  
+  // Verification
+  isVerified: boolean("is_verified").default(false),
+  verifiedAt: timestamp("verified_at"),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_milestone_entity").on(table.entityId),
+  index("idx_milestone_type").on(table.milestoneType),
+  index("idx_milestone_year").on(table.occurredYear),
+  index("idx_milestone_permanent").on(table.isPermanent),
+  index("idx_milestone_reversed").on(table.wasReversed),
+  index("idx_milestone_publisher").on(table.publisher),
+]);
+
+// Entity Appearance Order - Tracks 2nd, 3rd, nth appearances explicitly
+export const entityAppearanceOrder = pgTable("entity_appearance_order", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+  // Entity identification
+  entityId: varchar("entity_id").notNull(),
+  entityName: text("entity_name").notNull(),
+  entityType: text("entity_type").notNull(),
+  
+  // Appearance order
+  appearanceNumber: integer("appearance_number").notNull(), // 1 (first), 2 (second), 3 (third), etc.
+  appearanceOrdinal: text("appearance_ordinal"), // "1st", "2nd", "3rd", "4th"
+  
+  // Comic reference
+  comicId: varchar("comic_id"),
+  comicTitle: text("comic_title").notNull(),
+  issueNumber: text("issue_number"),
+  publicationYear: integer("publication_year"),
+  publicationMonth: text("publication_month"),
+  publisher: text("publisher"),
+  coverImageUrl: text("cover_image_url"),
+  
+  // Appearance context
+  appearanceType: text("appearance_type"), // 'main', 'supporting', 'cameo', 'mentioned', 'flashback'
+  appearanceSignificance: text("appearance_significance"), // What happened in this appearance
+  isKeyAppearance: boolean("is_key_appearance").default(false), // Particularly important appearance
+  
+  // Narrative context
+  relatedStoryArcId: varchar("related_story_arc_id"), // If part of story arc
+  relatedMilestoneId: varchar("related_milestone_id"), // If milestone occurred here
+  
+  // Data source tracking
+  primarySource: text("primary_source").notNull(),
+  sourceConsensusCount: integer("source_consensus_count").default(1),
+  sourceIds: jsonb("source_ids"),
+  
+  // Verification
+  isVerified: boolean("is_verified").default(false),
+  verifiedAt: timestamp("verified_at"),
+  
+  // Metadata
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_appearance_order_entity").on(table.entityId),
+  index("idx_appearance_order_number").on(table.appearanceNumber),
+  index("idx_appearance_order_year").on(table.publicationYear),
+  index("idx_appearance_order_key").on(table.isKeyAppearance),
+  index("idx_appearance_order_entity_num").on(table.entityId, table.appearanceNumber),
+]);
+
 // Insert Schemas
 export const insertMarvelLocationSchema = createInsertSchema(marvelLocations).omit({
   id: true,
@@ -8296,3 +8529,40 @@ export type InsertEntityDataSource = z.infer<typeof insertEntityDataSourceSchema
 
 export type EntityRelationship = typeof entityRelationships.$inferSelect;
 export type InsertEntityRelationship = z.infer<typeof insertEntityRelationshipSchema>;
+
+// New Comprehensive Entity Intelligence Schemas & Types
+export const insertEntityStoryArcSchema = createInsertSchema(entityStoryArcs).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertEntityCreatorContributionSchema = createInsertSchema(entityCreatorContributions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertEntityNarrativeMilestoneSchema = createInsertSchema(entityNarrativeMilestones).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertEntityAppearanceOrderSchema = createInsertSchema(entityAppearanceOrder).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type EntityStoryArc = typeof entityStoryArcs.$inferSelect;
+export type InsertEntityStoryArc = z.infer<typeof insertEntityStoryArcSchema>;
+
+export type EntityCreatorContribution = typeof entityCreatorContributions.$inferSelect;
+export type InsertEntityCreatorContribution = z.infer<typeof insertEntityCreatorContributionSchema>;
+
+export type EntityNarrativeMilestone = typeof entityNarrativeMilestones.$inferSelect;
+export type InsertEntityNarrativeMilestone = z.infer<typeof insertEntityNarrativeMilestoneSchema>;
+
+export type EntityAppearanceOrder = typeof entityAppearanceOrder.$inferSelect;
+export type InsertEntityAppearanceOrder = z.infer<typeof insertEntityAppearanceOrderSchema>;
