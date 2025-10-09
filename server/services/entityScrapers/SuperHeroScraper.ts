@@ -77,9 +77,10 @@ export class SuperHeroScraper extends BaseEntityScraper {
       
       // Filter by publisher if specified
       if (query?.publisher) {
-        filtered = filtered.filter(h => 
-          h.biography.publisher.toLowerCase().includes(query.publisher!.toLowerCase())
-        );
+        filtered = filtered.filter(h => {
+          const publisher = h.biography?.publisher || '';
+          return publisher.toLowerCase().includes(query.publisher!.toLowerCase());
+        });
       }
 
       const paginated = filtered.slice(offset, offset + limit);

@@ -37,12 +37,23 @@ Preferred communication style: Simple, everyday language.
     - **External Scraper Infrastructure**: Production-ready services for Superhero API, Metron DB, and Grand Comic Database (GCD) enable millions-scale asset growth, all feeding into the unified pricing engine and database schema.
 - **Entity Seeding System**: Populates the database with publishers, characters, creators, franchises, and comic assets using data from Comic Vine, Kaggle, and PriceCharting.
 - **Multi-Source Entity Intelligence System**: Comprehensive entity database aggregating 15-20 free data sources (Metron API, Marvel API, SuperHero API, Grand Comics Database, Marvel/DC Wikis, MyComicShop, League of Comic Geeks) to replace Comic Vine. Features:
-    - **Entity First Appearances**: Maps any entity to its first appearance comic cover with multi-source verification (3+ source consensus)
+    - **Active Data Sources** (5 scrapers operational):
+        - **Metron API**: Comic metadata, character appearances, publisher data (reliability: 0.90)
+        - **Marvel Comics API**: Official Marvel character/comic data with authenticated MD5 hash access (reliability: 0.95)
+        - **SuperHero API**: Character powers, powerstats, biography, team affiliations, family relationships across Marvel/DC/Image (reliability: 0.85)
+        - **Marvel Wiki (Fandom)**: MediaWiki API extraction of detailed character powers, weaknesses, first appearances, relationships (reliability: 0.80)
+        - **DC Wiki (Fandom)**: MediaWiki API extraction of DC character data, abilities, team affiliations, enemies/allies (reliability: 0.80)
+    - **Infrastructure Components**:
+        - **BaseEntityScraper**: Abstract base class with rate limiting, retry logic, error handling, data normalization
+        - **ScraperOrchestrator**: Multi-source aggregation with parallel scraping, fuzzy deduplication, consensus verification
+        - **NormalizationService**: 85% Levenshtein threshold fuzzy matching, handles inverted names ("Strange, Doctor" ⇔ "Doctor Strange"), title-only entities, alias resolution
+        - **FactVerificationService**: 3+ source consensus validation with confidence scoring (reliability × source_count_weight), comprehensive field comparison, conflict detection
+    - **Entity First Appearances**: Maps any entity to its first appearance comic cover with multi-source verification (2+ source consensus, expanding to 3+ as more sources added)
     - **Entity Attributes**: Powers, weaknesses, origins, deaths, resurrections tracked across all sources
     - **Entity Relationships**: Universal ally/enemy/team/mentor graph with cross-publisher support
     - **Entity Appearances**: Complete comic appearance tracking (not just first) across Marvel, DC, Image, Dark Horse, indie
-    - **Data Source Tracking**: Monitors 15+ sources with sync status, data completeness metrics, and reliability scores
-    - **Fact Verification**: 3+ source consensus validation ensures accuracy before display
+    - **Data Source Tracking**: Monitors 5 active sources (expanding to 15-20) with sync status, data completeness metrics, and reliability scores
+    - **Fact Verification**: 2+ source consensus validation (threshold will increase to 3+ when additional sources added) with confidence-only-from-consensus-variant calculation ensures accuracy before display
 - **Database Schema**: Comprehensive schemas for users, assets, market data, portfolios, watchlists, orders, market events, certifications, subscriber incentives, easter eggs, assessment scores, and entity intelligence (5 new tables: entity_first_appearances, entity_attributes, entity_relationships, entity_appearances, entity_data_sources).
 - **Comics Worth Watching**: Institutional/whale activity tracking system featuring Bloomberg-style market signals. Detects whale accumulation, institutional flows, smart money movements, and dark pool activity. Each entry includes street consensus (buy/sell/hold), analyst targets, technical indicators, and detailed catalysts/risks for comprehensive financial analysis on detail pages.
 - **Comic of the Day**: Historical significance system showcasing comics with revolutionary impact. Features first appearances (major characters, creators, locations, gadgets), breakthrough storytelling (Watchmen panel innovation, G.I. Joe #21 silent issue, Kirby montage techniques), and cultural milestones (e.g., Deadpool as Deathstroke parody). Rotates across comic eras for diversity. Includes production-ready fact-checking verification system that validates all comic information (first issue claims, publication dates, creator data, page counts) before display to prevent errors.

@@ -13,6 +13,9 @@ import {
 } from '@shared/schema';
 import type { BaseEntityScraper, EntityData, ScraperResult } from './BaseEntityScraper';
 import { MetronScraper } from './MetronScraper';
+import { MarvelScraper } from './MarvelScraper';
+import { SuperHeroScraper } from './SuperHeroScraper';
+import { createMarvelWikiScraper, createDCWikiScraper } from './WikiScraper';
 import { normalizationService } from './NormalizationService';
 
 export interface OrchestratorConfig {
@@ -43,8 +46,8 @@ export class ScraperOrchestrator {
   
   constructor(config?: Partial<OrchestratorConfig>) {
     this.config = {
-      enabledSources: ['metron'], // Start with Metron, expand later
-      consensusThreshold: 3,
+      enabledSources: ['metron', 'marvel', 'superhero-api', 'marvel-wiki', 'dc-wiki'], // All 5 active sources
+      consensusThreshold: 2, // Realistic threshold with current scrapers (will increase when more sources added)
       concurrentScrapers: 5,
       batchSize: 100,
       ...config,
@@ -64,12 +67,10 @@ export class ScraperOrchestrator {
   private initializeScrapers(): void {
     const scraperMap: Record<string, () => BaseEntityScraper> = {
       metron: () => new MetronScraper(),
-      // Future scrapers:
-      // marvel_api: () => new MarvelAPIScraper(),
-      // superhero_api: () => new SuperHeroAPIScraper(),
-      // gcd: () => new GCDScraper(),
-      // dc_wiki: () => new DCWikiScraper(),
-      // marvel_wiki: () => new MarvelWikiScraper(),
+      marvel: () => new MarvelScraper(),
+      'superhero-api': () => new SuperHeroScraper(),
+      'marvel-wiki': () => createMarvelWikiScraper(),
+      'dc-wiki': () => createDCWikiScraper(),
     };
     
     for (const sourceName of this.config.enabledSources) {
@@ -203,7 +204,11 @@ export class ScraperOrchestrator {
   /**
    * Aggregate entity data from multiple sources using consensus
    */
-  private async aggregateEntityData(entityDataList: EntityData[]): Promise<EntityData & { isVerified: boolean; sourceCount: number }> {
+  private async aggregateEntityData(entityDataList: EntityData[]): Promise<EntityData & { 
+    isVerified: boolean; 
+    sourceCount: number;
+    firstAppearanceSourceCount?: number; // Track actual FA contributors
+  }> {
     if (entityDataList.length === 0) {
       throw new Error('No entity data to aggregate');
     }
@@ -213,8 +218,8 @@ export class ScraperOrchestrator {
     const sourceCount = entityDataList.length;
     const isVerified = sourceCount >= this.config.consensusThreshold;
     
-    // Merge first appearance data (use most complete one)
-    const firstAppearance = this.mergeFirstAppearances(
+    // Merge first appearance data and track contributor count
+    const firstAppearanceResult = this.mergeFirstAppearances(
       entityDataList.map(e => e.firstAppearance).filter(Boolean) as NonNullable<EntityData['firstAppearance']>[]
     );
     
@@ -235,7 +240,8 @@ export class ScraperOrchestrator {
     
     return {
       ...base,
-      firstAppearance,
+      firstAppearance: firstAppearanceResult?.value,
+      firstAppearanceSourceCount: firstAppearanceResult?.sourceCount,
       attributes,
       relationships,
       appearances,
@@ -245,17 +251,54 @@ export class ScraperOrchestrator {
   }
   
   /**
-   * Merge first appearance data - prioritize most complete
+   * Merge first appearance data - REQUIRES sources to AGREE on same comic
+   * Field-level consensus: sources must agree on the same first appearance
+   * Returns both the value AND the number of sources that contributed
    */
-  private mergeFirstAppearances(firstAppearances: NonNullable<EntityData['firstAppearance']>[]): EntityData['firstAppearance'] | undefined {
+  private mergeFirstAppearances(firstAppearances: NonNullable<EntityData['firstAppearance']>[]): { 
+    value: EntityData['firstAppearance']; 
+    sourceCount: number;
+  } | undefined {
     if (firstAppearances.length === 0) return undefined;
     
-    // Sort by completeness (most fields filled)
-    return firstAppearances.sort((a, b) => {
+    // Group by normalized comic title to find consensus
+    const grouped = new Map<string, NonNullable<EntityData['firstAppearance']>[]>();
+    
+    for (const fa of firstAppearances) {
+      // Normalize comic title for matching
+      const key = normalizationService.canonicalizeName(fa.comicTitle);
+      const group = grouped.get(key) || [];
+      group.push(fa);
+      grouped.set(key, group);
+    }
+    
+    // Find group with most sources (consensus)
+    let consensusGroup: NonNullable<EntityData['firstAppearance']>[] = [];
+    let maxSources = 0;
+    
+    for (const group of grouped.values()) {
+      if (group.length > maxSources) {
+        maxSources = group.length;
+        consensusGroup = group;
+      }
+    }
+    
+    // Only return if consensus threshold met
+    if (maxSources < this.config.consensusThreshold) {
+      return undefined; // Sources disagree or insufficient consensus
+    }
+    
+    // Return most complete entry from consensus group WITH source count
+    const mostComplete = consensusGroup.sort((a, b) => {
       const scoreA = Object.values(a).filter(v => v !== null && v !== undefined).length;
       const scoreB = Object.values(b).filter(v => v !== null && v !== undefined).length;
       return scoreB - scoreA;
     })[0];
+    
+    return {
+      value: mostComplete,
+      sourceCount: maxSources, // Actual number of sources that agreed
+    };
   }
   
   /**
@@ -310,7 +353,11 @@ export class ScraperOrchestrator {
    * Save aggregated entity data to database
    */
   private async saveEntityData(
-    aggregatedEntity: EntityData & { isVerified: boolean; sourceCount: number },
+    aggregatedEntity: EntityData & { 
+      isVerified: boolean; 
+      sourceCount: number; 
+      firstAppearanceSourceCount?: number;
+    },
     sourceDataList: EntityData[]
   ): Promise<void> {
     // Save entity data sources
@@ -341,8 +388,11 @@ export class ScraperOrchestrator {
       await db.insert(entityDataSources).values(dataSource).onConflictDoNothing();
     }
     
-    // Save first appearance
-    if (aggregatedEntity.firstAppearance) {
+    // Save first appearance (only if consensus achieved)
+    if (aggregatedEntity.firstAppearance && aggregatedEntity.firstAppearanceSourceCount) {
+      const faSourceCount = aggregatedEntity.firstAppearanceSourceCount;
+      const faIsVerified = faSourceCount >= this.config.consensusThreshold;
+      
       const firstAppearance: InsertEntityFirstAppearance = {
         entityId: aggregatedEntity.entityId,
         entityName: aggregatedEntity.entityName,
@@ -356,15 +406,15 @@ export class ScraperOrchestrator {
         franchise: aggregatedEntity.firstAppearance.franchise || null,
         universe: aggregatedEntity.firstAppearance.universe || null,
         primarySource: sourceDataList[0].sourceData?.sourceName || 'metron',
-        sourceConsensusCount: aggregatedEntity.sourceCount,
+        sourceConsensusCount: faSourceCount, // Actual FA contributor count
         sourceIds: sourceDataList.reduce((acc, src) => ({
           ...acc,
           [src.sourceData?.sourceName || 'unknown']: src.sourceEntityId,
         }), {}),
-        isVerified: aggregatedEntity.isVerified,
-        verifiedAt: aggregatedEntity.isVerified ? new Date() : null,
-        verificationNotes: aggregatedEntity.isVerified 
-          ? `Verified by ${aggregatedEntity.sourceCount} sources` 
+        isVerified: faIsVerified, // Based on FA consensus
+        verifiedAt: faIsVerified ? new Date() : null,
+        verificationNotes: faIsVerified 
+          ? `First appearance verified by ${faSourceCount} agreeing sources` 
           : null,
       };
       

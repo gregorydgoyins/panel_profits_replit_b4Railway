@@ -219,21 +219,11 @@ export class MarvelScraper extends BaseEntityScraper {
   }
 
   private extractFirstAppearance(character: MarvelCharacter): EntityData['firstAppearance'] {
-    // Get the oldest comic from the character's comic list
-    // Note: Marvel API doesn't explicitly mark "first appearance"
-    // We'll need to enhance this with comic date sorting
-    if (character.comics.items.length === 0) {
-      return undefined;
-    }
-
-    const firstComic = character.comics.items[0]; // Simplified - would need date sorting
-    
-    return {
-      comicTitle: firstComic.name,
-      issue: this.extractIssueNumber(firstComic.name),
-      coverUrl: `${character.thumbnail.path}.${character.thumbnail.extension}`,
-      franchise: 'Marvel',
-    };
+    // Marvel API doesn't provide publication dates in the comics list
+    // Cannot reliably determine first appearance without additional API calls
+    // Consensus system will rely on WikiScraper and SuperHero API for first appearances
+    // (both have dedicated first appearance fields)
+    return undefined;
   }
 
   private extractAttributes(character: MarvelCharacter): EntityData['attributes'] {
