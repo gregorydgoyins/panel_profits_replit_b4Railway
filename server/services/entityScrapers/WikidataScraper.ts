@@ -501,4 +501,162 @@ export class WikidataScraper extends BaseEntityScraper {
       issue: issueMatch ? issueMatch[1] : undefined
     };
   }
+
+  /**
+   * Scrape story arcs/major events from Wikidata
+   * Queries for comic book storylines, crossover events, and narrative arcs
+   */
+  async scrapeStoryArcs(query?: {
+    publisher?: string;
+    arcType?: string;
+    startYear?: number;
+    endYear?: number;
+    limit?: number;
+    offset?: number;
+  }): Promise<import('./BaseEntityScraper').StoryArcData[]> {
+    try {
+      const limit = query?.limit || 20;
+      const publisher = query?.publisher;
+      const startYear = query?.startYear;
+      const endYear = query?.endYear;
+
+      // Build SPARQL query for story arcs
+      const sparqlQuery = this.buildStoryArcQuery(limit, publisher, startYear, endYear);
+      const result = await this.executeSparql(sparqlQuery);
+      const bindings = result.results?.bindings || [];
+
+      console.log(`Retrieved ${bindings.length} story arcs from Wikidata`);
+
+      const storyArcs: import('./BaseEntityScraper').StoryArcData[] = [];
+
+      for (const binding of bindings) {
+        const arcData = this.parseStoryArcBinding(binding);
+        if (arcData) {
+          storyArcs.push(arcData);
+        }
+      }
+
+      return storyArcs;
+    } catch (error) {
+      console.error(`Error scraping Wikidata story arcs:`, error);
+      return [];
+    }
+  }
+
+  /**
+   * Build SPARQL query for story arcs
+   */
+  private buildStoryArcQuery(limit: number, publisher?: string, startYear?: number, endYear?: number): string {
+    let publisherFilter = '';
+    
+    if (publisher) {
+      const publisherQIDs: string[] = [];
+      
+      if (publisher.toLowerCase().includes('marvel')) {
+        publisherQIDs.push('wd:Q173496'); // Marvel Comics
+      }
+      if (publisher.toLowerCase().includes('dc')) {
+        publisherQIDs.push('wd:Q2924461'); // DC Comics
+      }
+      if (publisher.toLowerCase().includes('image')) {
+        publisherQIDs.push('wd:Q738562'); // Image Comics
+      }
+      
+      if (publisherQIDs.length > 0) {
+        publisherFilter = `FILTER(?publisher IN (${publisherQIDs.join(', ')}))`;
+      }
+    }
+
+    let yearFilter = '';
+    if (startYear) {
+      yearFilter += `FILTER(YEAR(?publicationDate) >= ${startYear})`;
+    }
+    if (endYear) {
+      yearFilter += `FILTER(YEAR(?publicationDate) <= ${endYear})`;
+    }
+
+    // Broadened query: Accept multiple story arc classes and relax constraints
+    return `
+      SELECT DISTINCT ?arc ?arcLabel ?description ?publicationDate ?publisher ?publisherLabel ?universe ?universeLabel WHERE {
+        # Multiple story arc types (broadened from architect feedback)
+        {
+          ?arc wdt:P31 wd:Q7725310.  # comics storyline
+        } UNION {
+          ?arc wdt:P31 wd:Q21191270.  # comic book story arc
+        } UNION {
+          ?arc wdt:P31 wd:Q1002954;  # narrative
+               wdt:P1441 ?work.
+          ?work wdt:P31 wd:Q1114461.  # work is a comic book
+        }
+        
+        # Publisher (relaxed - check both arc and work)
+        OPTIONAL { 
+          ?arc wdt:P123 ?publisher.
+        }
+        ${publisherFilter}
+        
+        # Publication date (relaxed)
+        OPTIONAL { 
+          ?arc wdt:P577 ?publicationDate.
+        }
+        ${yearFilter}
+        
+        # Fictional universe
+        OPTIONAL { 
+          ?arc wdt:P1445 ?universe.
+        }
+        
+        SERVICE wikibase:label { 
+          bd:serviceParam wikibase:language "en". 
+          ?arc rdfs:label ?arcLabel.
+          ?arc schema:description ?description.
+          ?publisher rdfs:label ?publisherLabel.
+          ?universe rdfs:label ?universeLabel.
+        }
+      }
+      LIMIT ${limit}
+    `;
+  }
+
+  /**
+   * Parse story arc binding from SPARQL result
+   */
+  private parseStoryArcBinding(binding: any): import('./BaseEntityScraper').StoryArcData | null {
+    const arcName = binding.arcLabel?.value;
+    if (!arcName) return null;
+
+    const arcId = this.extractEntityId(binding.arc?.value);
+    if (!arcId) return null;
+
+    // Determine arc type from description/name
+    const description = binding.description?.value || '';
+    const nameLower = arcName.toLowerCase();
+    
+    let arcType: 'major_event' | 'character_arc' | 'team_storyline' | 'crossover' | 'origin_story' | 'death_arc' | 'resurrection_arc' = 'major_event';
+    
+    if (nameLower.includes('origin') || description.includes('origin')) {
+      arcType = 'origin_story';
+    } else if (nameLower.includes('death') || description.includes('death')) {
+      arcType = 'death_arc';
+    } else if (nameLower.includes('resurrection') || description.includes('return')) {
+      arcType = 'resurrection_arc';
+    } else if (nameLower.includes('crossover') || description.includes('crossover')) {
+      arcType = 'crossover';
+    }
+
+    // Extract year from publication date
+    const publicationDate = binding.publicationDate?.value;
+    const year = publicationDate ? parseInt(publicationDate.substring(0, 4)) : undefined;
+
+    return {
+      arcName,
+      arcType,
+      arcDescription: description,
+      publisher: binding.publisherLabel?.value || 'Unknown',
+      universe: binding.universeLabel?.value,
+      startYear: year,
+      sourceEntityId: arcId,
+      sourceUrl: `https://www.wikidata.org/wiki/${arcId}`
+    };
+  }
 }

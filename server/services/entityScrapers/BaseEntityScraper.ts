@@ -8,6 +8,49 @@ export interface ScraperConfig {
   timeout?: number; // request timeout in ms
 }
 
+export interface StoryArcData {
+  arcName: string; // "Civil War", "Infinity Gauntlet", "Crisis on Infinite Earths"
+  arcType: 'major_event' | 'character_arc' | 'team_storyline' | 'crossover' | 'origin_story' | 'death_arc' | 'resurrection_arc';
+  arcDescription?: string;
+  
+  // Publisher and scope
+  publisher: string; // 'Marvel', 'DC Comics', 'Image', 'Dark Horse'
+  universe?: string; // 'Earth-616', 'Earth-1', 'Ultimate Universe'
+  arcScope?: 'universal' | 'street_level' | 'cosmic' | 'multiversal' | 'single_series';
+  
+  // Timeline
+  startYear?: number;
+  endYear?: number;
+  startIssue?: string; // "Iron Man #225"
+  endIssue?: string; // "Iron Man #232"
+  issueCount?: number;
+  
+  // Comic references
+  keyIssues?: string[]; // Major issues in the arc
+  tieInIssues?: string[]; // Crossover tie-ins
+  coverImageUrl?: string;
+  
+  // Participating entities
+  featuredCharacters?: string[]; // Entity names
+  featuredCreators?: string[]; // Creator names
+  featuredLocations?: string[]; // Location names
+  featuredGadgets?: string[]; // Gadget names
+  
+  // Story impact
+  narrativeImpact?: string; // "Introduction of symbiote", "Death of Superman"
+  characterImpacts?: Record<string, string>; // {"spider-man": "identity_revealed"}
+  universeImpacts?: string; // Long-term changes
+  
+  // Cultural significance
+  culturalImpact?: string;
+  criticalReception?: string;
+  commercialSuccess?: string;
+  
+  // Source tracking
+  sourceEntityId: string;
+  sourceUrl?: string;
+}
+
 export interface EntityData {
   entityId: string;
   entityName: string;
@@ -107,6 +150,18 @@ export abstract class BaseEntityScraper {
    * Check if source has data for a given entity
    */
   abstract hasEntityData(entityName: string, entityType: string): Promise<boolean>;
+  
+  /**
+   * Scrape story arcs/major events (optional - not all sources have this data)
+   */
+  async scrapeStoryArcs?(query?: {
+    publisher?: string;
+    arcType?: string;
+    startYear?: number;
+    endYear?: number;
+    limit?: number;
+    offset?: number;
+  }): Promise<StoryArcData[]>;
   
   /**
    * Rate limiting - ensures we don't exceed source limits

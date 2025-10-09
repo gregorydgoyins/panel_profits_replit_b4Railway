@@ -112,6 +112,113 @@ export class FandomWikiScraper extends BaseEntityScraper {
   }
 
   /**
+   * Scrape story arcs from Fandom wiki
+   * Searches for story arc/event category pages and parses details
+   */
+  async scrapeStoryArcs(query?: {
+    publisher?: string;
+    arcType?: string;
+    startYear?: number;
+    endYear?: number;
+    limit?: number;
+    offset?: number;
+  }): Promise<import('./BaseEntityScraper').StoryArcData[]> {
+    try {
+      const limit = query?.limit || 20;
+      
+      // Story arc category variations across Fandom wikis
+      const arcCategories = [
+        'Category:Story_Arcs',
+        'Category:Storylines',
+        'Category:Events',
+        'Category:Crossovers',
+        'Category:Story_arcs',
+        'Category:Comic_Events'
+      ];
+      
+      const storyArcs: import('./BaseEntityScraper').StoryArcData[] = [];
+      
+      // Try each category until we find story arcs
+      for (const category of arcCategories) {
+        const pageTitles = await this.getCategoryMembers(category, limit);
+        
+        if (pageTitles.length === 0) continue;
+        
+        console.log(`Found ${pageTitles.length} story arcs in ${category}`);
+        
+        for (const title of pageTitles.slice(0, limit)) {
+          const arcData = await this.parseStoryArcPage(title);
+          if (arcData) {
+            storyArcs.push(arcData);
+          }
+        }
+        
+        // If we found arcs, stop searching other categories
+        if (storyArcs.length > 0) break;
+      }
+      
+      return storyArcs;
+    } catch (error) {
+      console.error(`Error scraping Fandom story arcs:`, error);
+      return [];
+    }
+  }
+
+  /**
+   * Parse a story arc page to extract StoryArcData
+   */
+  private async parseStoryArcPage(title: string): Promise<import('./BaseEntityScraper').StoryArcData | null> {
+    try {
+      const pages = await this.getPageContent([title]);
+      if (!pages || pages.length === 0) return null;
+      
+      const page = pages[0];
+      const wikitext = page.revisions?.[0]?.slots?.main?.['*'];
+      if (!wikitext) return null;
+      
+      // Extract arc name (remove parentheticals like "(Event)")
+      const arcName = title.replace(/\s*\([^)]+\)\s*/g, '').trim();
+      
+      // Determine arc type from title/content
+      const titleLower = title.toLowerCase();
+      const contentLower = wikitext.toLowerCase();
+      
+      let arcType: 'major_event' | 'character_arc' | 'team_storyline' | 'crossover' | 'origin_story' | 'death_arc' | 'resurrection_arc' = 'major_event';
+      
+      if (titleLower.includes('origin') || contentLower.includes('origin story')) {
+        arcType = 'origin_story';
+      } else if (titleLower.includes('death') || contentLower.includes('death of')) {
+        arcType = 'death_arc';
+      } else if (titleLower.includes('return') || titleLower.includes('resurrection')) {
+        arcType = 'resurrection_arc';
+      } else if (titleLower.includes('crossover') || contentLower.includes('crossover event')) {
+        arcType = 'crossover';
+      }
+      
+      // Extract description (first paragraph)
+      const descMatch = wikitext.match(/^([^{][^\n]+)/m);
+      const arcDescription = descMatch ? descMatch[1].replace(/'''|''|\[\[|\]\]/g, '').trim() : undefined;
+      
+      // Extract year from infobox or content
+      const yearMatch = wikitext.match(/\|(?:year|date|published)\s*=\s*(\d{4})|(\d{4})/i);
+      const startYear = yearMatch ? parseInt(yearMatch[1] || yearMatch[2]) : undefined;
+      
+      return {
+        arcName,
+        arcType,
+        arcDescription,
+        publisher: this.wikiConfig.publisher,
+        startYear,
+        sourceEntityId: title.replace(/\s+/g, '_'),
+        sourceUrl: `${this.wikiConfig.baseUrl}/wiki/${encodeURIComponent(title.replace(/\s+/g, '_'))}`
+      };
+    } catch (error) {
+      console.error(`Error parsing story arc page ${title}:`, error);
+      return null;
+    }
+  }
+
+  /**
    * Get category members using MediaWiki API
    */
   private async getCategoryMembers(category: string, limit: number = 50): Promise<string[]> {
