@@ -216,12 +216,19 @@ export class AniListScraper extends BaseEntityScraper {
   
   /**
    * Scrape single entity by ID
+   * Tries both Character and Staff queries since we don't know the type from just the ID
    */
   async scrapeEntity(sourceEntityId: string): Promise<EntityData | null> {
     await this.rateLimit();
     
+    const id = parseInt(sourceEntityId);
+    if (isNaN(id)) {
+      return null;
+    }
+    
+    // Try Character first
     try {
-      const query = `
+      const characterQuery = `
         query ($id: Int) {
           Character(id: $id) {
             id
@@ -257,20 +264,61 @@ export class AniListScraper extends BaseEntityScraper {
         }
       `;
       
-      const response = await this.makeGraphQLRequest<{ Character: AniListCharacter }>(
-        query,
-        { id: parseInt(sourceEntityId) }
+      const charResponse = await this.makeGraphQLRequest<{ Character: AniListCharacter }>(
+        characterQuery,
+        { id },
+        true // silent mode - suppress error logging for 404s
       );
       
-      if (!response?.data?.Character) {
-        return null;
+      if (charResponse?.data?.Character) {
+        return this.parseCharacter(charResponse.data.Character);
       }
+    } catch (error) {
+      // Character query failed, continue to try Staff (expected for staff IDs)
+    }
+    
+    // Try Staff if Character failed
+    try {
+      const staffQuery = `
+        query ($id: Int) {
+          Staff(id: $id) {
+            id
+            name {
+              full
+              native
+            }
+            image {
+              large
+            }
+            description
+            languageV2
+            staffMedia(sort: START_DATE) {
+              nodes {
+                id
+                title {
+                  romaji
+                  english
+                }
+                type
+              }
+            }
+          }
+        }
+      `;
       
-      return this.parseCharacter(response.data.Character);
+      const staffResponse = await this.makeGraphQLRequest<{ Staff: AniListStaff }>(
+        staffQuery,
+        { id }
+      );
+      
+      if (staffResponse?.data?.Staff) {
+        return this.parseStaff(staffResponse.data.Staff);
+      }
     } catch (error) {
       console.error(`AniList scrape entity error (${sourceEntityId}):`, error);
-      return null;
     }
+    
+    return null;
   }
   
   /**
@@ -452,10 +500,12 @@ export class AniListScraper extends BaseEntityScraper {
   
   /**
    * Make GraphQL request
+   * @param silent - If true, suppress error logging (useful for expected 404s)
    */
   private async makeGraphQLRequest<T>(
     query: string,
-    variables: Record<string, any>
+    variables: Record<string, any>,
+    silent: boolean = false
   ): Promise<{ data: T } | null> {
     const maxRetries = this.config.maxRetries || 3;
     let lastError: Error | null = null;
@@ -496,7 +546,9 @@ export class AniListScraper extends BaseEntityScraper {
       }
     }
     
-    console.error(`AniList request failed after ${maxRetries} attempts:`, lastError);
+    if (!silent) {
+      console.error(`AniList request failed after ${maxRetries} attempts:`, lastError);
+    }
     return null;
   }
 }
