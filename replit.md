@@ -34,10 +34,10 @@ Preferred communication style: Simple, everyday language.
     - **Pinecone Vector Database Integration**: Processes 63,934 vectors from Marvel mind maps, creating 20,429 tradeable assets (characters, creators, comics) with semantic search using OpenAI embeddings. Features production-ready deterministic symbol generation and a high-speed bulk insertion service.
     - **GoCollect Graded Comics Expansion**: Real-world graded comic pricing across CGC, CBCS, and PGX graders. Each comic expands into 50+ tradeable assets based on grade (10.0 down to 0.5), grader (3 companies), and label type (Universal, Restored, Signature Series, Qualified). Includes market trends, sales history, census data, and price indices. Enables millions of assets with authentic market pricing.
     - **Manga Separation**: 70,938 manga/anime comics isolated into dedicated manga_comics table (separate from superhero assets). Enables future manga-specific trading mechanics and preserves superhero market focus. Main assets table now contains 474,853 superhero-only assets (170,564 comics, 153,631 characters, 59,799 creators, 49,377 franchises, 40,000 series, 1,482 collectibles).
-    - **External Scraper Infrastructure**: Production-ready services for Superhero API, Metron DB, and Grand Comic Database (GCD) enable millions-scale asset growth, all feeding into the unified pricing engine and database schema.
-- **Entity Seeding System**: Populates the database with publishers, characters, creators, franchises, and comic assets using data from Comic Vine, Kaggle, and PriceCharting.
-- **Multi-Source Entity Intelligence System**: Comprehensive entity database aggregating 15-20 free data sources (Metron API, Marvel API, SuperHero API, Grand Comics Database, Marvel/DC Wikis, MyComicShop, League of Comic Geeks) to replace Comic Vine. Features:
-    - **Active Data Sources** (8 scrapers operational, expanding to 20):
+    - **External Scraper Infrastructure**: Production-ready services for Superhero API enable millions-scale asset growth, all feeding into the unified pricing engine and database schema.
+- **Entity Seeding System**: Populates the database with publishers, characters, creators, franchises, and comic assets using data from Kaggle and PriceCharting.
+- **Multi-Source Entity Intelligence System**: Comprehensive entity database aggregating 15-20 free data sources (Marvel API, SuperHero API, Wikidata SPARQL, Fandom Wikis, AniList GraphQL) to replace Comic Vine. Features:
+    - **Active Data Sources** (10 scrapers operational, expanding to 20):
         - **Marvel Comics API**: Official Marvel character/comic data with authenticated MD5 hash access (reliability: 0.95) - MARVEL ONLY but excellent for covers, artists, creators, key covers, art
         - **Wikidata SPARQL**: Free structured knowledge base with extensive comic book data across all publishers. SPARQL endpoint returns characters, creators, relationships, first appearances, powers. Supports Marvel (Earth-616), DC Universe, Image Comics, and independent publishers (reliability: 0.90) - OPERATIONAL
         - **SuperHero API**: Character powers, powerstats, biography, team affiliations, family relationships across Marvel/DC/Image (reliability: 0.85)
@@ -47,16 +47,14 @@ Preferred communication style: Simple, everyday language.
         - **Image Comics Wiki (Fandom)**: MediaWiki API for Image characters (reliability: 0.75) - OPERATIONAL
         - **Spawn Wiki (Fandom)**: Dedicated Spawn universe MediaWiki API (reliability: 0.75) - OPERATIONAL
         - **Walking Dead Wiki (Fandom)**: TWD comic series characters via MediaWiki API (reliability: 0.75) - OPERATIONAL
+        - **AniList GraphQL API**: 500k+ anime/manga characters and creators (staff), no auth required, 90 req/min, sequential Character→Staff query fallback (reliability: 0.90) - OPERATIONAL
     - **NON-VIABLE SOURCES (DO NOT USE)**:
         - **Comic Vine API**: API key perpetually returns 401 Unauthorized - NOT A WORKING SOURCE
         - **Metron API**: Does not work - NOT A VIABLE SOURCE
+        - **Grand Comics Database (GCD)**: Community API (comiccover.org) is down with database connection errors. Only database dumps available, no real-time API access - NOT A VIABLE SOURCE
     - **Planned Multi-Publisher Sources** (comprehensive expansion):
-        - **Grand Comics Database (GCD)**: Worldwide comics, volunteer-run, comprehensive creator credits and publication data (reliability: 0.88)
-        - **Dark Horse Wiki**: 3,692+ articles on Hellboy, Sin City, 300, BPRD characters (reliability: 0.75)
-        - **Image Comics Wiki**: Spawn, Saga, The Walking Dead, Invincible character database (reliability: 0.75)
-        - **IDW Wiki**: TMNT, Transformers legacy, crossover events (reliability: 0.75)
-    - **Anime/Manga Sources** (500k+ entries):
-        - **AniList GraphQL API**: 500k+ anime/manga, characters, staff, studios, genres, no auth required, 90 req/min (reliability: 0.90)
+        - **IDW Wiki (Fandom)**: TMNT, Transformers legacy, crossover events (reliability: 0.75)
+    - **Planned Anime/Manga Sources** (500k+ entries):
         - **Jikan API**: Unofficial MyAnimeList REST API, manga/characters/creators, free, 3 req/sec (reliability: 0.85)
         - **Kitsu JSON:API**: 500k+ entries, JSON:API standard, Algolia search, OAuth optional (reliability: 0.88)
     - **Infrastructure Components**:
@@ -68,7 +66,7 @@ Preferred communication style: Simple, everyday language.
     - **Entity Attributes**: Powers, weaknesses, origins, deaths, resurrections tracked across all sources
     - **Entity Relationships**: Universal ally/enemy/team/mentor graph with cross-publisher support
     - **Entity Appearances**: Complete comic appearance tracking (not just first) across Marvel, DC, Image, Dark Horse, indie
-    - **Data Source Tracking**: Monitors 5 active sources (expanding to 15-20) with sync status, data completeness metrics, and reliability scores
+    - **Data Source Tracking**: Monitors 10 active sources (expanding to 15-20) with sync status, data completeness metrics, and reliability scores
     - **Fact Verification**: 2+ source consensus validation (threshold will increase to 3+ when additional sources added) with confidence-only-from-consensus-variant calculation ensures accuracy before display
 - **Database Schema**: Comprehensive schemas for users, assets, market data, portfolios, watchlists, orders, market events, certifications, subscriber incentives, easter eggs, assessment scores, and entity intelligence (9 entity tables total):
     - **Core Entity Data** (5 tables): entity_first_appearances, entity_attributes, entity_relationships, entity_appearances, entity_data_sources
