@@ -37,8 +37,9 @@ Preferred communication style: Simple, everyday language.
     - **External Scraper Infrastructure**: Production-ready services for Superhero API, Metron DB, and Grand Comic Database (GCD) enable millions-scale asset growth, all feeding into the unified pricing engine and database schema.
 - **Entity Seeding System**: Populates the database with publishers, characters, creators, franchises, and comic assets using data from Comic Vine, Kaggle, and PriceCharting.
 - **Multi-Source Entity Intelligence System**: Comprehensive entity database aggregating 15-20 free data sources (Metron API, Marvel API, SuperHero API, Grand Comics Database, Marvel/DC Wikis, MyComicShop, League of Comic Geeks) to replace Comic Vine. Features:
-    - **Active Data Sources** (7 scrapers operational, expanding to 20):
+    - **Active Data Sources** (8 scrapers operational, expanding to 20):
         - **Marvel Comics API**: Official Marvel character/comic data with authenticated MD5 hash access (reliability: 0.95) - MARVEL ONLY but excellent for covers, artists, creators, key covers, art
+        - **Wikidata SPARQL**: Free structured knowledge base with extensive comic book data across all publishers. SPARQL endpoint returns characters, creators, relationships, first appearances, powers. Supports Marvel (Earth-616), DC Universe, Image Comics, and independent publishers (reliability: 0.90) - OPERATIONAL
         - **SuperHero API**: Character powers, powerstats, biography, team affiliations, family relationships across Marvel/DC/Image (reliability: 0.85)
         - **Marvel Wiki (Fandom)**: MediaWiki API extraction of detailed character powers, weaknesses, first appearances, relationships (reliability: 0.80)
         - **DC Wiki (Fandom)**: MediaWiki API extraction of DC character data, abilities, team affiliations, enemies/allies (reliability: 0.80)
