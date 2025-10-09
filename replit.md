@@ -37,14 +37,19 @@ Preferred communication style: Simple, everyday language.
     - **External Scraper Infrastructure**: Production-ready services for Superhero API, Metron DB, and Grand Comic Database (GCD) enable millions-scale asset growth, all feeding into the unified pricing engine and database schema.
 - **Entity Seeding System**: Populates the database with publishers, characters, creators, franchises, and comic assets using data from Comic Vine, Kaggle, and PriceCharting.
 - **Multi-Source Entity Intelligence System**: Comprehensive entity database aggregating 15-20 free data sources (Metron API, Marvel API, SuperHero API, Grand Comics Database, Marvel/DC Wikis, MyComicShop, League of Comic Geeks) to replace Comic Vine. Features:
-    - **Active Data Sources** (5 scrapers operational, expanding to 15-20):
-        - **Metron API**: Comic metadata, character appearances, publisher data (reliability: 0.90)
-        - **Marvel Comics API**: Official Marvel character/comic data with authenticated MD5 hash access (reliability: 0.95)
+    - **Active Data Sources** (7 scrapers operational, expanding to 20):
+        - **Marvel Comics API**: Official Marvel character/comic data with authenticated MD5 hash access (reliability: 0.95) - MARVEL ONLY but excellent for covers, artists, creators, key covers, art
         - **SuperHero API**: Character powers, powerstats, biography, team affiliations, family relationships across Marvel/DC/Image (reliability: 0.85)
         - **Marvel Wiki (Fandom)**: MediaWiki API extraction of detailed character powers, weaknesses, first appearances, relationships (reliability: 0.80)
         - **DC Wiki (Fandom)**: MediaWiki API extraction of DC character data, abilities, team affiliations, enemies/allies (reliability: 0.80)
+        - **Dark Horse Wiki (Fandom)**: MediaWiki API for Dark Horse characters (Hellboy, Sin City, 300) (reliability: 0.75) - OPERATIONAL
+        - **Image Comics Wiki (Fandom)**: MediaWiki API for Image characters (reliability: 0.75) - OPERATIONAL
+        - **Spawn Wiki (Fandom)**: Dedicated Spawn universe MediaWiki API (reliability: 0.75) - OPERATIONAL
+        - **Walking Dead Wiki (Fandom)**: TWD comic series characters via MediaWiki API (reliability: 0.75) - OPERATIONAL
+    - **NON-VIABLE SOURCES (DO NOT USE)**:
+        - **Comic Vine API**: API key perpetually returns 401 Unauthorized - NOT A WORKING SOURCE
+        - **Metron API**: Does not work - NOT A VIABLE SOURCE
     - **Planned Multi-Publisher Sources** (comprehensive expansion):
-        - **Comic Vine API**: Universal coverage (Dark Horse, Image, IDW, Valiant, Boom, Dynamite + Marvel/DC), 200 req/hour, JSON/XML (reliability: 0.92)
         - **Grand Comics Database (GCD)**: Worldwide comics, volunteer-run, comprehensive creator credits and publication data (reliability: 0.88)
         - **Dark Horse Wiki**: 3,692+ articles on Hellboy, Sin City, 300, BPRD characters (reliability: 0.75)
         - **Image Comics Wiki**: Spawn, Saga, The Walking Dead, Invincible character database (reliability: 0.75)
