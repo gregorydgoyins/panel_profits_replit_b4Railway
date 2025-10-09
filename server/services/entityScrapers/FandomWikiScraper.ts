@@ -183,16 +183,28 @@ export class FandomWikiScraper extends BaseEntityScraper {
       
       // If specific entity requested, search for that character
       if (entityName) {
-        const milestones = await this.extractCharacterMilestones(entityName);
+        const milestones = await this.extractCharacterMilestones(entityName, query);
         return milestones.slice(0, limit);
       }
       
-      // Otherwise, get random characters and extract milestones
-      const characterPages = await this.getCategoryMembers('Category:Characters', limit * 2);
+      // Use correct character category from wiki config
+      const characterCategory = this.wikiConfig.characterCategory || 'Category:Characters';
+      const characterPages = await this.getCategoryMembers(characterCategory, limit * 3); // Get extra to account for filtering
+      
+      // Filter out list/template/category pages
+      const validPages = characterPages.filter(page => 
+        !page.toLowerCase().includes('list of') &&
+        !page.toLowerCase().includes('category:') &&
+        !page.toLowerCase().includes('template:') &&
+        !page.toLowerCase().includes('disambiguation')
+      );
+      
+      console.log(`Found ${validPages.length} valid character pages (filtered from ${characterPages.length} total)`);
+      
       const milestones: import('./BaseEntityScraper').NarrativeMilestoneData[] = [];
       
-      for (const charName of characterPages.slice(0, limit)) {
-        const charMilestones = await this.extractCharacterMilestones(charName);
+      for (const charName of validPages.slice(0, limit)) {
+        const charMilestones = await this.extractCharacterMilestones(charName, query);
         milestones.push(...charMilestones);
         
         if (milestones.length >= limit) break;
@@ -208,7 +220,14 @@ export class FandomWikiScraper extends BaseEntityScraper {
   /**
    * Extract narrative milestones from a character page
    */
-  private async extractCharacterMilestones(characterName: string): Promise<import('./BaseEntityScraper').NarrativeMilestoneData[]> {
+  private async extractCharacterMilestones(
+    characterName: string, 
+    query?: {
+      milestoneType?: string;
+      startYear?: number;
+      endYear?: number;
+    }
+  ): Promise<import('./BaseEntityScraper').NarrativeMilestoneData[]> {
     try {
       const pages = await this.getPageContent([characterName]);
       if (!pages || pages.length === 0) return [];
@@ -217,86 +236,108 @@ export class FandomWikiScraper extends BaseEntityScraper {
       const wikitext = page.revisions?.[0]?.slots?.main?.['*'];
       if (!wikitext) return [];
       
+      // Extract only Biography/History sections for better accuracy
+      const biographySection = this.extractBiographySection(wikitext);
+      const textToSearch = biographySection || wikitext;
+      
       const milestones: import('./BaseEntityScraper').NarrativeMilestoneData[] = [];
       
       // Pattern 1: Costume/suit changes
-      const costumePatterns = [
-        /(?:gained?|received?|wore|donned?)\s+(?:a\s+)?(?:new\s+)?(?:black|red|blue|symbiote|cosmic|iron)\s+(?:suit|costume|uniform|armor)/gi,
-        /(?:costume|suit)\s+(?:change|transformation|upgrade)/gi
-      ];
-      
-      for (const pattern of costumePatterns) {
-        const matches = wikitext.matchAll(pattern);
-        for (const match of matches) {
-          const milestone = this.createMilestoneFromText(
-            characterName,
-            'costume_change',
-            match[0],
-            wikitext,
-            match.index || 0
-          );
-          if (milestone) milestones.push(milestone);
+      if (!query?.milestoneType || query.milestoneType === 'costume_change') {
+        const costumePatterns = [
+          /(?:gained?|received?|wore|donned?)\s+(?:a\s+)?(?:new\s+)?(?:black|red|blue|symbiote|cosmic|iron)\s+(?:suit|costume|uniform|armor)/gi,
+          /(?:costume|suit)\s+(?:change|transformation|upgrade)/gi
+        ];
+        
+        for (const pattern of costumePatterns) {
+          const matches = textToSearch.matchAll(pattern);
+          for (const match of matches) {
+            const milestone = this.createMilestoneFromText(
+              characterName,
+              'costume_change',
+              match[0],
+              textToSearch,
+              match.index || 0
+            );
+            if (milestone && this.passesYearFilter(milestone, query)) {
+              milestones.push(milestone);
+            }
+          }
         }
       }
       
       // Pattern 2: Power upgrades/changes
-      const powerPatterns = [
-        /(?:gained?|received?|acquired?|lost)\s+(?:new\s+)?(?:cosmic|super|enhanced?|ultimate)\s+(?:power|ability|strength)/gi,
-        /power\s+(?:upgrade|enhancement|loss|transformation)/gi
-      ];
-      
-      for (const pattern of powerPatterns) {
-        const matches = wikitext.matchAll(pattern);
-        for (const match of matches) {
-          const milestone = this.createMilestoneFromText(
-            characterName,
-            'power_upgrade',
-            match[0],
-            wikitext,
-            match.index || 0
-          );
-          if (milestone) milestones.push(milestone);
+      if (!query?.milestoneType || query.milestoneType === 'power_upgrade') {
+        const powerPatterns = [
+          /(?:gained?|received?|acquired?|lost)\s+(?:new\s+)?(?:cosmic|super|enhanced?|ultimate)\s+(?:power|ability|strength)/gi,
+          /power\s+(?:upgrade|enhancement|loss|transformation)/gi
+        ];
+        
+        for (const pattern of powerPatterns) {
+          const matches = textToSearch.matchAll(pattern);
+          for (const match of matches) {
+            const milestone = this.createMilestoneFromText(
+              characterName,
+              'power_upgrade',
+              match[0],
+              textToSearch,
+              match.index || 0
+            );
+            if (milestone && this.passesYearFilter(milestone, query)) {
+              milestones.push(milestone);
+            }
+          }
         }
       }
       
       // Pattern 3: Deaths/Resurrections
-      const deathPatterns = [
-        /(?:death|died|killed|murdered)\s+(?:in|during|by)/gi,
-        /(?:resurrected?|returned?|revived?)\s+(?:in|from|after)/gi
-      ];
-      
-      for (const pattern of deathPatterns) {
-        const matches = wikitext.matchAll(pattern);
-        for (const match of matches) {
-          const type = match[0].toLowerCase().includes('resurrect') || match[0].toLowerCase().includes('return') ? 'resurrection' : 'death';
-          const milestone = this.createMilestoneFromText(
-            characterName,
-            type as any,
-            match[0],
-            wikitext,
-            match.index || 0
-          );
-          if (milestone) milestones.push(milestone);
+      if (!query?.milestoneType || query.milestoneType === 'death' || query.milestoneType === 'resurrection') {
+        const deathPatterns = [
+          /(?:death|died|killed|murdered)\s+(?:in|during|by)/gi,
+          /(?:resurrected?|returned?|revived?)\s+(?:in|from|after)/gi
+        ];
+        
+        for (const pattern of deathPatterns) {
+          const matches = textToSearch.matchAll(pattern);
+          for (const match of matches) {
+            const type = match[0].toLowerCase().includes('resurrect') || match[0].toLowerCase().includes('return') ? 'resurrection' : 'death';
+            if (query?.milestoneType && query.milestoneType !== type) continue;
+            
+            const milestone = this.createMilestoneFromText(
+              characterName,
+              type as any,
+              match[0],
+              textToSearch,
+              match.index || 0
+            );
+            if (milestone && this.passesYearFilter(milestone, query)) {
+              milestones.push(milestone);
+            }
+          }
         }
       }
       
       // Pattern 4: Identity reveals
-      const identityPatterns = [
-        /identity\s+(?:revealed?|exposed?|unmasked?)/gi,
-        /(?:secret|true)\s+identity.*(?:revealed?|discovered?)/gi
-      ];
-      
-      for (const pattern of identityPatterns) {
-        const matches = wikitext.matchAll(pattern);
-        for (const match of matches) {
-          const milestone = this.createMilestoneFromText(
-            characterName,
-            'identity_reveal',
-            match[0],
-            wikitext,
-            match.index || 0
-          );
-          if (milestone) milestones.push(milestone);
+      if (!query?.milestoneType || query.milestoneType === 'identity_reveal') {
+        const identityPatterns = [
+          /identity\s+(?:revealed?|exposed?|unmasked?)/gi,
+          /(?:secret|true)\s+identity.*(?:revealed?|discovered?)/gi
+        ];
+        
+        for (const pattern of identityPatterns) {
+          const matches = textToSearch.matchAll(pattern);
+          for (const match of matches) {
+            const milestone = this.createMilestoneFromText(
+              characterName,
+              'identity_reveal',
+              match[0],
+              textToSearch,
+              match.index || 0
+            );
+            if (milestone && this.passesYearFilter(milestone, query)) {
+              milestones.push(milestone);
+            }
+          }
         }
       }
       
@@ -346,6 +387,46 @@ export class FandomWikiScraper extends BaseEntityScraper {
       sourceEntityId: characterName.replace(/\s+/g, '_'),
       sourceUrl: `${this.wikiConfig.baseUrl}/wiki/${encodeURIComponent(characterName.replace(/\s+/g, '_'))}`
     };
+  }
+
+  /**
+   * Extract Biography/History section from wikitext for focused milestone extraction
+   */
+  private extractBiographySection(wikitext: string): string | null {
+    // Look for common biography/history section headers
+    const sectionPatterns = [
+      /==\s*Biography\s*==([\s\S]*?)(?===|$)/i,
+      /==\s*History\s*==([\s\S]*?)(?===|$)/i,
+      /==\s*Character History\s*==([\s\S]*?)(?===|$)/i,
+      /==\s*Background\s*==([\s\S]*?)(?===|$)/i
+    ];
+    
+    for (const pattern of sectionPatterns) {
+      const match = wikitext.match(pattern);
+      if (match && match[1]) {
+        return match[1].trim();
+      }
+    }
+    
+    return null; // Fall back to full text if no biography section found
+  }
+
+  /**
+   * Check if milestone passes year filters
+   */
+  private passesYearFilter(
+    milestone: import('./BaseEntityScraper').NarrativeMilestoneData,
+    query?: { startYear?: number; endYear?: number }
+  ): boolean {
+    if (!query) return true;
+    
+    const year = milestone.occurredYear;
+    if (!year) return true; // Include milestones with unknown year
+    
+    if (query.startYear && year < query.startYear) return false;
+    if (query.endYear && year > query.endYear) return false;
+    
+    return true;
   }
 
   /**
