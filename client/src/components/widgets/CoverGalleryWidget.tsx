@@ -35,6 +35,20 @@ export function CoverGalleryWidget({
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const intervalRef = useRef<NodeJS.Timeout>();
 
+  // Handle empty covers array
+  if (!covers || covers.length === 0) {
+    return (
+      <Card className={cn('overflow-hidden', className)} data-testid="widget-cover-gallery">
+        <CardHeader>
+          <CardTitle className="text-lg">{entityName}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center h-96">
+          <p className="text-muted-foreground">No covers available</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const currentCover = covers[currentIndex];
   
   // Controls are visible if hovered, focused, or on touch device

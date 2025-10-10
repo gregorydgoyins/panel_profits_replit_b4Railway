@@ -6,3 +6,4 @@
  */
 
 export { CoverGalleryWidget, type CoverImage } from './CoverGalleryWidget';
+export { CharacterPortraitWidget } from './CharacterPortraitWidget';

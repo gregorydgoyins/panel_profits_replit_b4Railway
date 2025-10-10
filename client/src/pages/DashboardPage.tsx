@@ -30,6 +30,7 @@ import { GadgetsMemorabiliaWidget } from '@/components/dashboard/GadgetsMemorabi
 import { VillainsHenchmenWidget } from '@/components/dashboard/VillainsHenchmenWidget';
 import { SidekicksSuperheroesWidget } from '@/components/dashboard/SidekicksSuperheroesWidget';
 import { LocationsGadgetsWidget } from '@/components/dashboard/LocationsGadgetsWidget';
+import { CoverGalleryWidget, CharacterPortraitWidget } from '@/components/widgets';
 
 interface Asset {
   id: string;
@@ -68,6 +69,11 @@ export default function DashboardPage() {
 
   const { data: randomComicsData } = useQuery<any>({
     queryKey: ['/api/comic-covers/random?limit=8'],
+    refetchInterval: 60000
+  });
+
+  const { data: keyIssuesData } = useQuery<any>({
+    queryKey: ['/api/comic-covers/key-issues'],
     refetchInterval: 60000
   });
 
@@ -740,6 +746,25 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <ComicSentimentWidget />
           <ComicHeatMapWidget />
+        </div>
+      </div>
+
+      {/* Visual Storytelling Widgets - NEW */}
+      <div className="bg-slate-800/20 p-3 rounded-lg">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <CharacterPortraitWidget />
+          {keyIssuesData?.data && keyIssuesData.data.length > 0 && (
+            <CoverGalleryWidget
+              entityName="Key Issues Collection"
+              covers={keyIssuesData.data.slice(0, 10).map((comic: any) => ({
+                id: comic.id,
+                url: comic.coverUrl,
+                title: comic.title,
+                subtitle: comic.publisher,
+                year: comic.publicationYear
+              }))}
+            />
+          )}
         </div>
       </div>
 
