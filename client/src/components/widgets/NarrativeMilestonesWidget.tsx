@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { Skull, Heart, Sparkles, Zap, Shield, Clock } from "lucide-react";
+import { Skull, Heart, Sparkles, Zap, Shield, Clock, User } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { useRef, useState, useEffect } from "react";
 
 interface NarrativeMilestone {
   id: string;
@@ -14,6 +15,10 @@ interface NarrativeMilestone {
   year: string;
   impact: string;
   reversible: boolean;
+  coverUrl?: string;
+  writer?: string;
+  artist?: string;
+  coverArtist?: string;
 }
 
 const getMilestoneIcon = (type: string) => {
@@ -51,10 +56,27 @@ const getMilestoneColor = (type: string) => {
 };
 
 export default function NarrativeMilestonesWidget() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [scrollY, setScrollY] = useState(0);
+
   const { data: milestones, isLoading } = useQuery<NarrativeMilestone[]>({
     queryKey: ["/api/narrative/milestones"],
     refetchInterval: 30000,
   });
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (scrollRef.current) {
+        setScrollY(scrollRef.current.scrollTop);
+      }
+    };
+
+    const scrollElement = scrollRef.current;
+    if (scrollElement) {
+      scrollElement.addEventListener('scroll', handleScroll);
+      return () => scrollElement.removeEventListener('scroll', handleScroll);
+    }
+  }, []);
 
   if (isLoading) {
     return (
@@ -75,7 +97,7 @@ export default function NarrativeMilestonesWidget() {
         <div className="relative p-6 space-y-4">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="flex gap-4">
-              <Skeleton className="h-16 w-16 rounded-md flex-shrink-0" />
+              <Skeleton className="h-24 w-20 rounded-md flex-shrink-0" />
               <div className="flex-1 space-y-2">
                 <Skeleton className="h-5 w-3/4" />
                 <Skeleton className="h-3 w-1/2" />
@@ -134,94 +156,137 @@ export default function NarrativeMilestonesWidget() {
         </p>
       </div>
 
-      {/* Timeline */}
-      <div className="relative p-6 max-h-[600px] overflow-y-auto">
-        <div className="space-y-6">
+      {/* Parallax Timeline */}
+      <div 
+        ref={scrollRef}
+        className="relative max-h-[600px] overflow-y-auto"
+      >
+        <div className="p-6 space-y-6">
           {milestones.map((milestone, index) => {
             const Icon = getMilestoneIcon(milestone.milestoneType);
             const colorClass = getMilestoneColor(milestone.milestoneType);
+            const parallaxOffset = (scrollY * 0.3) - (index * 20);
 
             return (
               <div 
                 key={milestone.id}
-                className="relative flex gap-4 hover-elevate active-elevate-2 rounded-md p-3 -mx-3"
+                className="relative hover-elevate active-elevate-2 rounded-md overflow-hidden"
                 data-testid={`milestone-${index}`}
               >
-                {/* Timeline connector */}
-                {index < milestones.length - 1 && (
-                  <div className="absolute left-8 top-20 bottom-0 w-px bg-indigo-800/30" />
+                {/* Parallax Background Cover */}
+                {milestone.coverUrl && (
+                  <div 
+                    className="absolute inset-0 opacity-15 pointer-events-none"
+                    style={{
+                      transform: `translateY(${parallaxOffset}px)`,
+                      transition: 'transform 0.1s ease-out'
+                    }}
+                  >
+                    <img
+                      src={milestone.coverUrl}
+                      alt=""
+                      className="w-full h-full object-contain scale-110 blur-sm"
+                    />
+                  </div>
                 )}
 
-                {/* Character Image */}
-                <div className="flex-shrink-0 relative z-10">
-                  {milestone.characterImageUrl ? (
-                    <img
-                      src={milestone.characterImageUrl}
-                      alt={milestone.characterName}
-                      className="w-16 h-16 rounded-md object-cover border border-indigo-800/30"
-                      data-testid={`img-character-${index}`}
-                    />
-                  ) : (
-                    <div className="w-16 h-16 rounded-md bg-indigo-950/30 border border-indigo-800/30 flex items-center justify-center">
-                      <Icon className="h-8 w-8 text-indigo-500/30" />
-                    </div>
+                {/* Content */}
+                <div className="relative flex gap-4 p-4 bg-gradient-to-r from-[#1A1F2E]/95 to-[#252B3C]/90">
+                  {/* Timeline connector */}
+                  {index < milestones.length - 1 && (
+                    <div className="absolute left-[52px] top-[120px] bottom-0 w-px bg-indigo-800/30" />
                   )}
-                </div>
 
-                {/* Milestone Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-4 mb-2">
-                    <div className="flex-1">
-                      <h3 
-                        className="text-base  text-indigo-100 mb-1"
-                        data-testid={`text-title-${index}`}
-                      >
-                        {milestone.title}
-                      </h3>
-                      <p className="text-sm text-indigo-400 font-light">
-                        {milestone.characterName}
-                      </p>
-                    </div>
-
-                    {/* Milestone Type Badge */}
-                    <Badge
-                      variant="outline"
-                      className={`${colorClass} flex items-center gap-1 text-xs`}
-                      data-testid={`badge-type-${index}`}
-                    >
-                      <Icon className="h-3 w-3" />
-                      {milestone.milestoneType.replace('_', ' ')}
-                    </Badge>
-                  </div>
-
-                  {/* Description */}
-                  <p className="text-sm text-indigo-300/80 leading-relaxed mb-3 font-light">
-                    {milestone.description}
-                  </p>
-
-                  {/* Meta Info */}
-                  <div className="flex items-center gap-4 text-xs text-indigo-400/70 font-light">
-                    <span className="flex items-center gap-1">
-                      <span className="font-mono">{milestone.issueReference}</span>
-                    </span>
-                    <span className="text-indigo-500/50">•</span>
-                    <span>{milestone.year}</span>
-                    {milestone.reversible && (
-                      <>
-                        <span className="text-indigo-500/50">•</span>
-                        <span className="text-yellow-400/70">Reversible</span>
-                      </>
+                  {/* Cover Image */}
+                  <div className="flex-shrink-0 relative z-10">
+                    {milestone.coverUrl ? (
+                      <img
+                        src={milestone.coverUrl}
+                        alt={milestone.title}
+                        className="w-20 h-28 rounded-md object-contain border border-indigo-800/30 bg-black/50"
+                        data-testid={`img-cover-${index}`}
+                      />
+                    ) : milestone.characterImageUrl ? (
+                      <img
+                        src={milestone.characterImageUrl}
+                        alt={milestone.characterName}
+                        className="w-20 h-28 rounded-md object-contain border border-indigo-800/30 bg-black/50"
+                        data-testid={`img-character-${index}`}
+                      />
+                    ) : (
+                      <div className="w-20 h-28 rounded-md bg-indigo-950/30 border border-indigo-800/30 flex items-center justify-center">
+                        <Icon className="h-10 w-10 text-indigo-500/30" />
+                      </div>
                     )}
                   </div>
 
-                  {/* Impact */}
-                  {milestone.impact && (
-                    <div className="mt-3 pt-3 border-t border-indigo-900/30">
-                      <p className="text-xs text-indigo-300/60 italic font-light">
-                        <span className="text-indigo-400">Impact:</span> {milestone.impact}
-                      </p>
+                  {/* Milestone Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-4 mb-2">
+                      <div className="flex-1">
+                        <h3 
+                          className="text-base text-indigo-100 mb-1"
+                          data-testid={`text-title-${index}`}
+                        >
+                          {milestone.title}
+                        </h3>
+                        <p className="text-sm text-indigo-400 font-light">
+                          {milestone.characterName}
+                        </p>
+                      </div>
+
+                      {/* Milestone Type Badge */}
+                      <Badge
+                        variant="outline"
+                        className={`${colorClass} flex items-center gap-1 text-xs`}
+                        data-testid={`badge-type-${index}`}
+                      >
+                        <Icon className="h-3 w-3" />
+                        {milestone.milestoneType.replace('_', ' ')}
+                      </Badge>
                     </div>
-                  )}
+
+                    {/* Creator Info */}
+                    {(milestone.writer || milestone.artist || milestone.coverArtist) && (
+                      <div className="flex items-center gap-3 mb-3 text-xs text-indigo-400/70 font-light">
+                        <User className="h-3 w-3" />
+                        <div className="flex flex-wrap gap-2">
+                          {milestone.writer && <span>Writer: {milestone.writer}</span>}
+                          {milestone.artist && <span>Artist: {milestone.artist}</span>}
+                          {milestone.coverArtist && <span>Cover: {milestone.coverArtist}</span>}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Description */}
+                    <p className="text-sm text-indigo-300/80 leading-relaxed mb-3 font-light">
+                      {milestone.description}
+                    </p>
+
+                    {/* Meta Info */}
+                    <div className="flex items-center gap-4 text-xs text-indigo-400/70 font-light">
+                      <span className="flex items-center gap-1">
+                        <span className="font-mono">{milestone.issueReference}</span>
+                      </span>
+                      <span className="text-indigo-500/50">•</span>
+                      <span>{milestone.year}</span>
+                      {milestone.reversible && (
+                        <>
+                          <span className="text-indigo-500/50">•</span>
+                          <span className="text-yellow-400/70">Reversible</span>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Impact */}
+                    {milestone.impact && (
+                      <div className="mt-3 pt-3 border-t border-indigo-900/30">
+                        <p className="text-xs text-indigo-300/60 italic font-light">
+                          <span className="text-indigo-400">Impact:</span> {milestone.impact}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             );
