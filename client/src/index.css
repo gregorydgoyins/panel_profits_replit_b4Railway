@@ -71,13 +71,13 @@
   --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.5);
   
-  /* Typography - Hind 300 Bold Throughout */
+  /* Typography - Hind 300 Light Throughout */
   --font-primary: 'Hind', sans-serif;
   --font-body: 'Hind', sans-serif;
   --font-header: 'Hind', sans-serif;
-  --font-weight-primary: 700;
-  --font-weight-light: 700;
-  --font-weight-semibold: 700;
+  --font-weight-primary: 300;
+  --font-weight-light: 300;
+  --font-weight-semibold: 300;
   
   /* Minimal border radius - subtle softening only */
   --radius: 2px;
