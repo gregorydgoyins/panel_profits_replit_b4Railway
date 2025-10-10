@@ -532,7 +532,7 @@ export default function DashboardPage() {
                         <img 
                           src={asset.coverUrl} 
                           alt={asset.name}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-xs text-gray-600">
@@ -599,7 +599,7 @@ export default function DashboardPage() {
                         <img 
                           src={asset.coverUrl} 
                           alt={asset.name}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-xs text-gray-600">
@@ -670,7 +670,7 @@ export default function DashboardPage() {
                       <img 
                         src={asset.coverUrl} 
                         alt={asset.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                        className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-200"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-xl  text-gray-600">
