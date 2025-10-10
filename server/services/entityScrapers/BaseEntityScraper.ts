@@ -88,6 +88,42 @@ export interface NarrativeMilestoneData {
   sourceUrl?: string;
 }
 
+export interface CreatorContributionData {
+  // Creator identification
+  creatorEntityId: string;
+  creatorName: string;
+  
+  // Work identification
+  workType: 'character_creation' | 'series_run' | 'story_arc' | 'single_issue' | 'cover_art' | 'variant_cover';
+  workEntityId?: string; // Entity ID of character/series they worked on
+  workEntityName?: string; // Name of character/series
+  workEntityType?: 'character' | 'series' | 'story_arc' | 'comic';
+  
+  // Role details
+  creatorRole: 'writer' | 'penciller' | 'inker' | 'colorist' | 'letterer' | 'editor' | 'co-creator';
+  isPrimaryCreator?: boolean; // Main creator vs contributor
+  isCoCreator?: boolean; // Co-created the character/concept
+  
+  // Comic/series references
+  comicTitle?: string; // "Amazing Spider-Man"
+  issueRange?: string; // "#1-38", "#500", "Vol 1 #1-100"
+  publicationYear?: number;
+  publisher?: string;
+  
+  // Work significance
+  contributionSignificance?: 'iconic_run' | 'character_defining' | 'award_winning' | 'first_appearance';
+  notableWorks?: string[]; // Specific issues or storylines
+  awards?: string[]; // "Eisner Award 1992", "Harvey Award"
+  
+  // Collaboration
+  collaborators?: string[]; // Other creator entity IDs who worked on this
+  collaborationNotes?: string;
+  
+  // Source tracking
+  sourceEntityId: string;
+  sourceUrl?: string;
+}
+
 export interface EntityData {
   entityId: string;
   entityName: string;
@@ -213,6 +249,20 @@ export abstract class BaseEntityScraper {
     limit?: number;
     offset?: number;
   }): Promise<NarrativeMilestoneData[]>;
+  
+  /**
+   * Scrape creator contributions (optional - not all sources have this data)
+   * Extracts iconic runs, awards, collaborations, and significant creator work
+   */
+  async scrapeCreatorContributions?(query?: {
+    creatorName?: string;
+    workType?: string;
+    publisher?: string;
+    startYear?: number;
+    endYear?: number;
+    limit?: number;
+    offset?: number;
+  }): Promise<CreatorContributionData[]>;
   
   /**
    * Rate limiting - ensures we don't exceed source limits

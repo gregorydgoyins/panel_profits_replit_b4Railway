@@ -659,4 +659,144 @@ export class WikidataScraper extends BaseEntityScraper {
       sourceUrl: `https://www.wikidata.org/wiki/${arcId}`
     };
   }
+
+  /**
+   * Scrape creator contributions from Wikidata
+   * Extracts creator-work relationships via SPARQL
+   */
+  async scrapeCreatorContributions(query?: {
+    creatorName?: string;
+    workType?: string;
+    publisher?: string;
+    startYear?: number;
+    endYear?: number;
+    limit?: number;
+    offset?: number;
+  }): Promise<import('./BaseEntityScraper').CreatorContributionData[]> {
+    try {
+      const limit = query?.limit || 20;
+      
+      // Build SPARQL query for creator contributions
+      const sparqlQuery = this.buildCreatorContributionsQuery(limit, query?.creatorName, query?.publisher);
+      const result = await this.executeSparql(sparqlQuery);
+      const bindings = result.results?.bindings || [];
+      
+      console.log(`Retrieved ${bindings.length} creator contributions from Wikidata`);
+      
+      const contributions: import('./BaseEntityScraper').CreatorContributionData[] = [];
+      
+      for (const binding of bindings) {
+        const contribution = this.parseCreatorContributionBinding(binding);
+        if (contribution) {
+          contributions.push(contribution);
+        }
+      }
+      
+      return contributions;
+    } catch (error) {
+      console.error(`Error scraping Wikidata creator contributions:`, error);
+      return [];
+    }
+  }
+
+  /**
+   * Build SPARQL query for creator contributions
+   */
+  private buildCreatorContributionsQuery(limit: number, creatorName?: string, publisher?: string): string {
+    let creatorFilter = '';
+    if (creatorName) {
+      creatorFilter = `FILTER(CONTAINS(LCASE(?creatorLabel), "${creatorName.toLowerCase()}"))`;
+    }
+    
+    let publisherFilter = '';
+    if (publisher) {
+      const publisherQIDs: string[] = [];
+      if (publisher.toLowerCase().includes('marvel')) publisherQIDs.push('wd:Q173496');
+      if (publisher.toLowerCase().includes('dc')) publisherQIDs.push('wd:Q2924461');
+      if (publisher.toLowerCase().includes('image')) publisherQIDs.push('wd:Q738562');
+      
+      if (publisherQIDs.length > 0) {
+        publisherFilter = `FILTER(?publisher IN (${publisherQIDs.join(', ')}))`;
+      }
+    }
+    
+    return `
+      SELECT DISTINCT ?creator ?creatorLabel ?work ?workLabel ?role ?roleLabel ?publisher ?publisherLabel ?year WHERE {
+        # Creator-work relationship
+        ?work wdt:P31 wd:Q1114461. # work is a comic book
+        
+        # Creator roles
+        {
+          ?work wdt:P50 ?creator. # author
+          BIND("writer" AS ?role)
+        } UNION {
+          ?work wdt:P110 ?creator. # illustrator/artist
+          BIND("penciller" AS ?role)
+        } UNION {
+          ?work wdt:P655 ?creator. # translator
+          BIND("editor" AS ?role)
+        }
+        
+        # Publisher
+        OPTIONAL {
+          ?work wdt:P123 ?publisher.
+        }
+        ${publisherFilter}
+        
+        # Publication date
+        OPTIONAL {
+          ?work wdt:P577 ?publicationDate.
+          BIND(YEAR(?publicationDate) AS ?year)
+        }
+        
+        # Creator filter
+        ${creatorFilter}
+        
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+      }
+      LIMIT ${limit}
+    `;
+  }
+
+  /**
+   * Parse creator contribution from SPARQL binding
+   */
+  private parseCreatorContributionBinding(binding: any): import('./BaseEntityScraper').CreatorContributionData | null {
+    const creatorQID = binding.creator?.value?.split('/').pop();
+    const workQID = binding.work?.value?.split('/').pop();
+    
+    if (!creatorQID || !workQID) return null;
+    
+    return {
+      creatorEntityId: `wikidata-creator-${creatorQID}`,
+      creatorName: binding.creatorLabel?.value || 'Unknown Creator',
+      workType: 'single_issue', // Wikidata doesn't distinguish issue vs series well
+      workEntityId: `wikidata-work-${workQID}`,
+      workEntityName: binding.workLabel?.value,
+      workEntityType: 'comic',
+      creatorRole: this.mapWikidataRoleToStandard(binding.role?.value || binding.roleLabel?.value),
+      isPrimaryCreator: binding.role?.value === 'writer' || binding.roleLabel?.value?.toLowerCase() === 'writer',
+      comicTitle: binding.workLabel?.value,
+      publicationYear: binding.year?.value ? parseInt(binding.year.value) : undefined,
+      publisher: binding.publisherLabel?.value,
+      sourceEntityId: creatorQID,
+      sourceUrl: binding.creator?.value
+    };
+  }
+
+  /**
+   * Map Wikidata role to standard role type
+   */
+  private mapWikidataRoleToStandard(role: string): 'writer' | 'penciller' | 'inker' | 'colorist' | 'letterer' | 'editor' | 'co-creator' {
+    const roleLower = role?.toLowerCase() || '';
+    
+    if (roleLower.includes('writer') || roleLower === 'writer') return 'writer';
+    if (roleLower.includes('pencil') || roleLower.includes('illustrator') || roleLower.includes('artist')) return 'penciller';
+    if (roleLower.includes('inker')) return 'inker';
+    if (roleLower.includes('colorist')) return 'colorist';
+    if (roleLower.includes('letterer')) return 'letterer';
+    if (roleLower.includes('editor') || roleLower.includes('translator')) return 'editor';
+    
+    return 'co-creator'; // Default fallback
+  }
 }

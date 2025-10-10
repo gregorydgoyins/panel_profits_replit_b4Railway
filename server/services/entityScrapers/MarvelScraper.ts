@@ -263,4 +263,159 @@ export class MarvelScraper extends BaseEntityScraper {
     const match = comicName.match(/#(\d+)/);
     return match ? match[1] : undefined;
   }
+
+  /**
+   * Scrape creator contributions from Marvel comics data
+   * Extracts writer/artist credits, runs, and collaborations
+   */
+  async scrapeCreatorContributions(query?: {
+    creatorName?: string;
+    workType?: string;
+    publisher?: string;
+    startYear?: number;
+    endYear?: number;
+    limit?: number;
+    offset?: number;
+  }): Promise<import('./BaseEntityScraper').CreatorContributionData[]> {
+    if (!this.publicKey || !this.privateKey) {
+      console.error('Marvel API keys not configured');
+      return [];
+    }
+
+    const limit = query?.limit || 20;
+    const offset = query?.offset || 0;
+
+    try {
+      // Search for creator by name if specified
+      if (query?.creatorName) {
+        return await this.scrapeCreatorByName(query.creatorName, limit);
+      }
+
+      // Otherwise, get comics and extract creator data
+      const comicsUrl = this.buildAuthenticatedUrl(`${this.baseUrl}/comics`, {
+        limit: limit.toString(),
+        offset: offset.toString(),
+        orderBy: '-onsaleDate' // Most recent first
+      });
+
+      const response = await fetch(comicsUrl);
+      if (!response.ok) {
+        throw new Error(`Marvel API error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const contributions: import('./BaseEntityScraper').CreatorContributionData[] = [];
+
+      for (const comic of data.data.results) {
+        const comicContributions = this.extractCreatorsFromComic(comic);
+        contributions.push(...comicContributions);
+      }
+
+      return contributions;
+    } catch (error) {
+      console.error('Marvel creator contributions scraper error:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Scrape creator by name and extract their contributions
+   */
+  private async scrapeCreatorByName(creatorName: string, limit: number): Promise<import('./BaseEntityScraper').CreatorContributionData[]> {
+    try {
+      // Search for creator
+      const creatorUrl = this.buildAuthenticatedUrl(`${this.baseUrl}/creators`, {
+        nameStartsWith: creatorName,
+        limit: '1'
+      });
+
+      const creatorResponse = await fetch(creatorUrl);
+      if (!creatorResponse.ok) return [];
+
+      const creatorData = await creatorResponse.json();
+      if (creatorData.data.count === 0) return [];
+
+      const creator = creatorData.data.results[0];
+      const creatorId = creator.id;
+
+      // Get comics by this creator
+      const comicsUrl = this.buildAuthenticatedUrl(`${this.baseUrl}/creators/${creatorId}/comics`, {
+        limit: limit.toString(),
+        orderBy: '-onsaleDate'
+      });
+
+      const comicsResponse = await fetch(comicsUrl);
+      if (!comicsResponse.ok) return [];
+
+      const comicsData = await comicsResponse.json();
+      const contributions: import('./BaseEntityScraper').CreatorContributionData[] = [];
+
+      for (const comic of comicsData.data.results) {
+        // Extract ALL creators from comics by this creator (includes collaborators)
+        const comicContributions = this.extractCreatorsFromComic(comic);
+        contributions.push(...comicContributions);
+      }
+
+      return contributions;
+    } catch (error) {
+      console.error(`Error scraping creator ${creatorName}:`, error);
+      return [];
+    }
+  }
+
+  /**
+   * Extract creator contributions from a comic
+   */
+  private extractCreatorsFromComic(comic: any): import('./BaseEntityScraper').CreatorContributionData[] {
+    const contributions: import('./BaseEntityScraper').CreatorContributionData[] = [];
+
+    if (!comic.creators || !comic.creators.items) return contributions;
+
+    for (const creator of comic.creators.items) {
+      // Parse creator ID from resource URI
+      const creatorId = creator.resourceURI.split('/').pop();
+      const role = this.mapMarvelRoleToStandard(creator.role);
+      
+      if (!role) continue; // Skip unknown roles
+
+      contributions.push({
+        creatorEntityId: `marvel-creator-${creatorId}`,
+        creatorName: creator.name,
+        workType: 'single_issue',
+        workEntityId: `marvel-comic-${comic.id}`,
+        workEntityName: comic.title,
+        workEntityType: 'comic',
+        creatorRole: role,
+        isPrimaryCreator: creator.role.toLowerCase().includes('writer') || creator.role.toLowerCase().includes('penciller'),
+        comicTitle: comic.title,
+        issueRange: this.extractIssueNumber(comic.title) || undefined,
+        publicationYear: comic.dates?.find((d: any) => d.type === 'onsaleDate')?.date ? 
+          new Date(comic.dates.find((d: any) => d.type === 'onsaleDate').date).getFullYear() : undefined,
+        publisher: 'Marvel Comics',
+        collaborators: comic.creators.items
+          .filter((c: any) => c.resourceURI !== creator.resourceURI)
+          .map((c: any) => `marvel-creator-${c.resourceURI.split('/').pop()}`),
+        sourceEntityId: creatorId,
+        sourceUrl: comic.urls?.find((u: any) => u.type === 'detail')?.url || comic.resourceURI
+      });
+    }
+
+    return contributions;
+  }
+
+  /**
+   * Map Marvel API role names to our standard role types
+   */
+  private mapMarvelRoleToStandard(marvelRole: string): 'writer' | 'penciller' | 'inker' | 'colorist' | 'letterer' | 'editor' | 'co-creator' | null {
+    const roleLower = marvelRole.toLowerCase();
+    
+    if (roleLower.includes('writer')) return 'writer';
+    if (roleLower.includes('penciller') || roleLower.includes('penciler')) return 'penciller';
+    if (roleLower.includes('inker')) return 'inker';
+    if (roleLower.includes('colorist')) return 'colorist';
+    if (roleLower.includes('letterer')) return 'letterer';
+    if (roleLower.includes('editor')) return 'editor';
+    
+    return null; // Unknown role
+  }
 }
