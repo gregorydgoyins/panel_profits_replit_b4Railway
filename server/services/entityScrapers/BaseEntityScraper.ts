@@ -124,6 +124,39 @@ export interface CreatorContributionData {
   sourceUrl?: string;
 }
 
+export interface NthAppearanceData {
+  // Entity identification
+  entityId: string;
+  entityName: string;
+  entityType: 'character' | 'creator' | 'location' | 'gadget' | 'team' | 'concept';
+  
+  // Appearance order
+  appearanceNumber: number; // 1, 2, 3, 4, etc.
+  appearanceOrdinal: string; // "1st", "2nd", "3rd", "4th"
+  
+  // Comic reference
+  comicId?: string;
+  comicTitle: string;
+  issueNumber?: string;
+  publicationYear?: number;
+  publicationMonth?: string;
+  publisher?: string;
+  coverImageUrl?: string;
+  
+  // Appearance context
+  appearanceType?: 'main' | 'supporting' | 'cameo' | 'mentioned' | 'flashback';
+  appearanceSignificance?: string; // What happened in this appearance
+  isKeyAppearance?: boolean; // Particularly important appearance
+  
+  // Narrative context
+  relatedStoryArcId?: string; // If part of story arc
+  relatedMilestoneId?: string; // If milestone occurred here
+  
+  // Source tracking
+  sourceEntityId: string;
+  sourceUrl?: string;
+}
+
 export interface EntityData {
   entityId: string;
   entityName: string;
@@ -263,6 +296,21 @@ export abstract class BaseEntityScraper {
     limit?: number;
     offset?: number;
   }): Promise<CreatorContributionData[]>;
+  
+  /**
+   * Scrape nth appearances (optional - not all sources have this data)
+   * Extracts 2nd, 3rd, nth appearances with ordinal tracking and key appearance flagging
+   */
+  async scrapeNthAppearances?(query?: {
+    entityName?: string;
+    entityType?: 'character' | 'creator' | 'location' | 'gadget' | 'team' | 'concept';
+    appearanceNumber?: number; // Get specific nth appearance
+    publisher?: string;
+    startYear?: number;
+    endYear?: number;
+    limit?: number;
+    offset?: number;
+  }): Promise<NthAppearanceData[]>;
   
   /**
    * Rate limiting - ensures we don't exceed source limits
