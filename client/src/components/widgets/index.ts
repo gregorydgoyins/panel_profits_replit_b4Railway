@@ -1,0 +1,8 @@
+/**
+ * Dashboard Widget Components
+ * 
+ * Reusable widgets for displaying comic data throughout the application.
+ * All widgets support dark mode, lazy loading, and responsive design.
+ */
+
+export { CoverGalleryWidget, type CoverImage } from './CoverGalleryWidget';
