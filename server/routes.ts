@@ -1357,6 +1357,237 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Appearance Tracker - 1st, 2nd, nth appearances mapped
+  app.get("/api/appearances/tracker", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 5;
+      
+      // Sample seed data showcasing character appearances
+      const sampleAppearances = [
+        {
+          id: "1",
+          characterName: "Spider-Man",
+          characterId: "spiderman",
+          appearances: [
+            {
+              appearanceNumber: 1,
+              type: "first",
+              comicTitle: "Amazing Fantasy",
+              issueNumber: "#15",
+              publisher: "Marvel",
+              year: "1962",
+              coverUrl: "https://images.unsplash.com/photo-1608889335941-32ac5f2041b9?w=400&h=600&fit=crop",
+              significance: "The birth of Spider-Man. Peter Parker gains powers and learns with great power comes great responsibility.",
+              estimatedValue: "$25,000 - $300,000",
+              investmentPotential: "high"
+            },
+            {
+              appearanceNumber: 2,
+              type: "second",
+              comicTitle: "The Amazing Spider-Man",
+              issueNumber: "#1",
+              publisher: "Marvel",
+              year: "1963",
+              coverUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400&h=600&fit=crop",
+              significance: "Spider-Man's first ongoing series. Establishes the character's core mythology and supporting cast.",
+              estimatedValue: "$8,000 - $75,000",
+              investmentPotential: "high"
+            },
+            {
+              appearanceNumber: 129,
+              type: "key",
+              comicTitle: "The Amazing Spider-Man",
+              issueNumber: "#129",
+              publisher: "Marvel",
+              year: "1974",
+              coverUrl: "https://images.unsplash.com/photo-1635805737707-575885ab0820?w=400&h=600&fit=crop",
+              significance: "First appearance of the Punisher. A key crossover character introduction that defined an era.",
+              estimatedValue: "$1,500 - $8,000",
+              investmentPotential: "high"
+            }
+          ]
+        },
+        {
+          id: "2",
+          characterName: "Wolverine",
+          characterId: "wolverine",
+          appearances: [
+            {
+              appearanceNumber: 1,
+              type: "first",
+              comicTitle: "The Incredible Hulk",
+              issueNumber: "#180",
+              publisher: "Marvel",
+              year: "1974",
+              coverUrl: "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=400&h=600&fit=crop",
+              significance: "Cameo appearance. Wolverine appears on last page as a Canadian government agent sent to stop Hulk.",
+              estimatedValue: "$1,200 - $12,000",
+              investmentPotential: "high"
+            },
+            {
+              appearanceNumber: 2,
+              type: "second",
+              comicTitle: "The Incredible Hulk",
+              issueNumber: "#181",
+              publisher: "Marvel",
+              year: "1974",
+              coverUrl: "https://images.unsplash.com/photo-1608889476561-6242cfdbf622?w=400&h=600&fit=crop",
+              significance: "First full appearance. Wolverine battles Hulk and Wendigo in a legendary three-way fight.",
+              estimatedValue: "$3,000 - $25,000",
+              investmentPotential: "high"
+            },
+            {
+              appearanceNumber: 3,
+              type: "key",
+              comicTitle: "Giant-Size X-Men",
+              issueNumber: "#1",
+              publisher: "Marvel",
+              year: "1975",
+              coverUrl: "https://images.unsplash.com/photo-1620420158368-89d607a0423c?w=400&h=600&fit=crop",
+              significance: "Joins the X-Men. Part of the new international team that revitalized the franchise.",
+              estimatedValue: "$800 - $6,000",
+              investmentPotential: "medium"
+            }
+          ]
+        },
+        {
+          id: "3",
+          characterName: "Harley Quinn",
+          characterId: "harleyquinn",
+          appearances: [
+            {
+              appearanceNumber: 1,
+              type: "first",
+              comicTitle: "Batman: The Animated Series",
+              issueNumber: "Episode 22",
+              publisher: "DC (TV)",
+              year: "1992",
+              coverUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=600&fit=crop",
+              significance: "Created for the animated series before appearing in comics. Joker's partner and love interest.",
+              estimatedValue: "N/A (TV)",
+              investmentPotential: "low"
+            },
+            {
+              appearanceNumber: 2,
+              type: "second",
+              comicTitle: "The Batman Adventures",
+              issueNumber: "#12",
+              publisher: "DC",
+              year: "1993",
+              coverUrl: "https://images.unsplash.com/photo-1509909756405-be0199881695?w=400&h=600&fit=crop",
+              significance: "First comic book appearance. Brings the character from animation to print continuity.",
+              estimatedValue: "$500 - $3,000",
+              investmentPotential: "high"
+            },
+            {
+              appearanceNumber: 3,
+              type: "key",
+              comicTitle: "Batman",
+              issueNumber: "#608",
+              publisher: "DC",
+              year: "2002",
+              coverUrl: "https://images.unsplash.com/photo-1618336753974-aae8e04506aa?w=400&h=600&fit=crop",
+              significance: "First appearance in main DC continuity. Officially integrated into Batman's rogues gallery.",
+              estimatedValue: "$200 - $800",
+              investmentPotential: "medium"
+            }
+          ]
+        },
+        {
+          id: "4",
+          characterName: "Venom",
+          characterId: "venom",
+          appearances: [
+            {
+              appearanceNumber: 1,
+              type: "first",
+              comicTitle: "The Amazing Spider-Man",
+              issueNumber: "#252",
+              publisher: "Marvel",
+              year: "1984",
+              coverUrl: "https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?w=400&h=600&fit=crop",
+              significance: "First black costume (symbiote). The alien suit that would become Venom first bonds with Peter Parker.",
+              estimatedValue: "$800 - $5,000",
+              investmentPotential: "high"
+            },
+            {
+              appearanceNumber: 2,
+              type: "key",
+              comicTitle: "The Amazing Spider-Man",
+              issueNumber: "#300",
+              publisher: "Marvel",
+              year: "1988",
+              coverUrl: "https://images.unsplash.com/photo-1635805737707-575885ab0820?w=400&h=600&fit=crop",
+              significance: "First full appearance as Venom. Eddie Brock bonds with symbiote to become Spider-Man's greatest foe.",
+              estimatedValue: "$1,200 - $8,000",
+              investmentPotential: "high"
+            },
+            {
+              appearanceNumber: 3,
+              type: "key",
+              comicTitle: "Venom: Lethal Protector",
+              issueNumber: "#1",
+              publisher: "Marvel",
+              year: "1993",
+              coverUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400&h=600&fit=crop",
+              significance: "First solo series. Venom transitions from villain to anti-hero with his own ongoing title.",
+              estimatedValue: "$80 - $300",
+              investmentPotential: "medium"
+            }
+          ]
+        },
+        {
+          id: "5",
+          characterName: "Deadpool",
+          characterId: "deadpool",
+          appearances: [
+            {
+              appearanceNumber: 1,
+              type: "first",
+              comicTitle: "The New Mutants",
+              issueNumber: "#98",
+              publisher: "Marvel",
+              year: "1991",
+              coverUrl: "https://images.unsplash.com/photo-1608889825205-eebdb9fc5806?w=400&h=600&fit=crop",
+              significance: "First appearance. Created by Rob Liefeld and Fabian Nicieza as a supervillain mercenary.",
+              estimatedValue: "$600 - $4,000",
+              investmentPotential: "high"
+            },
+            {
+              appearanceNumber: 2,
+              type: "second",
+              comicTitle: "X-Force",
+              issueNumber: "#2",
+              publisher: "Marvel",
+              year: "1991",
+              coverUrl: "https://images.unsplash.com/photo-1618336753974-aae8e04506aa?w=400&h=600&fit=crop",
+              significance: "Second appearance. Continues antagonist role against X-Force team.",
+              estimatedValue: "$150 - $600",
+              investmentPotential: "medium"
+            },
+            {
+              appearanceNumber: 3,
+              type: "key",
+              comicTitle: "Deadpool: The Circle Chase",
+              issueNumber: "#1",
+              publisher: "Marvel",
+              year: "1993",
+              coverUrl: "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=400&h=600&fit=crop",
+              significance: "First limited series. Character begins transition to comedic anti-hero that fans love today.",
+              estimatedValue: "$50 - $200",
+              investmentPotential: "low"
+            }
+          ]
+        }
+      ];
+      
+      res.json(sampleAppearances.slice(0, limit));
+    } catch (error) {
+      console.error('Error fetching appearance tracker:', error);
+      res.status(500).json({ error: "Failed to fetch appearance tracker" });
+    }
+  });
+
   app.post("/api/assets", async (req, res) => {
     try {
       const validatedData = insertAssetSchema.parse(req.body);
