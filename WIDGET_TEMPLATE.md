@@ -3,16 +3,53 @@
 ## **GOLDEN RULE:**
 ```
 RIM COLOR = NAVIGATION CATEGORY (where widget lives)
-INNER WIDGET ELEMENTS = SPECIFIC ACTION/DESTINATION (where they lead)
+INNER VISUAL ELEMENTS = THEIR NATURAL HOME/DESTINATION (where they belong conceptually)
 ```
+
+### **The Deep Logic:**
+- Not just buttons - **visual elements themselves** signal their destination
+- A **graph** is pink (Research) even on Markets page - because graphs belong in Research section
+- **Click-through follows the color** - pink graph → Research graph detail page
+- **No extra buttons needed** - the visual color IS the affordance
 
 ---
 
 ## **Widget Template Structure**
 
+### **Example 1: Visual Elements as Navigation (No Buttons Needed)**
+
 ```tsx
-// Example: Markets Widget with Multi-Destination Actions
-export function ExampleMarketsWidget() {
+// Markets Page Widget - Graph shows its natural home
+export function MarketPerformanceWidget() {
+  return (
+    <Card className="markets-rimlight-hover"> {/* 🟠 Orange rim - on Markets page */}
+      <CardHeader>
+        <h3>Asset Performance</h3>
+      </CardHeader>
+      
+      <CardContent>
+        {/* Graph is PINK (Research color) - because it belongs in Research section */}
+        <Link href="/research/graph/asset-123" data-testid="link-graph-detail">
+          <div className="border border-pink-500/60 rounded-md p-4 cursor-pointer hover:bg-pink-500/5">
+            <LineChart 
+              data={marketData} 
+              className="text-pink-400"  {/* 🩷 Pink - belongs to Research */}
+            />
+          </div>
+        </Link>
+        
+        {/* No button needed! The pink visual IS the affordance */}
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+### **Example 2: Widget with Multiple Action Buttons**
+
+```tsx
+// Markets Widget with Multi-Destination Actions
+export function MarketAnalysisWidget() {
   return (
     <Card className="markets-rimlight-hover"> {/* Orange rim - on Markets page */}
       <CardHeader>
@@ -49,15 +86,6 @@ export function ExampleMarketsWidget() {
             data-testid="button-trade"
           >
             Trade Now
-          </Button>
-          
-          {/* Stays in Markets = Orange */}
-          <Button 
-            variant="outline" 
-            className="border-orange-500/60 text-orange-400 hover:bg-orange-500/10"
-            data-testid="button-charts"
-          >
-            View Charts
           </Button>
         </div>
       </CardContent>
@@ -98,37 +126,78 @@ export function ExampleMarketsWidget() {
 
 ---
 
+## **Visual Content Type → Natural Destination Map**
+
+| Visual Element | Natural Home | Color | Detail Page Route |
+|----------------|--------------|-------|-------------------|
+| **Charts/Graphs** | Research | 🩷 Pink | `/research/graph/[id]` |
+| **Trade Form** | Trading | 🔵 Blue | `/trading/order/[symbol]` |
+| **Course Card** | Learn | 🩵 Cyan | `/learn/course/[id]` |
+| **News Article** | News | 🟢 Green | `/news/article/[id]` |
+| **Price Ticker** | Markets | 🟠 Orange | `/markets/asset/[symbol]` |
+| **Character Card** | Dashboard | 🟣 Purple | `/character/[id]` |
+| **Portfolio View** | Portfolio | 🟠 Orange | `/portfolio/holdings` |
+
 ## **Real-World Examples**
 
-### **Example 1: Dashboard Widget with Mixed Actions**
+### **Example 1: Markets Widget with Pink Graph (No Button)**
 ```tsx
-<Card className="dashboard-rimlight-hover"> {/* Purple rim */}
-  {/* ... content ... */}
+<Card className="markets-rimlight-hover"> {/* 🟠 Orange - Markets page */}
+  <CardHeader><h3>Price Trends</h3></CardHeader>
   
-  <Button className="border-pink-500/60 text-pink-400">Research This</Button>
-  <Button className="border-cyan-500/60 text-cyan-400">Learn More</Button>
-  <Button className="border-blue-500/60 text-blue-400">Trade Now</Button>
+  <CardContent>
+    {/* Graph is pink - click goes to Research graph detail */}
+    <Link href="/research/graph/spiderman-price-analysis">
+      <div className="border border-pink-500/60 rounded-md p-4 hover:bg-pink-500/5">
+        <LineChart data={priceData} className="text-pink-400" />
+      </div>
+    </Link>
+  </CardContent>
 </Card>
 ```
 
-### **Example 2: Trading Widget Staying In-Category**
+### **Example 2: Dashboard Widget with Mixed Visual Elements**
 ```tsx
-<Card className="trading-rimlight-hover"> {/* Blue rim */}
-  {/* ... content ... */}
-  
-  <Button className="border-blue-500/60 text-blue-400">Execute Trade</Button>
-  <Button className="border-blue-500/60 text-blue-400">View Order Book</Button>
+<Card className="dashboard-rimlight-hover"> {/* 🟣 Purple - Dashboard */}
+  <CardContent>
+    {/* News headline - green (belongs to News) */}
+    <Link href="/news/breaking-comic-announcement">
+      <div className="border-l-2 border-green-500/60 p-2 text-green-400">
+        Breaking: New Spider-Man Series
+      </div>
+    </Link>
+    
+    {/* Chart preview - pink (belongs to Research) */}
+    <Link href="/research/graph/character-power-levels">
+      <div className="border border-pink-500/60 rounded p-2 mt-2">
+        <MiniChart className="text-pink-400" />
+      </div>
+    </Link>
+    
+    {/* Trade button - blue (goes to Trading) */}
+    <Button className="border-blue-500/60 text-blue-400 mt-2">
+      Trade Now
+    </Button>
+  </CardContent>
 </Card>
 ```
 
-### **Example 3: Research Widget with External Links**
+### **Example 3: Research Page with Cross-References**
 ```tsx
-<Card className="research-rimlight-hover"> {/* Pink rim */}
-  {/* ... content ... */}
+<Card className="research-rimlight-hover"> {/* 🩷 Pink - Research */}
+  {/* ... analysis content ... */}
   
-  <Button className="border-orange-500/60 text-orange-400">View Market Data</Button>
-  <Button className="border-blue-500/60 text-blue-400">Start Trading</Button>
-  <Button className="border-pink-500/60 text-pink-400">Deep Dive Analysis</Button>
+  <CardFooter className="flex gap-2">
+    {/* Go to Markets for live data - orange */}
+    <Button className="border-orange-500/60 text-orange-400">
+      View Live Markets
+    </Button>
+    
+    {/* Execute trade - blue */}
+    <Button className="border-blue-500/60 text-blue-400">
+      Trade This Asset
+    </Button>
+  </CardFooter>
 </Card>
 ```
 
