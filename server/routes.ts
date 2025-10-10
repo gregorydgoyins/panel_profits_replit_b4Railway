@@ -1174,6 +1174,247 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Franchise Tracker - All variants at a glance (all Spider-Men, all Batmen, etc.)
+  app.get("/api/franchises/tracker", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 3;
+      
+      // Sample seed data showing franchise families with all variants
+      const sampleFranchises = [
+        {
+          id: "spider-verse",
+          franchiseName: "Spider-Man",
+          publisher: "Marvel",
+          totalVariants: 6,
+          totalMarketCap: 145000000,
+          avgPriceChange: 8.3,
+          variants: [
+            {
+              id: "peter-616",
+              variantName: "Spider-Man (Peter Parker)",
+              realName: "Peter Parker",
+              imageUrl: "https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?w=200&h=200&fit=crop",
+              universe: "Earth-616",
+              currentPrice: 4250,
+              priceChange24h: 12.5,
+              marketCap: 48000000,
+              tradingVolume: 285000,
+              firstAppearance: "Amazing Fantasy #15 (1962)",
+              popularity: 98
+            },
+            {
+              id: "miles-1610",
+              variantName: "Spider-Man (Miles Morales)",
+              realName: "Miles Morales",
+              imageUrl: "https://images.unsplash.com/photo-1608889825205-eebdb9fc5806?w=200&h=200&fit=crop",
+              universe: "Earth-1610",
+              currentPrice: 3890,
+              priceChange24h: 15.7,
+              marketCap: 32000000,
+              tradingVolume: 195000,
+              firstAppearance: "Ultimate Fallout #4 (2011)",
+              popularity: 92
+            },
+            {
+              id: "gwen-65",
+              variantName: "Spider-Gwen",
+              realName: "Gwen Stacy",
+              imageUrl: "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=200&h=200&fit=crop",
+              universe: "Earth-65",
+              currentPrice: 2750,
+              priceChange24h: 8.2,
+              marketCap: 18000000,
+              tradingVolume: 142000,
+              firstAppearance: "Edge of Spider-Verse #2 (2014)",
+              popularity: 85
+            },
+            {
+              id: "miguel-928",
+              variantName: "Spider-Man 2099",
+              realName: "Miguel O'Hara",
+              imageUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=200&h=200&fit=crop",
+              universe: "Earth-928",
+              currentPrice: 1980,
+              priceChange24h: 5.3,
+              marketCap: 12000000,
+              tradingVolume: 87000,
+              firstAppearance: "Spider-Man 2099 #1 (1992)",
+              popularity: 76
+            },
+            {
+              id: "noir",
+              variantName: "Spider-Man Noir",
+              realName: "Peter Parker",
+              imageUrl: "https://images.unsplash.com/photo-1608889335941-32ac5f2041b9?w=200&h=200&fit=crop",
+              universe: "Earth-90214",
+              currentPrice: 1450,
+              priceChange24h: -2.1,
+              marketCap: 8500000,
+              tradingVolume: 64000,
+              firstAppearance: "Spider-Man Noir #1 (2009)",
+              popularity: 68
+            },
+            {
+              id: "scarlet",
+              variantName: "Scarlet Spider",
+              realName: "Ben Reilly",
+              imageUrl: "https://images.unsplash.com/photo-1608889825481-5ae0b3a1f223?w=200&h=200&fit=crop",
+              universe: "Earth-616",
+              currentPrice: 980,
+              priceChange24h: 3.8,
+              marketCap: 5200000,
+              tradingVolume: 42000,
+              firstAppearance: "Amazing Spider-Man #149 (1975)",
+              popularity: 62
+            }
+          ]
+        },
+        {
+          id: "bat-family",
+          franchiseName: "Batman",
+          publisher: "DC",
+          totalVariants: 5,
+          totalMarketCap: 128000000,
+          avgPriceChange: 6.7,
+          variants: [
+            {
+              id: "bruce-main",
+              variantName: "Batman",
+              realName: "Bruce Wayne",
+              imageUrl: "https://images.unsplash.com/photo-1608889825271-279e9be36b30?w=200&h=200&fit=crop",
+              universe: "Earth-0",
+              currentPrice: 5890,
+              priceChange24h: 9.2,
+              marketCap: 52000000,
+              tradingVolume: 312000,
+              firstAppearance: "Detective Comics #27 (1939)",
+              popularity: 99
+            },
+            {
+              id: "thomas-flashpoint",
+              variantName: "Batman (Thomas Wayne)",
+              realName: "Thomas Wayne",
+              imageUrl: "https://images.unsplash.com/photo-1608889825250-e80a672d76a2?w=200&h=200&fit=crop",
+              universe: "Flashpoint",
+              currentPrice: 3250,
+              priceChange24h: 12.4,
+              marketCap: 28000000,
+              tradingVolume: 186000,
+              firstAppearance: "Flashpoint #1 (2011)",
+              popularity: 82
+            },
+            {
+              id: "terry-beyond",
+              variantName: "Batman Beyond",
+              realName: "Terry McGinnis",
+              imageUrl: "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=200&h=200&fit=crop",
+              universe: "Earth-12",
+              currentPrice: 2890,
+              priceChange24h: 5.8,
+              marketCap: 22000000,
+              tradingVolume: 148000,
+              firstAppearance: "Batman Beyond #1 (1999)",
+              popularity: 78
+            },
+            {
+              id: "azrael",
+              variantName: "Azrael Batman",
+              realName: "Jean-Paul Valley",
+              imageUrl: "https://images.unsplash.com/photo-1608889335901-91804976b5d3?w=200&h=200&fit=crop",
+              universe: "Earth-0",
+              currentPrice: 1750,
+              priceChange24h: -1.2,
+              marketCap: 14000000,
+              tradingVolume: 95000,
+              firstAppearance: "Batman #488 (1993)",
+              popularity: 65
+            },
+            {
+              id: "damian-batman",
+              variantName: "Batman (Damian Wayne)",
+              realName: "Damian Wayne",
+              imageUrl: "https://images.unsplash.com/photo-1608889335660-3b5e4a9c4b1e?w=200&h=200&fit=crop",
+              universe: "Earth-666",
+              currentPrice: 1450,
+              priceChange24h: 8.9,
+              marketCap: 12000000,
+              tradingVolume: 78000,
+              firstAppearance: "Batman #666 (2007)",
+              popularity: 71
+            }
+          ]
+        },
+        {
+          id: "wolverine-claws",
+          franchiseName: "Wolverine",
+          publisher: "Marvel",
+          totalVariants: 4,
+          totalMarketCap: 89000000,
+          avgPriceChange: 10.2,
+          variants: [
+            {
+              id: "logan-616",
+              variantName: "Wolverine",
+              realName: "James Howlett",
+              imageUrl: "https://images.unsplash.com/photo-1608889335771-538a411d4f35?w=200&h=200&fit=crop",
+              universe: "Earth-616",
+              currentPrice: 4780,
+              priceChange24h: 11.3,
+              marketCap: 42000000,
+              tradingVolume: 245000,
+              firstAppearance: "Incredible Hulk #181 (1974)",
+              popularity: 95
+            },
+            {
+              id: "old-man-logan",
+              variantName: "Old Man Logan",
+              realName: "James Howlett",
+              imageUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=200&h=200&fit=crop",
+              universe: "Earth-807128",
+              currentPrice: 3250,
+              priceChange24h: 14.7,
+              marketCap: 26000000,
+              tradingVolume: 168000,
+              firstAppearance: "Wolverine #66 (2008)",
+              popularity: 88
+            },
+            {
+              id: "x-23",
+              variantName: "X-23 / Wolverine",
+              realName: "Laura Kinney",
+              imageUrl: "https://images.unsplash.com/photo-1608889335250-e80a672d76a2?w=200&h=200&fit=crop",
+              universe: "Earth-616",
+              currentPrice: 2180,
+              priceChange24h: 9.8,
+              marketCap: 15000000,
+              tradingVolume: 112000,
+              firstAppearance: "NYX #3 (2004)",
+              popularity: 81
+            },
+            {
+              id: "daken",
+              variantName: "Daken",
+              realName: "Akihiro",
+              imageUrl: "https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?w=200&h=200&fit=crop",
+              universe: "Earth-616",
+              currentPrice: 1340,
+              priceChange24h: 6.2,
+              marketCap: 9500000,
+              tradingVolume: 68000,
+              firstAppearance: "Wolverine Origins #10 (2007)",
+              popularity: 64
+            }
+          ]
+        }
+      ];
+      
+      res.json(sampleFranchises.slice(0, limit));
+    } catch (error) {
+      console.error('Error fetching franchise tracker:', error);
+      res.status(500).json({ error: "Failed to fetch franchise tracker" });
+    }
+  });
+
   // Story Arc Explorer - Major comic storylines with full descriptions
   app.get("/api/story-arcs/explorer", async (req, res) => {
     try {
@@ -1438,227 +1679,132 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Appearance Tracker - 1st, 2nd, nth appearances mapped
+  // Appearance Tracker - 4x1 Parallax widget showing major appearances
   app.get("/api/appearances/tracker", async (req, res) => {
     try {
-      const limit = parseInt(req.query.limit as string) || 5;
+      const limit = parseInt(req.query.limit as string) || 8;
       
-      // Sample seed data showcasing character appearances
+      // Sample seed data - flat array of appearance cards for 4x1 parallax
       const sampleAppearances = [
         {
-          id: "1",
+          id: "app-1",
           characterName: "Spider-Man",
-          characterId: "spiderman",
-          appearances: [
-            {
-              appearanceNumber: 1,
-              type: "first",
-              comicTitle: "Amazing Fantasy",
-              issueNumber: "#15",
-              publisher: "Marvel",
-              year: "1962",
-              coverUrl: "https://images.unsplash.com/photo-1608889335941-32ac5f2041b9?w=400&h=600&fit=crop",
-              significance: "The birth of Spider-Man. Peter Parker gains powers and learns with great power comes great responsibility.",
-              estimatedValue: "$25,000 - $300,000",
-              investmentPotential: "high"
-            },
-            {
-              appearanceNumber: 2,
-              type: "second",
-              comicTitle: "The Amazing Spider-Man",
-              issueNumber: "#1",
-              publisher: "Marvel",
-              year: "1963",
-              coverUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400&h=600&fit=crop",
-              significance: "Spider-Man's first ongoing series. Establishes the character's core mythology and supporting cast.",
-              estimatedValue: "$8,000 - $75,000",
-              investmentPotential: "high"
-            },
-            {
-              appearanceNumber: 129,
-              type: "key",
-              comicTitle: "The Amazing Spider-Man",
-              issueNumber: "#129",
-              publisher: "Marvel",
-              year: "1974",
-              coverUrl: "https://images.unsplash.com/photo-1635805737707-575885ab0820?w=400&h=600&fit=crop",
-              significance: "First appearance of the Punisher. A key crossover character introduction that defined an era.",
-              estimatedValue: "$1,500 - $8,000",
-              investmentPotential: "high"
-            }
-          ]
+          characterImageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop",
+          appearanceType: "first",
+          comicTitle: "Amazing Fantasy",
+          issueNumber: "#15",
+          publisher: "Marvel",
+          year: "1962",
+          coverUrl: "https://images.unsplash.com/photo-1608889335941-32ac5f2041b9?w=400&h=600&fit=crop",
+          significance: "The birth of Spider-Man. Peter Parker gains powers and learns that with great power comes great responsibility",
+          estimatedValue: "$285,000",
+          priceChange24h: 12.5,
+          investmentPotential: "high"
         },
         {
-          id: "2",
+          id: "app-2",
           characterName: "Wolverine",
-          characterId: "wolverine",
-          appearances: [
-            {
-              appearanceNumber: 1,
-              type: "first",
-              comicTitle: "The Incredible Hulk",
-              issueNumber: "#180",
-              publisher: "Marvel",
-              year: "1974",
-              coverUrl: "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=400&h=600&fit=crop",
-              significance: "Cameo appearance. Wolverine appears on last page as a Canadian government agent sent to stop Hulk.",
-              estimatedValue: "$1,200 - $12,000",
-              investmentPotential: "high"
-            },
-            {
-              appearanceNumber: 2,
-              type: "second",
-              comicTitle: "The Incredible Hulk",
-              issueNumber: "#181",
-              publisher: "Marvel",
-              year: "1974",
-              coverUrl: "https://images.unsplash.com/photo-1608889476561-6242cfdbf622?w=400&h=600&fit=crop",
-              significance: "First full appearance. Wolverine battles Hulk and Wendigo in a legendary three-way fight.",
-              estimatedValue: "$3,000 - $25,000",
-              investmentPotential: "high"
-            },
-            {
-              appearanceNumber: 3,
-              type: "key",
-              comicTitle: "Giant-Size X-Men",
-              issueNumber: "#1",
-              publisher: "Marvel",
-              year: "1975",
-              coverUrl: "https://images.unsplash.com/photo-1620420158368-89d607a0423c?w=400&h=600&fit=crop",
-              significance: "Joins the X-Men. Part of the new international team that revitalized the franchise.",
-              estimatedValue: "$800 - $6,000",
-              investmentPotential: "medium"
-            }
-          ]
+          characterImageUrl: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=200&h=200&fit=crop",
+          appearanceType: "first",
+          comicTitle: "The Incredible Hulk",
+          issueNumber: "#181",
+          publisher: "Marvel",
+          year: "1974",
+          coverUrl: "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=400&h=600&fit=crop",
+          significance: "First full appearance. Wolverine battles Hulk and Wendigo in a legendary three-way fight",
+          estimatedValue: "$24,500",
+          priceChange24h: 8.3,
+          investmentPotential: "high"
         },
         {
-          id: "3",
+          id: "app-3",
           characterName: "Harley Quinn",
-          characterId: "harleyquinn",
-          appearances: [
-            {
-              appearanceNumber: 1,
-              type: "first",
-              comicTitle: "Batman: The Animated Series",
-              issueNumber: "Episode 22",
-              publisher: "DC (TV)",
-              year: "1992",
-              coverUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=600&fit=crop",
-              significance: "Created for the animated series before appearing in comics. Joker's partner and love interest.",
-              estimatedValue: "N/A (TV)",
-              investmentPotential: "low"
-            },
-            {
-              appearanceNumber: 2,
-              type: "second",
-              comicTitle: "The Batman Adventures",
-              issueNumber: "#12",
-              publisher: "DC",
-              year: "1993",
-              coverUrl: "https://images.unsplash.com/photo-1509909756405-be0199881695?w=400&h=600&fit=crop",
-              significance: "First comic book appearance. Brings the character from animation to print continuity.",
-              estimatedValue: "$500 - $3,000",
-              investmentPotential: "high"
-            },
-            {
-              appearanceNumber: 3,
-              type: "key",
-              comicTitle: "Batman",
-              issueNumber: "#608",
-              publisher: "DC",
-              year: "2002",
-              coverUrl: "https://images.unsplash.com/photo-1618336753974-aae8e04506aa?w=400&h=600&fit=crop",
-              significance: "First appearance in main DC continuity. Officially integrated into Batman's rogues gallery.",
-              estimatedValue: "$200 - $800",
-              investmentPotential: "medium"
-            }
-          ]
+          characterImageUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop",
+          appearanceType: "second",
+          comicTitle: "The Batman Adventures",
+          issueNumber: "#12",
+          publisher: "DC",
+          year: "1993",
+          coverUrl: "https://images.unsplash.com/photo-1509909756405-be0199881695?w=400&h=600&fit=crop",
+          significance: "First comic book appearance. Brings the character from animation to print continuity",
+          estimatedValue: "$2,850",
+          priceChange24h: 15.7,
+          investmentPotential: "high"
         },
         {
-          id: "4",
+          id: "app-4",
           characterName: "Venom",
-          characterId: "venom",
-          appearances: [
-            {
-              appearanceNumber: 1,
-              type: "first",
-              comicTitle: "The Amazing Spider-Man",
-              issueNumber: "#252",
-              publisher: "Marvel",
-              year: "1984",
-              coverUrl: "https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?w=400&h=600&fit=crop",
-              significance: "First black costume (symbiote). The alien suit that would become Venom first bonds with Peter Parker.",
-              estimatedValue: "$800 - $5,000",
-              investmentPotential: "high"
-            },
-            {
-              appearanceNumber: 2,
-              type: "key",
-              comicTitle: "The Amazing Spider-Man",
-              issueNumber: "#300",
-              publisher: "Marvel",
-              year: "1988",
-              coverUrl: "https://images.unsplash.com/photo-1635805737707-575885ab0820?w=400&h=600&fit=crop",
-              significance: "First full appearance as Venom. Eddie Brock bonds with symbiote to become Spider-Man's greatest foe.",
-              estimatedValue: "$1,200 - $8,000",
-              investmentPotential: "high"
-            },
-            {
-              appearanceNumber: 3,
-              type: "key",
-              comicTitle: "Venom: Lethal Protector",
-              issueNumber: "#1",
-              publisher: "Marvel",
-              year: "1993",
-              coverUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400&h=600&fit=crop",
-              significance: "First solo series. Venom transitions from villain to anti-hero with his own ongoing title.",
-              estimatedValue: "$80 - $300",
-              investmentPotential: "medium"
-            }
-          ]
+          characterImageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop",
+          appearanceType: "key",
+          comicTitle: "The Amazing Spider-Man",
+          issueNumber: "#300",
+          publisher: "Marvel",
+          year: "1988",
+          coverUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400&h=600&fit=crop",
+          significance: "Full appearance and origin of Venom. Eddie Brock bonds with the alien symbiote",
+          estimatedValue: "$3,200",
+          priceChange24h: -2.1,
+          investmentPotential: "medium"
         },
         {
-          id: "5",
+          id: "app-5",
+          characterName: "Batman",
+          characterImageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+          appearanceType: "first",
+          comicTitle: "Detective Comics",
+          issueNumber: "#27",
+          publisher: "DC",
+          year: "1939",
+          coverUrl: "https://images.unsplash.com/photo-1608889825271-279e9be36b30?w=400&h=600&fit=crop",
+          significance: "The debut of the Dark Knight. Batman's first appearance establishes the vigilante archetype",
+          estimatedValue: "$1,500,000",
+          priceChange24h: 5.2,
+          investmentPotential: "high"
+        },
+        {
+          id: "app-6",
           characterName: "Deadpool",
-          characterId: "deadpool",
-          appearances: [
-            {
-              appearanceNumber: 1,
-              type: "first",
-              comicTitle: "The New Mutants",
-              issueNumber: "#98",
-              publisher: "Marvel",
-              year: "1991",
-              coverUrl: "https://images.unsplash.com/photo-1608889825205-eebdb9fc5806?w=400&h=600&fit=crop",
-              significance: "First appearance. Created by Rob Liefeld and Fabian Nicieza as a supervillain mercenary.",
-              estimatedValue: "$600 - $4,000",
-              investmentPotential: "high"
-            },
-            {
-              appearanceNumber: 2,
-              type: "second",
-              comicTitle: "X-Force",
-              issueNumber: "#2",
-              publisher: "Marvel",
-              year: "1991",
-              coverUrl: "https://images.unsplash.com/photo-1618336753974-aae8e04506aa?w=400&h=600&fit=crop",
-              significance: "Second appearance. Continues antagonist role against X-Force team.",
-              estimatedValue: "$150 - $600",
-              investmentPotential: "medium"
-            },
-            {
-              appearanceNumber: 3,
-              type: "key",
-              comicTitle: "Deadpool: The Circle Chase",
-              issueNumber: "#1",
-              publisher: "Marvel",
-              year: "1993",
-              coverUrl: "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=400&h=600&fit=crop",
-              significance: "First limited series. Character begins transition to comedic anti-hero that fans love today.",
-              estimatedValue: "$50 - $200",
-              investmentPotential: "low"
-            }
-          ]
+          characterImageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop",
+          appearanceType: "first",
+          comicTitle: "The New Mutants",
+          issueNumber: "#98",
+          publisher: "Marvel",
+          year: "1991",
+          coverUrl: "https://images.unsplash.com/photo-1608889335941-32ac5f2041b9?w=400&h=600&fit=crop",
+          significance: "First appearance of the Merc with a Mouth. Created by Rob Liefeld and Fabian Nicieza",
+          estimatedValue: "$4,800",
+          priceChange24h: 18.9,
+          investmentPotential: "high"
+        },
+        {
+          id: "app-7",
+          characterName: "Miles Morales",
+          characterImageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop",
+          appearanceType: "first",
+          comicTitle: "Ultimate Fallout",
+          issueNumber: "#4",
+          publisher: "Marvel",
+          year: "2011",
+          coverUrl: "https://images.unsplash.com/photo-1608889825205-eebdb9fc5806?w=400&h=600&fit=crop",
+          significance: "First full appearance of Miles Morales as Spider-Man. A new generation of web-slinger",
+          estimatedValue: "$580",
+          priceChange24h: 22.4,
+          investmentPotential: "high"
+        },
+        {
+          id: "app-8",
+          characterName: "Thanos",
+          characterImageUrl: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=200&h=200&fit=crop",
+          appearanceType: "cameo",
+          comicTitle: "Iron Man",
+          issueNumber: "#55",
+          publisher: "Marvel",
+          year: "1973",
+          coverUrl: "https://images.unsplash.com/photo-1620420158368-89d607a0423c?w=400&h=600&fit=crop",
+          significance: "Cameo appearance of the Mad Titan. Created by Jim Starlin as Marvel's ultimate cosmic threat",
+          estimatedValue: "$1,250",
+          priceChange24h: 6.8,
+          investmentPotential: "medium"
         }
       ];
       
@@ -1668,6 +1814,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to fetch appearance tracker" });
     }
   });
+
 
   // Relationship Web - Character connections
   app.get("/api/relationships/web", async (req, res) => {

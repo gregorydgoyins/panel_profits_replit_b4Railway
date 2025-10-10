@@ -26,10 +26,6 @@ import WhaleTrackerWidget from '@/components/dashboard/WhaleTrackerWidget';
 import { InstitutionalOrderFlowWidget } from '@/components/dashboard/InstitutionalOrderFlowWidget';
 import { AssetGrowthWidget } from '@/components/dashboard/AssetGrowthWidget';
 import { CreatorInfluenceWidget } from '@/components/dashboard/CreatorInfluenceWidget';
-import { GadgetsMemorabiliaWidget } from '@/components/dashboard/GadgetsMemorabiliaWidget';
-import { VillainsHenchmenWidget } from '@/components/dashboard/VillainsHenchmenWidget';
-import { SidekicksSuperheroesWidget } from '@/components/dashboard/SidekicksSuperheroesWidget';
-import { LocationsGadgetsWidget } from '@/components/dashboard/LocationsGadgetsWidget';
 import { CoverGalleryWidget, CharacterPortraitWidget, ComicPanelTimelineWidget, CreatorShowcaseWidget, StoryArcExplorerWidget, NarrativeMilestonesWidget, AppearanceTrackerWidget, RelationshipWebWidget, CreatorCollaborationsWidget } from '@/components/widgets';
 
 interface Asset {
@@ -495,15 +491,6 @@ export default function DashboardPage() {
       {/* Featured Comics Section */}
       <FeaturedComicsSection />
 
-      {/* Villains & Henchmen Widget Row */}
-      <VillainsHenchmenWidget />
-
-      {/* Sidekicks & Superheroes Widget Row */}
-      <SidekicksSuperheroesWidget />
-
-      {/* Locations & Gadgets Widget Row */}
-      <LocationsGadgetsWidget />
-
       {/* Market Movers */}
       <div className="bg-slate-800/20 p-3 rounded-lg">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -823,10 +810,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="bg-slate-800/20 p-3 rounded-lg">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <AssetGrowthWidget />
-          <GadgetsMemorabiliaWidget />
-        </div>
+        <AssetGrowthWidget />
       </div>
 
       {/* Footer Market Clocks */}
