@@ -37,9 +37,10 @@ Preferred communication style: Simple, everyday language.
     - **External Scraper Infrastructure**: Production-ready services for Superhero API enable millions-scale asset growth, all feeding into the unified pricing engine and database schema.
 - **Entity Seeding System**: Populates the database with publishers, characters, creators, franchises, and comic assets using data from Kaggle and PriceCharting.
 - **Multi-Source Entity Intelligence System**: Comprehensive entity database aggregating 15-20 free data sources (Marvel API, SuperHero API, Wikidata SPARQL, Fandom Wikis, AniList GraphQL) to replace Comic Vine. Features:
-    - **Active Data Sources** (10 scrapers operational, expanding to 20):
+    - **Active Data Sources** (11 scrapers operational, expanding to 20):
         - **Marvel Comics API**: Official Marvel character/comic data with authenticated MD5 hash access (reliability: 0.95) - MARVEL ONLY but excellent for covers, artists, creators, key covers, art
         - **Wikidata SPARQL**: Free structured knowledge base with extensive comic book data across all publishers. SPARQL endpoint returns characters, creators, relationships, first appearances, powers. Supports Marvel (Earth-616), DC Universe, Image Comics, and independent publishers (reliability: 0.90) - OPERATIONAL
+        - **ComicCover.org (Grand Comics Database)**: Web scraper for high-resolution comic cover images across all publishers/eras. Direct HTML parsing extracts covers, series data, creator credits, publication dates (reliability: 0.85) - OPERATIONAL
         - **SuperHero API**: Character powers, powerstats, biography, team affiliations, family relationships across Marvel/DC/Image (reliability: 0.85)
         - **Marvel Wiki (Fandom)**: MediaWiki API extraction of detailed character powers, weaknesses, first appearances, relationships (reliability: 0.80)
         - **DC Wiki (Fandom)**: MediaWiki API extraction of DC character data, abilities, team affiliations, enemies/allies (reliability: 0.80)
@@ -51,7 +52,6 @@ Preferred communication style: Simple, everyday language.
     - **NON-VIABLE SOURCES (DO NOT USE)**:
         - **Comic Vine API**: API key perpetually returns 401 Unauthorized - NOT A WORKING SOURCE
         - **Metron API**: Does not work - NOT A VIABLE SOURCE
-        - **Grand Comics Database (GCD)**: Community API (comiccover.org) is down with database connection errors. Only database dumps available, no real-time API access - NOT A VIABLE SOURCE
     - **Planned Multi-Publisher Sources** (comprehensive expansion):
         - **IDW Wiki (Fandom)**: TMNT, Transformers legacy, crossover events (reliability: 0.75)
     - **Planned Anime/Manga Sources** (500k+ entries):
