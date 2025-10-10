@@ -161,7 +161,7 @@ export default function StoryArcExplorerWidget() {
             <div className="flex items-start justify-between gap-4 mb-3">
               <div>
                 <h2 
-                  className="text-2xl font-bold text-indigo-100 mb-1"
+                  className="text-2xl  text-indigo-100 mb-1"
                   data-testid="text-arc-title"
                 >
                   {currentArc.title}

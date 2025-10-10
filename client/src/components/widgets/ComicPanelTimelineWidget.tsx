@@ -190,7 +190,7 @@ export default function ComicPanelTimelineWidget() {
                   {/* Panel info */}
                   <div className="p-3 space-y-2">
                     <h3 
-                      className="text-indigo-100 font-medium text-sm line-clamp-2"
+                      className="text-indigo-100  text-sm line-clamp-2"
                       data-testid={`text-panel-title-${index}`}
                     >
                       {panel.title}

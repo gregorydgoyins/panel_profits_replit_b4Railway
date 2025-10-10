@@ -134,7 +134,7 @@ export default function AppearanceTrackerWidget() {
         {appearanceData.map((character) => (
           <div key={character.id} data-testid={`character-${character.characterId}`}>
             {/* Character Name */}
-            <h3 className="text-lg font-semibold text-indigo-100 mb-4 flex items-center gap-2">
+            <h3 className="text-lg  text-indigo-100 mb-4 flex items-center gap-2">
               {character.characterName}
               <Badge variant="outline" className="text-xs text-indigo-400/70 border-indigo-800/30">
                 {character.appearances.length} appearances
@@ -184,7 +184,7 @@ export default function AppearanceTrackerWidget() {
                   {/* Comic Info */}
                   <div className="space-y-2">
                     <div>
-                      <p className="text-sm font-medium text-indigo-100 line-clamp-1" data-testid={`text-title-${index}`}>
+                      <p className="text-sm  text-indigo-100 line-clamp-1" data-testid={`text-title-${index}`}>
                         {appearance.comicTitle}
                       </p>
                       <p className="text-xs text-indigo-400/70 font-light">

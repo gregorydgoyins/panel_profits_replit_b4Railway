@@ -1588,6 +1588,238 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Relationship Web - Character connections
+  app.get("/api/relationships/web", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 5;
+      
+      // Sample seed data showcasing character relationship networks
+      const sampleRelationships = [
+        {
+          id: "1",
+          characterName: "Spider-Man",
+          characterId: "spiderman",
+          imageUrl: "https://images.unsplash.com/photo-1608889335941-32ac5f2041b9?w=200&h=200&fit=crop",
+          relationships: [
+            {
+              targetName: "Mary Jane Watson",
+              targetId: "mj",
+              targetImageUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop",
+              relationType: "love_interest",
+              description: "His wife and soulmate through countless trials",
+              strength: 10
+            },
+            {
+              targetName: "Green Goblin",
+              targetId: "goblin",
+              targetImageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop",
+              relationType: "enemy",
+              description: "Norman Osborn, his greatest nemesis",
+              strength: 10
+            },
+            {
+              targetName: "Iron Man",
+              targetId: "ironman",
+              targetImageUrl: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=200&h=200&fit=crop",
+              relationType: "mentor",
+              description: "Tony Stark mentored Peter in the MCU",
+              strength: 8
+            },
+            {
+              targetName: "Avengers",
+              targetId: "avengers",
+              targetImageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+              relationType: "teammate",
+              description: "Member of Earth's Mightiest Heroes",
+              strength: 9
+            }
+          ]
+        },
+        {
+          id: "2",
+          characterName: "Batman",
+          characterId: "batman",
+          imageUrl: "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=200&h=200&fit=crop",
+          relationships: [
+            {
+              targetName: "Robin",
+              targetId: "robin",
+              targetImageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop",
+              relationType: "mentee",
+              description: "Dick Grayson, his first protégé",
+              strength: 10
+            },
+            {
+              targetName: "Joker",
+              targetId: "joker",
+              targetImageUrl: "https://images.unsplash.com/photo-1509909756405-be0199881695?w=200&h=200&fit=crop",
+              relationType: "enemy",
+              description: "The Clown Prince of Crime, eternal rival",
+              strength: 10
+            },
+            {
+              targetName: "Catwoman",
+              targetId: "catwoman",
+              targetImageUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop",
+              relationType: "love_interest",
+              description: "Selina Kyle, complicated romance",
+              strength: 8
+            },
+            {
+              targetName: "Superman",
+              targetId: "superman",
+              targetImageUrl: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=200&h=200&fit=crop",
+              relationType: "ally",
+              description: "World's Finest partnership",
+              strength: 9
+            },
+            {
+              targetName: "Justice League",
+              targetId: "jla",
+              targetImageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+              relationType: "teammate",
+              description: "Founding member and strategist",
+              strength: 9
+            }
+          ]
+        },
+        {
+          id: "3",
+          characterName: "Wolverine",
+          characterId: "wolverine",
+          imageUrl: "https://images.unsplash.com/photo-1608889476561-6242cfdbf622?w=200&h=200&fit=crop",
+          relationships: [
+            {
+              targetName: "Professor X",
+              targetId: "professorx",
+              targetImageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop",
+              relationType: "mentor",
+              description: "Charles Xavier gave him purpose and family",
+              strength: 9
+            },
+            {
+              targetName: "Sabretooth",
+              targetId: "sabretooth",
+              targetImageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop",
+              relationType: "enemy",
+              description: "Victor Creed, lifelong rival and tormentor",
+              strength: 10
+            },
+            {
+              targetName: "Jean Grey",
+              targetId: "jeangrey",
+              targetImageUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop",
+              relationType: "love_interest",
+              description: "Unrequited love across timelines",
+              strength: 7
+            },
+            {
+              targetName: "X-Men",
+              targetId: "xmen",
+              targetImageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+              relationType: "teammate",
+              description: "The family he never had",
+              strength: 10
+            }
+          ]
+        },
+        {
+          id: "4",
+          characterName: "Wonder Woman",
+          characterId: "wonderwoman",
+          imageUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop",
+          relationships: [
+            {
+              targetName: "Steve Trevor",
+              targetId: "stevetrevor",
+              targetImageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop",
+              relationType: "love_interest",
+              description: "The man who showed her humanity",
+              strength: 9
+            },
+            {
+              targetName: "Ares",
+              targetId: "ares",
+              targetImageUrl: "https://images.unsplash.com/photo-1509909756405-be0199881695?w=200&h=200&fit=crop",
+              relationType: "enemy",
+              description: "God of War, eternal adversary",
+              strength: 8
+            },
+            {
+              targetName: "Superman",
+              targetId: "superman",
+              targetImageUrl: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=200&h=200&fit=crop",
+              relationType: "ally",
+              description: "Mutual respect and friendship",
+              strength: 8
+            },
+            {
+              targetName: "Justice League",
+              targetId: "jla",
+              targetImageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+              relationType: "teammate",
+              description: "Ambassador and warrior",
+              strength: 9
+            }
+          ]
+        },
+        {
+          id: "5",
+          characterName: "Captain America",
+          characterId: "captainamerica",
+          imageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+          relationships: [
+            {
+              targetName: "Bucky Barnes",
+              targetId: "bucky",
+              targetImageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop",
+              relationType: "ally",
+              description: "Best friend since childhood, Winter Soldier",
+              strength: 10
+            },
+            {
+              targetName: "Red Skull",
+              targetId: "redskull",
+              targetImageUrl: "https://images.unsplash.com/photo-1509909756405-be0199881695?w=200&h=200&fit=crop",
+              relationType: "enemy",
+              description: "Nazi archnemesis from WWII",
+              strength: 10
+            },
+            {
+              targetName: "Peggy Carter",
+              targetId: "peggy",
+              targetImageUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop",
+              relationType: "love_interest",
+              description: "The love he lost to time",
+              strength: 10
+            },
+            {
+              targetName: "Iron Man",
+              targetId: "ironman",
+              targetImageUrl: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=200&h=200&fit=crop",
+              relationType: "ally",
+              description: "Avengers co-leader, complex friendship",
+              strength: 7
+            },
+            {
+              targetName: "Avengers",
+              targetId: "avengers",
+              targetImageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+              relationType: "teammate",
+              description: "Leader and moral compass",
+              strength: 10
+            }
+          ]
+        }
+      ];
+      
+      res.json(sampleRelationships.slice(0, limit));
+    } catch (error) {
+      console.error('Error fetching relationship web:', error);
+      res.status(500).json({ error: "Failed to fetch relationship web" });
+    }
+  });
+
   app.post("/api/assets", async (req, res) => {
     try {
       const validatedData = insertAssetSchema.parse(req.body);

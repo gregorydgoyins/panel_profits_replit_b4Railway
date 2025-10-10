@@ -1,15 +1,37 @@
 /* INSTITUTIONAL TRADING PLATFORM DESIGN SYSTEM - RESTRAINED & PROFESSIONAL */
-@import url('https://fonts.googleapis.com/css2?family=Hind:wght@300;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hind:wght@300&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Typography utilities - Hind 300 for new narrative widgets */
-@layer utilities {
-  .font-hind-light {
+/* GLOBAL ENFORCEMENT: Hind 300 ONLY - NO BOLD ANYWHERE */
+@layer base {
+  * {
+    font-family: 'Hind', sans-serif;
+    font-weight: 300 !important;
+  }
+  
+  body {
     font-family: 'Hind', sans-serif;
     font-weight: 300;
+  }
+  
+  /* Force all headings to 300 */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 300 !important;
+  }
+  
+  /* Force all text elements to 300 */
+  p, span, div, a, button, input, textarea, select, label {
+    font-weight: 300 !important;
+  }
+  
+  /* IMAGE CONTAINMENT - ALL IMAGES STAY WITHIN BOUNDS */
+  img {
+    object-fit: cover;
+    max-width: 100%;
+    max-height: 100%;
   }
 }
 

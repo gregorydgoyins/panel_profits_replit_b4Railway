@@ -158,17 +158,17 @@ export function CharacterPortraitWidget({
             {/* Character Name & Type */}
             <div className="space-y-2">
               <div className="flex items-start justify-between gap-4">
-                <h3 className="text-3xl font-bold text-foreground" data-testid="text-character-name">
+                <h3 className="text-3xl  text-foreground" data-testid="text-character-name">
                   {character.name}
                 </h3>
                 {character.price && (
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-foreground" data-testid="text-character-price">
+                    <div className="text-2xl  text-foreground" data-testid="text-character-price">
                       ${character.price.toFixed(2)}
                     </div>
                     {character.percentChange !== null && character.percentChange !== undefined && (
                       <div className={cn(
-                        "flex items-center gap-1 text-sm font-medium",
+                        "flex items-center gap-1 text-sm ",
                         character.percentChange >= 0 ? "text-green-400" : "text-red-400"
                       )} data-testid="text-price-change">
                         {character.percentChange >= 0 ? (
@@ -209,7 +209,7 @@ export function CharacterPortraitWidget({
                       <Zap className="h-4 w-4 text-yellow-400" />
                       <span className="text-xs text-muted-foreground">Strength</span>
                     </div>
-                    <div className="text-2xl font-bold" data-testid="text-strength-stat">
+                    <div className="text-2xl " data-testid="text-strength-stat">
                       {character.strength}/10
                     </div>
                   </div>
@@ -220,7 +220,7 @@ export function CharacterPortraitWidget({
                       <Target className="h-4 w-4 text-blue-400" />
                       <span className="text-xs text-muted-foreground">Speed</span>
                     </div>
-                    <div className="text-2xl font-bold" data-testid="text-speed-stat">
+                    <div className="text-2xl " data-testid="text-speed-stat">
                       {character.speed}/10
                     </div>
                   </div>
@@ -231,7 +231,7 @@ export function CharacterPortraitWidget({
                       <Brain className="h-4 w-4 text-purple-400" />
                       <span className="text-xs text-muted-foreground">Intelligence</span>
                     </div>
-                    <div className="text-2xl font-bold" data-testid="text-intelligence-stat">
+                    <div className="text-2xl " data-testid="text-intelligence-stat">
                       {character.intelligence}/10
                     </div>
                   </div>

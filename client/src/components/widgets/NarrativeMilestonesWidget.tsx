@@ -173,7 +173,7 @@ export default function NarrativeMilestonesWidget() {
                   <div className="flex items-start justify-between gap-4 mb-2">
                     <div className="flex-1">
                       <h3 
-                        className="text-base font-semibold text-indigo-100 mb-1"
+                        className="text-base  text-indigo-100 mb-1"
                         data-testid={`text-title-${index}`}
                       >
                         {milestone.title}

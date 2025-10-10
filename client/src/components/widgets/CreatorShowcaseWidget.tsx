@@ -167,7 +167,7 @@ export default function CreatorShowcaseWidget() {
           {/* Creator Info */}
           <div className="flex-1 min-w-0">
             <h2 
-              className="text-3xl font-bold text-indigo-100 mb-2"
+              className="text-3xl  text-indigo-100 mb-2"
               data-testid="text-creator-name"
             >
               {currentCreator.name}
@@ -225,7 +225,7 @@ export default function CreatorShowcaseWidget() {
                     {/* Gradient overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                       <div className="absolute bottom-0 left-0 right-0 p-2">
-                        <p className="text-white text-xs font-medium line-clamp-1">
+                        <p className="text-white text-xs  line-clamp-1">
                           {cover.title}
                         </p>
                         <p className="text-indigo-300 text-xs font-light">

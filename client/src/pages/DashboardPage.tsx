@@ -30,7 +30,7 @@ import { GadgetsMemorabiliaWidget } from '@/components/dashboard/GadgetsMemorabi
 import { VillainsHenchmenWidget } from '@/components/dashboard/VillainsHenchmenWidget';
 import { SidekicksSuperheroesWidget } from '@/components/dashboard/SidekicksSuperheroesWidget';
 import { LocationsGadgetsWidget } from '@/components/dashboard/LocationsGadgetsWidget';
-import { CoverGalleryWidget, CharacterPortraitWidget, ComicPanelTimelineWidget, CreatorShowcaseWidget, StoryArcExplorerWidget, NarrativeMilestonesWidget, AppearanceTrackerWidget } from '@/components/widgets';
+import { CoverGalleryWidget, CharacterPortraitWidget, ComicPanelTimelineWidget, CreatorShowcaseWidget, StoryArcExplorerWidget, NarrativeMilestonesWidget, AppearanceTrackerWidget, RelationshipWebWidget } from '@/components/widgets';
 
 interface Asset {
   id: string;
@@ -791,6 +791,11 @@ export default function DashboardPage() {
       {/* Appearance Tracker - Full Width */}
       <div className="bg-slate-800/20 p-3 rounded-lg">
         <AppearanceTrackerWidget />
+      </div>
+
+      {/* Relationship Web - Full Width */}
+      <div className="bg-slate-800/20 p-3 rounded-lg">
+        <RelationshipWebWidget />
       </div>
 
       <div className="bg-slate-800/20 p-3 rounded-lg">

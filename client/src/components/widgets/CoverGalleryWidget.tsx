@@ -232,7 +232,7 @@ export function CoverGalleryWidget({
 
         {/* Cover Info */}
         <div className="mt-4 text-center space-y-1">
-          <h3 className="font-medium" data-testid="text-cover-title">
+          <h3 className="" data-testid="text-cover-title">
             {currentCover.title}
           </h3>
           {currentCover.subtitle && (
