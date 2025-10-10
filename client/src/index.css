@@ -255,6 +255,108 @@
     transform: translateY(0);
   }
   
+  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
+  /* GRAPHIC NOVEL TEXTURE OVERLAYS - Watchmen/Dark Knight Aesthetic */
+  /* ═══════════════════════════════════════════════════════════════════════════════════════ */
+  
+  /* Newsprint Texture - Subtle paper grain */
+  .texture-newsprint {
+    position: relative;
+  }
+  
+  .texture-newsprint::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(255, 255, 255, 0.02) 2px,
+        rgba(255, 255, 255, 0.02) 4px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 2px,
+        rgba(255, 255, 255, 0.02) 2px,
+        rgba(255, 255, 255, 0.02) 4px
+      );
+    pointer-events: none;
+    opacity: 0.3;
+    z-index: 1;
+  }
+  
+  /* Halftone Dots - Comic book printing effect */
+  .texture-halftone {
+    position: relative;
+  }
+  
+  .texture-halftone::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(
+      circle at 25% 25%,
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 1px
+    );
+    background-size: 4px 4px;
+    pointer-events: none;
+    opacity: 0.4;
+    z-index: 1;
+  }
+  
+  /* Ink Splatter - Gritty texture */
+  .texture-ink-splatter {
+    position: relative;
+  }
+  
+  .texture-ink-splatter::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+      radial-gradient(ellipse at 20% 30%, rgba(0, 0, 0, 0.1) 0%, transparent 30%),
+      radial-gradient(ellipse at 70% 60%, rgba(0, 0, 0, 0.08) 0%, transparent 25%),
+      radial-gradient(ellipse at 45% 80%, rgba(0, 0, 0, 0.06) 0%, transparent 20%);
+    pointer-events: none;
+    opacity: 0.5;
+    z-index: 1;
+  }
+  
+  /* Comic Panel Grid - Panel-based layout utility */
+  .panel-grid {
+    display: grid;
+    gap: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px;
+  }
+  
+  .panel-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .panel-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .panel-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  /* Panel borders - Thick black gutters like comic panels */
+  .panel-border {
+    border: 3px solid rgba(0, 0, 0, 0.8);
+    background: var(--background);
+  }
+  
+  .panel-border-thin {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--background);
+  }
+  
   /* Professional focus states */
   .focus-institutional:focus {
     @apply outline-none ring-1 ring-ring ring-offset-1 ring-offset-background;

@@ -105,9 +105,9 @@ export default function DashboardPage() {
   const marketCap = portfolioValue + cashBalance;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 texture-newsprint">
       {/* Portfolio Outlook - Single Line Stats */}
-      <Card className="!bg-[#1A1F2E] yellow-rimlight-hover" data-testid="widget-portfolio-outlook">
+      <Card className="!bg-[#1A1F2E] yellow-rimlight-hover texture-halftone" data-testid="widget-portfolio-outlook">
         <CardHeader className="pb-3 space-y-0">
           <div className="flex items-center gap-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt', marginBottom: '-4px' }}>
             <Briefcase className="w-4 h-4 text-yellow-500" />

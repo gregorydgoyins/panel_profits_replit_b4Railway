@@ -166,13 +166,13 @@ export function TopNavbar() {
       {/* Group 1: Logo/Brand */}
       <div className="flex items-center flex-shrink-0">
         <Link href="/dashboard">
-          <a 
-            className="text-sm text-white hover:text-gray-300 transition-colors whitespace-nowrap"
+          <span 
+            className="text-sm text-white hover:text-gray-300 transition-colors whitespace-nowrap cursor-pointer"
             style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             data-testid="link-logo"
           >
             PANEL PROFITS
-          </a>
+          </span>
         </Link>
       </div>
 
@@ -241,9 +241,7 @@ export function TopNavbar() {
           asChild
         >
           <Link href="/settings">
-            <a>
-              <Settings className="w-4 h-4" />
-            </a>
+            <Settings className="w-4 h-4" />
           </Link>
         </Button>
 
@@ -261,19 +259,15 @@ export function TopNavbar() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem asChild>
-              <Link href="/profile">
-                <a className="flex items-center gap-2 w-full" data-testid="link-profile">
-                  <User className="w-4 h-4" />
-                  <span>Profile</span>
-                </a>
+              <Link href="/profile" className="flex items-center gap-2 w-full" data-testid="link-profile">
+                <User className="w-4 h-4" />
+                <span>Profile</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/settings">
-                <a className="flex items-center gap-2 w-full" data-testid="link-settings">
-                  <Settings className="w-4 h-4" />
-                  <span>Settings</span>
-                </a>
+              <Link href="/settings" className="flex items-center gap-2 w-full" data-testid="link-settings">
+                <Settings className="w-4 h-4" />
+                <span>Settings</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
