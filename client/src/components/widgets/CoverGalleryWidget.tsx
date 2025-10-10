@@ -164,7 +164,7 @@ export function CoverGalleryWidget({
             src={currentCover.url}
             alt={currentCover.title}
             className={cn(
-              "w-full h-full object-cover rounded-md transition-opacity duration-300",
+              "w-full h-full object-contain rounded-md transition-opacity duration-300",
               loadedImages.has(currentCover.url) ? 'opacity-100' : 'opacity-0'
             )}
             loading="lazy"
