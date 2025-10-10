@@ -74,7 +74,7 @@ export function CharacterPortraitWidget({
   if (isLoading) {
     return (
       <div 
-        className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden"
+        className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden dashboard-rimlight-hover"
         data-testid="widget-character-loading"
       >
         <div className="absolute inset-0 bg-[url('/newsprint-texture.png')] opacity-5 mix-blend-overlay pointer-events-none" />
@@ -104,7 +104,7 @@ export function CharacterPortraitWidget({
   if (!characters.length) {
     return (
       <div 
-        className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden"
+        className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden dashboard-rimlight-hover"
         data-testid="widget-character-empty"
       >
         <div className="absolute inset-0 bg-[url('/newsprint-texture.png')] opacity-5 mix-blend-overlay pointer-events-none" />
@@ -141,7 +141,7 @@ export function CharacterPortraitWidget({
 
   return (
     <div 
-      className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden"
+      className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden dashboard-rimlight-hover"
       data-testid="widget-character-portrait"
     >
       {/* Texture overlays */}

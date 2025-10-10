@@ -104,7 +104,7 @@ export function ComicOfTheDayWidget() {
           {/* Left Side - Larger Comic Cover */}
           <div className="lg:w-2/5 flex">
             <Link href={`/series/${encodeURIComponent(comic.series)}`} data-testid="link-series-detail" className="w-full">
-              <div className="w-full h-full min-h-[400px] bg-black rounded-md overflow-hidden border border-indigo-800/30 green-rimlight-hover cursor-pointer flex items-center justify-center">
+              <div className="w-full h-full min-h-[400px] bg-black rounded-md border border-indigo-800/30 green-rimlight-hover cursor-pointer flex items-center justify-center">
                 {comic.coverUrl ? (
                   <img
                     src={comic.coverUrl}

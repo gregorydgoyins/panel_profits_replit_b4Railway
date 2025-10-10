@@ -63,7 +63,7 @@ export default function RelationshipWebWidget() {
   if (isLoading) {
     return (
       <div 
-        className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden"
+        className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden dashboard-rimlight-hover"
         data-testid="widget-relationships-loading"
       >
         <div className="absolute inset-0 bg-[url('/newsprint-texture.png')] opacity-5 mix-blend-overlay pointer-events-none" />
@@ -98,7 +98,7 @@ export default function RelationshipWebWidget() {
   if (!relationshipData || relationshipData.length === 0) {
     return (
       <div 
-        className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden"
+        className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden dashboard-rimlight-hover"
         data-testid="widget-relationships-empty"
       >
         <div className="absolute inset-0 bg-[url('/newsprint-texture.png')] opacity-5 mix-blend-overlay pointer-events-none" />
@@ -123,7 +123,7 @@ export default function RelationshipWebWidget() {
 
   return (
     <div 
-      className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden"
+      className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden dashboard-rimlight-hover"
       data-testid="widget-relationship-web"
     >
       {/* Texture overlays */}

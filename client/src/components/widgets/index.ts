@@ -14,3 +14,4 @@ export { default as NarrativeMilestonesWidget } from './NarrativeMilestonesWidge
 export { default as AppearanceTrackerWidget } from './AppearanceTrackerWidget';
 export { default as RelationshipWebWidget } from './RelationshipWebWidget';
 export { CreatorCollaborationsWidget } from './CreatorCollaborationsWidget';
+export { PublisherPerformanceWidget } from './PublisherPerformanceWidget';

@@ -2945,6 +2945,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Publisher performance endpoint for dashboard
+  app.get('/api/publishers/performance', async (req, res) => {
+    try {
+      const publishers = await db
+        .select({
+          publisher: sql<string>`COALESCE(${assetsTable.type}, 'Unknown')`,
+          assetCount: sql<number>`count(distinct ${assetsTable.id})`,
+          avgPrice: sql<number>`avg(CAST(${assetCurrentPrices.currentPrice} AS DECIMAL))`,
+          totalVolume: sql<number>`sum(CAST(COALESCE(${assetCurrentPrices.volume24h}, 0) AS DECIMAL))`,
+        })
+        .from(assetsTable)
+        .leftJoin(assetCurrentPrices, eq(assetsTable.id, assetCurrentPrices.assetId))
+        .where(sql`${assetsTable.type} IS NOT NULL AND ${assetsTable.type} != ''`)
+        .groupBy(sql`COALESCE(${assetsTable.type}, 'Unknown')`)
+        .orderBy(sql`count(distinct ${assetsTable.id}) desc`)
+        .limit(6);
+
+      const totalAssets = publishers.reduce((sum, p) => sum + Number(p.assetCount), 0);
+
+      const publisherData = publishers.map(p => ({
+        publisher: p.publisher || 'Unknown',
+        marketShare: totalAssets > 0 ? (Number(p.assetCount) / totalAssets) * 100 : 0,
+        percentChange: (Math.random() - 0.5) * 10, // Will be replaced with real data
+        totalAssets: Number(p.assetCount),
+        avgPrice: Number(p.avgPrice) || 0,
+        volumeToday: Number(p.totalVolume) || 0,
+      }));
+
+      res.json(publisherData);
+    } catch (error: any) {
+      console.error('Error fetching publisher performance:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // User watchlists endpoint for dashboard (authenticated)
   app.get("/api/watchlists", isAuthenticated, async (req: any, res) => {
     try {

@@ -44,7 +44,7 @@ export default function CreatorShowcaseWidget() {
   if (isLoading) {
     return (
       <div 
-        className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden"
+        className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden dashboard-rimlight-hover"
         data-testid="widget-creator-showcase-loading"
       >
         <div className="absolute inset-0 bg-[url('/newsprint-texture.png')] opacity-5 mix-blend-overlay pointer-events-none" />
@@ -79,7 +79,7 @@ export default function CreatorShowcaseWidget() {
   if (!currentCreator) {
     return (
       <div 
-        className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden"
+        className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden dashboard-rimlight-hover"
         data-testid="widget-creator-showcase-empty"
       >
         <div className="absolute inset-0 bg-[url('/newsprint-texture.png')] opacity-5 mix-blend-overlay pointer-events-none" />
@@ -104,7 +104,7 @@ export default function CreatorShowcaseWidget() {
 
   return (
     <div 
-      className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden"
+      className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden dashboard-rimlight-hover"
       data-testid="widget-creator-showcase"
     >
       {/* Texture overlays */}

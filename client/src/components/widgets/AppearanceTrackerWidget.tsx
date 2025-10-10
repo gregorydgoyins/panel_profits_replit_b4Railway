@@ -54,7 +54,7 @@ export default function AppearanceTrackerWidget() {
   if (isLoading) {
     return (
       <div 
-        className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden"
+        className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden dashboard-rimlight-hover"
         data-testid="widget-appearances-loading"
       >
         <div className="absolute inset-0 bg-[url('/newsprint-texture.png')] opacity-5 mix-blend-overlay pointer-events-none" />
@@ -86,7 +86,7 @@ export default function AppearanceTrackerWidget() {
   if (!appearanceData || appearanceData.length === 0) {
     return (
       <div 
-        className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden"
+        className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden dashboard-rimlight-hover"
         data-testid="widget-appearances-empty"
       >
         <div className="absolute inset-0 bg-[url('/newsprint-texture.png')] opacity-5 mix-blend-overlay pointer-events-none" />
@@ -111,7 +111,7 @@ export default function AppearanceTrackerWidget() {
 
   return (
     <div 
-      className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden"
+      className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden dashboard-rimlight-hover"
       data-testid="widget-appearance-tracker"
     >
       {/* Texture overlays */}

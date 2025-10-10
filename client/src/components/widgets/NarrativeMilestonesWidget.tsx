@@ -81,7 +81,7 @@ export default function NarrativeMilestonesWidget() {
   if (isLoading) {
     return (
       <div 
-        className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden"
+        className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden dashboard-rimlight-hover"
         data-testid="widget-milestones-loading"
       >
         <div className="absolute inset-0 bg-[url('/newsprint-texture.png')] opacity-5 mix-blend-overlay pointer-events-none" />
@@ -113,7 +113,7 @@ export default function NarrativeMilestonesWidget() {
   if (!milestones || milestones.length === 0) {
     return (
       <div 
-        className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden"
+        className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden dashboard-rimlight-hover"
         data-testid="widget-milestones-empty"
       >
         <div className="absolute inset-0 bg-[url('/newsprint-texture.png')] opacity-5 mix-blend-overlay pointer-events-none" />
@@ -138,7 +138,7 @@ export default function NarrativeMilestonesWidget() {
 
   return (
     <div 
-      className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden"
+      className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden dashboard-rimlight-hover"
       data-testid="widget-narrative-milestones"
     >
       {/* Texture overlays */}
