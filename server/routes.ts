@@ -1093,6 +1093,134 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Story Arc Explorer - Major comic storylines with full descriptions
+  app.get("/api/story-arcs/explorer", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 8;
+      
+      // Sample seed data showcasing major comic book storylines
+      const sampleStoryArcs = [
+        {
+          id: "1",
+          title: "Civil War",
+          publisher: "Marvel",
+          yearRange: "2006-2007",
+          description: "A landmark Marvel crossover where the Superhero Registration Act divides the hero community into two factions. Iron Man leads those supporting government oversight, while Captain America champions freedom and privacy. The conflict tears friendships apart and reshapes the Marvel Universe, exploring themes of security versus liberty in a post-9/11 world.",
+          keyIssues: ["Civil War #1-7", "Amazing Spider-Man #529-538", "Captain America #22-24"],
+          protagonists: ["Iron Man", "Captain America", "Spider-Man", "Fantastic Four"],
+          antagonists: ["Baron Zemo", "Taskmaster"],
+          impact: "Redefined hero-villain dynamics; led to Secret Invasion and Dark Reign. Spider-Man's unmasking had lasting consequences.",
+          coverImageUrl: "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=400&h=600&fit=crop",
+          totalIssues: 102,
+          crossoverEvents: ["Secret Invasion", "Dark Reign"]
+        },
+        {
+          id: "2",
+          title: "Infinity Gauntlet",
+          publisher: "Marvel",
+          yearRange: "1991",
+          description: "Thanos acquires all six Infinity Gems, becoming omnipotent. With a snap of his fingers, he erases half of all life in the universe to impress Death herself. Earth's heroes mount a desperate last stand against a god-like foe. Jim Starlin's cosmic epic explores the corrupting nature of absolute power and the resilience of hope.",
+          keyIssues: ["Infinity Gauntlet #1-6", "Silver Surfer #34-38", "Thanos Quest #1-2"],
+          protagonists: ["Adam Warlock", "Silver Surfer", "Dr. Strange", "Avengers"],
+          antagonists: ["Thanos", "Mephisto", "Nebula"],
+          impact: "Established Thanos as Marvel's ultimate cosmic threat. Inspired the MCU's Infinity Saga. Defined modern cosmic Marvel storytelling.",
+          coverImageUrl: "https://images.unsplash.com/photo-1608889335941-32ac5f2041b9?w=400&h=600&fit=crop",
+          totalIssues: 6,
+          crossoverEvents: ["Infinity War", "Infinity Crusade", "Endgame"]
+        },
+        {
+          id: "3",
+          title: "Crisis on Infinite Earths",
+          publisher: "DC",
+          yearRange: "1985-1986",
+          description: "The Anti-Monitor threatens to destroy the entire DC Multiverse. Heroes from infinite parallel Earths unite for the first time in a battle for existence itself. The 12-issue maxiseries streamlined DC's continuity, eliminating parallel worlds and establishing a single unified timeline. Iconic deaths include Supergirl and the Flash (Barry Allen).",
+          keyIssues: ["Crisis on Infinite Earths #1-12"],
+          protagonists: ["The Monitor", "Flash (Barry Allen)", "Supergirl", "Superman", "Wonder Woman"],
+          antagonists: ["Anti-Monitor", "The Shadow Demons"],
+          impact: "Rebooted the DC Universe. Death of Barry Allen and Supergirl. Streamlined 50 years of continuity into one timeline.",
+          coverImageUrl: "https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?w=400&h=600&fit=crop",
+          totalIssues: 12,
+          crossoverEvents: ["Infinite Crisis", "Final Crisis", "Dark Nights: Metal"]
+        },
+        {
+          id: "4",
+          title: "The Dark Phoenix Saga",
+          publisher: "Marvel",
+          yearRange: "1980",
+          description: "Jean Grey's cosmic powers corrupt her absolutely as she transforms into Dark Phoenix, consuming a star and destroying an inhabited world. The X-Men face an impossible choice: save their teammate or save the universe. Chris Claremont and John Byrne crafted a Greek tragedy exploring power, corruption, sacrifice, and redemption.",
+          keyIssues: ["Uncanny X-Men #129-138"],
+          protagonists: ["X-Men", "Jean Grey", "Cyclops", "Professor X"],
+          antagonists: ["Dark Phoenix", "Hellfire Club", "Shi'ar Empire"],
+          impact: "Redefined cosmic-level threats in comics. Jean Grey's sacrifice became a template for heroic deaths. Introduced the Hellfire Club.",
+          coverImageUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400&h=600&fit=crop",
+          totalIssues: 10,
+          crossoverEvents: ["Phoenix: Endsong", "Avengers vs. X-Men"]
+        },
+        {
+          id: "5",
+          title: "The Death of Superman",
+          publisher: "DC",
+          yearRange: "1992-1993",
+          description: "An unstoppable creature called Doomsday rampages toward Metropolis. Superman engages in a brutal fight to the death, sacrificing himself to save humanity. The world mourns. Four new Supermen emerge claiming his mantle. But is Clark Kent truly gone forever? The arc explored what Superman means to the world.",
+          keyIssues: ["Superman #75", "Adventures of Superman #497", "Action Comics #684"],
+          protagonists: ["Superman", "Justice League", "Lois Lane"],
+          antagonists: ["Doomsday", "Cyborg Superman", "Mongul"],
+          impact: "Best-selling comic of all time (Superman #75). Launched the Reign of the Supermen saga. Proved Superman's cultural importance.",
+          coverImageUrl: "https://images.unsplash.com/photo-1608889476561-6242cfdbf622?w=400&h=600&fit=crop",
+          totalIssues: 8,
+          crossoverEvents: ["Reign of the Supermen", "Return of Superman"]
+        },
+        {
+          id: "6",
+          title: "Secret Wars",
+          publisher: "Marvel",
+          yearRange: "1984-1985",
+          description: "The Beyonder transports Marvel's greatest heroes and villains to Battleworld, forcing them to fight for his amusement. Alliances shift, characters evolve, and Spider-Man discovers the black symbiote suit that will become Venom. Jim Shooter's 12-issue series was Marvel's first major crossover event.",
+          keyIssues: ["Marvel Super Heroes Secret Wars #1-12"],
+          protagonists: ["Spider-Man", "Captain America", "Fantastic Four", "X-Men"],
+          antagonists: ["Doctor Doom", "Galactus", "The Beyonder"],
+          impact: "Introduced the symbiote costume. Established the crossover event format. Spider-Man got his iconic black suit.",
+          coverImageUrl: "https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=400&h=600&fit=crop",
+          totalIssues: 12,
+          crossoverEvents: ["Secret Wars II", "Secret Wars (2015)"]
+        },
+        {
+          id: "7",
+          title: "Watchmen",
+          publisher: "DC",
+          yearRange: "1986-1987",
+          description: "In an alternate 1985 where costumed vigilantes are real, the murder of a former hero unravels a conspiracy that threatens nuclear war. Alan Moore and Dave Gibbons deconstructed the superhero genre, exploring moral ambiguity, the corrupting nature of power, and whether the ends justify the means. A landmark work that proved comics could be literature.",
+          keyIssues: ["Watchmen #1-12"],
+          protagonists: ["Rorschach", "Nite Owl", "Silk Spectre", "Dr. Manhattan"],
+          antagonists: ["Ozymandias", "The Comedian"],
+          impact: "Elevated comics to literary status. Won Hugo Award. Redefined what superhero stories could be. Endlessly analyzed and studied.",
+          coverImageUrl: "https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?w=400&h=600&fit=crop",
+          totalIssues: 12,
+          crossoverEvents: ["Doomsday Clock", "Before Watchmen"]
+        },
+        {
+          id: "8",
+          title: "House of M",
+          publisher: "Marvel",
+          yearRange: "2005",
+          description: "Scarlet Witch, driven mad by grief, warps reality creating a world where mutants rule and Magneto's family reigns supreme. Heroes awaken to false memories of their perfect lives. When they restore reality, Wanda utters three words that decimate mutantkind: 'No more mutants.' The event reduced Earth's mutant population from millions to 198.",
+          keyIssues: ["House of M #1-8", "Decimation", "Son of M"],
+          protagonists: ["Wolverine", "Layla Miller", "Emma Frost", "Doctor Strange"],
+          antagonists: ["Scarlet Witch", "Magneto", "Quicksilver"],
+          impact: "Decimation of mutants reshaped X-Men for years. Led to Messiah Complex, Messiah War, and Second Coming. Set stage for Avengers vs. X-Men.",
+          coverImageUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400&h=600&fit=crop",
+          totalIssues: 8,
+          crossoverEvents: ["Decimation", "Messiah Complex", "Avengers vs. X-Men"]
+        }
+      ];
+      
+      res.json(sampleStoryArcs.slice(0, limit));
+    } catch (error) {
+      console.error('Error fetching story arcs:', error);
+      res.status(500).json({ error: "Failed to fetch story arcs" });
+    }
+  });
+
   app.post("/api/assets", async (req, res) => {
     try {
       const validatedData = insertAssetSchema.parse(req.body);
