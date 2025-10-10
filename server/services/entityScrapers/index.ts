@@ -24,6 +24,7 @@ export { MetronScraper } from './MetronScraper';
 export { ComicCoverScraper } from './ComicCoverScraper';
 export { LeagueOfGeeksScraper } from './LeagueOfGeeksScraper';
 export { MyComicShopScraper } from './MyComicShopScraper';
+export { NostomaniaScraper } from './NostomaniaScraper';
 export { ScraperOrchestrator, type OrchestratorConfig, type OrchestratorResult } from './ScraperOrchestrator';
 
 // Future scrapers to be added:
