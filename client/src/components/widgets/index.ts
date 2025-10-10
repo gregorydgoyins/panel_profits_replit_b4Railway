@@ -15,3 +15,4 @@ export { default as AppearanceTrackerWidget } from './AppearanceTrackerWidget';
 export { default as RelationshipWebWidget } from './RelationshipWebWidget';
 export { CreatorCollaborationsWidget } from './CreatorCollaborationsWidget';
 export { PublisherPerformanceWidget } from './PublisherPerformanceWidget';
+export { CreatorMarketImpactWidget } from './CreatorMarketImpactWidget';

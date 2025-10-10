@@ -1093,6 +1093,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Creator Market Impact - Stan Lee vs others performance metrics
+  app.get("/api/creators/market-impact", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 5;
+      
+      // Sample seed data showing creator market performance
+      const sampleCreatorImpact = [
+        {
+          creatorName: "Stan Lee",
+          creatorImageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop",
+          totalComics: 1247,
+          avgPrice: 8450,
+          priceChange24h: 12.5,
+          marketShare: 28.3,
+          topComic: {
+            title: "Amazing Fantasy #15",
+            price: 285000,
+            coverUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=150&h=225&fit=crop"
+          }
+        },
+        {
+          creatorName: "Jack Kirby",
+          creatorImageUrl: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=200&h=200&fit=crop",
+          totalComics: 1089,
+          avgPrice: 7250,
+          priceChange24h: 8.7,
+          marketShare: 22.1,
+          topComic: {
+            title: "Fantastic Four #1",
+            price: 195000,
+            coverUrl: "https://images.unsplash.com/photo-1608889335941-32ac5f2041b9?w=150&h=225&fit=crop"
+          }
+        },
+        {
+          creatorName: "Frank Miller",
+          creatorImageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop",
+          totalComics: 342,
+          avgPrice: 6890,
+          priceChange24h: -3.2,
+          marketShare: 9.8,
+          topComic: {
+            title: "Dark Knight Returns #1",
+            price: 42000,
+            coverUrl: "https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?w=150&h=225&fit=crop"
+          }
+        },
+        {
+          creatorName: "Alan Moore",
+          creatorImageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+          totalComics: 287,
+          avgPrice: 9120,
+          priceChange24h: 15.3,
+          marketShare: 8.4,
+          topComic: {
+            title: "Watchmen #1",
+            price: 58000,
+            coverUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=150&h=225&fit=crop"
+          }
+        },
+        {
+          creatorName: "Todd McFarlane",
+          creatorImageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop",
+          totalComics: 456,
+          avgPrice: 4320,
+          priceChange24h: 5.8,
+          marketShare: 6.2,
+          topComic: {
+            title: "Amazing Spider-Man #300",
+            price: 38000,
+            coverUrl: "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=150&h=225&fit=crop"
+          }
+        }
+      ];
+      
+      res.json(sampleCreatorImpact.slice(0, limit));
+    } catch (error) {
+      console.error('Error fetching creator market impact:', error);
+      res.status(500).json({ error: "Failed to fetch creator market impact" });
+    }
+  });
+
   // Story Arc Explorer - Major comic storylines with full descriptions
   app.get("/api/story-arcs/explorer", async (req, res) => {
     try {
