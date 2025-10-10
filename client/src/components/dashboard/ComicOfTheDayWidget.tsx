@@ -241,36 +241,63 @@ export function ComicOfTheDayWidget() {
           <h4 className="text-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300', fontSize: '20pt' }}>Quick Facts</h4>
           <div className="border-2 border-orange-500 rounded-lg p-4 bg-orange-500/5 orange-rimlight-hover overflow-visible">
             <ul className="space-y-3">
+              {/* Original print price vs current value */}
+              <li className="flex items-start gap-2 text-sm">
+                <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                <Link href={`/issue/${comic.id}`} data-testid="link-quick-fact-value" className="text-foreground hover-elevate cursor-pointer transition-all duration-200" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '12pt' }}>
+                  Original cover price ${comic.printPrice.toFixed(2)} — now worth ${comic.estimatedValue.toLocaleString()} ({priceChangePercent.toFixed(0)}× ROI)
+                </Link>
+              </li>
+
+              {/* Historical era context */}
+              {comic.onsaleDate && (
+                <li className="flex items-start gap-2 text-sm">
+                  <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                  <Link href={`/issue/${comic.id}`} data-testid="link-quick-fact-era" className="text-foreground hover-elevate cursor-pointer transition-all duration-200" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '12pt' }}>
+                    Published {new Date(comic.onsaleDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })} during the {comic.era || getComicEra(new Date(comic.onsaleDate).getFullYear())}
+                  </Link>
+                </li>
+              )}
+
+              {/* First issue significance */}
               {comic.isFirstIssue && (
                 <li className="flex items-start gap-2 text-sm">
                   <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
                   <Link href={`/issue/${comic.id}`} data-testid="link-quick-fact-first-issue" className="text-foreground hover-elevate cursor-pointer transition-all duration-200" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '12pt' }}>
-                    First issue of the series - highly collectible
+                    Launched the entire {comic.series} franchise — foundational collector's item
                   </Link>
                 </li>
               )}
-              {comic.isKeyIssue && (
+
+              {/* Creative team legacy */}
+              {comic.creators && comic.creators.length > 0 && (
                 <li className="flex items-start gap-2 text-sm">
                   <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                  <Link href={`/issue/${comic.id}`} data-testid="link-quick-fact-key-issue" className="text-foreground hover-elevate cursor-pointer transition-all duration-200" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '12pt' }}>
-                    Key issue with significant historical importance
+                  <Link href={`/issue/${comic.id}`} data-testid="link-quick-fact-creators" className="text-foreground hover-elevate cursor-pointer transition-all duration-200" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '12pt' }}>
+                    {comic.creators[0].name}'s {comic.creators[0].role} work defined an entire generation of comic art
                   </Link>
                 </li>
               )}
+
+              {/* Page count as narrative density */}
               {comic.pageCount > 0 && (
                 <li className="flex items-start gap-2 text-sm">
                   <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
                   <Link href={`/issue/${comic.id}`} data-testid="link-quick-fact-page-count" className="text-foreground hover-elevate cursor-pointer transition-all duration-200" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '12pt' }}>
-                    {comic.pageCount} pages of storytelling excellence
+                    {comic.pageCount} pages packed with sequential art mastery — standard {comic.format || 'comic'} format
                   </Link>
                 </li>
               )}
-              <li className="flex items-start gap-2 text-sm">
-                <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-                <Link href={`/issue/${comic.id}`} data-testid="link-quick-fact-value" className="text-foreground hover-elevate cursor-pointer transition-all duration-200" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '12pt' }}>
-                  Value appreciation: {priceChangePercent > 0 ? '+' : ''}{priceChangePercent.toFixed(0)}% from print price
-                </Link>
-              </li>
+
+              {/* Age-based rarity */}
+              {comic.yearsOld > 30 && (
+                <li className="flex items-start gap-2 text-sm">
+                  <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                  <Link href={`/issue/${comic.id}`} data-testid="link-quick-fact-age" className="text-foreground hover-elevate cursor-pointer transition-all duration-200" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '12pt' }}>
+                    {comic.yearsOld} years old — survivors in high grade command exponential premiums
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
         </div>
