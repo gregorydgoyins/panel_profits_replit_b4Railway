@@ -33,7 +33,7 @@ export default function TrendingCharactersWidget() {
         <CardContent className="space-y-2">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="flex items-center gap-3">
-              <Skeleton className="h-12 w-12 rounded-md" />
+              <Skeleton className="h-14 w-14 rounded-md" />
               <div className="flex-1 space-y-1">
                 <Skeleton className="h-4 w-32" />
                 <Skeleton className="h-3 w-20" />
@@ -85,15 +85,15 @@ export default function TrendingCharactersWidget() {
                     <img
                       src={character.imageUrl}
                       alt={character.name}
-                      className="h-12 w-12 rounded-md object-contain border border-indigo-900/30"
+                      className="h-14 w-14 rounded-md object-contain border border-indigo-900/30"
                       data-testid={`img-character-${character.symbol}`}
                     />
                   ) : (
                     <div 
-                      className="h-12 w-12 rounded-md bg-gradient-to-br from-indigo-900/50 to-purple-900/50 flex items-center justify-center border border-indigo-900/30"
+                      className="h-14 w-14 rounded-md bg-gradient-to-br from-indigo-900/50 to-purple-900/50 flex items-center justify-center border border-indigo-900/30"
                       data-testid={`avatar-fallback-${character.symbol}`}
                     >
-                      <User2 className="h-6 w-6 text-indigo-400" />
+                      <User2 className="h-7 w-7 text-indigo-400" />
                     </div>
                   )}
                   
