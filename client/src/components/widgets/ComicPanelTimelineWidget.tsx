@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Calendar, BookOpen } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Calendar, User } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { useRef, useState, useEffect } from "react";
 
 interface TimelinePanel {
   id: string;
@@ -14,27 +14,33 @@ interface TimelinePanel {
   significance: string;
   entityName?: string;
   entityType?: string;
+  writer?: string;
+  artist?: string;
+  coverArtist?: string;
 }
 
 export default function ComicPanelTimelineWidget() {
-  const [scrollPosition, setScrollPosition] = useState(0);
-  const [timelineRef, setTimelineRef] = useState<HTMLDivElement | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [scrollY, setScrollY] = useState(0);
 
   const { data: panels, isLoading } = useQuery<TimelinePanel[]>({
     queryKey: ["/api/timeline/key-moments"],
     refetchInterval: 30000,
   });
 
-  const handleScroll = (direction: "left" | "right") => {
-    if (!timelineRef) return;
-    const scrollAmount = 400;
-    const newPosition = direction === "left" 
-      ? Math.max(0, scrollPosition - scrollAmount)
-      : scrollPosition + scrollAmount;
-    
-    timelineRef.scrollTo({ left: newPosition, behavior: "smooth" });
-    setScrollPosition(newPosition);
-  };
+  useEffect(() => {
+    const handleScroll = () => {
+      if (scrollRef.current) {
+        setScrollY(scrollRef.current.scrollTop);
+      }
+    };
+
+    const scrollElement = scrollRef.current;
+    if (scrollElement) {
+      scrollElement.addEventListener('scroll', handleScroll);
+      return () => scrollElement.removeEventListener('scroll', handleScroll);
+    }
+  }, []);
 
   if (isLoading) {
     return (
@@ -42,7 +48,6 @@ export default function ComicPanelTimelineWidget() {
         className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden"
         data-testid="widget-timeline-loading"
       >
-        {/* Texture overlays */}
         <div className="absolute inset-0 bg-[url('/newsprint-texture.png')] opacity-5 mix-blend-overlay pointer-events-none" />
         <div className="absolute inset-0 bg-[url('/halftone-pattern.png')] opacity-10 mix-blend-overlay pointer-events-none" />
         
@@ -53,16 +58,17 @@ export default function ComicPanelTimelineWidget() {
           </div>
         </div>
 
-        <div className="relative p-6">
-          <div className="flex gap-4 overflow-hidden">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="flex-shrink-0 w-64">
-                <Skeleton className="h-80 w-full mb-3 rounded-md" />
-                <Skeleton className="h-4 w-32 mb-2" />
+        <div className="relative p-6 space-y-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="flex gap-4">
+              <Skeleton className="h-32 w-24 rounded-md flex-shrink-0" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
                 <Skeleton className="h-3 w-full" />
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -74,7 +80,6 @@ export default function ComicPanelTimelineWidget() {
         className="relative bg-[#1A1F2E] border border-indigo-900/30 rounded-md overflow-hidden"
         data-testid="widget-timeline-empty"
       >
-        {/* Texture overlays */}
         <div className="absolute inset-0 bg-[url('/newsprint-texture.png')] opacity-5 mix-blend-overlay pointer-events-none" />
         <div className="absolute inset-0 bg-[url('/halftone-pattern.png')] opacity-10 mix-blend-overlay pointer-events-none" />
         
@@ -86,7 +91,7 @@ export default function ComicPanelTimelineWidget() {
         </div>
 
         <div className="relative p-12 flex flex-col items-center justify-center text-center">
-          <BookOpen className="h-12 w-12 text-indigo-500/30 mb-4" />
+          <Calendar className="h-12 w-12 text-indigo-500/30 mb-4" />
           <p className="text-indigo-300/60 text-sm font-light">
             No timeline data available
           </p>
@@ -105,130 +110,136 @@ export default function ComicPanelTimelineWidget() {
       <div className="absolute inset-0 bg-[url('/halftone-pattern.png')] opacity-10 mix-blend-overlay pointer-events-none" />
       
       {/* Header */}
-      <div className="relative p-4 border-b border-indigo-900/30 flex items-center justify-between">
+      <div className="relative p-4 border-b border-indigo-900/30">
         <div className="flex items-center gap-2 text-indigo-100 font-light tracking-wider uppercase text-sm">
           <Calendar className="h-4 w-4" />
           Key Moments Timeline
         </div>
-        
-        <div className="flex gap-1">
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => handleScroll("left")}
-            className="h-7 w-7"
-            data-testid="button-timeline-prev"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => handleScroll("right")}
-            className="h-7 w-7"
-            data-testid="button-timeline-next"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
+        <p className="text-xs text-indigo-400/70 font-light mt-1">
+          Defining Moments in Comic History
+        </p>
       </div>
 
-      {/* Timeline */}
-      <div className="relative">
-        {/* Timeline bar */}
-        <div className="absolute left-0 right-0 top-8 h-px bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent z-0" />
-        
-        {/* Scrollable panels */}
-        <div 
-          ref={setTimelineRef}
-          className="relative overflow-x-auto hide-scrollbar p-6 pt-4"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          <div className="flex gap-6 min-w-max pb-2">
-            {panels.map((panel, index) => (
+      {/* Parallax Timeline */}
+      <div 
+        ref={scrollRef}
+        className="relative max-h-[600px] overflow-y-auto"
+      >
+        <div className="p-6 space-y-6">
+          {panels.map((panel, index) => {
+            const parallaxOffset = (scrollY * 0.3) - (index * 25);
+
+            return (
               <div 
                 key={panel.id}
-                className="flex-shrink-0 w-64 group"
+                className="relative hover-elevate active-elevate-2 rounded-md overflow-hidden"
                 data-testid={`timeline-panel-${index}`}
               >
-                {/* Timeline dot */}
-                <div className="relative flex justify-center mb-3">
-                  <div className="w-3 h-3 rounded-full bg-indigo-500 border-2 border-[#1A1F2E] relative z-10" />
-                </div>
+                {/* Parallax Background Panel */}
+                {panel.imageUrl && (
+                  <div 
+                    className="absolute inset-0 opacity-15 pointer-events-none"
+                    style={{
+                      transform: `translateY(${parallaxOffset}px)`,
+                      transition: 'transform 0.1s ease-out'
+                    }}
+                  >
+                    <img
+                      src={panel.imageUrl}
+                      alt=""
+                      className="w-full h-full object-contain scale-110 blur-sm"
+                    />
+                  </div>
+                )}
 
-                {/* Panel card */}
-                <div className="relative bg-[#252B3C]/80 border border-indigo-800/30 rounded-md overflow-hidden hover-elevate active-elevate-2 transition-all">
-                  {/* Panel image */}
-                  {panel.imageUrl ? (
-                    <div className="relative aspect-[3/4] overflow-hidden">
+                {/* Content */}
+                <div className="relative flex gap-4 p-4 bg-gradient-to-r from-[#1A1F2E]/95 to-[#252B3C]/90">
+                  {/* Timeline connector */}
+                  {index < panels.length - 1 && (
+                    <div className="absolute left-[58px] top-[140px] bottom-0 w-px bg-indigo-800/30" />
+                  )}
+
+                  {/* Panel Image */}
+                  <div className="flex-shrink-0 relative z-10">
+                    {/* Timeline dot */}
+                    <div className="absolute -left-2 top-16 w-3 h-3 rounded-full bg-indigo-500 border-2 border-[#1A1F2E] z-20" />
+                    
+                    {panel.imageUrl ? (
                       <img
                         src={panel.imageUrl}
                         alt={panel.title}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
+                        className="w-24 h-32 rounded-md object-contain border border-indigo-800/30 bg-black/50"
+                        style={{ padding: '1px', boxSizing: 'border-box' }}
                         data-testid={`img-panel-${index}`}
                       />
-                      {/* Gradient overlay for text readability */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                      
-                      {/* Issue badge */}
-                      <div className="absolute top-2 right-2 bg-indigo-900/80 backdrop-blur-sm px-2 py-1 rounded text-xs text-indigo-100 border border-indigo-700/50">
-                        {panel.issue}
+                    ) : (
+                      <div className="w-24 h-32 rounded-md bg-indigo-950/30 border border-indigo-800/30 flex items-center justify-center">
+                        <Calendar className="h-10 w-10 text-indigo-500/20" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Panel Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-4 mb-2">
+                      <div className="flex-1">
+                        <h3 
+                          className="text-base text-indigo-100 mb-1"
+                          data-testid={`text-panel-title-${index}`}
+                        >
+                          {panel.title}
+                        </h3>
+                        <div className="flex items-center gap-3 text-xs text-indigo-400/80 font-light mb-2">
+                          <span className="font-mono">{panel.issue}</span>
+                          <span className="text-indigo-500/50">•</span>
+                          <span>{panel.date}</span>
+                        </div>
                       </div>
 
-                      {/* Date badge */}
-                      <div className="absolute top-2 left-2 bg-black/80 backdrop-blur-sm px-2 py-1 rounded text-xs text-indigo-300 border border-indigo-900/50">
-                        {panel.date}
-                      </div>
+                      {/* Entity Badge */}
+                      {panel.entityName && (
+                        <Badge
+                          variant="outline"
+                          className="bg-indigo-950/30 border-indigo-800/30 text-indigo-300 text-xs"
+                          data-testid={`badge-entity-${index}`}
+                        >
+                          {panel.entityName}
+                        </Badge>
+                      )}
                     </div>
-                  ) : (
-                    <div className="relative aspect-[3/4] bg-indigo-950/30 flex items-center justify-center">
-                      <BookOpen className="h-12 w-12 text-indigo-500/20" />
-                    </div>
-                  )}
 
-                  {/* Panel info */}
-                  <div className="p-3 space-y-2">
-                    <h3 
-                      className="text-indigo-100  text-sm line-clamp-2"
-                      data-testid={`text-panel-title-${index}`}
-                    >
-                      {panel.title}
-                    </h3>
-                    
-                    <p className="text-indigo-300/70 text-xs line-clamp-2 font-light">
-                      {panel.description}
-                    </p>
-
-                    {panel.significance && (
-                      <div className="pt-2 border-t border-indigo-800/30">
-                        <p className="text-indigo-400/60 text-xs italic font-light">
-                          {panel.significance}
-                        </p>
+                    {/* Creator Info */}
+                    {(panel.writer || panel.artist || panel.coverArtist) && (
+                      <div className="flex items-center gap-3 mb-3 text-xs text-indigo-400/70 font-light">
+                        <User className="h-3 w-3" />
+                        <div className="flex flex-wrap gap-2">
+                          {panel.writer && <span>Writer: {panel.writer}</span>}
+                          {panel.artist && <span>Artist: {panel.artist}</span>}
+                          {panel.coverArtist && <span>Cover: {panel.coverArtist}</span>}
+                        </div>
                       </div>
                     )}
 
-                    {panel.entityName && (
-                      <div className="flex items-center gap-2 text-xs text-indigo-400/80">
-                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500/50" />
-                        <span className="font-light">{panel.entityName}</span>
+                    {/* Description */}
+                    <p className="text-sm text-indigo-300/80 leading-relaxed mb-3 font-light">
+                      {panel.description}
+                    </p>
+
+                    {/* Significance */}
+                    {panel.significance && (
+                      <div className="pt-3 border-t border-indigo-900/30">
+                        <p className="text-xs text-indigo-300/60 italic font-light">
+                          <span className="text-indigo-400">Significance:</span> {panel.significance}
+                        </p>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
       </div>
-
-      <style>
-        {`
-          .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-          }
-        `}
-      </style>
     </div>
   );
 }

@@ -14,6 +14,8 @@ Preferred communication style: Simple, everyday language.
 - **Frameworks**: React with TypeScript (Vite), Wouter for routing, Zustand for state management.
 - **Styling**: Custom component library built on Radix UI primitives, shadcn/ui styling, Tailwind CSS, Google Fonts.
 - **Data Visualization**: Highcharts and Recharts for professional charting and dashboard widgets.
+- **Universal Rimlight System**: Two-tier color hierarchy - **RIM COLOR = NAVIGATION CATEGORY**, **INNER WIDGET ELEMENTS = SPECIFIC ACTION/DESTINATION**. Widget borders match nav bar (Dashboard=Purple, Trading=Blue, Portfolio=Orange), while buttons inside use destination colors (Research button=Pink, Learn button=Cyan). Base border at 60% opacity intensifies to 100% on hover with calculated inner glow (80%) and outer bleed (40%). See `DESIGN_SYSTEM.md` for complete documentation.
+- **Image Containment Standard**: All images enforce 1px padding on all sides with `object-fit: contain` to prevent cropping and ensure entire image visible within frame. Box-sizing set to border-box globally for consistent rendering.
 
 ### Technical Implementation
 - **Backend**: Node.js with Express.js for RESTful API.

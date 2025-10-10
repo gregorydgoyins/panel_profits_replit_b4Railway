@@ -104,17 +104,18 @@ export function ComicOfTheDayWidget() {
           {/* Left Side - Larger Comic Cover */}
           <div className="lg:w-2/5 flex">
             <Link href={`/series/${encodeURIComponent(comic.series)}`} data-testid="link-series-detail" className="w-full">
-              <div className="w-full h-full min-h-[400px] bg-muted rounded-lg overflow-hidden border-2 border-white/40 green-rimlight-hover cursor-pointer flex items-center justify-center p-1">
+              <div className="w-full h-full min-h-[400px] bg-black rounded-md overflow-hidden border border-indigo-800/30 green-rimlight-hover cursor-pointer flex items-center justify-center">
                 {comic.coverUrl ? (
                   <img
                     src={comic.coverUrl}
                     alt={comic.title}
-                    className="max-w-full max-h-full object-contain rounded-lg"
+                    className="w-full h-full object-contain"
+                    style={{ padding: '1px', boxSizing: 'border-box' }}
                     loading="lazy"
                     data-testid="img-comic-of-the-day-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 rounded-lg">
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 rounded-md">
                     <Book className="w-12 h-12 text-primary/50" />
                   </div>
                 )}
@@ -254,7 +255,7 @@ export function ComicOfTheDayWidget() {
                 <li className="flex items-start gap-2 text-sm">
                   <Star className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
                   <Link href={`/issue/${comic.id}`} data-testid="link-quick-fact-era" className="text-foreground hover-elevate cursor-pointer transition-all duration-200" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300, fontSize: '12pt' }}>
-                    Published {new Date(comic.onsaleDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })} during the {comic.era || getComicEra(new Date(comic.onsaleDate).getFullYear())}
+                    Published {new Date(comic.onsaleDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })} during the {getComicEra(new Date(comic.onsaleDate).getFullYear())}
                   </Link>
                 </li>
               )}

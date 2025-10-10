@@ -108,12 +108,12 @@
   /* Minimal border radius - subtle softening only */
   --radius: 2px;
   
-  /* Category Color Legend - Sharp Rim Glow System */
+  /* Category Color Legend - Sharp Rim Glow System (MATCHES NAV BAR) */
   --category-dashboard: 270 80% 60%; /* Purple */
   --category-trading: 210 100% 50%; /* Blue */
-  --category-portfolio: 45 100% 50%; /* Gold */
+  --category-portfolio: 25 95% 53%; /* Orange - MATCHES NAV */
   --category-news: 140 70% 45%; /* Green */
-  --category-learn: 180 100% 50%; /* Cyan */
+  --category-learn: 180 100% 50%; /* Cyan/Teal */
   --category-markets: 25 95% 53%; /* Orange */
   --category-research: 320 85% 60%; /* Pink/Magenta */
   --category-analytics: 140 70% 45%; /* Green */
@@ -127,18 +127,18 @@
   
   /* Header Label Colors */
   --header-navbar: 270 80% 60%; /* Purple - matches dashboard */
-  --header-welcome: 45 100% 50%; /* Gold - matches portfolio */
+  --header-welcome: 25 95% 53%; /* Orange - matches portfolio */
   --header-stk-updates: 210 100% 50%; /* Blue - matches trading */
   --header-breaking-news: 140 70% 45%; /* Green - matches news */
 
   /* ═══════════════════════════════════════════════════════════════════════════════════ */
   /* FOUNDATIONAL WIDGET COLORS - MATCHES NAV BAR CATEGORIES */
   /* ═══════════════════════════════════════════════════════════════════════════════════ */
-  --foundation-portfolio: 45 100% 50%; /* Yellow/Gold - matches Portfolio nav */
+  --foundation-portfolio: 25 95% 53%; /* Orange - matches Portfolio nav */
   --foundation-trading: 210 100% 50%; /* Blue - matches Trading nav */
   --foundation-news: 140 70% 45%; /* Green - matches News nav */
   --foundation-dashboard: 270 80% 60%; /* Purple - matches Dashboard nav */
-  --foundation-learn: 180 100% 50%; /* Cyan - matches Learn nav */
+  --foundation-learn: 180 100% 50%; /* Cyan/Teal - matches Learn nav */
   --foundation-markets: 25 95% 53%; /* Orange - matches Markets nav */
   --foundation-research: 320 85% 60%; /* Pink/Magenta - matches Research nav */
   --foundation-analytics: 140 70% 45%; /* Green - matches Analytics nav */
@@ -768,6 +768,201 @@
 
 .location-rimlight-hover:hover .location-icon-glow {
   filter: drop-shadow(0 0 8px rgba(139, 69, 19, 0.8)) drop-shadow(0 0 16px rgba(139, 69, 19, 0.6));
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════════════ */
+/* UNIVERSAL WIDGET RIMLIGHT SYSTEM - DESIGN RATIONALE & IMPLEMENTATION GUIDE */
+/* ═══════════════════════════════════════════════════════════════════════════════════════ */
+/*
+  WHY THIS SYSTEM EXISTS:
+  
+  1. VISUAL HIERARCHY: Each widget category gets a unique color identity for instant recognition
+  2. INTERACTION FEEDBACK: Hover states provide clear, professional affordance without theatrics
+  3. BRAND CONSISTENCY: Bloomberg Terminal aesthetic - restrained glows, not garish neon
+  4. ACCESSIBILITY: High contrast borders ensure visibility in dark mode
+  5. NAVIGATION ALIGNMENT: Widget colors match their parent nav category (Dashboard=Purple, Trading=Blue, etc.)
+  
+  IMPLEMENTATION STANDARD:
+  
+  Every widget MUST follow this exact pattern:
+  
+  1. BASE STATE: 
+     - Border: 2px solid with category color at 60% opacity
+     - Example: border: 2px solid rgba(168, 85, 247, 0.6); for purple widgets
+  
+  2. HOVER STATE (.{color}-rimlight-hover:hover):
+     - Solid rim: 0 0 0 2px rgba(COLOR, 1) - full opacity border
+     - Inner glow: 0 0 12px rgba(COLOR, 0.8) - tight 80% glow
+     - Outer bleed: 0 0 24px rgba(COLOR, 0.4) - minimal 40% spread
+  
+  3. TRANSITION: transition: box-shadow 0.2s ease-in-out;
+  
+  COLOR ASSIGNMENTS BY WIDGET TYPE:
+  
+  Dashboard Widgets → Purple (#A855F7)
+  Trading Widgets → Blue (#3B82F6)
+  Portfolio Widgets → Gold/Yellow (#EAB308)
+  News Widgets → Green (#22C55E)
+  Markets Widgets → Orange (#FB923C)
+  Research Widgets → Pink/Magenta (#EC4899)
+  Analytics Widgets → Green (#22C55E)
+  Learn Widgets → Cyan (#06B6D4)
+  
+  Narrative Entities:
+  Villain → Blood-red (#8B0000)
+  Sidekick → Baby blue (#89CFF0)
+  Superhero → Cyan (#00CED1)
+  Location → Brown (#8B4513)
+  Gadget → Goldenrod (#DAA520)
+*/
+
+/* Dashboard Widget Rimlights - Purple */
+.dashboard-rimlight-hover {
+  position: relative;
+  transition: box-shadow 0.2s ease-in-out;
+  border: 2px solid rgba(168, 85, 247, 0.6);
+}
+
+.dashboard-rimlight-hover:hover {
+  box-shadow: 
+    0 0 0 2px rgba(168, 85, 247, 1),
+    0 0 12px rgba(168, 85, 247, 0.8),
+    0 0 24px rgba(168, 85, 247, 0.4);
+}
+
+/* Trading Widget Rimlights - Blue */
+.trading-rimlight-hover {
+  position: relative;
+  transition: box-shadow 0.2s ease-in-out;
+  border: 2px solid rgba(59, 130, 246, 0.6);
+}
+
+.trading-rimlight-hover:hover {
+  box-shadow: 
+    0 0 0 2px rgba(59, 130, 246, 1),
+    0 0 12px rgba(59, 130, 246, 0.8),
+    0 0 24px rgba(59, 130, 246, 0.4);
+}
+
+/* Portfolio Widget Rimlights - Orange (MATCHES NAV) */
+.portfolio-rimlight-hover {
+  position: relative;
+  transition: box-shadow 0.2s ease-in-out;
+  border: 2px solid rgba(251, 146, 60, 0.6);
+}
+
+.portfolio-rimlight-hover:hover {
+  box-shadow: 
+    0 0 0 2px rgba(251, 146, 60, 1),
+    0 0 12px rgba(251, 146, 60, 0.8),
+    0 0 24px rgba(251, 146, 60, 0.4);
+}
+
+/* News Widget Rimlights - Green */
+.news-rimlight-hover {
+  position: relative;
+  transition: box-shadow 0.2s ease-in-out;
+  border: 2px solid rgba(34, 197, 94, 0.6);
+}
+
+.news-rimlight-hover:hover {
+  box-shadow: 
+    0 0 0 2px rgba(34, 197, 94, 1),
+    0 0 12px rgba(34, 197, 94, 0.8),
+    0 0 24px rgba(34, 197, 94, 0.4);
+}
+
+/* Markets Widget Rimlights - Orange */
+.markets-rimlight-hover {
+  position: relative;
+  transition: box-shadow 0.2s ease-in-out;
+  border: 2px solid rgba(251, 146, 60, 0.6);
+}
+
+.markets-rimlight-hover:hover {
+  box-shadow: 
+    0 0 0 2px rgba(251, 146, 60, 1),
+    0 0 12px rgba(251, 146, 60, 0.8),
+    0 0 24px rgba(251, 146, 60, 0.4);
+}
+
+/* Research Widget Rimlights - Pink/Magenta */
+.research-rimlight-hover {
+  position: relative;
+  transition: box-shadow 0.2s ease-in-out;
+  border: 2px solid rgba(236, 72, 153, 0.6);
+}
+
+.research-rimlight-hover:hover {
+  box-shadow: 
+    0 0 0 2px rgba(236, 72, 153, 1),
+    0 0 12px rgba(236, 72, 153, 0.8),
+    0 0 24px rgba(236, 72, 153, 0.4);
+}
+
+/* Learn Widget Rimlights - Cyan */
+.learn-rimlight-hover {
+  position: relative;
+  transition: box-shadow 0.2s ease-in-out;
+  border: 2px solid rgba(6, 182, 212, 0.6);
+}
+
+.learn-rimlight-hover:hover {
+  box-shadow: 
+    0 0 0 2px rgba(6, 182, 212, 1),
+    0 0 12px rgba(6, 182, 212, 0.8),
+    0 0 24px rgba(6, 182, 212, 0.4);
+}
+
+/* Analytics Widget Rimlights - Green (same as news) */
+.analytics-rimlight-hover {
+  position: relative;
+  transition: box-shadow 0.2s ease-in-out;
+  border: 2px solid rgba(34, 197, 94, 0.6);
+}
+
+.analytics-rimlight-hover:hover {
+  box-shadow: 
+    0 0 0 2px rgba(34, 197, 94, 1),
+    0 0 12px rgba(34, 197, 94, 0.8),
+    0 0 24px rgba(34, 197, 94, 0.4);
+}
+
+/* Superhero Widget Rimlights - Cyan (bright) */
+.superhero-rimlight-hover {
+  position: relative;
+  transition: box-shadow 0.2s ease-in-out;
+  border: 2px solid rgba(0, 206, 209, 0.6);
+}
+
+.superhero-rimlight-hover:hover {
+  box-shadow: 
+    0 0 0 2px rgba(0, 206, 209, 1),
+    0 0 12px rgba(0, 206, 209, 0.8),
+    0 0 24px rgba(0, 206, 209, 0.4);
+}
+
+/* Gadget Rimlight Hover Effect - Goldenrod with minimal bleed */
+.gadget-rimlight-hover {
+  position: relative;
+  transition: box-shadow 0.2s ease-in-out;
+  border: 2px solid rgba(218, 165, 32, 0.6);
+}
+
+.gadget-rimlight-hover:hover {
+  box-shadow: 
+    0 0 0 2px rgba(218, 165, 32, 1),
+    0 0 12px rgba(218, 165, 32, 0.8),
+    0 0 24px rgba(218, 165, 32, 0.4);
+}
+
+/* Gadget Icon Glow - Makes wrench icon glow on widget hover */
+.gadget-icon-glow {
+  transition: filter 0.2s ease-in-out, drop-shadow 0.2s ease-in-out;
+}
+
+.gadget-rimlight-hover:hover .gadget-icon-glow {
+  filter: drop-shadow(0 0 8px rgba(218, 165, 32, 0.8)) drop-shadow(0 0 16px rgba(218, 165, 32, 0.6));
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════════════ */
