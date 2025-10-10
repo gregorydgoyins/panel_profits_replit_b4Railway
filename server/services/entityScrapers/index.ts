@@ -22,6 +22,7 @@
 export { BaseEntityScraper, type EntityData, type ScraperConfig, type ScraperResult } from './BaseEntityScraper';
 export { MetronScraper } from './MetronScraper';
 export { ComicCoverScraper } from './ComicCoverScraper';
+export { LeagueOfGeeksScraper } from './LeagueOfGeeksScraper';
 export { ScraperOrchestrator, type OrchestratorConfig, type OrchestratorResult } from './ScraperOrchestrator';
 
 // Future scrapers to be added:
