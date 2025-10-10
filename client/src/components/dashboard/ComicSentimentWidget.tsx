@@ -121,7 +121,7 @@ export function ComicSentimentWidget() {
               <div className="flex items-start justify-between mb-2">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold">{item.symbol}</span>
+                    <span className="">{item.symbol}</span>
                     <Badge variant={getSentimentBadgeVariant(item.sentiment)} className="flex items-center gap-1">
                       {getSentimentIcon(item.sentiment)}
                       {item.sentiment.toUpperCase()}
@@ -130,7 +130,7 @@ export function ComicSentimentWidget() {
                   <div className="text-sm text-muted-foreground mt-1">{item.name}</div>
                 </div>
                 <div className="text-right">
-                  <div className={`text-2xl font-bold ${getSentimentColor(item.sentiment)}`}>
+                  <div className={`text-2xl  ${getSentimentColor(item.sentiment)}`}>
                     {item.score > 0 ? '+' : ''}{item.score}
                   </div>
                   <div className="text-xs text-muted-foreground">Sentiment Score</div>

@@ -62,7 +62,7 @@ export function ComicHistoryWidget() {
                     </Badge>
                   </div>
                   
-                  <h4 className="font-semibold text-foreground">{milestone.assetName}</h4>
+                  <h4 className=" text-foreground">{milestone.assetName}</h4>
                   <p className="text-sm text-primary">{milestone.event}</p>
                   <p className="text-xs text-muted-foreground">{milestone.significance}</p>
                 </div>

@@ -77,13 +77,13 @@ export function SectorRotationWidget() {
               <div className="flex items-center gap-3">
                 {getTrendIcon(sector.trend)}
                 <div>
-                  <p className="font-semibold text-sm">{sector.name}</p>
+                  <p className=" text-sm">{sector.name}</p>
                   <p className="text-xs text-muted-foreground capitalize">{sector.status}</p>
                 </div>
               </div>
               
               <div className="text-right">
-                <p className={`text-lg font-bold ${getStatusColor(sector.status)}`}>
+                <p className={`text-lg  ${getStatusColor(sector.status)}`}>
                   {sector.performance > 0 ? '+' : ''}{sector.performance}%
                 </p>
               </div>
@@ -94,15 +94,15 @@ export function SectorRotationWidget() {
         {/* Rotation Summary */}
         <div className="mt-4 pt-4 border-t grid grid-cols-3 gap-3 text-xs">
           <div className="text-center p-2 rounded-lg bg-green-500/10">
-            <p className="font-semibold text-green-500">{leading.length} Leading</p>
+            <p className=" text-green-500">{leading.length} Leading</p>
             <p className="text-muted-foreground mt-1">Strong momentum</p>
           </div>
           <div className="text-center p-2 rounded-lg bg-yellow-500/10">
-            <p className="font-semibold text-yellow-500">{sectors.filter(s => s.status === 'neutral').length} Neutral</p>
+            <p className=" text-yellow-500">{sectors.filter(s => s.status === 'neutral').length} Neutral</p>
             <p className="text-muted-foreground mt-1">Consolidating</p>
           </div>
           <div className="text-center p-2 rounded-lg bg-red-500/10">
-            <p className="font-semibold text-red-500">{lagging.length} Lagging</p>
+            <p className=" text-red-500">{lagging.length} Lagging</p>
             <p className="text-muted-foreground mt-1">Underperforming</p>
           </div>
         </div>

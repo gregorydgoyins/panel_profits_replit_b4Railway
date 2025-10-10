@@ -47,7 +47,7 @@ export default function SentimentVelocityWidget() {
             <Gauge className="w-4 h-4 text-orange-400" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-gray-100">Social Sentiment Velocity</h3>
+            <h3 className="text-sm  text-gray-100">Social Sentiment Velocity</h3>
             <p className="text-xs text-gray-500">Rate of change in market sentiment</p>
           </div>
         </div>

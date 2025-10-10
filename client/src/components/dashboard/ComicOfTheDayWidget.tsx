@@ -47,12 +47,14 @@ export function ComicOfTheDayWidget() {
           </p>
         </CardHeader>
         <CardContent>
-          <div className="flex items-start gap-4">
-            <div className="w-32 aspect-[2/3] bg-muted rounded-lg animate-pulse" />
-            <div className="flex-1 space-y-3">
-              <div className="h-6 bg-muted rounded animate-pulse w-3/4" />
-              <div className="h-4 bg-muted rounded animate-pulse w-1/2" />
-              <div className="h-8 bg-muted rounded animate-pulse w-1/3" />
+          <div className="bg-[#252B3C] p-4 rounded-lg">
+            <div className="flex items-start gap-4">
+              <div className="w-32 aspect-[2/3] bg-muted rounded-lg animate-pulse" />
+              <div className="flex-1 space-y-3">
+                <div className="h-6 bg-muted rounded animate-pulse w-3/4" />
+                <div className="h-4 bg-muted rounded animate-pulse w-1/2" />
+                <div className="h-8 bg-muted rounded animate-pulse w-1/3" />
+              </div>
             </div>
           </div>
         </CardContent>
@@ -102,12 +104,12 @@ export function ComicOfTheDayWidget() {
           {/* Left Side - Larger Comic Cover */}
           <div className="lg:w-2/5 flex">
             <Link href={`/series/${encodeURIComponent(comic.series)}`} data-testid="link-series-detail" className="w-full">
-              <div className="w-full h-full min-h-[400px] bg-muted rounded-lg overflow-visible border-2 border-white/40 green-rimlight-hover cursor-pointer">
+              <div className="w-full h-full min-h-[400px] bg-muted rounded-lg overflow-hidden border-2 border-white/40 green-rimlight-hover cursor-pointer flex items-center justify-center p-1">
                 {comic.coverUrl ? (
                   <img
                     src={comic.coverUrl}
                     alt={comic.title}
-                    className="w-full h-full object-cover rounded-lg"
+                    className="max-w-full max-h-full object-contain rounded-lg"
                     loading="lazy"
                     data-testid="img-comic-of-the-day-cover"
                   />

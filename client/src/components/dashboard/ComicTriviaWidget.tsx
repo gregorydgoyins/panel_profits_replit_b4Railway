@@ -73,7 +73,7 @@ export function ComicTriviaWidget() {
                         </Badge>
                       )}
                     </div>
-                    <h4 className="font-semibold text-foreground">{trivia.title}</h4>
+                    <h4 className=" text-foreground">{trivia.title}</h4>
                     <p className="text-sm text-muted-foreground leading-relaxed">{trivia.fact}</p>
                   </div>
                 </div>

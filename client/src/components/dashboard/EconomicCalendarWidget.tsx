@@ -105,7 +105,7 @@ export function EconomicCalendarWidget() {
               
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <p className="font-semibold text-sm truncate">{event.event}</p>
+                  <p className=" text-sm truncate">{event.event}</p>
                   <Badge className={`text-xs px-2 py-0 ${getImpactColor(event.impact)}`}>
                     {getImpactLabel(event.impact)}
                   </Badge>
@@ -115,13 +115,13 @@ export function EconomicCalendarWidget() {
                   {event.actual && (
                     <div>
                       <span className="opacity-60">Actual:</span>{' '}
-                      <span className="font-semibold text-green-500">{event.actual}</span>
+                      <span className=" text-green-500">{event.actual}</span>
                     </div>
                   )}
                   {event.forecast && (
                     <div>
                       <span className="opacity-60">Forecast:</span>{' '}
-                      <span className="font-semibold">{event.forecast}</span>
+                      <span className="">{event.forecast}</span>
                     </div>
                   )}
                   {event.previous && (
@@ -146,7 +146,7 @@ export function EconomicCalendarWidget() {
           <div className="flex items-start gap-2">
             <AlertCircle className="w-4 h-4 text-blue-500 mt-0.5" />
             <div className="text-xs">
-              <p className="font-semibold text-blue-500">High Impact Alert</p>
+              <p className=" text-blue-500">High Impact Alert</p>
               <p className="text-muted-foreground mt-1">
                 2 high-impact events scheduled today. Expect increased volatility during Fed decision and NFP release.
               </p>

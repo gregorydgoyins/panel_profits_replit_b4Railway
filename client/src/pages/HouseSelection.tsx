@@ -106,7 +106,7 @@ export default function HouseSelection() {
     <div className="container mx-auto p-6 space-y-8">
       {/* Header */}
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold">Choose Your Mythological House</h1>
+        <h1 className="text-4xl ">Choose Your Mythological House</h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           Each house specializes in different types of trading assets and offers unique bonuses. 
           Choose wisely, as your house will shape your trading journey.
@@ -182,14 +182,14 @@ export default function HouseSelection() {
                     </div>
 
                     <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Key Bonuses</h4>
+                      <h4 className="text-sm ">Key Bonuses</h4>
                       <div className="space-y-1">
                         {Object.entries(house.bonuses).slice(0, 3).map(([key, value]) => (
                           <div key={key} className="flex justify-between text-xs">
                             <span className="text-muted-foreground capitalize">
                               {key.replace(/([A-Z])/g, ' $1').trim()}
                             </span>
-                            <span className="font-medium">
+                            <span className="">
                               {formatBonus(key, value)}
                             </span>
                           </div>
@@ -226,12 +226,12 @@ export default function HouseSelection() {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left p-4 font-medium">House</th>
-                  <th className="text-left p-4 font-medium">Specialization</th>
-                  <th className="text-left p-4 font-medium">Karma Multiplier</th>
-                  <th className="text-left p-4 font-medium">Key Bonuses</th>
-                  <th className="text-left p-4 font-medium">Members</th>
-                  {canJoinHouse && <th className="text-left p-4 font-medium">Action</th>}
+                  <th className="text-left p-4 ">House</th>
+                  <th className="text-left p-4 ">Specialization</th>
+                  <th className="text-left p-4 ">Karma Multiplier</th>
+                  <th className="text-left p-4 ">Key Bonuses</th>
+                  <th className="text-left p-4 ">Members</th>
+                  {canJoinHouse && <th className="text-left p-4 ">Action</th>}
                 </tr>
               </thead>
               <tbody>
@@ -244,7 +244,7 @@ export default function HouseSelection() {
                           size="sm"
                           variant="solid"
                         />
-                        <span className="font-medium">{house.name}</span>
+                        <span className="">{house.name}</span>
                       </div>
                     </td>
                     <td className="p-4">
@@ -291,7 +291,7 @@ export default function HouseSelection() {
         <TabsContent value="selection" className="space-y-6">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold mb-2">Interactive House Selection</h2>
+              <h2 className="text-2xl  mb-2">Interactive House Selection</h2>
               <p className="text-muted-foreground">
                 Use the selector below to choose your house, or explore the grid view for detailed comparison.
               </p>
@@ -341,7 +341,7 @@ export default function HouseSelection() {
               <Card>
                 <CardContent className="text-center py-12">
                   <Shield className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-lg font-medium mb-2">Already a House Member</h3>
+                  <h3 className="text-lg  mb-2">Already a House Member</h3>
                   <p className="text-muted-foreground mb-4">
                     You're currently a member of a house. Visit your dashboard to manage your membership.
                   </p>

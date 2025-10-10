@@ -20,7 +20,7 @@ export default function AdvancedAnalytics() {
             <Activity className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-white">Advanced Analytics</h1>
+            <h1 className="text-3xl  text-white">Advanced Analytics</h1>
             <p className="text-gray-400">Bloomberg Terminal-grade market intelligence</p>
           </div>
         </div>

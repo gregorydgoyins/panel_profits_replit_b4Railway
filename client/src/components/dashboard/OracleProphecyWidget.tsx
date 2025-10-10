@@ -35,7 +35,7 @@ export function OracleProphecyWidget() {
       <CardContent className="space-y-4">
         {/* Main Prophecy */}
         <div className="p-4 rounded-lg bg-indigo-500/5 border border-indigo-500/20">
-          <h3 className="font-bold text-indigo-400 mb-2">{prophecy.title}</h3>
+          <h3 className=" text-indigo-400 mb-2">{prophecy.title}</h3>
           <p className="text-sm text-muted-foreground leading-relaxed italic">
             "{prophecy.message}"
           </p>
@@ -44,7 +44,7 @@ export function OracleProphecyWidget() {
 
         {/* Top Picks */}
         <div className="space-y-2">
-          <p className="text-sm font-semibold">Oracle's Picks</p>
+          <p className="text-sm ">Oracle's Picks</p>
           {prophecy.topPicks.map((pick) => (
             <div
               key={pick.symbol}
@@ -52,7 +52,7 @@ export function OracleProphecyWidget() {
             >
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-bold">{pick.symbol}</span>
+                  <span className="">{pick.symbol}</span>
                   <Badge variant="secondary" className="text-xs">
                     House {pick.house}
                   </Badge>
@@ -60,7 +60,7 @@ export function OracleProphecyWidget() {
                 <p className="text-xs text-muted-foreground mt-1">{pick.signal}</p>
               </div>
               <div className="text-right">
-                <p className={`font-bold text-sm ${
+                <p className={` text-sm ${
                   pick.bias.startsWith('+') ? 'text-green-500' : 'text-red-500'
                 }`}>
                   {pick.bias}
@@ -75,7 +75,7 @@ export function OracleProphecyWidget() {
         <div className="flex items-start gap-2 p-3 rounded-md bg-yellow-500/10 border border-yellow-500/30">
           <AlertTriangle className="w-4 h-4 text-yellow-500 mt-0.5" />
           <div className="text-xs">
-            <p className="font-semibold text-yellow-500">Oracle's Warning</p>
+            <p className=" text-yellow-500">Oracle's Warning</p>
             <p className="text-muted-foreground mt-1">
               Market volatility may spike during Power Hour. House Shadow assets show elevated risk.
             </p>

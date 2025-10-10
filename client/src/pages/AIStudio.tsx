@@ -183,7 +183,7 @@ export default function AIStudio() {
       <div className="p-6 space-y-6">
         <div className="text-center">
           <BrainIcon className="w-12 h-12 mx-auto mb-4 text-blue-500 animate-pulse" />
-          <h1 className="text-3xl font-bold text-blue-600">AI Studio</h1>
+          <h1 className="text-3xl  text-blue-600">AI Studio</h1>
           <p className="text-muted-foreground mt-2">AI is analyzing the market...</p>
         </div>
       </div>
@@ -196,7 +196,7 @@ export default function AIStudio() {
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center gap-3">
           <BrainIcon className="w-10 h-10 text-blue-500" />
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">AI Studio</h1>
+          <h1 className="text-4xl  bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">AI Studio</h1>
           <Badge variant="secondary" className="text-xs animate-pulse">PRO FEATURE</Badge>
         </div>
         <p className="text-muted-foreground text-lg">AI-powered market intelligence for comic book investing</p>
@@ -206,7 +206,7 @@ export default function AIStudio() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium">AI Market Intelligence</span>
+              <span className="text-sm ">AI Market Intelligence</span>
               <Badge variant="outline" className="text-xs">
                 DEMO MODE
               </Badge>
@@ -263,7 +263,7 @@ export default function AIStudio() {
                         <div className="flex justify-between items-start">
                           <div className="space-y-2">
                             <div className="flex items-center gap-2">
-                              <h3 className="font-semibold">{prediction.assetId}</h3>
+                              <h3 className="">{prediction.assetId}</h3>
                               <Badge className={`text-xs ${getRiskColor(prediction.riskLevel)}`}>
                                 {prediction.riskLevel} RISK
                               </Badge>
@@ -273,10 +273,10 @@ export default function AIStudio() {
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-xl font-bold">
+                            <div className="text-xl ">
                               {formatPrice(prediction.predictedPrice1Month)}
                             </div>
-                            <div className={`text-sm font-semibold ${monthChange.color}`}>
+                            <div className={`text-sm  ${monthChange.color}`}>
                               {monthChange.formatted}
                             </div>
                             <div className="text-xs text-muted-foreground">
@@ -290,20 +290,20 @@ export default function AIStudio() {
                             <div className="grid grid-cols-3 gap-4 text-sm">
                               <div>
                                 <div className="text-muted-foreground">1 Week</div>
-                                <div className="font-semibold">{formatPrice(prediction.predictedPrice1Week)}</div>
+                                <div className="">{formatPrice(prediction.predictedPrice1Week)}</div>
                               </div>
                               <div>
                                 <div className="text-muted-foreground">1 Month</div>
-                                <div className="font-semibold">{formatPrice(prediction.predictedPrice1Month)}</div>
+                                <div className="">{formatPrice(prediction.predictedPrice1Month)}</div>
                               </div>
                               <div>
                                 <div className="text-muted-foreground">3 Months</div>
-                                <div className="font-semibold">{formatPrice(prediction.predictedPrice3Month)}</div>
+                                <div className="">{formatPrice(prediction.predictedPrice3Month)}</div>
                               </div>
                             </div>
                             
                             <div>
-                              <div className="text-sm font-medium mb-2">Market Factors</div>
+                              <div className="text-sm  mb-2">Market Factors</div>
                               <div className="flex flex-wrap gap-1">
                                 {prediction.marketFactors.map((factor, index) => (
                                   <Badge key={index} variant="outline" className="text-xs">
@@ -314,7 +314,7 @@ export default function AIStudio() {
                             </div>
                             
                             <div>
-                              <div className="text-sm font-medium mb-1">AI Analysis</div>
+                              <div className="text-sm  mb-1">AI Analysis</div>
                               <p className="text-sm text-muted-foreground">{prediction.reasoning}</p>
                             </div>
                           </div>
@@ -421,7 +421,7 @@ export default function AIStudio() {
                           <div className="space-y-2">
                             <div className="flex justify-between items-center">
                               <span className="text-xs text-muted-foreground">Confidence</span>
-                              <span className="text-xs font-medium">{Math.round(insight.confidence * 100)}%</span>
+                              <span className="text-xs ">{Math.round(insight.confidence * 100)}%</span>
                             </div>
                             <Progress value={insight.confidence * 100} className="h-2" />
                           </div>
@@ -495,7 +495,7 @@ export default function AIStudio() {
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
                             <span className="text-xs text-muted-foreground">Confidence</span>
-                            <span className="text-xs font-medium">{Math.round(insight.confidence * 100)}%</span>
+                            <span className="text-xs ">{Math.round(insight.confidence * 100)}%</span>
                           </div>
                           <Progress value={insight.confidence * 100} className="h-2" />
                         </div>
@@ -541,7 +541,7 @@ export default function AIStudio() {
                     <CardDescription>{challenge.description}</CardDescription>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-yellow-600">
+                    <div className="text-2xl  text-yellow-600">
                       {formatPrice(challenge.prizePool)}
                     </div>
                     <div className="text-xs text-muted-foreground">Prize Pool</div>
@@ -551,18 +551,18 @@ export default function AIStudio() {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="text-center">
-                    <div className="text-lg font-bold text-blue-600">{challenge.aiPrediction}%</div>
+                    <div className="text-lg  text-blue-600">{challenge.aiPrediction}%</div>
                     <div className="text-xs text-muted-foreground">AI Prediction</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-lg font-bold flex items-center justify-center gap-1">
+                    <div className="text-lg  flex items-center justify-center gap-1">
                       <UsersIcon className="w-4 h-4" />
                       {challenge.participantCount}
                     </div>
                     <div className="text-xs text-muted-foreground">Participants</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-lg font-bold">
+                    <div className="text-lg ">
                       {Math.ceil((new Date(challenge.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))}d
                     </div>
                     <div className="text-xs text-muted-foreground">Days Left</div>
@@ -570,7 +570,7 @@ export default function AIStudio() {
                 </div>
                 
                 <div>
-                  <div className="text-sm font-medium mb-2">Challenge Assets</div>
+                  <div className="text-sm  mb-2">Challenge Assets</div>
                   <div className="flex flex-wrap gap-1">
                     {challenge.targetAssets.map((asset, idx) => (
                       <Badge key={idx} variant="outline" className="text-xs">

@@ -137,7 +137,7 @@ export default function KnowledgeTestPage() {
                 <div className="text-center py-6">
                   <div className={`inline-flex items-center gap-2 ${getTierColor(testStatus.lastAttempt.tier)}`}>
                     {getTierIcon(testStatus.lastAttempt.tier)}
-                    <span className="text-2xl font-bold uppercase">{testStatus.lastAttempt.tier}</span>
+                    <span className="text-2xl  uppercase">{testStatus.lastAttempt.tier}</span>
                   </div>
                   
                   <div className="mt-6 space-y-4">
@@ -213,7 +213,7 @@ export default function KnowledgeTestPage() {
                     className={`inline-flex items-center gap-3 ${getTierColor(testResult.tier)}`}
                   >
                     {getTierIcon(testResult.tier)}
-                    <span className="text-4xl font-bold uppercase">{testResult.tier}</span>
+                    <span className="text-4xl  uppercase">{testResult.tier}</span>
                   </motion.div>
                 </div>
 
@@ -269,7 +269,7 @@ export default function KnowledgeTestPage() {
                   <div className="grid md:grid-cols-2 gap-4">
                     {testResult.strengths.length > 0 && (
                       <div>
-                        <p className="text-sm text-green-400 mb-2 font-semibold">Strengths</p>
+                        <p className="text-sm text-green-400 mb-2 ">Strengths</p>
                         <div className="space-y-1">
                           {testResult.strengths.map((strength, i) => (
                             <Badge key={i} variant="outline" className="border-green-900 text-green-400">
@@ -282,7 +282,7 @@ export default function KnowledgeTestPage() {
                     
                     {testResult.weakAreas.length > 0 && (
                       <div>
-                        <p className="text-sm text-red-400 mb-2 font-semibold">Areas for Improvement</p>
+                        <p className="text-sm text-red-400 mb-2 ">Areas for Improvement</p>
                         <div className="space-y-1">
                           {testResult.weakAreas.map((area, i) => (
                             <Badge key={i} variant="outline" className="border-red-900 text-red-400">

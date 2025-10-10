@@ -72,7 +72,7 @@ export default function TradingTerminalPage() {
     return (
       <div className="h-screen w-screen bg-background" data-testid="terminal-fullscreen-chart">
         <div className="flex items-center justify-between p-2 border-b">
-          <h2 className="font-semibold">Chart View - {selectedAsset}</h2>
+          <h2 className="">Chart View - {selectedAsset}</h2>
           <Button
             variant="outline"
             size="sm"
@@ -112,7 +112,7 @@ export default function TradingTerminalPage() {
             <Card className="h-full" data-testid="panel-chart">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium">Price Chart</CardTitle>
+                  <CardTitle className="text-sm ">Price Chart</CardTitle>
                   <div className="flex items-center gap-2">
                     <Badge variant={isMarketOpen() ? 'default' : 'secondary'}>
                       <Clock className="h-3 w-3 mr-1" />
@@ -149,7 +149,7 @@ export default function TradingTerminalPage() {
               {/* Order Book */}
               <Card className="flex-1" data-testid="panel-order-book">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Order Book</CardTitle>
+                  <CardTitle className="text-sm ">Order Book</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <OrderBookComponent 
@@ -162,7 +162,7 @@ export default function TradingTerminalPage() {
               {/* Order Entry */}
               <Card className="flex-1" data-testid="panel-order-entry">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Order Entry</CardTitle>
+                  <CardTitle className="text-sm ">Order Entry</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ProfessionalOrderEntry 
@@ -188,7 +188,7 @@ export default function TradingTerminalPage() {
               {/* Market Watch */}
               <Card className="flex-1" data-testid="panel-market-watch">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Market Watch</CardTitle>
+                  <CardTitle className="text-sm ">Market Watch</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <MarketWatchComponent 

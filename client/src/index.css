@@ -27,11 +27,15 @@
     font-weight: 300 !important;
   }
   
-  /* IMAGE CONTAINMENT - ALL IMAGES STAY WITHIN BOUNDS */
+  /* IMAGE CONTAINMENT - 1 PIXEL FRAME ON ALL SIDES */
   img {
-    object-fit: cover;
+    object-fit: contain;
     max-width: 100%;
     max-height: 100%;
+    width: auto;
+    height: auto;
+    padding: 1px;
+    box-sizing: border-box;
   }
 }
 

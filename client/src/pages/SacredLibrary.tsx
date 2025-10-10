@@ -238,7 +238,7 @@ export default function SacredLibrary() {
                 <Sparkles className="h-6 w-6 text-accent absolute -top-2 -right-2 animate-bounce" />
               </div>
               <div>
-                <CardTitle className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                <CardTitle className="text-4xl  bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                   Sacred Library of Knowledge
                 </CardTitle>
                 <p className="text-xl text-muted-foreground mt-2">
@@ -250,19 +250,19 @@ export default function SacredLibrary() {
             {/* Overall Progress */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary">{dashboard.overallProgress.totalExperience.toLocaleString()}</div>
+                <div className="text-3xl  text-primary">{dashboard.overallProgress.totalExperience.toLocaleString()}</div>
                 <div className="text-sm text-muted-foreground">Experience Points</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-accent">{dashboard.overallProgress.totalKarma.toLocaleString()}</div>
+                <div className="text-3xl  text-accent">{dashboard.overallProgress.totalKarma.toLocaleString()}</div>
                 <div className="text-sm text-muted-foreground">Karma Earned</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-green-400">{dashboard.overallProgress.completedPaths}</div>
+                <div className="text-3xl  text-green-400">{dashboard.overallProgress.completedPaths}</div>
                 <div className="text-sm text-muted-foreground">Paths Mastered</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-purple-400">{dashboard.overallProgress.currentLevel}</div>
+                <div className="text-3xl  text-purple-400">{dashboard.overallProgress.currentLevel}</div>
                 <div className="text-sm text-muted-foreground">Mystic Level</div>
               </div>
             </div>
@@ -281,7 +281,7 @@ export default function SacredLibrary() {
 
       {/* House Filter */}
       <div className="flex flex-wrap items-center gap-3">
-        <span className="text-sm font-medium text-muted-foreground">Choose Your Realm:</span>
+        <span className="text-sm  text-muted-foreground">Choose Your Realm:</span>
         <Button
           variant={selectedHouse === 'all' ? 'default' : 'outline'}
           size="sm"
@@ -339,7 +339,7 @@ export default function SacredLibrary() {
                     <div className="flex items-center gap-3 mb-3">
                       <HouseEmblem house={houseId as MythologicalHouse} size="default" />
                       <div>
-                        <h3 className="font-semibold text-sm">{house.name}</h3>
+                        <h3 className=" text-sm">{house.name}</h3>
                         <p className="text-xs text-muted-foreground">{house.mythology}</p>
                       </div>
                     </div>
@@ -388,7 +388,7 @@ export default function SacredLibrary() {
                         <Target className="h-4 w-4" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-sm truncate">{rec.title}</h4>
+                        <h4 className=" text-sm truncate">{rec.title}</h4>
                         <p className="text-xs text-muted-foreground">{rec.reason}</p>
                       </div>
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -416,7 +416,7 @@ export default function SacredLibrary() {
                         <Trophy className="h-4 w-4" />
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-medium text-sm">{achievement.title}</h4>
+                        <h4 className=" text-sm">{achievement.title}</h4>
                         <p className="text-xs text-muted-foreground">{achievement.description}</p>
                       </div>
                       <Badge variant="outline" className={getSkillRarityColor(achievement.rarity)}>
@@ -653,7 +653,7 @@ export default function SacredLibrary() {
                           <Trophy className="h-5 w-5" />
                         </div>
                         <div className="flex-1">
-                          <h4 className="font-medium">{achievement.title}</h4>
+                          <h4 className="">{achievement.title}</h4>
                           <p className="text-sm text-muted-foreground">{achievement.description}</p>
                           <p className="text-xs text-muted-foreground mt-1">
                             Earned {new Date(achievement.earnedAt).toLocaleDateString()}
@@ -699,11 +699,11 @@ export default function SacredLibrary() {
                   
                   <div className="grid grid-cols-2 gap-4 pt-4">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">{dashboard.overallProgress.currentLevel}</div>
+                      <div className="text-2xl  text-primary">{dashboard.overallProgress.currentLevel}</div>
                       <div className="text-sm text-muted-foreground">Current Level</div>
                     </div>
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-accent">{dashboard.overallProgress.inProgressPaths}</div>
+                      <div className="text-2xl  text-accent">{dashboard.overallProgress.inProgressPaths}</div>
                       <div className="text-sm text-muted-foreground">Active Paths</div>
                     </div>
                   </div>

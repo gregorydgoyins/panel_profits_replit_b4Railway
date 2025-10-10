@@ -83,7 +83,7 @@ export function CorrelationMatrixWidget() {
               <tr>
                 <th className="py-2 px-2"></th>
                 {assets.map((asset) => (
-                  <th key={asset} className="text-center py-2 px-2 font-semibold">
+                  <th key={asset} className="text-center py-2 px-2 ">
                     {asset}
                   </th>
                 ))}
@@ -92,7 +92,7 @@ export function CorrelationMatrixWidget() {
             <tbody>
               {assets.map((asset1) => (
                 <tr key={asset1}>
-                  <td className="py-2 px-2 font-semibold">{asset1}</td>
+                  <td className="py-2 px-2 ">{asset1}</td>
                   {assets.map((asset2) => {
                     const corr = getCorrelation(asset1, asset2);
                     return (
@@ -101,7 +101,7 @@ export function CorrelationMatrixWidget() {
                           className={`flex items-center justify-center h-10 rounded ${getCorrelationColor(corr)}`}
                           data-testid={`corr-${asset1}-${asset2}`}
                         >
-                          <span className="font-bold">{corr.toFixed(2)}</span>
+                          <span className="">{corr.toFixed(2)}</span>
                         </div>
                       </td>
                     );

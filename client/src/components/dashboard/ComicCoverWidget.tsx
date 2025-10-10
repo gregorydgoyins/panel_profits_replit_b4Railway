@@ -71,7 +71,7 @@ export function ComicCoverWidget() {
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/50 via-purple-900/50 to-pink-900/50 flex items-center justify-center">
                   <div className="text-center p-4">
                     <Book className="w-8 h-8 mx-auto mb-2 text-primary/50" />
-                    <p className="text-xs font-bold text-foreground/70">{comic.symbol}</p>
+                    <p className="text-xs  text-foreground/70">{comic.symbol}</p>
                     {comic.issueNumber && (
                       <p className="text-[10px] text-muted-foreground">#{comic.issueNumber}</p>
                     )}
@@ -81,13 +81,13 @@ export function ComicCoverWidget() {
 
               {/* Hover Overlay with Trading Info */}
               <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-3 text-center">
-                <p className="text-xs font-bold text-foreground mb-1">{comic.name}</p>
+                <p className="text-xs  text-foreground mb-1">{comic.name}</p>
                 {comic.publisher && (
                   <Badge variant="secondary" className="text-[10px] mb-2">
                     {comic.publisher}
                   </Badge>
                 )}
-                <p className="text-lg font-bold text-foreground">${comic.currentPrice?.toLocaleString() || '0'}</p>
+                <p className="text-lg  text-foreground">${comic.currentPrice?.toLocaleString() || '0'}</p>
                 <div className={`flex items-center gap-1 text-xs ${(comic.changePercent || 0) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                   {(comic.changePercent || 0) >= 0 ? (
                     <TrendingUp className="w-3 h-3" />

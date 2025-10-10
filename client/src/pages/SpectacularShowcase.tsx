@@ -204,7 +204,7 @@ export function SpectacularShowcase() {
           <div className="text-center">
             <div className="flex items-center justify-center space-x-3 mb-4">
               <Palette className="w-8 h-8 text-purple-400" />
-              <h1 className="text-4xl font-display font-bold text-white">
+              <h1 className="text-4xl font-display  text-white">
                 Spectacular Components
               </h1>
               <Sparkles className="w-8 h-8 text-cyan-400" />
@@ -238,7 +238,7 @@ export function SpectacularShowcase() {
                   {comp.icon}
                 </div>
                 <div>
-                  <h3 className="text-xl font-display font-bold text-white">{comp.name}</h3>
+                  <h3 className="text-xl font-display  text-white">{comp.name}</h3>
                   <p className="text-slate-400 text-sm font-light">{comp.description}</p>
                 </div>
               </div>
@@ -263,24 +263,24 @@ export function SpectacularShowcase() {
 
         {/* Typography Preview */}
         <div className="mt-12 bg-slate-900/50 backdrop-blur-xl rounded-2xl p-8 border border-slate-700/50">
-          <h2 className="text-2xl font-display font-bold text-white mb-6 flex items-center space-x-3">
+          <h2 className="text-2xl font-display  text-white mb-6 flex items-center space-x-3">
             <Palette className="w-6 h-6 text-purple-400" />
             <span>Enhanced Typography System</span>
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-              <h3 className="text-lg font-display font-semibold text-white mb-4">Space Grotesk (Headers)</h3>
+              <h3 className="text-lg font-display  text-white mb-4">Space Grotesk (Headers)</h3>
               <div className="space-y-3">
-                <h1 className="text-3xl font-display font-bold text-white">Panel Profits Trading</h1>
-                <h2 className="text-2xl font-display font-semibold text-white">Market Analysis</h2>
-                <h3 className="text-xl font-display font-medium text-white">Portfolio Overview</h3>
+                <h1 className="text-3xl font-display  text-white">Panel Profits Trading</h1>
+                <h2 className="text-2xl font-display  text-white">Market Analysis</h2>
+                <h3 className="text-xl font-display  text-white">Portfolio Overview</h3>
                 <h4 className="text-lg font-display text-white">Asset Details</h4>
               </div>
             </div>
             
             <div>
-              <h3 className="text-lg font-display font-semibold text-white mb-4">Hind 300 (Body Text)</h3>
+              <h3 className="text-lg font-display  text-white mb-4">Hind 300 (Body Text)</h3>
               <div className="space-y-3">
                 <p className="text-slate-300 font-light">
                   Ultra-clean, lightweight interface text for optimal readability across all trading interfaces.
@@ -301,7 +301,7 @@ export function SpectacularShowcase() {
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-emerald-900/20 backdrop-blur-xl rounded-xl p-6 border border-emerald-700/30">
             <Sparkles className="w-8 h-8 text-emerald-400 mb-3" />
-            <h3 className="text-lg font-display font-semibold text-white mb-2">Holographic Effects</h3>
+            <h3 className="text-lg font-display  text-white mb-2">Holographic Effects</h3>
             <p className="text-emerald-200 text-sm font-light">
               Advanced visual effects with particle systems, quantum fields, and holographic displays.
             </p>
@@ -309,7 +309,7 @@ export function SpectacularShowcase() {
           
           <div className="bg-blue-900/20 backdrop-blur-xl rounded-xl p-6 border border-blue-700/30">
             <Brain className="w-8 h-8 text-blue-400 mb-3" />
-            <h3 className="text-lg font-display font-semibold text-white mb-2">AI-Powered</h3>
+            <h3 className="text-lg font-display  text-white mb-2">AI-Powered</h3>
             <p className="text-blue-200 text-sm font-light">
               Intelligent sentiment analysis, market predictions, and adaptive user interfaces.
             </p>
@@ -317,7 +317,7 @@ export function SpectacularShowcase() {
           
           <div className="bg-purple-900/20 backdrop-blur-xl rounded-xl p-6 border border-purple-700/30">
             <Globe className="w-8 h-8 text-purple-400 mb-3" />
-            <h3 className="text-lg font-display font-semibold text-white mb-2">3D Visualizations</h3>
+            <h3 className="text-lg font-display  text-white mb-2">3D Visualizations</h3>
             <p className="text-purple-200 text-sm font-light">
               Immersive 3D portfolio views, interactive globes, and spatial data representation.
             </p>

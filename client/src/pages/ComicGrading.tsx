@@ -262,7 +262,7 @@ export default function ComicGrading() {
     <div className="space-y-6" data-testid="comic-grading-page">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold" data-testid="text-page-title">AI Comic Grading</h1>
+          <h1 className="text-3xl " data-testid="text-page-title">AI Comic Grading</h1>
           <p className="text-muted-foreground" data-testid="text-page-description">
             Upload photos of your comics for professional CGC-style grading analysis
           </p>
@@ -314,7 +314,7 @@ export default function ComicGrading() {
                 <div className="space-y-4" data-testid="upload-placeholder">
                   <Upload className="w-16 h-16 mx-auto text-muted-foreground" />
                   <div className="space-y-2">
-                    <p className="text-lg font-medium">Drop comic image here</p>
+                    <p className="text-lg ">Drop comic image here</p>
                     <p className="text-sm text-muted-foreground">
                       Supports JPG, PNG, WebP • Max 10MB
                     </p>
@@ -404,10 +404,10 @@ export default function ComicGrading() {
                 <div className="text-center p-6 bg-gradient-to-r from-indigo-900/30 to-purple-900/30 rounded-lg border">
                   <div className="space-y-2" data-testid="grade-display">
                     <div className="text-sm text-muted-foreground">CGC Grade</div>
-                    <div className={`text-6xl font-bold ${getGradeColor(gradingResult.predictedGrade)}`} data-testid="text-predicted-grade">
+                    <div className={`text-6xl  ${getGradeColor(gradingResult.predictedGrade)}`} data-testid="text-predicted-grade">
                       {gradingResult.predictedGrade.toFixed(1)}
                     </div>
-                    <div className="text-xl font-semibold" data-testid="text-grade-category">
+                    <div className="text-xl " data-testid="text-grade-category">
                       {gradingResult.gradeCategory}
                     </div>
                     <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
@@ -421,13 +421,13 @@ export default function ComicGrading() {
 
                 {/* Condition Breakdown */}
                 <div className="space-y-4" data-testid="condition-breakdown">
-                  <h3 className="text-lg font-semibold">Condition Analysis</h3>
+                  <h3 className="text-lg ">Condition Analysis</h3>
                   <div className="grid grid-cols-2 gap-3">
                     {Object.entries(gradingResult.conditionFactors).map(([key, value]) => (
                       <div key={key} className="space-y-2" data-testid={`condition-${key}`}>
                         <div className="flex justify-between text-sm">
                           <span>{conditionFactorLabels[key as keyof ConditionFactor]}</span>
-                          <span className="font-medium">{value}/10</span>
+                          <span className="">{value}/10</span>
                         </div>
                         <Progress 
                           value={value * 10} 
@@ -441,13 +441,13 @@ export default function ComicGrading() {
 
                 {/* Analysis Details */}
                 <div className="space-y-3" data-testid="analysis-details">
-                  <h3 className="text-lg font-semibold">Analysis Details</h3>
+                  <h3 className="text-lg ">Analysis Details</h3>
                   <div className="text-sm text-muted-foreground leading-relaxed p-4 bg-slate-800/50 rounded-lg border">
                     <p data-testid="text-analysis-details">{gradingResult.analysisDetails}</p>
                   </div>
                   {gradingResult.gradingNotes && (
                     <div className="text-sm text-muted-foreground leading-relaxed p-4 bg-amber-900/20 border border-amber-500/30 rounded-lg">
-                      <div className="font-medium text-amber-400 mb-2">Grading Notes</div>
+                      <div className=" text-amber-400 mb-2">Grading Notes</div>
                       <p data-testid="text-grading-notes">{gradingResult.gradingNotes}</p>
                     </div>
                   )}
@@ -530,7 +530,7 @@ export default function ComicGrading() {
                     </div>
 
                     {/* Grade Category */}
-                    <div className="text-sm font-medium mb-2" data-testid={`similar-category-${comic.id}`}>
+                    <div className="text-sm  mb-2" data-testid={`similar-category-${comic.id}`}>
                       {comic.gradeCategory}
                     </div>
 
@@ -538,19 +538,19 @@ export default function ComicGrading() {
                     <div className="grid grid-cols-2 gap-2 text-xs mb-3">
                       <div className="flex justify-between">
                         <span>Corners:</span>
-                        <span className="font-medium">{comic.conditionFactors.corners}/10</span>
+                        <span className="">{comic.conditionFactors.corners}/10</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Cover:</span>
-                        <span className="font-medium">{comic.conditionFactors.cover}/10</span>
+                        <span className="">{comic.conditionFactors.cover}/10</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Pages:</span>
-                        <span className="font-medium">{comic.conditionFactors.pages}/10</span>
+                        <span className="">{comic.conditionFactors.pages}/10</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Colors:</span>
-                        <span className="font-medium">{comic.conditionFactors.colors}/10</span>
+                        <span className="">{comic.conditionFactors.colors}/10</span>
                       </div>
                     </div>
 
@@ -572,19 +572,19 @@ export default function ComicGrading() {
               <div className="mt-6 pt-4 border-t">
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <div className="text-lg font-semibold" data-testid="text-similar-count">
+                    <div className="text-lg " data-testid="text-similar-count">
                       {similarComics.length}
                     </div>
                     <div className="text-sm text-muted-foreground">Similar Comics</div>
                   </div>
                   <div>
-                    <div className="text-lg font-semibold" data-testid="text-avg-similarity">
+                    <div className="text-lg " data-testid="text-avg-similarity">
                       {(similarComics.reduce((acc, comic) => acc + comic.similarityScore, 0) / similarComics.length * 100).toFixed(1)}%
                     </div>
                     <div className="text-sm text-muted-foreground">Avg Similarity</div>
                   </div>
                   <div>
-                    <div className="text-lg font-semibold" data-testid="text-avg-grade">
+                    <div className="text-lg " data-testid="text-avg-grade">
                       {(similarComics.reduce((acc, comic) => acc + comic.predictedGrade, 0) / similarComics.length).toFixed(1)}
                     </div>
                     <div className="text-sm text-muted-foreground">Avg Grade</div>

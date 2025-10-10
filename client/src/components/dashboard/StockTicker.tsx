@@ -68,7 +68,7 @@ export function StockTicker() {
                   style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                   data-testid={`ticker-item-${item.symbol}`}
                 >
-                  <span className="font-bold text-foreground transition-colors duration-500">{item.symbol}</span>
+                  <span className=" text-foreground transition-colors duration-500">{item.symbol}</span>
                   <span className="text-muted-foreground transition-all duration-500">${item.currentPrice.toFixed(2)}</span>
                   <span className={`flex items-center gap-0.5 transition-colors duration-500 ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
                     {isPositive ? (

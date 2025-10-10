@@ -215,7 +215,7 @@ export function MarketOverview() {
       <CardContent className="space-y-6">
         {/* Market Indices */}
         <div className="space-y-3" data-testid="market-indices">
-          <h4 className="text-sm font-medium">Market Indices</h4>
+          <h4 className="text-sm ">Market Indices</h4>
           <div className="space-y-2">
             {(marketIndices || []).map((index: MarketIndex) => (
               <div 
@@ -224,11 +224,11 @@ export function MarketOverview() {
                 data-testid={`index-${index.id}`}
               >
                 <div>
-                  <h5 className="font-medium text-sm">{index.name}</h5>
+                  <h5 className=" text-sm">{index.name}</h5>
                   <p className="text-xs text-muted-foreground">{index.description}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium transition-all duration-500" data-testid={`index-value-${index.id}`}>
+                  <p className=" transition-all duration-500" data-testid={`index-value-${index.id}`}>
                     {formatNumber(index.value)}
                   </p>
                   <div className={`flex items-center gap-1 text-xs transition-colors duration-500 ${getPerformanceColor(index.change)}`}>
@@ -269,12 +269,12 @@ export function MarketOverview() {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-xs font-medium">{asset.symbol}</p>
+                      <p className="text-xs ">{asset.symbol}</p>
                       <p className="text-xs text-muted-foreground transition-all duration-500">{formatCurrency(asset.currentPrice)}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-medium text-green-500 transition-all duration-500" data-testid={`gainer-change-${asset.symbol.toLowerCase()}`}>
+                    <p className="text-xs  text-green-500 transition-all duration-500" data-testid={`gainer-change-${asset.symbol.toLowerCase()}`}>
                       +{asset.changePercent.toFixed(2)}%
                     </p>
                     <p className="text-xs text-muted-foreground">Vol: {formatNumber(asset.volume)}</p>
@@ -304,12 +304,12 @@ export function MarketOverview() {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-xs font-medium">{asset.symbol}</p>
+                      <p className="text-xs ">{asset.symbol}</p>
                       <p className="text-xs text-muted-foreground transition-all duration-500">{formatCurrency(asset.currentPrice)}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-medium text-red-500 transition-all duration-500" data-testid={`loser-change-${asset.symbol.toLowerCase()}`}>
+                    <p className="text-xs  text-red-500 transition-all duration-500" data-testid={`loser-change-${asset.symbol.toLowerCase()}`}>
                       {asset.changePercent.toFixed(2)}%
                     </p>
                     <p className="text-xs text-muted-foreground">Vol: {formatNumber(asset.volume)}</p>
@@ -324,7 +324,7 @@ export function MarketOverview() {
         <div className="space-y-3" data-testid="market-events">
           <div className="flex items-center gap-2">
             <Zap className="w-4 h-4 text-yellow-500" />
-            <h4 className="text-sm font-medium">Recent Market Events</h4>
+            <h4 className="text-sm ">Recent Market Events</h4>
           </div>
           <div className="space-y-2">
             {recentEvents.map((event: MarketEvent) => (
@@ -337,7 +337,7 @@ export function MarketOverview() {
                   {getEventImpactIcon(event.impact)}
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <h5 className="text-sm font-medium">{event.title}</h5>
+                      <h5 className="text-sm ">{event.title}</h5>
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Clock className="w-3 h-3" />
                         <span>{getTimeAgo(event.timestamp)}</span>
@@ -366,19 +366,19 @@ export function MarketOverview() {
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <p className="text-sm text-muted-foreground">Market Status</p>
-              <p className="text-sm font-medium text-green-500" data-testid="text-market-status">
+              <p className="text-sm  text-green-500" data-testid="text-market-status">
                 Open
               </p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Assets Trading</p>
-              <p className="text-sm font-medium" data-testid="text-assets-trading">
+              <p className="text-sm " data-testid="text-assets-trading">
                 328
               </p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Market Sentiment</p>
-              <p className="text-sm font-medium text-green-500" data-testid="text-market-sentiment">
+              <p className="text-sm  text-green-500" data-testid="text-market-sentiment">
                 Bullish
               </p>
             </div>

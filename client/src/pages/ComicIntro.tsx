@@ -110,7 +110,7 @@ export default function ComicIntro() {
 
               {/* Title */}
               <h1 
-                className="text-5xl md:text-6xl font-bold text-white text-center mb-8 tracking-tight"
+                className="text-5xl md:text-6xl  text-white text-center mb-8 tracking-tight"
                 style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                 data-testid="text-panel-title"
               >
@@ -166,7 +166,7 @@ export default function ComicIntro() {
 
         <Button
           onClick={handleNext}
-          className="bg-green-500 hover:bg-green-600 text-black font-bold"
+          className="bg-green-500 hover:bg-green-600 text-black "
           data-testid="button-next-panel"
         >
           {currentPanel === COMIC_PANELS.length - 1 ? 'Begin Test' : 'Next'}

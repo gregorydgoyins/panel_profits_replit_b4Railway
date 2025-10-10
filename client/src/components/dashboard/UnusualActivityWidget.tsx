@@ -113,7 +113,7 @@ export function UnusualActivityWidget() {
                     <span className="text-xs text-muted-foreground">{activity.timestamp}</span>
                   </div>
                   
-                  <p className="font-semibold text-sm mb-1">{activity.description}</p>
+                  <p className=" text-sm mb-1">{activity.description}</p>
                   <p className="text-xs text-muted-foreground">{activity.details}</p>
                 </div>
               </div>
@@ -125,7 +125,7 @@ export function UnusualActivityWidget() {
           <div className="flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5" />
             <div className="text-xs">
-              <p className="font-semibold text-red-500">High Alert Activity</p>
+              <p className=" text-red-500">High Alert Activity</p>
               <p className="text-muted-foreground mt-1">
                 {activities.filter(a => a.severity === 'high').length} high-severity anomalies detected in the last 15 minutes. 
                 Institutional activity suspected.

@@ -129,9 +129,9 @@ export function OptionsChainWidget() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b">
-                <th colSpan={5} className="text-center py-2 text-green-500 font-semibold">CALLS</th>
-                <th className="py-2 px-3 text-center font-semibold bg-muted/30">STRIKE</th>
-                <th colSpan={5} className="text-center py-2 text-red-500 font-semibold">PUTS</th>
+                <th colSpan={5} className="text-center py-2 text-green-500 ">CALLS</th>
+                <th className="py-2 px-3 text-center  bg-muted/30">STRIKE</th>
+                <th colSpan={5} className="text-center py-2 text-red-500 ">PUTS</th>
               </tr>
               <tr className="border-b text-xs text-muted-foreground">
                 <th className="text-right py-2 px-2">Bid</th>
@@ -191,7 +191,7 @@ export function OptionsChainWidget() {
                     </td>
 
                     {/* STRIKE */}
-                    <td className={`text-center py-2 px-3 font-bold bg-muted/30 ${
+                    <td className={`text-center py-2 px-3  bg-muted/30 ${
                       isATM ? 'text-indigo-400' : 'text-foreground'
                     }`}>
                       {formatPrice(option.strike)}

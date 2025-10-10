@@ -273,19 +273,19 @@ export function CashFlowStatementWidget() {
         <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t">
           <div>
             <p className="text-sm text-muted-foreground">Monthly Income</p>
-            <p className="text-lg font-bold text-green-500" data-testid="text-monthly-income">
+            <p className="text-lg  text-green-500" data-testid="text-monthly-income">
               {formatCurrency(totalMonthlyIncome)}
             </p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Annual Income</p>
-            <p className="text-lg font-bold text-green-500" data-testid="text-annual-income">
+            <p className="text-lg  text-green-500" data-testid="text-annual-income">
               {formatCurrency(totalAnnualIncome)}
             </p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Avg. Yield</p>
-            <p className="text-lg font-bold" data-testid="text-average-yield">
+            <p className="text-lg " data-testid="text-average-yield">
               {averageYield.toFixed(2)}%
             </p>
           </div>
@@ -296,7 +296,7 @@ export function CashFlowStatementWidget() {
         {filteredStreams.length === 0 ? (
           <div className="text-center py-8" data-testid="empty-income-streams">
             <DollarSign className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No Income Streams</h3>
+            <h3 className="text-lg  mb-2">No Income Streams</h3>
             <p className="text-sm text-muted-foreground">
               {incomeTypeFilter !== 'all' || assetFilter !== 'all'
                 ? 'Try adjusting your filters'
@@ -319,7 +319,7 @@ export function CashFlowStatementWidget() {
                   
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm">{stream.assetName}</span>
+                      <span className=" text-sm">{stream.assetName}</span>
                       <Badge className={`text-xs ${getSourceColor(stream.sourceType)}`}>
                         {getSourceLabel(stream.sourceType)}
                       </Badge>
@@ -335,7 +335,7 @@ export function CashFlowStatementWidget() {
                 </div>
 
                 <div className="text-right space-y-1">
-                  <div className="font-medium text-sm text-green-500">
+                  <div className=" text-sm text-green-500">
                     {formatCurrency(stream.amount)}
                   </div>
                   <div className="text-xs text-muted-foreground flex items-center justify-end gap-1">
@@ -351,16 +351,16 @@ export function CashFlowStatementWidget() {
         {/* Timeline Preview */}
         {filteredStreams.length > 0 && (
           <div className="mt-4 pt-4 border-t">
-            <h4 className="text-sm font-semibold mb-3">Upcoming Payments</h4>
+            <h4 className="text-sm  mb-3">Upcoming Payments</h4>
             <div className="space-y-2">
               {filteredStreams.slice(0, 5).map((stream) => (
                 <div key={`timeline-${stream.id}`} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
                     <div className={`w-2 h-2 rounded-full ${getSourceColor(stream.sourceType)}`} />
                     <span className="text-muted-foreground">{formatDate(stream.nextPaymentDate)}</span>
-                    <span className="font-medium">{stream.assetName}</span>
+                    <span className="">{stream.assetName}</span>
                   </div>
-                  <span className="font-medium text-green-500">{formatCurrency(stream.amount)}</span>
+                  <span className=" text-green-500">{formatCurrency(stream.amount)}</span>
                 </div>
               ))}
             </div>

@@ -88,7 +88,7 @@ export function CreatorInfluenceWidget() {
   return (
     <Card className="h-full" data-testid="card-creator-influence">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Creator Influence</CardTitle>
+        <CardTitle className="text-sm ">Creator Influence</CardTitle>
         <Star className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
@@ -107,19 +107,19 @@ export function CreatorInfluenceWidget() {
                 data-testid={`creator-${creator.name.toLowerCase().replace(/\s+/g, '-')}`}
               >
                 <Avatar className="h-10 w-10">
-                  <AvatarFallback className="text-xs font-semibold bg-primary/10 text-primary">
+                  <AvatarFallback className="text-xs  bg-primary/10 text-primary">
                     {getInitials(creator.name)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
                     <div>
-                      <h4 className="font-semibold text-sm truncate">{creator.name}</h4>
+                      <h4 className=" text-sm truncate">{creator.name}</h4>
                       <p className="text-xs text-muted-foreground">{creator.role}</p>
                     </div>
                     <div className="flex items-center gap-1">
                       <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
-                      <span className="font-semibold text-sm">{creator.influenceScore}</span>
+                      <span className=" text-sm">{creator.influenceScore}</span>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-1 mb-2">

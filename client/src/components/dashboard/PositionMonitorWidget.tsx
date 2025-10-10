@@ -192,19 +192,19 @@ export function PositionMonitorWidget() {
         <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t">
           <div>
             <p className="text-sm text-muted-foreground">Total P&L</p>
-            <p className={`text-lg font-bold ${getPnLColor(totalPnL)}`} data-testid="text-total-pnl">
+            <p className={`text-lg  ${getPnLColor(totalPnL)}`} data-testid="text-total-pnl">
               {totalPnL >= 0 ? '+' : ''}{formatCurrency(totalPnL)}
             </p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Total P&L %</p>
-            <p className={`text-lg font-bold ${getPnLColor(totalPnLPercent)}`} data-testid="text-total-pnl-percent">
+            <p className={`text-lg  ${getPnLColor(totalPnLPercent)}`} data-testid="text-total-pnl-percent">
               {totalPnLPercent >= 0 ? '+' : ''}{totalPnLPercent.toFixed(2)}%
             </p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Total Value</p>
-            <p className="text-lg font-bold" data-testid="text-total-value">
+            <p className="text-lg " data-testid="text-total-value">
               {formatCurrency(totalValue)}
             </p>
           </div>
@@ -215,7 +215,7 @@ export function PositionMonitorWidget() {
         {sortedPositions.length === 0 ? (
           <div className="text-center py-8" data-testid="empty-positions">
             <Target className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No Positions</h3>
+            <h3 className="text-lg  mb-2">No Positions</h3>
             <p className="text-sm text-muted-foreground mb-4">
               Start trading to see your positions here
             </p>
@@ -255,7 +255,7 @@ export function PositionMonitorWidget() {
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="font-medium text-sm">{position.name}</div>
+                          <div className=" text-sm">{position.name}</div>
                           <div className="text-xs text-muted-foreground flex items-center gap-1">
                             {position.symbol}
                             <Badge className={`${getTypeColor(position.type)} text-xs`}>
@@ -267,10 +267,10 @@ export function PositionMonitorWidget() {
                     </td>
                     <td className="text-right p-2 text-sm">{position.quantity}</td>
                     <td className="text-right p-2 text-sm">{formatCurrency(position.entryPrice)}</td>
-                    <td className="text-right p-2 text-sm font-medium">
+                    <td className="text-right p-2 text-sm ">
                       {formatCurrency(position.currentPrice)}
                     </td>
-                    <td className={`text-right p-2 text-sm font-bold ${getPnLColor(position.pnlDollar)}`}>
+                    <td className={`text-right p-2 text-sm  ${getPnLColor(position.pnlDollar)}`}>
                       {position.pnlDollar >= 0 ? (
                         <div className="flex items-center justify-end gap-1">
                           <Profit className="w-3 h-3" />
@@ -283,10 +283,10 @@ export function PositionMonitorWidget() {
                         </div>
                       )}
                     </td>
-                    <td className={`text-right p-2 text-sm font-bold ${getPnLColor(position.pnlPercent)}`}>
+                    <td className={`text-right p-2 text-sm  ${getPnLColor(position.pnlPercent)}`}>
                       {position.pnlPercent >= 0 ? '+' : ''}{position.pnlPercent.toFixed(2)}%
                     </td>
-                    <td className="text-right p-2 text-sm font-medium">
+                    <td className="text-right p-2 text-sm ">
                       {formatCurrency(position.totalValue)}
                     </td>
                     <td className="text-right p-2">

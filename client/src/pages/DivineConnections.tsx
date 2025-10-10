@@ -225,7 +225,7 @@ export default function DivineConnections() {
             <div className="p-3 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full">
               <Sparkles className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            <h1 className="text-4xl  bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
               Divine Connections Chamber
             </h1>
           </div>
@@ -249,33 +249,33 @@ export default function DivineConnections() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Active Connections</CardTitle>
+                  <CardTitle className="text-sm ">Active Connections</CardTitle>
                   <CheckCircle className="h-4 w-4 text-green-600" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{integrations.filter((i: ExternalIntegration) => i.status === 'active').length}</div>
+                  <div className="text-2xl ">{integrations.filter((i: ExternalIntegration) => i.status === 'active').length}</div>
                   <p className="text-xs text-muted-foreground">Divine realms connected</p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Sacred Automations</CardTitle>
+                  <CardTitle className="text-sm ">Sacred Automations</CardTitle>
                   <Zap className="h-4 w-4 text-blue-600" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{workflows.filter((w: WorkflowAutomation) => w.isActive).length}</div>
+                  <div className="text-2xl ">{workflows.filter((w: WorkflowAutomation) => w.isActive).length}</div>
                   <p className="text-xs text-muted-foreground">Active ritual workflows</p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
+                  <CardTitle className="text-sm ">Success Rate</CardTitle>
                   <BarChart3 className="h-4 w-4 text-purple-600" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">
+                  <div className="text-2xl ">
                     {analytics.length > 0 
                       ? Math.round(analytics.reduce((acc: number, a: IntegrationAnalytics) => acc + a.successRate, 0) / analytics.length * 100)
                       : 100
@@ -287,11 +287,11 @@ export default function DivineConnections() {
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Executions</CardTitle>
+                  <CardTitle className="text-sm ">Total Executions</CardTitle>
                   <Activity className="h-4 w-4 text-orange-600" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">
+                  <div className="text-2xl ">
                     {workflows.reduce((acc: number, w: WorkflowAutomation) => acc + (w.totalExecutions || 0), 0)}
                   </div>
                   <p className="text-xs text-muted-foreground">Sacred rituals performed</p>
@@ -301,7 +301,7 @@ export default function DivineConnections() {
 
             {/* Available Integrations */}
             <div className="space-y-4">
-              <h2 className="text-2xl font-bold">Available Divine Realms</h2>
+              <h2 className="text-2xl ">Available Divine Realms</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {integrationTypes.map((type) => {
                   const existingIntegration = integrations.find((i: ExternalIntegration) => i.integrationName === type.id);
@@ -376,7 +376,7 @@ export default function DivineConnections() {
           {/* Integrations Tab */}
           <TabsContent value="integrations" className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Divine Connections</h2>
+              <h2 className="text-2xl ">Divine Connections</h2>
               <Dialog open={setupDialogOpen} onOpenChange={setSetupDialogOpen}>
                 <DialogTrigger asChild>
                   <Button data-testid="button-new-integration">
@@ -456,7 +456,7 @@ export default function DivineConnections() {
                 <Card className="text-center py-12">
                   <CardContent>
                     <Sparkles className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No Divine Connections Yet</h3>
+                    <h3 className="text-lg  mb-2">No Divine Connections Yet</h3>
                     <p className="text-muted-foreground mb-4">
                       Establish your first connection to unlock the power of sacred automation.
                     </p>
@@ -473,7 +473,7 @@ export default function DivineConnections() {
           {/* Workflows Tab */}
           <TabsContent value="workflows" className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Sacred Automations</h2>
+              <h2 className="text-2xl ">Sacred Automations</h2>
               <Button data-testid="button-new-workflow">
                 <Plus className="w-4 h-4 mr-2" />
                 New Automation
@@ -514,12 +514,12 @@ export default function DivineConnections() {
                   <CardContent>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="space-y-1">
-                        <div className="text-sm font-medium">Executions</div>
-                        <div className="text-2xl font-bold">{workflow.totalExecutions || 0}</div>
+                        <div className="text-sm ">Executions</div>
+                        <div className="text-2xl ">{workflow.totalExecutions || 0}</div>
                       </div>
                       <div className="space-y-1">
-                        <div className="text-sm font-medium">Success Rate</div>
-                        <div className="text-2xl font-bold text-green-600">
+                        <div className="text-sm ">Success Rate</div>
+                        <div className="text-2xl  text-green-600">
                           {workflow.totalExecutions 
                             ? Math.round((workflow.successfulExecutions / workflow.totalExecutions) * 100) 
                             : 100
@@ -527,7 +527,7 @@ export default function DivineConnections() {
                         </div>
                       </div>
                       <div className="space-y-1">
-                        <div className="text-sm font-medium">Last Run</div>
+                        <div className="text-sm ">Last Run</div>
                         <div className="text-sm text-muted-foreground">
                           {workflow.lastRunAt 
                             ? new Date(workflow.lastRunAt).toLocaleString() 
@@ -536,7 +536,7 @@ export default function DivineConnections() {
                         </div>
                       </div>
                       <div className="space-y-1">
-                        <div className="text-sm font-medium">Next Run</div>
+                        <div className="text-sm ">Next Run</div>
                         <div className="text-sm text-muted-foreground">
                           {workflow.nextRunAt 
                             ? new Date(workflow.nextRunAt).toLocaleString()
@@ -553,7 +553,7 @@ export default function DivineConnections() {
                 <Card className="text-center py-12">
                   <CardContent>
                     <Zap className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No Sacred Automations</h3>
+                    <h3 className="text-lg  mb-2">No Sacred Automations</h3>
                     <p className="text-muted-foreground mb-4">
                       Create your first automation workflow to orchestrate divine rituals.
                     </p>
@@ -569,7 +569,7 @@ export default function DivineConnections() {
 
           {/* Analytics Tab */}
           <TabsContent value="analytics" className="space-y-6">
-            <h2 className="text-2xl font-bold">Cosmic Insights</h2>
+            <h2 className="text-2xl ">Cosmic Insights</h2>
             
             {analytics.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -582,12 +582,12 @@ export default function DivineConnections() {
                       <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1">
-                            <div className="text-sm font-medium">API Calls</div>
-                            <div className="text-2xl font-bold">{analytic.totalApiCalls}</div>
+                            <div className="text-sm ">API Calls</div>
+                            <div className="text-2xl ">{analytic.totalApiCalls}</div>
                           </div>
                           <div className="space-y-1">
-                            <div className="text-sm font-medium">Success Rate</div>
-                            <div className="text-2xl font-bold text-green-600">
+                            <div className="text-sm ">Success Rate</div>
+                            <div className="text-2xl  text-green-600">
                               {Math.round(analytic.successRate * 100)}%
                             </div>
                           </div>
@@ -615,7 +615,7 @@ export default function DivineConnections() {
               <Card className="text-center py-12">
                 <CardContent>
                   <BarChart3 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">No Analytics Available</h3>
+                  <h3 className="text-lg  mb-2">No Analytics Available</h3>
                   <p className="text-muted-foreground">
                     Analytics will appear here once your integrations start processing data.
                   </p>
@@ -660,7 +660,7 @@ function IntegrationSetupWizard({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-4">
-        <h3 className="text-lg font-medium">Configure {integration.name} Connection</h3>
+        <h3 className="text-lg ">Configure {integration.name} Connection</h3>
         
         {/* Credentials section */}
         <div className="space-y-3">

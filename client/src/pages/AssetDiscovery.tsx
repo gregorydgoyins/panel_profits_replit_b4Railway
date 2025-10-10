@@ -147,7 +147,7 @@ export default function AssetDiscovery() {
             {/* Title Section */}
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold tracking-tight font-serif" data-testid="heading-page-title">
+                <h1 className="text-3xl  tracking-tight font-serif" data-testid="heading-page-title">
                   Asset Discovery
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">
@@ -201,7 +201,7 @@ export default function AssetDiscovery() {
               <Search className="w-10 h-10 text-primary" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold mb-2">Discover Tradeable Assets</h2>
+              <h2 className="text-2xl  mb-2">Discover Tradeable Assets</h2>
               <p className="text-muted-foreground max-w-md mx-auto">
                 Use natural language to find characters, creators, and comics across publishers. 
                 Try searching for "Marvel's Batman" or "characters similar to Wonder Woman"
@@ -213,7 +213,7 @@ export default function AssetDiscovery() {
               <Card className="hover-elevate cursor-pointer" onClick={() => setSearchQuery("Marvel's Batman")}>
                 <CardContent className="p-4 text-center">
                   <Target className="w-6 h-6 mx-auto mb-2 text-purple-400" />
-                  <p className="text-sm font-medium">Marvel's Batman</p>
+                  <p className="text-sm ">Marvel's Batman</p>
                   <p className="text-xs text-muted-foreground mt-1">Cross-publisher comparison</p>
                 </CardContent>
               </Card>
@@ -221,7 +221,7 @@ export default function AssetDiscovery() {
               <Card className="hover-elevate cursor-pointer" onClick={() => setSearchQuery("characters similar to Wonder Woman")}>
                 <CardContent className="p-4 text-center">
                   <Users className="w-6 h-6 mx-auto mb-2 text-yellow-400" />
-                  <p className="text-sm font-medium">Similar to Wonder Woman</p>
+                  <p className="text-sm ">Similar to Wonder Woman</p>
                   <p className="text-xs text-muted-foreground mt-1">Semantic similarity</p>
                 </CardContent>
               </Card>
@@ -229,7 +229,7 @@ export default function AssetDiscovery() {
               <Card className="hover-elevate cursor-pointer" onClick={() => setSearchQuery("valuable golden age comics")}>
                 <CardContent className="p-4 text-center">
                   <TrendingUp className="w-6 h-6 mx-auto mb-2 text-green-400" />
-                  <p className="text-sm font-medium">Valuable Golden Age</p>
+                  <p className="text-sm ">Valuable Golden Age</p>
                   <p className="text-xs text-muted-foreground mt-1">Investment opportunities</p>
                 </CardContent>
               </Card>
@@ -276,7 +276,7 @@ export default function AssetDiscovery() {
                   <CardHeader className="space-y-2 pb-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
-                        <CardTitle className="text-base font-bold truncate" data-testid={`text-asset-name-${index}`}>
+                        <CardTitle className="text-base  truncate" data-testid={`text-asset-name-${index}`}>
                           {assetName}
                         </CardTitle>
                         <p className="text-xs text-muted-foreground truncate mt-1" data-testid={`text-asset-symbol-${index}`}>
@@ -299,7 +299,7 @@ export default function AssetDiscovery() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-xs text-muted-foreground">Current Price</p>
-                        <p className="text-xl font-bold text-foreground" data-testid={`text-asset-price-${index}`}>
+                        <p className="text-xl  text-foreground" data-testid={`text-asset-price-${index}`}>
                           {formatCurrency(assetPrice)}
                         </p>
                       </div>
@@ -307,7 +307,7 @@ export default function AssetDiscovery() {
                         <p className="text-xs text-muted-foreground">Match</p>
                         <div className="flex items-center gap-1">
                           <Zap className="w-3 h-3 text-yellow-500" />
-                          <p className="text-lg font-bold text-yellow-500" data-testid={`text-similarity-score-${index}`}>
+                          <p className="text-lg  text-yellow-500" data-testid={`text-similarity-score-${index}`}>
                             {similarityPercent}%
                           </p>
                         </div>
@@ -345,7 +345,7 @@ export default function AssetDiscovery() {
               <AlertCircle className="w-8 h-8 text-muted-foreground" />
             </div>
             <div>
-              <h2 className="text-xl font-bold mb-2">No Results Found</h2>
+              <h2 className="text-xl  mb-2">No Results Found</h2>
               <p className="text-muted-foreground max-w-md mx-auto">
                 We couldn't find any assets matching "{debouncedQuery}". 
                 Try refining your search or use different keywords.
@@ -380,7 +380,7 @@ export default function AssetDiscovery() {
               <AlertCircle className="w-8 h-8 text-destructive" />
             </div>
             <div>
-              <h2 className="text-xl font-bold mb-2">Search Error</h2>
+              <h2 className="text-xl  mb-2">Search Error</h2>
               <p className="text-muted-foreground max-w-md mx-auto">
                 Failed to perform search. Please try again later.
               </p>

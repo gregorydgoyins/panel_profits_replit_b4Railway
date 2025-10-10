@@ -223,7 +223,7 @@ export default function EasterEggsPage() {
             <Gem className="h-8 w-8 text-purple-400" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold">Easter Egg Collection</h1>
+            <h1 className="text-3xl ">Easter Egg Collection</h1>
             <p className="text-muted-foreground">
               Discover hidden achievements and unlock exclusive rewards
             </p>
@@ -245,11 +245,11 @@ export default function EasterEggsPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Collection Progress</CardTitle>
+            <CardTitle className="text-sm  text-muted-foreground">Collection Progress</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-2xl font-bold">{unlockedCount}/{totalCount}</span>
+              <span className="text-2xl ">{unlockedCount}/{totalCount}</span>
               <Trophy className="h-5 w-5 text-yellow-400" />
             </div>
             <Progress value={(unlockedCount / totalCount) * 100} className="h-2" />
@@ -258,10 +258,10 @@ export default function EasterEggsPage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Completion Rate</CardTitle>
+            <CardTitle className="text-sm  text-muted-foreground">Completion Rate</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl ">
               {totalCount > 0 ? Math.round((unlockedCount / totalCount) * 100) : 0}%
             </div>
           </CardContent>
@@ -269,11 +269,11 @@ export default function EasterEggsPage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Unclaimed Rewards</CardTitle>
+            <CardTitle className="text-sm  text-muted-foreground">Unclaimed Rewards</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <span className="text-2xl font-bold">
+              <span className="text-2xl ">
                 {unlocks.filter(u => !u.reward_claimed).length}
               </span>
               <Gift className="h-5 w-5 text-green-400" />
@@ -283,19 +283,19 @@ export default function EasterEggsPage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Rarest Unlocked</CardTitle>
+            <CardTitle className="text-sm  text-muted-foreground">Rarest Unlocked</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
               {unlocks.some(u => eggs.find(e => e.id === u.egg_id)?.rarity === 'legendary') ? (
                 <>
                   <Crown className="h-5 w-5 text-yellow-400" />
-                  <span className="text-lg font-bold text-yellow-400">Legendary</span>
+                  <span className="text-lg  text-yellow-400">Legendary</span>
                 </>
               ) : unlocks.some(u => eggs.find(e => e.id === u.egg_id)?.rarity === 'epic') ? (
                 <>
                   <Star className="h-5 w-5 text-purple-400" />
-                  <span className="text-lg font-bold text-purple-400">Epic</span>
+                  <span className="text-lg  text-purple-400">Epic</span>
                 </>
               ) : (
                 <span className="text-muted-foreground">None yet</span>
@@ -338,7 +338,7 @@ export default function EasterEggsPage() {
           {filteredEggs.length === 0 ? (
             <Card className="p-12 text-center">
               <Target className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-2">No Easter Eggs Found</h3>
+              <h3 className="text-xl  mb-2">No Easter Eggs Found</h3>
               <p className="text-muted-foreground">
                 {activeTab === 'unlocked' 
                   ? "You haven't unlocked any Easter eggs yet. Keep trading to discover hidden achievements!"
@@ -401,7 +401,7 @@ export default function EasterEggsPage() {
                         <div className="space-y-2">
                           <div className="flex items-center justify-between text-sm">
                             <span className="text-muted-foreground">Progress</span>
-                            <span className="font-medium">{Math.round(progressPercent)}%</span>
+                            <span className="">{Math.round(progressPercent)}%</span>
                           </div>
                           <Progress value={progressPercent} className="h-2" />
                         </div>
@@ -410,7 +410,7 @@ export default function EasterEggsPage() {
                       {/* Reward display */}
                       <div className="flex items-center gap-2 p-3 bg-background/50 rounded-lg">
                         <Gift className="h-4 w-4 text-primary" />
-                        <span className="text-sm font-medium">
+                        <span className="text-sm ">
                           {formatReward(egg.reward_type, egg.reward_value)}
                         </span>
                       </div>
@@ -473,7 +473,7 @@ export default function EasterEggsPage() {
                       {/* Claimed status */}
                       {isUnlocked && unlock.reward_claimed && (
                         <div className="text-center p-2 bg-green-500/10 rounded-lg">
-                          <p className="text-sm text-green-400 font-medium">
+                          <p className="text-sm text-green-400 ">
                             ✓ Reward Claimed
                           </p>
                           {unlock.reward_claimed_at && (

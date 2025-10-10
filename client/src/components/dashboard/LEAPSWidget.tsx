@@ -89,10 +89,10 @@ export function LEAPSWidget() {
                   <Badge className={leap.type === 'CALL' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}>
                     {leap.type}
                   </Badge>
-                  <span className="text-sm font-semibold">${leap.strike}</span>
+                  <span className="text-sm ">${leap.strike}</span>
                 </div>
                 <div className="text-right">
-                  <p className="text-lg font-bold">${leap.premium}</p>
+                  <p className="text-lg ">${leap.premium}</p>
                   <p className="text-xs text-muted-foreground">Premium</p>
                 </div>
               </div>
@@ -101,21 +101,21 @@ export function LEAPSWidget() {
                 <div className="flex items-center gap-4">
                   <div>
                     <span className="text-muted-foreground">Expiry:</span>{' '}
-                    <span className="font-semibold">{leap.expiry}</span>
+                    <span className="">{leap.expiry}</span>
                   </div>
                   <div>
                     <span className="text-muted-foreground">DTE:</span>{' '}
-                    <span className="font-semibold">{leap.daysToExpiry}d</span>
+                    <span className="">{leap.daysToExpiry}d</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <div>
                     <span className="text-muted-foreground">Δ:</span>{' '}
-                    <span className="font-semibold">{leap.delta.toFixed(2)}</span>
+                    <span className="">{leap.delta.toFixed(2)}</span>
                   </div>
                   <div>
                     <span className="text-muted-foreground">IV:</span>{' '}
-                    <span className="font-semibold">{leap.iv}%</span>
+                    <span className="">{leap.iv}%</span>
                   </div>
                 </div>
               </div>
@@ -128,7 +128,7 @@ export function LEAPSWidget() {
           <div className="flex items-start gap-2">
             <TrendingUp className="w-4 h-4 text-blue-500 mt-0.5" />
             <div className="text-xs">
-              <p className="font-semibold text-blue-500">Long-Term Strategy</p>
+              <p className=" text-blue-500">Long-Term Strategy</p>
               <p className="text-muted-foreground mt-1">
                 LEAPS provide leverage for directional plays with reduced time decay. 
                 Average DTE: {Math.round(leaps.reduce((sum, l) => sum + l.daysToExpiry, 0) / leaps.length)} days.

@@ -109,7 +109,7 @@ export function ComicRiskAssessmentWidget() {
                 <Badge variant={getRiskBadgeVariant(riskAssessment.overallRisk)}>
                   {riskAssessment.overallRisk.toUpperCase()}
                 </Badge>
-                <span className="text-2xl font-bold text-foreground">
+                <span className="text-2xl  text-foreground">
                   {riskAssessment.riskScore}/100
                 </span>
               </div>
@@ -121,7 +121,7 @@ export function ComicRiskAssessmentWidget() {
 
         {/* Risk Metrics */}
         <div className="space-y-3">
-          <h4 className="font-semibold text-foreground flex items-center gap-2">
+          <h4 className=" text-foreground flex items-center gap-2">
             <AlertTriangle className="w-4 h-4" />
             Risk Breakdown
           </h4>
@@ -132,7 +132,7 @@ export function ComicRiskAssessmentWidget() {
               data-testid={`risk-metric-${idx}`}
             >
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-foreground">{metric.category}</span>
+                <span className="text-sm  text-foreground">{metric.category}</span>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">{metric.exposure}%</span>
                   <Badge variant={getRiskBadgeVariant(metric.risk)} className="text-xs">
@@ -148,7 +148,7 @@ export function ComicRiskAssessmentWidget() {
 
         {/* Risk Mitigation Suggestions */}
         <div className="space-y-3">
-          <h4 className="font-semibold text-foreground flex items-center gap-2">
+          <h4 className=" text-foreground flex items-center gap-2">
             <TrendingDown className="w-4 h-4" />
             Suggested Actions
           </h4>

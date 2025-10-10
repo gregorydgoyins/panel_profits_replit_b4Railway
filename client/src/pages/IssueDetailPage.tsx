@@ -110,11 +110,11 @@ export default function IssueDetailPage() {
                 <div className="space-y-3">
                   <div>
                     <p className="text-sm text-muted-foreground">Series</p>
-                    <p className="text-lg font-bold text-foreground">{comic.series}</p>
+                    <p className="text-lg  text-foreground">{comic.series}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Issue Number</p>
-                    <p className="text-lg font-bold text-foreground">#{comic.issueNumber}</p>
+                    <p className="text-lg  text-foreground">#{comic.issueNumber}</p>
                   </div>
                   {comic.format && (
                     <div>
@@ -142,7 +142,7 @@ export default function IssueDetailPage() {
                   )}
                   <div>
                     <p className="text-sm text-muted-foreground">Current Value</p>
-                    <p className="text-2xl font-bold text-green-500">
+                    <p className="text-2xl  text-green-500">
                       ${comic.estimatedValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
                   </div>
@@ -151,7 +151,7 @@ export default function IssueDetailPage() {
                 {/* Creative Team */}
                 {comic.creators && comic.creators.length > 0 && (
                   <div className="mt-6 pt-6 border-t border-border">
-                    <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
+                    <h3 className=" text-foreground mb-3 flex items-center gap-2">
                       <Users className="w-4 h-4" />
                       Creative Team
                     </h3>
@@ -159,7 +159,7 @@ export default function IssueDetailPage() {
                       {comic.creators.map((creator, idx) => (
                         <div key={idx} className="flex justify-between text-sm">
                           <span className="text-muted-foreground">{creator.role}</span>
-                          <span className="text-foreground font-medium">{creator.name}</span>
+                          <span className="text-foreground ">{creator.name}</span>
                         </div>
                       ))}
                     </div>
@@ -174,7 +174,7 @@ export default function IssueDetailPage() {
             {/* Title and Description */}
             <Card className="!bg-[#1A1F2E]">
               <CardHeader>
-                <CardTitle className="text-3xl font-bold">{comic.title}</CardTitle>
+                <CardTitle className="text-3xl ">{comic.title}</CardTitle>
                 {comic.storyTitle && (
                   <p className="text-lg text-primary mt-2">"{comic.storyTitle}"</p>
                 )}

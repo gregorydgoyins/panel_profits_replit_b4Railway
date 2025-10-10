@@ -151,7 +151,7 @@ export default function LearnPage() {
         <div className="flex items-center gap-3 mb-4">
           <GraduationCap className="w-10 h-10 text-primary" />
           <h1 
-            className="text-4xl font-bold text-white"
+            className="text-4xl  text-white"
             style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
           >
             Learning Center
@@ -172,7 +172,7 @@ export default function LearnPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-400">Enrolled Courses</p>
-                <p className="text-2xl font-bold text-white">2</p>
+                <p className="text-2xl  text-white">2</p>
               </div>
               <BookOpen className="w-8 h-8 text-primary" />
             </div>
@@ -183,7 +183,7 @@ export default function LearnPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-400">Completed</p>
-                <p className="text-2xl font-bold text-white">0</p>
+                <p className="text-2xl  text-white">0</p>
               </div>
               <CheckCircle className="w-8 h-8 text-green-500" />
             </div>
@@ -194,7 +194,7 @@ export default function LearnPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-400">Certifications</p>
-                <p className="text-2xl font-bold text-white">0</p>
+                <p className="text-2xl  text-white">0</p>
               </div>
               <Trophy className="w-8 h-8 text-yellow-500" />
             </div>
@@ -205,7 +205,7 @@ export default function LearnPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-400">Study Time</p>
-                <p className="text-2xl font-bold text-white">12h</p>
+                <p className="text-2xl  text-white">12h</p>
               </div>
               <Clock className="w-8 h-8 text-blue-500" />
             </div>
@@ -252,7 +252,7 @@ export default function LearnPage() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-400">Progress</span>
-                      <span className="text-white font-semibold">{course.progress}%</span>
+                      <span className="text-white ">{course.progress}%</span>
                     </div>
                     <Progress value={course.progress} className="h-2" />
                   </div>

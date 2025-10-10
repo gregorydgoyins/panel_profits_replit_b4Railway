@@ -220,7 +220,7 @@ export function PriceHistoryChartWidget({
             <div className="h-[280px] flex flex-col items-center justify-center text-center gap-2">
               <TrendingDown className="w-8 h-8 text-destructive" />
               <div>
-                <p className="font-medium text-destructive">Failed to load price history</p>
+                <p className=" text-destructive">Failed to load price history</p>
                 <p className="text-sm text-muted-foreground mt-1">
                   {error instanceof Error ? error.message : 'Unknown error'}
                 </p>
@@ -235,7 +235,7 @@ export function PriceHistoryChartWidget({
                   ) : (
                     <TrendingDown className="w-5 h-5 text-red-500" />
                   )}
-                  <span className={`text-lg font-bold ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
+                  <span className={`text-lg  ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
                     {isPositive ? '+' : ''}{percentChange.toFixed(2)}%
                   </span>
                   <span className="text-sm text-muted-foreground">
@@ -244,7 +244,7 @@ export function PriceHistoryChartWidget({
                 </div>
                 <div className="text-right">
                   <div className="text-xs text-muted-foreground">Range</div>
-                  <div className="text-sm font-medium">
+                  <div className="text-sm ">
                     ${priceHistory.stats.low.toLocaleString()} - ${priceHistory.stats.high.toLocaleString()}
                   </div>
                 </div>

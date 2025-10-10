@@ -95,7 +95,7 @@ export function InstitutionalOrderFlowWidget() {
               >
                 {/* Asset Info */}
                 <div className="flex flex-col justify-center min-w-0">
-                  <div className="font-mono text-sm font-semibold text-foreground truncate" data-testid={`text-symbol-${flow.symbol}`}>
+                  <div className="font-mono text-sm  text-foreground truncate" data-testid={`text-symbol-${flow.symbol}`}>
                     {flow.symbol}
                   </div>
                   <div className="font-mono text-xs text-muted-foreground truncate" data-testid={`text-name-${flow.assetId}`}>
@@ -105,7 +105,7 @@ export function InstitutionalOrderFlowWidget() {
 
                 {/* Pressure Gauge */}
                 <div className="flex items-center justify-end">
-                  <div className={`font-mono text-sm font-bold ${getPressureTextColor(flow.pressure)}`} data-testid={`text-pressure-${flow.assetId}`}>
+                  <div className={`font-mono text-sm  ${getPressureTextColor(flow.pressure)}`} data-testid={`text-pressure-${flow.assetId}`}>
                     {flow.pressure > 0 ? '+' : ''}{flow.pressure.toFixed(0)}%
                   </div>
                   {flow.pressure > 0 ? (
@@ -141,19 +141,19 @@ export function InstitutionalOrderFlowWidget() {
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
                 <div className="text-xs text-muted-foreground font-mono">ASSETS TRACKED</div>
-                <div className="text-lg font-mono font-bold text-foreground" data-testid="text-assets-tracked">
+                <div className="text-lg font-mono  text-foreground" data-testid="text-assets-tracked">
                   {data.totalAssets}
                 </div>
               </div>
               <div>
                 <div className="text-xs text-muted-foreground font-mono">BUY PRESSURE</div>
-                <div className="text-lg font-mono font-bold text-green-500" data-testid="text-buy-pressure">
+                <div className="text-lg font-mono  text-green-500" data-testid="text-buy-pressure">
                   {data.data.filter(f => f.pressure > 0).length}
                 </div>
               </div>
               <div>
                 <div className="text-xs text-muted-foreground font-mono">SELL PRESSURE</div>
-                <div className="text-lg font-mono font-bold text-red-500" data-testid="text-sell-pressure">
+                <div className="text-lg font-mono  text-red-500" data-testid="text-sell-pressure">
                   {data.data.filter(f => f.pressure < 0).length}
                 </div>
               </div>

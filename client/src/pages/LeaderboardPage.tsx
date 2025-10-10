@@ -154,7 +154,7 @@ export default function LeaderboardPage() {
             <Trophy className="h-8 w-8 text-yellow-400" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold">Trading Leaderboards</h1>
+            <h1 className="text-3xl ">Trading Leaderboards</h1>
             <p className="text-muted-foreground">
               Compete with the best traders on Panel Profits
             </p>
@@ -181,7 +181,7 @@ export default function LeaderboardPage() {
                 <Users className="h-5 w-5 text-blue-400" />
                 <div>
                   <div className="text-sm text-muted-foreground">Active Traders</div>
-                  <div className="text-xl font-bold">{formatNumber(overview.totalActiveTraders)}</div>
+                  <div className="text-xl ">{formatNumber(overview.totalActiveTraders)}</div>
                 </div>
               </div>
             </CardContent>
@@ -193,7 +193,7 @@ export default function LeaderboardPage() {
                 <TrendingUp className="h-5 w-5 text-green-400" />
                 <div>
                   <div className="text-sm text-muted-foreground">Total Trades</div>
-                  <div className="text-xl font-bold">{formatNumber(overview.totalTrades)}</div>
+                  <div className="text-xl ">{formatNumber(overview.totalTrades)}</div>
                 </div>
               </div>
             </CardContent>
@@ -205,7 +205,7 @@ export default function LeaderboardPage() {
                 <Target className="h-5 w-5 text-purple-400" />
                 <div>
                   <div className="text-sm text-muted-foreground">Trading Volume</div>
-                  <div className="text-xl font-bold">{formatCurrency(overview.totalVolume)}</div>
+                  <div className="text-xl ">{formatCurrency(overview.totalVolume)}</div>
                 </div>
               </div>
             </CardContent>
@@ -217,7 +217,7 @@ export default function LeaderboardPage() {
                 <Crown className="h-5 w-5 text-yellow-400" />
                 <div>
                   <div className="text-sm text-muted-foreground">Top Performer</div>
-                  <div className="text-sm font-semibold truncate">
+                  <div className="text-sm  truncate">
                     {overview.topPerformer?.user 
                       ? (overview.topPerformer.user.firstName && overview.topPerformer.user.lastName 
                           ? `${overview.topPerformer.user.firstName} ${overview.topPerformer.user.lastName}`
@@ -254,13 +254,13 @@ export default function LeaderboardPage() {
                   data-testid={`user-rank-${ranking.category.categoryType}`}
                 >
                   <div>
-                    <div className="text-sm font-medium">{ranking.category.name}</div>
+                    <div className="text-sm ">{ranking.category.name}</div>
                     <div className="text-xs text-muted-foreground">
                       {ranking.category.timeframe.replace('_', ' ')}
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold">#{ranking.rank}</div>
+                    <div className="">#{ranking.rank}</div>
                     <div className="text-xs text-muted-foreground">
                       of {formatNumber(ranking.totalUsers)}
                     </div>
@@ -299,7 +299,7 @@ export default function LeaderboardPage() {
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-semibold text-lg">{currentLeaderboard.category.name}</h3>
+                        <h3 className=" text-lg">{currentLeaderboard.category.name}</h3>
                         <p className="text-sm text-muted-foreground">
                           {formatNumber(currentLeaderboard.totalParticipants)} participants • 
                           Last updated: {new Date(currentLeaderboard.lastUpdated).toLocaleTimeString()}
@@ -309,7 +309,7 @@ export default function LeaderboardPage() {
                       {getUserRankInActiveCategory() && (
                         <div className="text-right">
                           <div className="text-sm text-muted-foreground">Your Rank</div>
-                          <div className="text-2xl font-bold text-primary">
+                          <div className="text-2xl  text-primary">
                             #{getUserRankInActiveCategory()?.rank}
                           </div>
                         </div>
@@ -371,7 +371,7 @@ export default function LeaderboardPage() {
               <Card>
                 <CardContent className="p-8 text-center">
                   <Trophy className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No Rankings Available</h3>
+                  <h3 className="text-lg  mb-2">No Rankings Available</h3>
                   <p className="text-muted-foreground mb-4">
                     Be the first to start trading and appear on this leaderboard!
                   </p>
@@ -405,14 +405,14 @@ export default function LeaderboardPage() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="text-sm">
-                      <span className="font-medium">
+                      <span className="">
                         {achievement.user.firstName && achievement.user.lastName 
                           ? `${achievement.user.firstName} ${achievement.user.lastName}` 
                           : achievement.user.email?.split('@')[0] || 'Anonymous'
                         }
                       </span>
                       <span className="text-muted-foreground"> earned </span>
-                      <span className="font-medium text-primary">{achievement.title}</span>
+                      <span className=" text-primary">{achievement.title}</span>
                     </div>
                   </div>
                   <div className="text-xs text-muted-foreground">

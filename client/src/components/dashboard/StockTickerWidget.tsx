@@ -87,13 +87,13 @@ export function StockTickerWidget() {
             data-testid={`ticker-item-${asset.symbol}-${index}`}
           >
             <span 
-              className="font-semibold text-sm text-foreground"
+              className=" text-sm text-foreground"
               style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             >
               {asset.symbol}
             </span>
             <span 
-              className="text-lg font-bold text-foreground"
+              className="text-lg  text-foreground"
               style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             >
               ${asset.currentPrice >= 1000 
@@ -107,7 +107,7 @@ export function StockTickerWidget() {
                 <TrendingDown className="w-3 h-3" />
               )}
               <span 
-                className="text-sm font-medium"
+                className="text-sm "
                 style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
               >
                 {asset.changePercent >= 0 ? '+' : ''}{asset.changePercent.toFixed(2)}%

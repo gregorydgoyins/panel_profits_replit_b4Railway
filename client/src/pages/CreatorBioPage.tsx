@@ -107,7 +107,7 @@ export default function CreatorBioPage() {
 
               {/* Name and Role */}
               <div className="flex-1">
-                <CardTitle className="text-3xl font-bold mb-3">{creator.name}</CardTitle>
+                <CardTitle className="text-3xl  mb-3">{creator.name}</CardTitle>
                 <Badge className="mb-3 bg-primary text-primary-foreground text-base">
                   {creator.role}
                 </Badge>
@@ -139,7 +139,7 @@ export default function CreatorBioPage() {
           <CardContent className="space-y-8">
             {/* Biography */}
             <section>
-              <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+              <h2 className="text-2xl  mb-4 flex items-center gap-2">
                 <User className="w-6 h-6 text-primary" />
                 Biography
               </h2>
@@ -151,7 +151,7 @@ export default function CreatorBioPage() {
             {/* Role in This Issue */}
             {creator.roleInThisIssue && (
               <section className="bg-primary/10 border border-primary/20 rounded-lg p-6">
-                <h2 className="text-2xl font-bold mb-4 text-primary">Role in This Issue</h2>
+                <h2 className="text-2xl  mb-4 text-primary">Role in This Issue</h2>
                 <p className="text-foreground/80 leading-relaxed text-lg">
                   {creator.roleInThisIssue}
                 </p>
@@ -161,7 +161,7 @@ export default function CreatorBioPage() {
             {/* Style Signature */}
             {creator.styleSignature && (
               <section>
-                <h2 className="text-2xl font-bold mb-4">Artistic Signature</h2>
+                <h2 className="text-2xl  mb-4">Artistic Signature</h2>
                 <p className="text-foreground/80 leading-relaxed text-lg">
                   {creator.styleSignature}
                 </p>
@@ -171,7 +171,7 @@ export default function CreatorBioPage() {
             {/* Contribution to Comic Art */}
             {creator.contributionToComicArt && (
               <section className="bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-6">
-                <h2 className="text-2xl font-bold mb-4 text-indigo-400">Contribution to Comic Art History</h2>
+                <h2 className="text-2xl  mb-4 text-indigo-400">Contribution to Comic Art History</h2>
                 <p className="text-foreground/80 leading-relaxed text-lg">
                   {creator.contributionToComicArt}
                 </p>
@@ -181,7 +181,7 @@ export default function CreatorBioPage() {
             {/* Notable Works */}
             {creator.notableWorks && creator.notableWorks.length > 0 && (
               <section>
-                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                <h2 className="text-2xl  mb-4 flex items-center gap-2">
                   <Book className="w-6 h-6 text-yellow-500" />
                   Notable Works
                 </h2>
@@ -199,7 +199,7 @@ export default function CreatorBioPage() {
             {/* Awards and Recognition */}
             {creator.awards && creator.awards.length > 0 && (
               <section>
-                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                <h2 className="text-2xl  mb-4 flex items-center gap-2">
                   <Award className="w-6 h-6 text-yellow-500" />
                   Awards & Recognition
                 </h2>
@@ -217,7 +217,7 @@ export default function CreatorBioPage() {
             {/* Legacy Statement */}
             {creator.legacyStatement && (
               <section className="bg-green-500/10 border border-green-500/20 rounded-lg p-6">
-                <h2 className="text-2xl font-bold mb-4 text-green-500">Legacy & Influence</h2>
+                <h2 className="text-2xl  mb-4 text-green-500">Legacy & Influence</h2>
                 <p className="text-foreground/80 leading-relaxed text-lg">
                   {creator.legacyStatement}
                 </p>
@@ -227,14 +227,14 @@ export default function CreatorBioPage() {
             {/* Market Influence */}
             {creator.marketInfluence > 0 && (
               <section className="border-t border-border pt-6">
-                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                <h2 className="text-2xl  mb-4 flex items-center gap-2">
                   <TrendingUp className="w-6 h-6 text-green-500" />
                   Market Influence
                 </h2>
                 <div className="bg-muted/50 rounded-lg p-6">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-muted-foreground">Influence Score</span>
-                    <span className="text-3xl font-bold text-green-500">{creator.marketInfluence.toFixed(1)}/100</span>
+                    <span className="text-3xl  text-green-500">{creator.marketInfluence.toFixed(1)}/100</span>
                   </div>
                   <div className="w-full bg-border rounded-full h-3">
                     <div

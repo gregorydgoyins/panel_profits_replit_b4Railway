@@ -115,7 +115,7 @@ export function AIRecommendationsWidget() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className={`text-lg font-bold ${getConfidenceColor(rec.confidence)}`}>
+                  <p className={`text-lg  ${getConfidenceColor(rec.confidence)}`}>
                     {rec.confidence}%
                   </p>
                   <p className="text-xs text-muted-foreground">Confidence</p>
@@ -128,13 +128,13 @@ export function AIRecommendationsWidget() {
                 {rec.targetPrice && (
                   <div>
                     <span className="text-muted-foreground">Target:</span>{' '}
-                    <span className="font-semibold text-green-500">${rec.targetPrice}</span>
+                    <span className=" text-green-500">${rec.targetPrice}</span>
                   </div>
                 )}
                 {rec.stopLoss && (
                   <div>
                     <span className="text-muted-foreground">Stop:</span>{' '}
-                    <span className="font-semibold text-red-500">${rec.stopLoss}</span>
+                    <span className=" text-red-500">${rec.stopLoss}</span>
                   </div>
                 )}
               </div>
@@ -146,7 +146,7 @@ export function AIRecommendationsWidget() {
           <div className="flex items-start gap-2">
             <Brain className="w-4 h-4 text-blue-500 mt-0.5" />
             <div className="text-xs">
-              <p className="font-semibold text-blue-500">AI Consensus</p>
+              <p className=" text-blue-500">AI Consensus</p>
               <p className="text-muted-foreground mt-1">
                 2 Buy signals, 1 Sell signal, 1 Hold. Average confidence: {Math.round(recommendations.reduce((sum, r) => sum + r.confidence, 0) / recommendations.length)}%.
                 Seven Houses algorithmic strategies aligned.

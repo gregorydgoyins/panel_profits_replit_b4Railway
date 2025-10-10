@@ -13,3 +13,4 @@ export { default as StoryArcExplorerWidget } from './StoryArcExplorerWidget';
 export { default as NarrativeMilestonesWidget } from './NarrativeMilestonesWidget';
 export { default as AppearanceTrackerWidget } from './AppearanceTrackerWidget';
 export { default as RelationshipWebWidget } from './RelationshipWebWidget';
+export { CreatorCollaborationsWidget } from './CreatorCollaborationsWidget';

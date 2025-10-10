@@ -41,7 +41,7 @@ export default function WhaleTrackerWidget() {
             <Fish className="w-4 h-4 text-cyan-400" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-gray-100">Whale Movement Tracker</h3>
+            <h3 className="text-sm  text-gray-100">Whale Movement Tracker</h3>
             <p className="text-xs text-gray-500">Large institutional position changes</p>
           </div>
         </div>
@@ -76,7 +76,7 @@ export default function WhaleTrackerWidget() {
                   ) : (
                     <TrendingDown className="w-3 h-3" />
                   )}
-                  <span className="text-xs font-bold uppercase">{activity.tradeType}</span>
+                  <span className="text-xs  uppercase">{activity.tradeType}</span>
                 </div>
               </div>
 

@@ -56,7 +56,7 @@ export function ComicRecommendationsWidget() {
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 space-y-2">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h4 className="font-semibold text-foreground">{rec.name}</h4>
+                    <h4 className=" text-foreground">{rec.name}</h4>
                     <Badge variant="outline" className="text-xs">{rec.symbol}</Badge>
                   </div>
 
@@ -89,7 +89,7 @@ export function ComicRecommendationsWidget() {
                 </div>
 
                 <div className="text-right shrink-0">
-                  <p className="text-lg font-bold text-foreground">
+                  <p className="text-lg  text-foreground">
                     ${rec.currentPrice.toLocaleString()}
                   </p>
                   <Button size="sm" variant="outline" className="mt-2" data-testid={`button-trade-${rec.symbol}`}>

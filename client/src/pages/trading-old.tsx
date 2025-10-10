@@ -528,7 +528,7 @@ export default function TradingPage() {
           <div className="bg-black border-2 border-red-600 p-6 max-w-md animate-shake-once">
             <div className="flex items-center gap-3 mb-4">
               <Skull className="h-8 w-8 text-red-600 animate-pulse" />
-              <h3 className="text-xl font-bold text-red-600 font-mono">
+              <h3 className="text-xl  text-red-600 font-mono">
                 MORAL CONSEQUENCE WARNING
               </h3>
             </div>
@@ -536,7 +536,7 @@ export default function TradingPage() {
             <div className="space-y-4 mb-6">
               <p className="text-red-400">
                 This trade will cause approximately{' '}
-                <span className="font-bold text-red-500 text-xl">
+                <span className=" text-red-500 text-xl">
                   {potentialVictimCount}
                 </span>{' '}
                 {potentialVictimCount === 1 ? 'family' : 'families'} to suffer financial losses.
@@ -550,7 +550,7 @@ export default function TradingPage() {
               
               <p className="text-red-400 font-mono text-sm">
                 Your corruption will increase by{' '}
-                <span className="text-red-500 font-bold">
+                <span className="text-red-500 ">
                   +{Math.min((parseFloat(orderQuantity) * (realtimePrice?.price || 0) / 10000) * 2, 10).toFixed(1)}
                 </span>{' '}
                 points.
@@ -696,7 +696,7 @@ export default function TradingPage() {
                 <div className="flex justify-between items-center">
                   <span className="text-green-500 font-mono text-xs">PRICE</span>
                   <span className={cn(
-                    "font-mono text-lg font-bold transition-all duration-300",
+                    "font-mono text-lg  transition-all duration-300",
                     realtimePrice?.flash === 'up' ? "text-green-400" :
                     realtimePrice?.flash === 'down' ? "text-red-400" : "text-green-500"
                   )}>
@@ -780,7 +780,7 @@ export default function TradingPage() {
 
             <button
               className={cn(
-                "w-full py-3 font-mono text-sm uppercase transition-all font-bold",
+                "w-full py-3 font-mono text-sm uppercase transition-all ",
                 orderType === 'buy'
                   ? "bg-green-500/20 text-green-500 border border-green-500 hover:bg-green-500/30 hover:shadow-[0_0_30px_rgba(0,255,0,0.5)]"
                   : "bg-red-500/20 text-red-500 border border-red-500 hover:bg-red-500/30 hover:shadow-[0_0_30px_rgba(255,0,0,0.5)]"
@@ -899,7 +899,7 @@ export default function TradingPage() {
                       <div className="p-2 border border-green-900/20">
                         <div className="flex justify-between items-center">
                           <span className="text-green-500 font-mono text-xs">PORTFOLIO VALUE</span>
-                          <span className="text-green-500 font-mono text-sm font-bold">
+                          <span className="text-green-500 font-mono text-sm ">
                             {formatCurrency(tradingStats.totalPortfolioValue)}
                           </span>
                         </div>
@@ -908,7 +908,7 @@ export default function TradingPage() {
                         <div className="flex justify-between items-center">
                           <span className="text-green-500 font-mono text-xs">DAY P&L</span>
                           <span className={cn(
-                            "font-mono text-sm font-bold",
+                            "font-mono text-sm ",
                             tradingStats.profitToday >= 0 ? "text-green-500" : "text-red-500"
                           )}>
                             {tradingStats.profitToday >= 0 ? '+' : ''}{formatCurrency(tradingStats.profitToday)}
@@ -958,7 +958,7 @@ export default function TradingPage() {
           <div className="flex items-center gap-2">
             <HouseEmblem size="lg" variant="soft" />
             <div>
-              <h1 className="text-3xl font-bold flex items-center gap-2">
+              <h1 className="text-3xl  flex items-center gap-2">
                 Trading Desk
                 <HouseBadge size="sm" variant="secondary" showIcon={false} />
               </h1>
@@ -985,11 +985,11 @@ export default function TradingPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card data-testid="card-available-balance">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Available Balance</CardTitle>
+            <CardTitle className="text-sm ">Available Balance</CardTitle>
             <Wallet className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(tradingStats.availableBalance)}</div>
+            <div className="text-2xl ">{formatCurrency(tradingStats.availableBalance)}</div>
             <p className="text-xs text-muted-foreground">
               Cash available for trading
             </p>
@@ -998,11 +998,11 @@ export default function TradingPage() {
 
         <Card data-testid="card-daily-limit">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Daily Trading Limit</CardTitle>
+            <CardTitle className="text-sm ">Daily Trading Limit</CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl ">
               {formatCurrency(tradingStats.dayTradingLimit - tradingStats.dayTradingUsed)}
             </div>
             <div className="flex items-center gap-2 mt-2">
@@ -1024,11 +1024,11 @@ export default function TradingPage() {
 
         <Card data-testid="card-portfolio-value">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Portfolio Value</CardTitle>
+            <CardTitle className="text-sm ">Portfolio Value</CardTitle>
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(tradingStats.totalPortfolioValue)}</div>
+            <div className="text-2xl ">{formatCurrency(tradingStats.totalPortfolioValue)}</div>
             <p className="text-xs text-muted-foreground">
               Total invested assets
             </p>
@@ -1037,11 +1037,11 @@ export default function TradingPage() {
 
         <Card data-testid="card-trading-activity">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Today's Activity</CardTitle>
+            <CardTitle className="text-sm ">Today's Activity</CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{tradingStats.totalTrades}</div>
+            <div className="text-2xl ">{tradingStats.totalTrades}</div>
             <p className="text-xs text-muted-foreground">
               Total trades executed
             </p>
@@ -1061,7 +1061,7 @@ export default function TradingPage() {
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-orange-600" />
               <div>
-                <h4 className="font-medium text-orange-800">Market is Currently Closed</h4>
+                <h4 className=" text-orange-800">Market is Currently Closed</h4>
                 <p className="text-sm text-orange-700">
                   Orders can be placed but will be executed when the market opens (9:00 AM - 4:00 PM).
                 </p>
@@ -1191,32 +1191,32 @@ export default function TradingPage() {
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span className="text-sm text-muted-foreground">Cash Balance:</span>
-                        <span className="font-medium">{formatCurrency(tradingStats.availableBalance)}</span>
+                        <span className="">{formatCurrency(tradingStats.availableBalance)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm text-muted-foreground">Portfolio Value:</span>
-                        <span className="font-medium">{formatCurrency(tradingStats.totalPortfolioValue)}</span>
+                        <span className="">{formatCurrency(tradingStats.totalPortfolioValue)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm text-muted-foreground">Total Value:</span>
-                        <span className="font-bold text-lg">
+                        <span className=" text-lg">
                           {formatCurrency(tradingStats.availableBalance + tradingStats.totalPortfolioValue)}
                         </span>
                       </div>
                 <div className="border-t pt-3">
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Daily P&L:</span>
-                    <span className={`font-medium ${tradingStats.profitToday >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <span className={` ${tradingStats.profitToday >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {tradingStats.profitToday >= 0 ? '+' : ''}{formatCurrency(tradingStats.profitToday)}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Total Trades:</span>
-                    <span className="font-medium">{tradingStats.totalTrades}</span>
+                    <span className="">{tradingStats.totalTrades}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">Pending Orders:</span>
-                    <span className="font-medium">{tradingStats.pendingOrders}</span>
+                    <span className="">{tradingStats.pendingOrders}</span>
                   </div>
                 </div>
               </div>
@@ -1244,7 +1244,7 @@ export default function TradingPage() {
                 
                 {/* Risk Management */}
                     <div className="p-3 bg-muted/50 rounded-lg">
-                      <h4 className="font-medium text-sm mb-2">Risk Management</h4>
+                      <h4 className=" text-sm mb-2">Risk Management</h4>
                       <div className="space-y-1 text-xs text-muted-foreground">
                         <div className="flex justify-between">
                           <span>Risk Tolerance:</span>

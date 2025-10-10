@@ -143,7 +143,7 @@ export default function BeatTheAI() {
       <div className="p-6 space-y-6">
         <div className="text-center">
           <TrophyIcon className="w-12 h-12 mx-auto mb-4 text-yellow-500 animate-pulse" />
-          <h1 className="text-3xl font-bold text-yellow-600">Beat the AI</h1>
+          <h1 className="text-3xl  text-yellow-600">Beat the AI</h1>
           <p className="text-muted-foreground mt-2">Loading challenges...</p>
         </div>
       </div>
@@ -156,7 +156,7 @@ export default function BeatTheAI() {
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center gap-3">
           <TrophyIcon className="w-10 h-10 text-yellow-500" />
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">Beat the AI</h1>
+          <h1 className="text-4xl  bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">Beat the AI</h1>
           <Badge variant="secondary" className="text-xs animate-pulse">$50K+ PRIZES</Badge>
         </div>
         <p className="text-muted-foreground text-lg">Compete against our AI in comic market prediction challenges</p>
@@ -165,25 +165,25 @@ export default function BeatTheAI() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="pt-6 text-center">
-              <div className="text-2xl font-bold text-yellow-600">847</div>
+              <div className="text-2xl  text-yellow-600">847</div>
               <div className="text-xs text-muted-foreground">Active Players</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6 text-center">
-              <div className="text-2xl font-bold text-green-600">{formatCurrency(73250)}</div>
+              <div className="text-2xl  text-green-600">{formatCurrency(73250)}</div>
               <div className="text-xs text-muted-foreground">Total Prizes Won</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6 text-center">
-              <div className="text-2xl font-bold text-blue-600">68.5%</div>
+              <div className="text-2xl  text-blue-600">68.5%</div>
               <div className="text-xs text-muted-foreground">AI Win Rate</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6 text-center">
-              <div className="text-2xl font-bold text-purple-600">3</div>
+              <div className="text-2xl  text-purple-600">3</div>
               <div className="text-xs text-muted-foreground">Active Challenges</div>
             </CardContent>
           </Card>
@@ -220,7 +220,7 @@ export default function BeatTheAI() {
                     <CardDescription className="mt-2">{challenge.description}</CardDescription>
                   </div>
                   <div className="text-right">
-                    <div className="text-3xl font-bold text-yellow-600">
+                    <div className="text-3xl  text-yellow-600">
                       {formatCurrency(challenge.prizePool)}
                     </div>
                     <div className="text-xs text-muted-foreground">Prize Pool</div>
@@ -233,25 +233,25 @@ export default function BeatTheAI() {
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-2 mb-2">
                       <BrainIcon className="w-5 h-5 text-blue-500" />
-                      <span className="font-semibold">AI Prediction</span>
+                      <span className="">AI Prediction</span>
                     </div>
-                    <div className="text-2xl font-bold text-blue-600">{challenge.aiPrediction}%</div>
+                    <div className="text-2xl  text-blue-600">{challenge.aiPrediction}%</div>
                     <div className="text-xs text-muted-foreground">Expected Return</div>
                   </div>
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-2 mb-2">
                       <UsersIcon className="w-5 h-5 text-green-500" />
-                      <span className="font-semibold">Human Average</span>
+                      <span className="">Human Average</span>
                     </div>
-                    <div className="text-2xl font-bold text-green-600">+8.3%</div>
+                    <div className="text-2xl  text-green-600">+8.3%</div>
                     <div className="text-xs text-muted-foreground">Crowd Prediction</div>
                   </div>
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-2 mb-2">
                       <CalendarIcon className="w-5 h-5 text-purple-500" />
-                      <span className="font-semibold">Time Remaining</span>
+                      <span className="">Time Remaining</span>
                     </div>
-                    <div className="text-2xl font-bold text-purple-600">
+                    <div className="text-2xl  text-purple-600">
                       {Math.ceil((new Date(challenge.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))}d
                     </div>
                     <div className="text-xs text-muted-foreground">Days Left</div>
@@ -260,13 +260,13 @@ export default function BeatTheAI() {
                 
                 {/* Challenge Assets */}
                 <div>
-                  <h4 className="font-semibold mb-3">Make Your Predictions</h4>
+                  <h4 className=" mb-3">Make Your Predictions</h4>
                   <div className="grid gap-3">
                     {challenge.targetAssets.map((asset: string, idx: number) => (
                       <div key={asset} className="border rounded-lg p-4 space-y-3">
                         <div className="flex justify-between items-center">
                           <div>
-                            <div className="font-medium">{asset}</div>
+                            <div className="">{asset}</div>
                             <div className="text-sm text-muted-foreground">
                               Predict 30-day price change (%)
                             </div>
@@ -294,7 +294,7 @@ export default function BeatTheAI() {
                           </div>
                           <div className="text-center">
                             <div className="text-sm text-muted-foreground">AI Prediction</div>
-                            <div className="text-lg font-bold text-blue-600">
+                            <div className="text-lg  text-blue-600">
                               {challenge.aiPrediction > 0 ? '+' : ''}{challenge.aiPrediction}%
                             </div>
                           </div>
@@ -349,7 +349,7 @@ export default function BeatTheAI() {
                     data-testid={`leaderboard-rank-${entry.rank}`}
                   >
                     <div className="flex items-center gap-4">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center  text-sm ${
                         entry.rank === 1 ? 'bg-yellow-500 text-white' :
                         entry.rank === 2 ? 'bg-gray-400 text-white' :
                         entry.rank === 3 ? 'bg-orange-500 text-white' :
@@ -358,14 +358,14 @@ export default function BeatTheAI() {
                         {entry.rank}
                       </div>
                       <div>
-                        <div className="font-semibold">{entry.username}</div>
+                        <div className="">{entry.username}</div>
                         <div className="text-sm text-muted-foreground">
                           {entry.totalPredictions} predictions • {entry.accuracy}% accuracy
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold text-green-600">{formatCurrency(entry.winnings)}</div>
+                      <div className=" text-green-600">{formatCurrency(entry.winnings)}</div>
                       <div className="text-sm text-muted-foreground">Score: {entry.score}</div>
                     </div>
                   </div>
@@ -374,7 +374,7 @@ export default function BeatTheAI() {
               
               <div className="mt-6 text-center p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg">
                 <div className="text-sm text-muted-foreground mb-2">Your Current Ranking</div>
-                <div className="font-bold text-lg">#23 of 847 players</div>
+                <div className=" text-lg">#23 of 847 players</div>
                 <div className="text-sm text-green-600">+5 positions this week</div>
               </div>
             </CardContent>

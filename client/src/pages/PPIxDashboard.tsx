@@ -92,7 +92,7 @@ export default function PPIxDashboard() {
     return (
       <div className="container mx-auto p-6 space-y-6">
         <div className="text-center">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+          <h1 className="text-4xl  bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
             PPIx Market Indices
           </h1>
           <p className="text-muted-foreground">Loading comic book market indices...</p>
@@ -123,7 +123,7 @@ export default function PPIxDashboard() {
       <div className="container mx-auto p-6">
         <Card className="text-center">
           <CardContent className="pt-6">
-            <h2 className="text-2xl font-bold mb-4">PPIx Indices Unavailable</h2>
+            <h2 className="text-2xl  mb-4">PPIx Indices Unavailable</h2>
             <p className="text-muted-foreground mb-4">
               Unable to load market indices. Please check your subscription or try again later.
             </p>
@@ -143,7 +143,7 @@ export default function PPIxDashboard() {
     <div className="container mx-auto p-6 space-y-6" data-testid="ppix-dashboard">
       {/* Header */}
       <div className="text-center">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+        <h1 className="text-4xl  bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
           PPIx Market Indices
         </h1>
         <p className="text-muted-foreground text-lg">
@@ -177,7 +177,7 @@ export default function PPIxDashboard() {
                 <CardDescription>Top 50 stable comic assets</CardDescription>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold" data-testid="text-ppix50-value">
+                <div className="text-2xl " data-testid="text-ppix50-value">
                   {formatPrice(ppix50.currentValue)}
                 </div>
                 <div className={`text-sm flex items-center gap-1 ${getChangeColor(ppix50.dayChange)}`}>
@@ -191,11 +191,11 @@ export default function PPIxDashboard() {
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-muted-foreground">Volume:</span>
-                <div className="font-semibold">{ppix50.volume.toLocaleString()}</div>
+                <div className="">{ppix50.volume.toLocaleString()}</div>
               </div>
               <div>
                 <span className="text-muted-foreground">Assets:</span>
-                <div className="font-semibold">{ppix50.constituents.length}</div>
+                <div className="">{ppix50.constituents.length}</div>
               </div>
             </div>
           </CardContent>
@@ -212,7 +212,7 @@ export default function PPIxDashboard() {
                 <CardDescription>Top 100 growth comic assets</CardDescription>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold" data-testid="text-ppix100-value">
+                <div className="text-2xl " data-testid="text-ppix100-value">
                   {formatPrice(ppix100.currentValue)}
                 </div>
                 <div className={`text-sm flex items-center gap-1 ${getChangeColor(ppix100.dayChange)}`}>
@@ -226,11 +226,11 @@ export default function PPIxDashboard() {
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-muted-foreground">Volume:</span>
-                <div className="font-semibold">{ppix100.volume.toLocaleString()}</div>
+                <div className="">{ppix100.volume.toLocaleString()}</div>
               </div>
               <div>
                 <span className="text-muted-foreground">Assets:</span>
-                <div className="font-semibold">{ppix100.constituents.length}</div>
+                <div className="">{ppix100.constituents.length}</div>
               </div>
             </div>
           </CardContent>
@@ -265,25 +265,25 @@ export default function PPIxDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="text-center">
               <div className="text-sm text-muted-foreground">Current Value</div>
-              <div className="text-2xl font-bold" data-testid="text-selected-value">
+              <div className="text-2xl " data-testid="text-selected-value">
                 {formatPrice(selectedIndexData.currentValue)}
               </div>
             </div>
             <div className="text-center">
               <div className="text-sm text-muted-foreground">Day Change</div>
-              <div className={`text-lg font-semibold ${getChangeColor(selectedIndexData.dayChange)}`}>
+              <div className={`text-lg  ${getChangeColor(selectedIndexData.dayChange)}`}>
                 {formatChange(selectedIndexData.dayChange)}
               </div>
             </div>
             <div className="text-center">
               <div className="text-sm text-muted-foreground">Week Change</div>
-              <div className={`text-lg font-semibold ${getChangeColor(selectedIndexData.weekChange)}`}>
+              <div className={`text-lg  ${getChangeColor(selectedIndexData.weekChange)}`}>
                 {formatChange(selectedIndexData.weekChange)}
               </div>
             </div>
             <div className="text-center">
               <div className="text-sm text-muted-foreground">Volume</div>
-              <div className="text-lg font-semibold">
+              <div className="text-lg ">
                 {selectedIndexData.volume.toLocaleString()}
               </div>
             </div>
@@ -306,7 +306,7 @@ export default function PPIxDashboard() {
 
           {/* Top Constituents */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Top Index Constituents</h3>
+            <h3 className="text-lg  mb-4">Top Index Constituents</h3>
             <div className="space-y-2">
               {selectedIndexData.constituents.slice(0, 10).map((constituent, index) => (
                 <div 
@@ -319,7 +319,7 @@ export default function PPIxDashboard() {
                       #{index + 1}
                     </Badge>
                     <div>
-                      <div className="font-semibold flex items-center gap-2">
+                      <div className=" flex items-center gap-2">
                         {constituent.name}
                         {constituent.investmentGrade && (
                           <Badge 
@@ -341,7 +341,7 @@ export default function PPIxDashboard() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-semibold">
+                    <div className="text-sm ">
                       {constituent.weight.toFixed(2)}%
                     </div>
                     <div className="text-xs text-muted-foreground">
@@ -358,7 +358,7 @@ export default function PPIxDashboard() {
             <CardContent className="pt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <div className="text-sm font-semibold text-blue-700 dark:text-blue-300">
+                  <div className="text-sm  text-blue-700 dark:text-blue-300">
                     Last Rebalance
                   </div>
                   <div className="text-sm text-muted-foreground">
@@ -366,7 +366,7 @@ export default function PPIxDashboard() {
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-blue-700 dark:text-blue-300">
+                  <div className="text-sm  text-blue-700 dark:text-blue-300">
                     Next Rebalance
                   </div>
                   <div className="text-sm text-muted-foreground">

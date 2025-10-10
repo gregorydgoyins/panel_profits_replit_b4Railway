@@ -46,7 +46,7 @@ export default function QuantumMomentumWidget() {
             <Zap className="w-4 h-4 text-indigo-400" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-gray-100">Quantum Momentum Detector</h3>
+            <h3 className="text-sm  text-gray-100">Quantum Momentum Detector</h3>
             <p className="text-xs text-gray-500">Pre-trend phase shift analysis</p>
           </div>
         </div>

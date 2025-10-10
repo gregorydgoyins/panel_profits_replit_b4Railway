@@ -53,7 +53,7 @@ export function AssetGrowthWidget() {
                     <Package className="h-3 w-3 text-indigo-400" />
                     <div className="text-xs text-muted-foreground font-mono">ASSETS</div>
                   </div>
-                  <div className={`text-2xl font-mono font-bold ${getGrowthColor(data?.assetsLastHour || 0)}`}>
+                  <div className={`text-2xl font-mono  ${getGrowthColor(data?.assetsLastHour || 0)}`}>
                     +{formatNumber(data?.assetsLastHour || 0)}
                   </div>
                 </div>
@@ -63,7 +63,7 @@ export function AssetGrowthWidget() {
                     <Image className="h-3 w-3 text-purple-400" />
                     <div className="text-xs text-muted-foreground font-mono">COVERS</div>
                   </div>
-                  <div className={`text-2xl font-mono font-bold ${getGrowthColor(data?.coversLastHour || 0)}`}>
+                  <div className={`text-2xl font-mono  ${getGrowthColor(data?.coversLastHour || 0)}`}>
                     +{formatNumber(data?.coversLastHour || 0)}
                   </div>
                 </div>
@@ -73,7 +73,7 @@ export function AssetGrowthWidget() {
                     <DollarSign className="h-3 w-3 text-green-400" />
                     <div className="text-xs text-muted-foreground font-mono">PRICES</div>
                   </div>
-                  <div className={`text-2xl font-mono font-bold ${getGrowthColor(data?.pricesLastHour || 0)}`}>
+                  <div className={`text-2xl font-mono  ${getGrowthColor(data?.pricesLastHour || 0)}`}>
                     +{formatNumber(data?.pricesLastHour || 0)}
                   </div>
                 </div>
@@ -89,7 +89,7 @@ export function AssetGrowthWidget() {
                     <Package className="h-3 w-3 text-indigo-400" />
                     <div className="text-xs text-muted-foreground font-mono">ASSETS</div>
                   </div>
-                  <div className={`text-2xl font-mono font-bold ${getGrowthColor(data?.assetsLastDay || 0)}`}>
+                  <div className={`text-2xl font-mono  ${getGrowthColor(data?.assetsLastDay || 0)}`}>
                     +{formatNumber(data?.assetsLastDay || 0)}
                   </div>
                 </div>
@@ -99,7 +99,7 @@ export function AssetGrowthWidget() {
                     <Image className="h-3 w-3 text-purple-400" />
                     <div className="text-xs text-muted-foreground font-mono">COVERS</div>
                   </div>
-                  <div className={`text-2xl font-mono font-bold ${getGrowthColor(data?.coversLastDay || 0)}`}>
+                  <div className={`text-2xl font-mono  ${getGrowthColor(data?.coversLastDay || 0)}`}>
                     +{formatNumber(data?.coversLastDay || 0)}
                   </div>
                 </div>
@@ -109,7 +109,7 @@ export function AssetGrowthWidget() {
                     <DollarSign className="h-3 w-3 text-green-400" />
                     <div className="text-xs text-muted-foreground font-mono">PRICES</div>
                   </div>
-                  <div className={`text-2xl font-mono font-bold ${getGrowthColor(data?.pricesLastDay || 0)}`}>
+                  <div className={`text-2xl font-mono  ${getGrowthColor(data?.pricesLastDay || 0)}`}>
                     +{formatNumber(data?.pricesLastDay || 0)}
                   </div>
                 </div>

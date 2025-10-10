@@ -159,7 +159,7 @@ export default function Journal() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <BookOpen className="h-6 w-6 text-primary" />
-              <h1 className="text-2xl font-mono font-bold text-foreground">
+              <h1 className="text-2xl font-mono  text-foreground">
                 NOIR JOURNAL
               </h1>
               <div className="flex items-center gap-2">

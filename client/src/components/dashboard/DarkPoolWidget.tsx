@@ -97,15 +97,15 @@ export function DarkPoolWidget() {
               <div className="grid grid-cols-3 gap-3 text-xs">
                 <div>
                   <p className="text-muted-foreground mb-1">Size</p>
-                  <p className="font-bold">{(trade.size / 1000).toFixed(0)}K</p>
+                  <p className="">{(trade.size / 1000).toFixed(0)}K</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground mb-1">Price</p>
-                  <p className="font-bold">${trade.price}</p>
+                  <p className="">${trade.price}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground mb-1">Premium</p>
-                  <p className={`font-bold ${trade.premium > 2 ? 'text-red-500' : 'text-yellow-500'}`}>
+                  <p className={` ${trade.premium > 2 ? 'text-red-500' : 'text-yellow-500'}`}>
                     {trade.premium.toFixed(1)}%
                   </p>
                 </div>
@@ -118,11 +118,11 @@ export function DarkPoolWidget() {
         <div className="mt-4 pt-4 border-t grid grid-cols-2 gap-3">
           <div className="p-2 rounded-lg bg-muted">
             <p className="text-xs text-muted-foreground">Total Volume</p>
-            <p className="text-lg font-bold">{(totalVolume / 1000000).toFixed(2)}M</p>
+            <p className="text-lg ">{(totalVolume / 1000000).toFixed(2)}M</p>
           </div>
           <div className="p-2 rounded-lg bg-muted">
             <p className="text-xs text-muted-foreground">Total Value</p>
-            <p className="text-lg font-bold">${(totalValue / 1000000).toFixed(1)}M</p>
+            <p className="text-lg ">${(totalValue / 1000000).toFixed(1)}M</p>
           </div>
         </div>
 
@@ -130,7 +130,7 @@ export function DarkPoolWidget() {
           <div className="flex items-start gap-2">
             <Eye className="w-4 h-4 text-purple-500 mt-0.5" />
             <div className="text-xs">
-              <p className="font-semibold text-purple-500">Institutional Flow</p>
+              <p className=" text-purple-500">Institutional Flow</p>
               <p className="text-muted-foreground mt-1">
                 {trades.filter(t => t.type === 'buy').length} buy prints vs {trades.filter(t => t.type === 'sell').length} sell prints. 
                 Net institutional sentiment: {trades.filter(t => t.type === 'buy').length > trades.filter(t => t.type === 'sell').length ? 'Bullish' : 'Bearish'}.

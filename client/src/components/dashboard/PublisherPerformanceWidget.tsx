@@ -71,7 +71,7 @@ export function PublisherPerformanceWidget() {
   return (
     <Card className="h-full" data-testid="card-publisher-performance">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Publisher Performance</CardTitle>
+        <CardTitle className="text-sm ">Publisher Performance</CardTitle>
         <Building2 className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
@@ -94,7 +94,7 @@ export function PublisherPerformanceWidget() {
                     <Badge variant="outline" className="font-mono text-xs">
                       {publisher.symbol}
                     </Badge>
-                    <span className="font-semibold text-sm">{publisher.name}</span>
+                    <span className=" text-sm">{publisher.name}</span>
                   </div>
                   <div className="flex items-center gap-3 mt-1">
                     <span className="text-xs text-muted-foreground">
@@ -123,7 +123,7 @@ export function PublisherPerformanceWidget() {
                     ) : (
                       <TrendingDown className="h-4 w-4" />
                     )}
-                    <span className="font-semibold text-sm">
+                    <span className=" text-sm">
                       {publisher.dayChange >= 0 ? '+' : ''}
                       {publisher.dayChange.toFixed(1)}%
                     </span>

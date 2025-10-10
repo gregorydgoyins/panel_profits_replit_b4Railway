@@ -84,7 +84,7 @@ export function ComicETFsWidget() {
             >
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-lg">{etf.symbol}</span>
+                  <span className=" text-lg">{etf.symbol}</span>
                   <Badge variant="secondary" className="text-xs">
                     {etf.expense}% ER
                   </Badge>
@@ -93,7 +93,7 @@ export function ComicETFsWidget() {
               </div>
               <div className="flex items-center gap-4">
                 <div className="text-right">
-                  <p className="font-bold">{formatPrice(etf.price)}</p>
+                  <p className="">{formatPrice(etf.price)}</p>
                   <div className={`flex items-center text-sm ${etf.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                     {etf.change >= 0 ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}
                     {formatChange(etf.change)} ({formatPercent(etf.changePercent)})

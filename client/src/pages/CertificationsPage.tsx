@@ -167,7 +167,7 @@ export default function CertificationsPage() {
     <div className="space-y-6" data-testid="page-certifications">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold mb-2" data-testid="text-page-title">Career Certifications</h1>
+        <h1 className="text-3xl  mb-2" data-testid="text-page-title">Career Certifications</h1>
         <p className="text-muted-foreground">
           Advance your trading career through professional certification pathways. Pass 3/5 courses for certification (100% salary bonus), 
           or master all 5/5 courses for elite status (150% salary bonus).
@@ -177,14 +177,14 @@ export default function CertificationsPage() {
       {/* Associate Foundation (Universal) */}
       {associatePathway && (
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold" data-testid="text-section-associate">Associate Foundation (Required)</h2>
+          <h2 className="text-xl " data-testid="text-section-associate">Associate Foundation (Required)</h2>
           <PathwayCard pathway={associatePathway} />
         </div>
       )}
 
       {/* Career Pathways */}
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold" data-testid="text-section-pathways">Career Pathways</h2>
+        <h2 className="text-xl " data-testid="text-section-pathways">Career Pathways</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {careerPathways.map(pathway => (
             <PathwayCard key={pathway.id} pathway={pathway} />

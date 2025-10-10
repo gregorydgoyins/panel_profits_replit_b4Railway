@@ -94,10 +94,10 @@ export function PortfolioRiskMetricsWidget() {
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-2">
                   {getStatusIcon(metric.status)}
-                  <p className="text-sm font-semibold">{metric.name}</p>
+                  <p className="text-sm ">{metric.name}</p>
                 </div>
               </div>
-              <p className={`text-2xl font-bold ${getStatusColor(metric.status)}`}>
+              <p className={`text-2xl  ${getStatusColor(metric.status)}`}>
                 {metric.value}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
@@ -112,7 +112,7 @@ export function PortfolioRiskMetricsWidget() {
           <div className="flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 text-yellow-500 mt-0.5" />
             <div className="text-xs">
-              <p className="font-semibold text-yellow-500">Risk Assessment</p>
+              <p className=" text-yellow-500">Risk Assessment</p>
               <p className="text-muted-foreground mt-1">
                 Portfolio shows moderate volatility with healthy risk-adjusted returns. 
                 VaR indicates potential $4.2K loss in worst-case scenario. Consider rebalancing if volatility exceeds 20%.

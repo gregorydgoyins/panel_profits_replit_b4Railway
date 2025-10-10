@@ -47,7 +47,7 @@ export default function AnomalyDetectorWidget() {
             <AlertTriangle className="w-4 h-4 text-red-400" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-gray-100">Time-Series Anomaly Detector</h3>
+            <h3 className="text-sm  text-gray-100">Time-Series Anomaly Detector</h3>
             <p className="text-xs text-gray-500">ML-powered unusual pattern detection</p>
           </div>
         </div>

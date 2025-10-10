@@ -62,7 +62,7 @@ export default function AssetDetailPage() {
   if (!asset) {
     return (
       <div className="max-w-4xl mx-auto text-center py-12">
-        <h1 className="text-2xl font-bold text-white mb-4">Asset Not Found</h1>
+        <h1 className="text-2xl  text-white mb-4">Asset Not Found</h1>
         <p className="text-gray-400 mb-6">The asset you're looking for doesn't exist or has been delisted.</p>
         <Button asChild>
           <Link href="/trading">
@@ -105,14 +105,14 @@ export default function AssetDetailPage() {
               </div>
             ) : (
               <div className="aspect-[2/3] rounded-lg overflow-hidden mb-4 bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
-                <span className="text-6xl font-bold text-gray-700">{asset.symbol.slice(0, 2)}</span>
+                <span className="text-6xl  text-gray-700">{asset.symbol.slice(0, 2)}</span>
               </div>
             )}
 
             <div className="space-y-3">
               <div>
                 <p className="text-xs text-gray-500 mb-1">Symbol</p>
-                <p className="text-2xl font-bold text-white" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
+                <p className="text-2xl  text-white" style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
                   {asset.symbol}
                 </p>
               </div>
@@ -144,13 +144,13 @@ export default function AssetDetailPage() {
               <div className="flex items-end gap-4">
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Current Price</p>
-                  <p className="text-5xl font-bold text-white" data-testid="text-current-price">
+                  <p className="text-5xl  text-white" data-testid="text-current-price">
                     ${asset.currentPrice?.toFixed(2) ?? '0.00'}
                   </p>
                 </div>
                 <div className={`flex items-center gap-2 pb-2 ${priceChange ? 'text-green-500' : 'text-red-500'}`}>
                   {priceChange ? <TrendingUp className="w-6 h-6" /> : <TrendingDown className="w-6 h-6" />}
-                  <span className="text-2xl font-bold" data-testid="text-price-change">
+                  <span className="text-2xl " data-testid="text-price-change">
                     {priceChange ? '+' : ''}{asset.change?.toFixed(2) ?? '0.00'} 
                     ({priceChange ? '+' : ''}{asset.changePercent?.toFixed(2) ?? '0.00'}%)
                   </span>
@@ -164,7 +164,7 @@ export default function AssetDetailPage() {
                     <BarChart3 className="w-3 h-3" />
                     Volume
                   </p>
-                  <p className="text-lg font-semibold text-white" data-testid="text-volume">
+                  <p className="text-lg  text-white" data-testid="text-volume">
                     {asset.volume?.toLocaleString() ?? 'N/A'}
                   </p>
                 </div>
@@ -173,19 +173,19 @@ export default function AssetDetailPage() {
                     <DollarSign className="w-3 h-3" />
                     Market Cap
                   </p>
-                  <p className="text-lg font-semibold text-white" data-testid="text-market-cap">
+                  <p className="text-lg  text-white" data-testid="text-market-cap">
                     ${(asset.marketCap ? (asset.marketCap / 1000000).toFixed(1) : '0')}M
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">52W High</p>
-                  <p className="text-lg font-semibold text-green-500" data-testid="text-52w-high">
+                  <p className="text-lg  text-green-500" data-testid="text-52w-high">
                     ${asset.high52Week?.toFixed(2) ?? 'N/A'}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">52W Low</p>
-                  <p className="text-lg font-semibold text-red-500" data-testid="text-52w-low">
+                  <p className="text-lg  text-red-500" data-testid="text-52w-low">
                     ${asset.low52Week?.toFixed(2) ?? 'N/A'}
                   </p>
                 </div>

@@ -46,7 +46,7 @@ export default function ArbitrageScannerWidget() {
             <Link2 className="w-4 h-4 text-emerald-400" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-gray-100">Cross-Asset Arbitrage Scanner</h3>
+            <h3 className="text-sm  text-gray-100">Cross-Asset Arbitrage Scanner</h3>
             <p className="text-xs text-gray-500">Correlated asset pricing inefficiencies</p>
           </div>
         </div>

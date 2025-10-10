@@ -90,14 +90,14 @@ export function ComicHeatMapWidget() {
               data-testid={`heat-map-cell-${asset.symbol}`}
             >
               <div className={`text-center ${getTextColor(asset.changePercent)}`}>
-                <div className="font-bold text-xs mb-1">{asset.symbol}</div>
+                <div className=" text-xs mb-1">{asset.symbol}</div>
                 <div className="flex items-center justify-center gap-1">
                   {asset.changePercent > 0 ? (
                     <TrendingUp className="w-3 h-3" />
                   ) : asset.changePercent < 0 ? (
                     <TrendingDown className="w-3 h-3" />
                   ) : null}
-                  <span className="text-sm font-semibold">
+                  <span className="text-sm ">
                     {asset.changePercent >= 0 ? '+' : ''}{asset.changePercent.toFixed(1)}%
                   </span>
                 </div>
@@ -111,11 +111,11 @@ export function ComicHeatMapWidget() {
           <div className="bg-card border border-border rounded-lg p-3 mt-2">
             <div className="flex items-center justify-between">
               <div>
-                <div className="font-semibold">{hoveredAsset.name}</div>
+                <div className="">{hoveredAsset.name}</div>
                 <div className="text-sm text-muted-foreground">{hoveredAsset.symbol}</div>
               </div>
               <div className="text-right">
-                <div className={`text-lg font-bold ${hoveredAsset.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                <div className={`text-lg  ${hoveredAsset.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                   {hoveredAsset.changePercent >= 0 ? '+' : ''}{hoveredAsset.changePercent.toFixed(2)}%
                 </div>
                 <div className="text-sm text-muted-foreground">

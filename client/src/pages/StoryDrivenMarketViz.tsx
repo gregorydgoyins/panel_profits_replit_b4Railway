@@ -165,7 +165,7 @@ export default function StoryDrivenMarketViz() {
               <div className="bg-gradient-to-r from-purple-900/40 to-blue-900/40 p-4 rounded-lg border border-purple-400/30">
                 <div className="flex items-center gap-3 mb-2">
                   {getThemeIcon(storyTheme)}
-                  <h3 className="text-lg font-bold text-purple-300">Today's Market Saga</h3>
+                  <h3 className="text-lg  text-purple-300">Today's Market Saga</h3>
                 </div>
                 <p className="text-white/90 italic">
                   "{marketNarrative.summary}"
@@ -230,13 +230,13 @@ export default function StoryDrivenMarketViz() {
                           {asset.type}
                         </Badge>
                         <span className={cn(
-                          "text-sm font-bold",
+                          "text-sm ",
                           asset.change24h >= 0 ? "text-green-400" : "text-red-400"
                         )}>
                           {asset.change24h >= 0 ? '+' : ''}{asset.change24h.toFixed(1)}%
                         </span>
                       </div>
-                      <p className="font-bold text-white mb-1">{asset.symbol}</p>
+                      <p className=" text-white mb-1">{asset.symbol}</p>
                       <p className="text-xs text-white/60 mb-2">{asset.name}</p>
                       <div className="flex items-center gap-1">
                         {getStoryRatingStars(asset.storyRating)}

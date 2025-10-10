@@ -100,14 +100,14 @@ export function PortfolioGreeksWidget() {
                   {getStatusIcon(greek.status)}
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="font-semibold text-sm">{greek.name}</p>
+                      <p className=" text-sm">{greek.name}</p>
                       <Badge variant="outline" className="text-xs font-mono">
                         {greek.symbol}
                       </Badge>
                     </div>
                   </div>
                 </div>
-                <p className={`text-2xl font-bold ${getStatusColor(greek.status)}`}>
+                <p className={`text-2xl  ${getStatusColor(greek.status)}`}>
                   {formatValue(greek.value)}
                 </p>
               </div>
@@ -120,13 +120,13 @@ export function PortfolioGreeksWidget() {
         <div className="mt-4 pt-4 border-t grid grid-cols-2 gap-3 text-xs">
           <div className="p-2 rounded-lg bg-muted">
             <p className="text-muted-foreground mb-1">Directional Risk</p>
-            <p className="text-lg font-bold text-green-500">
+            <p className="text-lg  text-green-500">
               ${greeks.find(g => g.name === 'Delta')?.value.toFixed(2)}
             </p>
           </div>
           <div className="p-2 rounded-lg bg-muted">
             <p className="text-muted-foreground mb-1">Daily Theta Decay</p>
-            <p className="text-lg font-bold text-red-500">
+            <p className="text-lg  text-red-500">
               ${greeks.find(g => g.name === 'Theta')?.value.toFixed(2)}
             </p>
           </div>
@@ -136,7 +136,7 @@ export function PortfolioGreeksWidget() {
           <div className="flex items-start gap-2">
             <Activity className="w-4 h-4 text-yellow-500 mt-0.5" />
             <div className="text-xs">
-              <p className="font-semibold text-yellow-500">Greeks Analysis</p>
+              <p className=" text-yellow-500">Greeks Analysis</p>
               <p className="text-muted-foreground mt-1">
                 Net long delta exposure with positive vega. Portfolio benefits from volatility expansion but experiences daily theta decay. 
                 Consider delta-neutral adjustments if market direction uncertain.

@@ -37,11 +37,11 @@ export function MarketMoversWidget() {
   const MoverRow = ({ mover, type }: { mover: MoverData; type: 'gainer' | 'loser' | 'active' }) => (
     <div className="flex items-center justify-between py-2 border-b last:border-0" data-testid={`mover-${mover.symbol.toLowerCase()}`}>
       <div className="flex-1">
-        <p className="font-semibold">{mover.symbol}</p>
+        <p className="">{mover.symbol}</p>
         <p className="text-xs text-muted-foreground">{mover.name}</p>
       </div>
       <div className="text-right">
-        <p className="font-bold">{formatPrice(mover.price)}</p>
+        <p className="">{formatPrice(mover.price)}</p>
         <div className={`flex items-center justify-end text-sm ${
           type === 'active' ? (mover.change >= 0 ? 'text-green-500' : 'text-red-500') :
           type === 'gainer' ? 'text-green-500' : 'text-red-500'

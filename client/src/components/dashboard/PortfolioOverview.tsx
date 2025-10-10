@@ -226,7 +226,7 @@ export function PortfolioOverview() {
               <DollarSign className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Total Value</span>
             </div>
-            <p className="text-2xl font-bold" data-testid="text-total-portfolio-value">
+            <p className="text-2xl " data-testid="text-total-portfolio-value">
               {formatCurrency(portfolioData.totalValue)}
             </p>
             <div className={`flex items-center gap-1 text-sm ${getPerformanceColor(portfolioData.dayChange)}`}>
@@ -243,7 +243,7 @@ export function PortfolioOverview() {
               <BarChart3 className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Total Return</span>
             </div>
-            <p className="text-xl font-bold" data-testid="text-total-return">
+            <p className="text-xl " data-testid="text-total-return">
               {formatCurrency(portfolioData.totalReturn)}
             </p>
             <div className={`flex items-center gap-1 text-sm ${getPerformanceColor(portfolioData.totalReturn)}`}>
@@ -259,7 +259,7 @@ export function PortfolioOverview() {
               <PieChart className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Holdings</span>
             </div>
-            <p className="text-xl font-bold" data-testid="text-total-holdings">
+            <p className="text-xl " data-testid="text-total-holdings">
               {portfolioData.totalHoldings} Assets
             </p>
             <div className="text-sm text-muted-foreground">
@@ -274,12 +274,12 @@ export function PortfolioOverview() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="portfolio-health-metrics">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Diversification Score</span>
+              <span className="text-sm ">Diversification Score</span>
               <div className="flex items-center gap-2">
                 <span className={`text-sm ${getDiversificationLabel(portfolioData.diversificationScore).color}`}>
                   {getDiversificationLabel(portfolioData.diversificationScore).label}
                 </span>
-                <span className="text-sm font-medium" data-testid="text-diversification-score">
+                <span className="text-sm " data-testid="text-diversification-score">
                   {portfolioData.diversificationScore.toFixed(1)}/10
                 </span>
               </div>
@@ -293,12 +293,12 @@ export function PortfolioOverview() {
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Risk Score</span>
+              <span className="text-sm ">Risk Score</span>
               <div className="flex items-center gap-2">
                 <span className={`text-sm ${getRiskLabel(portfolioData.riskScore).color}`}>
                   {getRiskLabel(portfolioData.riskScore).label}
                 </span>
-                <span className="text-sm font-medium" data-testid="text-risk-score">
+                <span className="text-sm " data-testid="text-risk-score">
                   {portfolioData.riskScore.toFixed(1)}/10
                 </span>
               </div>
@@ -314,7 +314,7 @@ export function PortfolioOverview() {
         {/* Asset Allocation */}
         <div className="space-y-4" data-testid="portfolio-allocation">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-medium">Asset Allocation</h4>
+            <h4 className="text-sm ">Asset Allocation</h4>
             <Button variant="ghost" size="sm">
               <Info className="w-4 h-4" />
             </Button>
@@ -329,7 +329,7 @@ export function PortfolioOverview() {
                     <span>{allocation.assetType}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium">{formatCurrency(allocation.value)}</span>
+                    <span className="">{formatCurrency(allocation.value)}</span>
                     <span className="text-muted-foreground">{allocation.percentage.toFixed(1)}%</span>
                   </div>
                 </div>
@@ -344,7 +344,7 @@ export function PortfolioOverview() {
           <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg" data-testid="portfolio-insights">
             <Info className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
             <div className="space-y-1">
-              <p className="text-sm font-medium">Portfolio Insights</p>
+              <p className="text-sm ">Portfolio Insights</p>
               <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• Your portfolio shows strong performance in character assets</li>
                 <li>• Consider rebalancing to increase diversification score</li>

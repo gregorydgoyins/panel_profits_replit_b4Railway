@@ -243,7 +243,7 @@ export function TradeBlotterWidget() {
         {paginatedTrades.length === 0 ? (
           <div className="text-center py-8" data-testid="empty-trades">
             <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No Trades Found</h3>
+            <h3 className="text-lg  mb-2">No Trades Found</h3>
             <p className="text-sm text-muted-foreground">
               {searchTerm || assetTypeFilter !== 'all' || sideFilter !== 'all'
                 ? 'Try adjusting your filters'
@@ -278,7 +278,7 @@ export function TradeBlotterWidget() {
                       </td>
                       <td className="p-2">
                         <div>
-                          <div className="font-medium text-sm">{trade.asset}</div>
+                          <div className=" text-sm">{trade.asset}</div>
                           <div className="text-xs text-muted-foreground capitalize">{trade.assetType}</div>
                         </div>
                       </td>
@@ -297,7 +297,7 @@ export function TradeBlotterWidget() {
                       </td>
                       <td className="text-right p-2 text-sm">{trade.quantity}</td>
                       <td className="text-right p-2 text-sm">{formatCurrency(trade.price)}</td>
-                      <td className="text-right p-2 text-sm font-medium">
+                      <td className="text-right p-2 text-sm ">
                         {formatCurrency(trade.totalValue)}
                       </td>
                       <td className="text-center p-2">

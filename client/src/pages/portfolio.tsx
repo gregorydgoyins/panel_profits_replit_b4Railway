@@ -215,7 +215,7 @@ export default function PortfolioPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 
-            className="text-2xl font-bold text-foreground"
+            className="text-2xl  text-foreground"
             style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
           >
             Portfolio Command
@@ -244,7 +244,7 @@ export default function PortfolioPage() {
         <Card data-testid="card-total-value">
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
             <CardTitle 
-              className="text-sm font-medium"
+              className="text-sm "
               style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             >
               Total Value
@@ -253,7 +253,7 @@ export default function PortfolioPage() {
           </CardHeader>
           <CardContent>
             <div 
-              className="text-2xl font-bold"
+              className="text-2xl "
               style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
               data-testid="text-total-value"
             >
@@ -278,7 +278,7 @@ export default function PortfolioPage() {
         <Card data-testid="card-total-pl">
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
             <CardTitle 
-              className="text-sm font-medium"
+              className="text-sm "
               style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             >
               Total P/L
@@ -292,7 +292,7 @@ export default function PortfolioPage() {
           <CardContent>
             <div 
               className={cn(
-                "text-2xl font-bold",
+                "text-2xl ",
                 summary && summary.totalPL >= 0 ? "text-green-500" : "text-red-500"
               )}
               style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
@@ -318,7 +318,7 @@ export default function PortfolioPage() {
         <Card data-testid="card-positions">
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
             <CardTitle 
-              className="text-sm font-medium"
+              className="text-sm "
               style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             >
               Positions
@@ -327,7 +327,7 @@ export default function PortfolioPage() {
           </CardHeader>
           <CardContent>
             <div 
-              className="text-2xl font-bold"
+              className="text-2xl "
               style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
               data-testid="text-position-count"
             >
@@ -345,7 +345,7 @@ export default function PortfolioPage() {
         <Card data-testid="card-cash">
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
             <CardTitle 
-              className="text-sm font-medium"
+              className="text-sm "
               style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             >
               Buying Power
@@ -354,7 +354,7 @@ export default function PortfolioPage() {
           </CardHeader>
           <CardContent>
             <div 
-              className="text-2xl font-bold"
+              className="text-2xl "
               style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
               data-testid="text-cash"
             >
@@ -435,7 +435,7 @@ export default function PortfolioPage() {
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
               <h3 
-                className="text-lg font-semibold mb-2"
+                className="text-lg  mb-2"
                 style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
               >
                 No Positions Yet
@@ -465,7 +465,7 @@ export default function PortfolioPage() {
                       <div className="flex items-center gap-3">
                         <div>
                           <Link href={`/asset/${position.symbol}`}>
-                            <a className="font-medium hover:underline" data-testid={`link-asset-${position.symbol}`}>
+                            <a className=" hover:underline" data-testid={`link-asset-${position.symbol}`}>
                               <span style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}>
                                 {position.symbol}
                               </span>
@@ -490,7 +490,7 @@ export default function PortfolioPage() {
                           Quantity
                         </p>
                         <p 
-                          className="font-medium"
+                          className=""
                           style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                         >
                           {position.quantity.toLocaleString()}
@@ -505,7 +505,7 @@ export default function PortfolioPage() {
                           Avg Price
                         </p>
                         <p 
-                          className="font-medium"
+                          className=""
                           style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                         >
                           ${position.averagePrice.toFixed(2)}
@@ -521,7 +521,7 @@ export default function PortfolioPage() {
                         </p>
                         <div className="flex items-center gap-2">
                           <p 
-                            className="font-medium"
+                            className=""
                             style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                           >
                             ${position.currentPrice.toFixed(2)}
@@ -546,7 +546,7 @@ export default function PortfolioPage() {
                           Market Value
                         </p>
                         <p 
-                          className="font-medium"
+                          className=""
                           style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                         >
                           ${position.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -562,7 +562,7 @@ export default function PortfolioPage() {
                         </p>
                         <p 
                           className={cn(
-                            "font-medium",
+                            "",
                             position.unrealizedPL >= 0 ? "text-green-500" : "text-red-500"
                           )}
                           style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
@@ -631,7 +631,7 @@ export default function PortfolioPage() {
                         Quantity:
                       </span>
                       <span 
-                        className="font-medium"
+                        className=""
                         style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                       >
                         {position.quantity.toLocaleString()}
@@ -645,7 +645,7 @@ export default function PortfolioPage() {
                         Avg Price:
                       </span>
                       <span 
-                        className="font-medium"
+                        className=""
                         style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                       >
                         ${position.averagePrice.toFixed(2)}
@@ -659,7 +659,7 @@ export default function PortfolioPage() {
                         Current:
                       </span>
                       <span 
-                        className="font-medium"
+                        className=""
                         style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                       >
                         ${position.currentPrice.toFixed(2)}
@@ -673,7 +673,7 @@ export default function PortfolioPage() {
                         Market Value:
                       </span>
                       <span 
-                        className="font-medium"
+                        className=""
                         style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                       >
                         ${position.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
@@ -688,7 +688,7 @@ export default function PortfolioPage() {
                       </span>
                       <span 
                         className={cn(
-                          "font-medium",
+                          "",
                           position.unrealizedPL >= 0 ? "text-green-500" : "text-red-500"
                         )}
                         style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}

@@ -183,7 +183,7 @@ export function WatchlistPanelWidget() {
         {filteredAssets.length === 0 ? (
           <div className="text-center py-6" data-testid="empty-watchlist">
             <Eye className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-            <h3 className="font-semibold mb-1">
+            <h3 className=" mb-1">
               {searchTerm ? 'No Results' : 'No Assets'}
             </h3>
             <p className="text-sm text-muted-foreground">
@@ -207,7 +207,7 @@ export function WatchlistPanelWidget() {
                   
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1">
-                      <span className="font-medium text-sm truncate">{asset.name}</span>
+                      <span className=" text-sm truncate">{asset.name}</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <span>{asset.symbol}</span>
@@ -220,7 +220,7 @@ export function WatchlistPanelWidget() {
                 </div>
 
                 <div className="text-right flex-shrink-0 ml-2">
-                  <div className="font-medium text-sm">
+                  <div className=" text-sm">
                     {formatCurrency(asset.currentPrice)}
                   </div>
                   <div className={`flex items-center justify-end gap-1 text-xs ${getPriceColor(asset.dayChange)}`}>
@@ -262,19 +262,19 @@ export function WatchlistPanelWidget() {
           <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t text-center">
             <div>
               <p className="text-xs text-muted-foreground">Gainers</p>
-              <p className="text-sm font-bold text-green-500">
+              <p className="text-sm  text-green-500">
                 {watchlistAssets.filter(a => a.dayChange > 0).length}
               </p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Flat</p>
-              <p className="text-sm font-bold text-muted-foreground">
+              <p className="text-sm  text-muted-foreground">
                 {watchlistAssets.filter(a => a.dayChange === 0).length}
               </p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Losers</p>
-              <p className="text-sm font-bold text-red-500">
+              <p className="text-sm  text-red-500">
                 {watchlistAssets.filter(a => a.dayChange < 0).length}
               </p>
             </div>

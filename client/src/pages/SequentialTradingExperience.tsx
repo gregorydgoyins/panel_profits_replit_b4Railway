@@ -377,7 +377,7 @@ export default function SequentialTradingExperience() {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <BookOpen className="h-6 w-6 text-primary" />
-                <h1 className="text-xl font-bold">Sequential Art Trading</h1>
+                <h1 className="text-xl ">Sequential Art Trading</h1>
                 <Badge variant="outline" className={cn(
                   "capitalize",
                   `house-${currentHouse}`
@@ -727,7 +727,7 @@ export default function SequentialTradingExperience() {
                         className="absolute inset-0"
                       >
                         <div className="h-full flex flex-col justify-center items-center text-center">
-                          <h3 className="text-2xl font-bold mb-4 text-amber-700">
+                          <h3 className="text-2xl  mb-4 text-amber-700">
                             The Great Surge of 2023
                           </h3>
                           <p className="text-amber-600 mb-6">
@@ -779,7 +779,7 @@ export default function SequentialTradingExperience() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Narratives</label>
+                <label className="text-sm ">Narratives</label>
                 <Button
                   variant={storySettings.showNarratives ? "default" : "outline"}
                   size="sm"
@@ -795,7 +795,7 @@ export default function SequentialTradingExperience() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">House Effects</label>
+                <label className="text-sm ">House Effects</label>
                 <Button
                   variant={storySettings.housePoweredEffects ? "default" : "outline"}
                   size="sm"
@@ -811,7 +811,7 @@ export default function SequentialTradingExperience() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Auto Story</label>
+                <label className="text-sm ">Auto Story</label>
                 <Button
                   variant={storySettings.autoGenerateStory ? "default" : "outline"}
                   size="sm"
@@ -840,19 +840,19 @@ export default function SequentialTradingExperience() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div>
-                <div className="text-2xl font-bold">{getStoryMetrics().totalPanels}</div>
+                <div className="text-2xl ">{getStoryMetrics().totalPanels}</div>
                 <div className="text-sm text-muted-foreground">Total Panels</div>
               </div>
               <div>
-                <div className="text-2xl font-bold">{(getStoryMetrics().storyCoherence * 100).toFixed(0)}%</div>
+                <div className="text-2xl ">{(getStoryMetrics().storyCoherence * 100).toFixed(0)}%</div>
                 <div className="text-sm text-muted-foreground">Coherence</div>
               </div>
               <div>
-                <div className="text-2xl font-bold">{(getStoryMetrics().houseAlignment * 100).toFixed(0)}%</div>
+                <div className="text-2xl ">{(getStoryMetrics().houseAlignment * 100).toFixed(0)}%</div>
                 <div className="text-sm text-muted-foreground">House Alignment</div>
               </div>
               <div>
-                <div className="text-2xl font-bold">{latestMarketData.size}</div>
+                <div className="text-2xl ">{latestMarketData.size}</div>
                 <div className="text-sm text-muted-foreground">Live Assets</div>
               </div>
             </div>

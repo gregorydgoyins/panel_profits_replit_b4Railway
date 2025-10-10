@@ -152,7 +152,7 @@ export default function ComicsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Key Comics</h1>
+          <h1 className="text-3xl ">Key Comics</h1>
           <p className="text-muted-foreground mt-1">
             Discover and trade key comic book issues with AI-powered search and recommendations
           </p>
@@ -201,7 +201,7 @@ export default function ComicsPage() {
           {/* Search Results */}
           {searchResults.length > 0 && (
             <div className="mt-6">
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
+              <h3 className=" mb-3 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-purple-500" />
                 Search Results
               </h3>
@@ -211,7 +211,7 @@ export default function ComicsPage() {
                     <CardHeader className="pb-3">
                       <div className="flex justify-between items-start">
                         <div>
-                          <CardTitle className="text-sm font-semibold">{comic.name}</CardTitle>
+                          <CardTitle className="text-sm ">{comic.name}</CardTitle>
                           <p className="text-xs text-muted-foreground">{comic.metadata?.publisher || 'Unknown'} ({comic.metadata?.year || 'N/A'})</p>
                         </div>
                         {comic.similarityScore && (
@@ -225,7 +225,7 @@ export default function ComicsPage() {
                       <div className="space-y-2">
                         <p className="text-xs text-muted-foreground">{comic.description?.slice(0, 100)}...</p>
                         <div className="flex justify-between items-center">
-                          <span className="font-bold text-xs font-mono bg-purple-100 dark:bg-purple-900 px-2 py-1 rounded">{comic.symbol}</span>
+                          <span className=" text-xs font-mono bg-purple-100 dark:bg-purple-900 px-2 py-1 rounded">{comic.symbol}</span>
                           <div className="flex items-center gap-1 text-green-600">
                             <span className="text-sm">📈</span>
                           </div>
@@ -259,7 +259,7 @@ export default function ComicsPage() {
                   <CardHeader className="pb-3">
                     <div className="flex justify-between items-start">
                       <div>
-                        <CardTitle className="text-sm font-semibold">{comic.name}</CardTitle>
+                        <CardTitle className="text-sm ">{comic.name}</CardTitle>
                         <p className="text-xs text-muted-foreground">{comic.metadata?.publisher || 'Unknown'} ({comic.metadata?.year || 'N/A'})</p>
                       </div>
                       {comic.similarityScore && (
@@ -280,7 +280,7 @@ export default function ComicsPage() {
                         )) || <Badge variant="outline" className="text-xs">Media Asset</Badge>}
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="font-bold text-xs font-mono bg-purple-100 dark:bg-purple-900 px-2 py-1 rounded">{comic.symbol}</span>
+                        <span className=" text-xs font-mono bg-purple-100 dark:bg-purple-900 px-2 py-1 rounded">{comic.symbol}</span>
                         <Button size="sm" variant="outline">
                           <TrendingUp className="w-3 h-3 mr-1" />
                           View Details
@@ -319,7 +319,7 @@ export default function ComicsPage() {
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="text-lg font-bold">{comic.name}</CardTitle>
+                      <CardTitle className="text-lg ">{comic.name}</CardTitle>
                       <p className="text-sm text-muted-foreground">{comic.metadata?.publisher || 'Unknown'} ({comic.metadata?.year || 'N/A'})</p>
                     </div>
                     <div className="flex items-center gap-1 text-green-600">
@@ -333,7 +333,7 @@ export default function ComicsPage() {
                     
                     {/* Tags */}
                     <div>
-                      <h4 className="text-xs font-semibold text-muted-foreground mb-2">TAGS</h4>
+                      <h4 className="text-xs  text-muted-foreground mb-2">TAGS</h4>
                       <div className="flex flex-wrap gap-1">
                         {comic.metadata?.tags?.slice(0, 4).map((tag: string) => (
                           <Badge key={tag} variant="outline" className="text-xs">
@@ -357,7 +357,7 @@ export default function ComicsPage() {
                       <div className="flex justify-between items-center">
                         <div>
                           <p className="text-xs text-muted-foreground">Asset Symbol</p>
-                          <p className="text-lg font-bold font-mono bg-purple-100 dark:bg-purple-900 px-2 py-1 rounded">{comic.symbol}</p>
+                          <p className="text-lg  font-mono bg-purple-100 dark:bg-purple-900 px-2 py-1 rounded">{comic.symbol}</p>
                         </div>
                         <Button size="sm" data-testid={`button-trade-${comic.id}`}>
                           <DollarSign className="w-3 h-3 mr-1" />

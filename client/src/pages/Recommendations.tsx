@@ -133,7 +133,7 @@ export default function Recommendations() {
       <div className="p-6 space-y-6">
         <div className="text-center">
           <Sparkles className="w-12 h-12 mx-auto mb-4 text-purple-500 animate-pulse" />
-          <h1 className="text-3xl font-bold text-purple-600">Comics You Might Like</h1>
+          <h1 className="text-3xl  text-purple-600">Comics You Might Like</h1>
           <p className="text-muted-foreground mt-2">AI is analyzing your preferences...</p>
         </div>
       </div>
@@ -144,7 +144,7 @@ export default function Recommendations() {
     <div className="p-6 space-y-6">
       {/* Header */}
       <div className="text-center space-y-2">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+        <h1 className="text-4xl  bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
           Comics You Might Like
         </h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -199,12 +199,12 @@ export default function Recommendations() {
                           {(recommendation.recommendationScore * 100).toFixed(0)}% Match
                         </Badge>
                         <div className="text-right">
-                          <div className="text-lg font-bold" data-testid={`rec-price-${recommendation.id}`}>
+                          <div className="text-lg " data-testid={`rec-price-${recommendation.id}`}>
                             {formatPrice(recommendation.currentPrice)}
                           </div>
                         </div>
                       </div>
-                      <CardTitle className="text-sm font-semibold" data-testid={`rec-name-${recommendation.id}`}>
+                      <CardTitle className="text-sm " data-testid={`rec-name-${recommendation.id}`}>
                         {recommendation.name}
                       </CardTitle>
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -284,12 +284,12 @@ export default function Recommendations() {
                         {(asset.similarityScore * 100).toFixed(1)}% Similar
                       </Badge>
                       <div className="text-right">
-                        <div className="text-lg font-bold" data-testid={`similar-price-${asset.id}`}>
+                        <div className="text-lg " data-testid={`similar-price-${asset.id}`}>
                           {formatPrice(asset.currentPrice)}
                         </div>
                       </div>
                     </div>
-                    <CardTitle className="text-sm font-semibold" data-testid={`similar-name-${asset.id}`}>
+                    <CardTitle className="text-sm " data-testid={`similar-name-${asset.id}`}>
                       {asset.name}
                     </CardTitle>
                     <div className="text-xs text-muted-foreground">
@@ -300,7 +300,7 @@ export default function Recommendations() {
                     <div className="space-y-2">
                       <div className="flex justify-between text-xs">
                         <span>Portfolio Weight:</span>
-                        <span className="font-medium">{(asset.portfolioWeight * 100).toFixed(1)}%</span>
+                        <span className="">{(asset.portfolioWeight * 100).toFixed(1)}%</span>
                       </div>
                       <Progress value={asset.portfolioWeight * 100} className="h-1" />
                     </div>
@@ -331,13 +331,13 @@ export default function Recommendations() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div>
-                <div className="text-2xl font-bold" data-testid="text-total-recommendations">
+                <div className="text-2xl " data-testid="text-total-recommendations">
                   {(userRecommendations?.recommendations.length || 0) + (portfolioRecommendations?.similarAssets.length || 0)}
                 </div>
                 <div className="text-sm text-muted-foreground">Total Recommendations</div>
               </div>
               <div>
-                <div className="text-2xl font-bold" data-testid="text-avg-recommendation-score">
+                <div className="text-2xl " data-testid="text-avg-recommendation-score">
                   {userRecommendations?.recommendations.length 
                     ? (userRecommendations.recommendations.reduce((acc, rec) => acc + rec.recommendationScore, 0) / userRecommendations.recommendations.length * 100).toFixed(0)
                     : 0}%
@@ -345,7 +345,7 @@ export default function Recommendations() {
                 <div className="text-sm text-muted-foreground">Avg Match Score</div>
               </div>
               <div>
-                <div className="text-2xl font-bold" data-testid="text-avg-similarity">
+                <div className="text-2xl " data-testid="text-avg-similarity">
                   {portfolioRecommendations?.similarAssets.length
                     ? (portfolioRecommendations.similarAssets.reduce((acc, asset) => acc + asset.similarityScore, 0) / portfolioRecommendations.similarAssets.length * 100).toFixed(0)
                     : 0}%
@@ -353,7 +353,7 @@ export default function Recommendations() {
                 <div className="text-sm text-muted-foreground">Avg Similarity</div>
               </div>
               <div>
-                <div className="text-2xl font-bold" data-testid="text-avg-price">
+                <div className="text-2xl " data-testid="text-avg-price">
                   {userRecommendations?.recommendations.length
                     ? formatPrice(userRecommendations.recommendations.reduce((acc, rec) => acc + rec.currentPrice, 0) / userRecommendations.recommendations.length)
                     : '$0'}

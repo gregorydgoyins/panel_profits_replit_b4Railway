@@ -55,8 +55,8 @@ export function MarginUtilizationWidget() {
         {/* Utilization Bar */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-semibold">Margin Usage</span>
-            <span className={`text-2xl font-bold ${getUtilizationColor()}`}>
+            <span className="text-sm ">Margin Usage</span>
+            <span className={`text-2xl  ${getUtilizationColor()}`}>
               {marginData.utilizationPercent}%
             </span>
           </div>
@@ -81,7 +81,7 @@ export function MarginUtilizationWidget() {
               <DollarSign className="w-4 h-4 text-muted-foreground" />
               <p className="text-xs text-muted-foreground">Account Equity</p>
             </div>
-            <p className="text-xl font-bold" data-testid="text-account-equity">
+            <p className="text-xl " data-testid="text-account-equity">
               ${marginData.accountEquity.toLocaleString()}
             </p>
           </div>
@@ -91,21 +91,21 @@ export function MarginUtilizationWidget() {
               <TrendingUp className="w-4 h-4 text-muted-foreground" />
               <p className="text-xs text-muted-foreground">Buying Power</p>
             </div>
-            <p className="text-xl font-bold text-green-500" data-testid="text-buying-power">
+            <p className="text-xl  text-green-500" data-testid="text-buying-power">
               ${marginData.buyingPower.toLocaleString()}
             </p>
           </div>
 
           <div className="p-3 rounded-lg border bg-yellow-500/10">
             <p className="text-xs text-muted-foreground mb-1">Margin Used</p>
-            <p className="text-xl font-bold text-yellow-500" data-testid="text-margin-used">
+            <p className="text-xl  text-yellow-500" data-testid="text-margin-used">
               ${marginData.marginUsed.toLocaleString()}
             </p>
           </div>
 
           <div className="p-3 rounded-lg border bg-green-500/10">
             <p className="text-xs text-muted-foreground mb-1">Margin Available</p>
-            <p className="text-xl font-bold text-green-500" data-testid="text-margin-available">
+            <p className="text-xl  text-green-500" data-testid="text-margin-available">
               ${marginData.marginAvailable.toLocaleString()}
             </p>
           </div>
@@ -117,7 +117,7 @@ export function MarginUtilizationWidget() {
             <div className="flex items-start gap-2">
               <AlertTriangle className={`w-4 h-4 mt-0.5 ${utilizationLevel === 'danger' ? 'text-red-500' : 'text-yellow-500'}`} />
               <div className="text-xs">
-                <p className={`font-semibold ${utilizationLevel === 'danger' ? 'text-red-500' : 'text-yellow-500'}`}>
+                <p className={` ${utilizationLevel === 'danger' ? 'text-red-500' : 'text-yellow-500'}`}>
                   {utilizationLevel === 'danger' ? 'Margin Call Risk' : 'High Utilization Warning'}
                 </p>
                 <p className="text-muted-foreground mt-1">

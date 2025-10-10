@@ -134,7 +134,7 @@ export default function TradingPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold" style={{ fontFamily: 'Space Grotesk' }}>
+            <h1 className="text-4xl " style={{ fontFamily: 'Space Grotesk' }}>
               Comic Trading Floor
             </h1>
             <p className="text-muted-foreground mt-2" style={{ fontFamily: 'Hind', fontWeight: 300 }}>
@@ -180,7 +180,7 @@ export default function TradingPage() {
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-                        <p className="text-xs text-white font-medium truncate" style={{ fontFamily: 'Hind', fontWeight: 300 }}>
+                        <p className="text-xs text-white  truncate" style={{ fontFamily: 'Hind', fontWeight: 300 }}>
                           {comic.title}
                         </p>
                         <p className="text-xs text-white/70" style={{ fontFamily: 'Hind', fontWeight: 300 }}>
@@ -255,7 +255,7 @@ export default function TradingPage() {
                               />
                             )}
                             <div>
-                              <p className="font-semibold" style={{ fontFamily: 'Space Grotesk' }}>
+                              <p className="" style={{ fontFamily: 'Space Grotesk' }}>
                                 {asset.symbol}
                               </p>
                               <p className="text-sm text-muted-foreground truncate max-w-[200px]" style={{ fontFamily: 'Hind', fontWeight: 300 }}>
@@ -264,7 +264,7 @@ export default function TradingPage() {
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="font-semibold" style={{ fontFamily: 'Space Grotesk' }}>
+                            <p className="" style={{ fontFamily: 'Space Grotesk' }}>
                               ${asset.currentPrice.toFixed(2)}
                             </p>
                             <div className="flex items-center gap-1">
@@ -317,7 +317,7 @@ export default function TradingPage() {
                           />
                         )}
                         <div>
-                          <p className="font-bold text-lg" style={{ fontFamily: 'Space Grotesk' }}>
+                          <p className=" text-lg" style={{ fontFamily: 'Space Grotesk' }}>
                             {selectedAsset.symbol}
                           </p>
                           <p className="text-sm text-muted-foreground" style={{ fontFamily: 'Hind', fontWeight: 300 }}>
@@ -327,7 +327,7 @@ export default function TradingPage() {
                       </div>
                       <div className="flex items-center justify-between">
                         <span style={{ fontFamily: 'Hind', fontWeight: 300 }}>Current Price:</span>
-                        <span className="font-bold text-xl" style={{ fontFamily: 'Space Grotesk' }}>
+                        <span className=" text-xl" style={{ fontFamily: 'Space Grotesk' }}>
                           ${selectedAsset.currentPrice.toFixed(2)}
                         </span>
                       </div>
@@ -398,7 +398,7 @@ export default function TradingPage() {
                     <div className="p-4 bg-muted rounded-md space-y-2">
                       <div className="flex justify-between">
                         <span style={{ fontFamily: 'Hind', fontWeight: 300 }}>Estimated Total:</span>
-                        <span className="font-bold" style={{ fontFamily: 'Space Grotesk' }}>
+                        <span className="" style={{ fontFamily: 'Space Grotesk' }}>
                           ${(
                             (orderType === 'limit' && limitPrice ? parseFloat(limitPrice) : selectedAsset.currentPrice) *
                             parseInt(quantity || '0')

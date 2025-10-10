@@ -152,11 +152,11 @@ export default function ComicBioPage() {
           <div>
             <div className="flex items-start justify-between mb-2">
               <div>
-                <h1 className="text-3xl font-bold text-foreground">{comic.title}</h1>
+                <h1 className="text-3xl  text-foreground">{comic.title}</h1>
                 <p className="text-lg text-muted-foreground">{comic.series} #{comic.issueNumber}</p>
               </div>
               <div className="text-right">
-                <div className="text-3xl font-bold text-foreground">${currentPrice.toFixed(2)}</div>
+                <div className="text-3xl  text-foreground">${currentPrice.toFixed(2)}</div>
                 <div className={`text-sm ${priceChangePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                   {priceChangePercent >= 0 ? '+' : ''}{priceChangePercent.toFixed(2)}%
                 </div>
@@ -204,7 +204,7 @@ export default function ComicBioPage() {
                       <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 hover:bg-primary/10 cursor-pointer transition-colors">
                         <User className="w-4 h-4 text-purple-500" />
                         <div>
-                          <div className="font-semibold text-sm">{creator.name}</div>
+                          <div className=" text-sm">{creator.name}</div>
                           <div className="text-xs text-muted-foreground">{creator.role}</div>
                         </div>
                       </div>
@@ -224,7 +224,7 @@ export default function ComicBioPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-foreground font-semibold">Marvel Comics</p>
+              <p className="text-foreground ">Marvel Comics</p>
             </CardContent>
           </Card>
         </div>
@@ -355,7 +355,7 @@ export default function ComicBioPage() {
                   <Badge variant="outline">{product.type}</Badge>
                   <div className="text-xs text-muted-foreground">{product.exposure}% exposure</div>
                 </div>
-                <div className="font-semibold text-sm mb-1">{product.symbol}</div>
+                <div className=" text-sm mb-1">{product.symbol}</div>
                 <div className="text-xs text-muted-foreground">{product.name}</div>
               </div>
             ))}
@@ -375,19 +375,19 @@ export default function ComicBioPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <div className="text-xs text-muted-foreground mb-1">Format</div>
-              <div className="font-semibold">{comic.format || 'Comic'}</div>
+              <div className="">{comic.format || 'Comic'}</div>
             </div>
             <div>
               <div className="text-xs text-muted-foreground mb-1">Page Count</div>
-              <div className="font-semibold">{comic.pageCount || 'N/A'} pages</div>
+              <div className="">{comic.pageCount || 'N/A'} pages</div>
             </div>
             <div>
               <div className="text-xs text-muted-foreground mb-1">Print Price</div>
-              <div className="font-semibold">${comic.printPrice?.toFixed(2) || 'N/A'}</div>
+              <div className="">${comic.printPrice?.toFixed(2) || 'N/A'}</div>
             </div>
             <div>
               <div className="text-xs text-muted-foreground mb-1">Age</div>
-              <div className="font-semibold">{comic.yearsOld || 'N/A'} years</div>
+              <div className="">{comic.yearsOld || 'N/A'} years</div>
             </div>
           </div>
         </CardContent>

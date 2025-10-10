@@ -1820,6 +1820,250 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Creator Collaborations - Famous creative teams
+  app.get("/api/creators/collaborations", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 6;
+      
+      // Sample seed data showcasing legendary creative partnerships
+      const sampleCollaborations = [
+        {
+          id: "1",
+          teamName: "The Architects of Marvel",
+          creator1: {
+            name: "Stan Lee",
+            role: "Writer/Editor",
+            imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop"
+          },
+          creator2: {
+            name: "Jack Kirby",
+            role: "Artist",
+            imageUrl: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=100&h=100&fit=crop"
+          },
+          notableWorks: [
+            {
+              title: "Fantastic Four #1",
+              publisher: "Marvel",
+              year: "1961",
+              coverUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=150&h=225&fit=crop"
+            },
+            {
+              title: "X-Men #1",
+              publisher: "Marvel",
+              year: "1963",
+              coverUrl: "https://images.unsplash.com/photo-1608889825652-5b19d1e50b07?w=150&h=225&fit=crop"
+            },
+            {
+              title: "Avengers #1",
+              publisher: "Marvel",
+              year: "1963",
+              coverUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=150&h=225&fit=crop"
+            }
+          ],
+          runsCount: 15,
+          issuesCount: 487,
+          legacy: "Created the Marvel Universe foundation",
+          impact: "Highest valued collaborations in comic history"
+        },
+        {
+          id: "2",
+          teamName: "The Uncanny X-Men Masterminds",
+          creator1: {
+            name: "Chris Claremont",
+            role: "Writer",
+            imageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop"
+          },
+          creator2: {
+            name: "John Byrne",
+            role: "Artist",
+            imageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop"
+          },
+          notableWorks: [
+            {
+              title: "Uncanny X-Men #137",
+              publisher: "Marvel",
+              year: "1980",
+              coverUrl: "https://images.unsplash.com/photo-1608889825652-5b19d1e50b07?w=150&h=225&fit=crop"
+            },
+            {
+              title: "Days of Future Past",
+              publisher: "Marvel",
+              year: "1981",
+              coverUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=150&h=225&fit=crop"
+            },
+            {
+              title: "Dark Phoenix Saga",
+              publisher: "Marvel",
+              year: "1980",
+              coverUrl: "https://images.unsplash.com/photo-1608889825652-5b19d1e50b07?w=150&h=225&fit=crop"
+            }
+          ],
+          runsCount: 8,
+          issuesCount: 142,
+          legacy: "Defined modern mutant mythology",
+          impact: "Dark Phoenix keys consistently 5-figure values"
+        },
+        {
+          id: "3",
+          teamName: "The Watchmen Duo",
+          creator1: {
+            name: "Alan Moore",
+            role: "Writer",
+            imageUrl: "https://images.unsplash.com/photo-1509909756405-be0199881695?w=100&h=100&fit=crop"
+          },
+          creator2: {
+            name: "Dave Gibbons",
+            role: "Artist",
+            imageUrl: "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=100&h=100&fit=crop"
+          },
+          notableWorks: [
+            {
+              title: "Watchmen #1",
+              publisher: "DC Comics",
+              year: "1986",
+              coverUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=150&h=225&fit=crop"
+            },
+            {
+              title: "Watchmen #12",
+              publisher: "DC Comics",
+              year: "1987",
+              coverUrl: "https://images.unsplash.com/photo-1608889825652-5b19d1e50b07?w=150&h=225&fit=crop"
+            },
+            {
+              title: "Watchmen Limited Series",
+              publisher: "DC Comics",
+              year: "1986-87",
+              coverUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=150&h=225&fit=crop"
+            }
+          ],
+          runsCount: 1,
+          issuesCount: 12,
+          legacy: "Deconstructed superhero genre forever",
+          impact: "Single run valued over $10K in high grade"
+        },
+        {
+          id: "4",
+          teamName: "The New X-Men Architects",
+          creator1: {
+            name: "Grant Morrison",
+            role: "Writer",
+            imageUrl: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=100&h=100&fit=crop"
+          },
+          creator2: {
+            name: "Frank Quitely",
+            role: "Artist",
+            imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop"
+          },
+          notableWorks: [
+            {
+              title: "New X-Men #114",
+              publisher: "Marvel",
+              year: "2001",
+              coverUrl: "https://images.unsplash.com/photo-1608889825652-5b19d1e50b07?w=150&h=225&fit=crop"
+            },
+            {
+              title: "All-Star Superman",
+              publisher: "DC Comics",
+              year: "2005",
+              coverUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=150&h=225&fit=crop"
+            },
+            {
+              title: "We3",
+              publisher: "Vertigo",
+              year: "2004",
+              coverUrl: "https://images.unsplash.com/photo-1608889825652-5b19d1e50b07?w=150&h=225&fit=crop"
+            }
+          ],
+          runsCount: 5,
+          issuesCount: 87,
+          legacy: "Revitalized X-Men for modern era",
+          impact: "New X-Men run trending 15-20% annually"
+        },
+        {
+          id: "5",
+          teamName: "The Dark Knight Masters",
+          creator1: {
+            name: "Frank Miller",
+            role: "Writer/Artist",
+            imageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop"
+          },
+          creator2: {
+            name: "Klaus Janson",
+            role: "Inker",
+            imageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop"
+          },
+          notableWorks: [
+            {
+              title: "Dark Knight Returns #1",
+              publisher: "DC Comics",
+              year: "1986",
+              coverUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=150&h=225&fit=crop"
+            },
+            {
+              title: "Daredevil: Born Again",
+              publisher: "Marvel",
+              year: "1986",
+              coverUrl: "https://images.unsplash.com/photo-1608889825652-5b19d1e50b07?w=150&h=225&fit=crop"
+            },
+            {
+              title: "Batman: Year One",
+              publisher: "DC Comics",
+              year: "1987",
+              coverUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=150&h=225&fit=crop"
+            }
+          ],
+          runsCount: 6,
+          issuesCount: 54,
+          legacy: "Redefined Batman as dark knight",
+          impact: "DKR #1 CGC 9.8 consistently $2K+"
+        },
+        {
+          id: "6",
+          teamName: "The Ultimate Spider-Man Creators",
+          creator1: {
+            name: "Brian Michael Bendis",
+            role: "Writer",
+            imageUrl: "https://images.unsplash.com/photo-1509909756405-be0199881695?w=100&h=100&fit=crop"
+          },
+          creator2: {
+            name: "Mark Bagley",
+            role: "Artist",
+            imageUrl: "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=100&h=100&fit=crop"
+          },
+          notableWorks: [
+            {
+              title: "Ultimate Spider-Man #1",
+              publisher: "Marvel",
+              year: "2000",
+              coverUrl: "https://images.unsplash.com/photo-1608889825652-5b19d1e50b07?w=150&h=225&fit=crop"
+            },
+            {
+              title: "Ultimate Spider-Man #13",
+              publisher: "Marvel",
+              year: "2001",
+              coverUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=150&h=225&fit=crop"
+            },
+            {
+              title: "Ultimate Spider-Man #160",
+              publisher: "Marvel",
+              year: "2011",
+              coverUrl: "https://images.unsplash.com/photo-1608889825652-5b19d1e50b07?w=150&h=225&fit=crop"
+            }
+          ],
+          runsCount: 3,
+          issuesCount: 160,
+          legacy: "Longest creative partnership on one title",
+          impact: "Created Miles Morales, modern speculation driver"
+        }
+      ];
+      
+      res.json(sampleCollaborations.slice(0, limit));
+    } catch (error) {
+      console.error('Error fetching creator collaborations:', error);
+      res.status(500).json({ error: "Failed to fetch creator collaborations" });
+    }
+  });
+
   app.post("/api/assets", async (req, res) => {
     try {
       const validatedData = insertAssetSchema.parse(req.body);

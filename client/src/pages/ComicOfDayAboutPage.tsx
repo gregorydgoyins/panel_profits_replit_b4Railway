@@ -41,7 +41,7 @@ export default function ComicOfDayAboutPage() {
 
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-foreground mb-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
+        <h1 className="text-4xl  text-foreground mb-2" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>
           About This Issue
         </h1>
         <p className="text-xl text-muted-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>

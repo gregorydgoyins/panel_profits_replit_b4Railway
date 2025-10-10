@@ -43,7 +43,7 @@ export default function FractalPatternWidget() {
             <Share2 className="w-4 h-4 text-violet-400" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-gray-100">Fractal Pattern Recognition</h3>
+            <h3 className="text-sm  text-gray-100">Fractal Pattern Recognition</h3>
             <p className="text-xs text-gray-500">Self-similar price structure detection</p>
           </div>
         </div>

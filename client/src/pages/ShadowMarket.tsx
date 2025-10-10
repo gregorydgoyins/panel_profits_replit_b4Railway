@@ -247,7 +247,7 @@ export default function ShadowMarket() {
           <div className="flex items-center gap-4">
             <Skull className="w-10 h-10 text-red-600 animate-pulse" />
             <div>
-              <h1 className="text-4xl font-bold text-red-500 glitch-text">
+              <h1 className="text-4xl  text-red-500 glitch-text">
                 SHADOW MARKET
               </h1>
               <p className="text-gray-400">Where morality dies for profit</p>
@@ -257,7 +257,7 @@ export default function ShadowMarket() {
           <div className="text-right">
             <div className="flex items-center gap-2 mb-2">
               <Flame className="w-5 h-5 text-orange-500" />
-              <span className="text-2xl font-bold text-orange-500">
+              <span className="text-2xl  text-orange-500">
                 {corruption}% CORRUPT
               </span>
             </div>
@@ -316,7 +316,7 @@ export default function ShadowMarket() {
                                 </div>
                               </div>
                               <div className="text-right">
-                                <div className="text-xl font-bold text-green-400">
+                                <div className="text-xl  text-green-400">
                                   {price.divergence.toFixed(1)}%
                                 </div>
                                 <div className="text-xs text-gray-500">profit potential</div>
@@ -342,13 +342,13 @@ export default function ShadowMarket() {
                           >
                             <div className="flex justify-between items-center">
                               <div>
-                                <div className="font-bold text-green-400">{opp.symbol}</div>
+                                <div className=" text-green-400">{opp.symbol}</div>
                                 <div className="text-sm text-gray-400 mt-1">
                                   Buy Shadow @ ${opp.shadowPrice.toFixed(2)} → Sell Real @ ${opp.realPrice.toFixed(2)}
                                 </div>
                               </div>
                               <div className="text-right">
-                                <div className="text-2xl font-bold text-green-400">
+                                <div className="text-2xl  text-green-400">
                                   +{opp.potentialProfit.toFixed(1)}%
                                 </div>
                                 <Button 
@@ -376,17 +376,17 @@ export default function ShadowMarket() {
                       <div className="p-4 bg-purple-900/20 rounded border border-purple-600/30">
                         <div className="flex justify-between items-center mb-4">
                           <span className="text-purple-400">Shadow Liquidity</span>
-                          <span className="text-xl font-bold">${darkPools.metrics?.shadowLiquidity?.toFixed(0) || 0}</span>
+                          <span className="text-xl ">${darkPools.metrics?.shadowLiquidity?.toFixed(0) || 0}</span>
                         </div>
                         <div className="flex justify-between items-center mb-4">
                           <span className="text-purple-400">Hidden Orders</span>
-                          <span className="text-xl font-bold">{darkPools.metrics?.hiddenOrders || 0}</span>
+                          <span className="text-xl ">{darkPools.metrics?.hiddenOrders || 0}</span>
                         </div>
                         {darkPools.metrics?.bloodInTheWater && (
                           <div className="mt-4 p-3 bg-red-900/30 rounded border border-red-600">
                             <div className="flex items-center gap-2">
                               <AlertTriangle className="w-5 h-5 text-red-500 animate-pulse" />
-                              <span className="text-red-400 font-bold">BLOOD IN THE WATER</span>
+                              <span className="text-red-400 ">BLOOD IN THE WATER</span>
                             </div>
                             <p className="text-sm text-red-300 mt-1">Recent losses detected. Feeding frenzy active.</p>
                           </div>
@@ -430,7 +430,7 @@ export default function ShadowMarket() {
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="font-bold text-red-400">{type.name}</div>
+                          <div className=" text-red-400">{type.name}</div>
                           <div className="text-xs text-gray-500">{type.description}</div>
                         </div>
                         <div className="text-right">
@@ -504,7 +504,7 @@ export default function ShadowMarket() {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-400">Corruption</span>
-                  <span className="text-red-500 font-bold">{corruption}%</span>
+                  <span className="text-red-500 ">{corruption}%</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Soul Weight</span>

@@ -157,7 +157,7 @@ export function ComicCoverCardsWidget() {
                     {/* Asset Info */}
                     <div className="space-y-1">
                       <div className="flex items-center justify-between gap-1">
-                        <span className="text-xs font-medium truncate" title={comic.name}>
+                        <span className="text-xs  truncate" title={comic.name}>
                           {comic.symbol}
                         </span>
                         <Info className="w-3 h-3 text-muted-foreground shrink-0" />
@@ -165,7 +165,7 @@ export function ComicCoverCardsWidget() {
                       
                       {/* Price */}
                       <div className="flex items-baseline gap-1">
-                        <span className="text-sm font-bold">
+                        <span className="text-sm ">
                           {formatPrice(comic.currentPrice)}
                         </span>
                       </div>
@@ -186,25 +186,25 @@ export function ComicCoverCardsWidget() {
                 <TooltipContent side="right" className="max-w-xs">
                   <div className="space-y-2">
                     <div>
-                      <h4 className="font-semibold">{comic.name}</h4>
+                      <h4 className="">{comic.name}</h4>
                       {comic.publisher && (
                         <p className="text-xs text-muted-foreground">{comic.publisher}</p>
                       )}
                     </div>
                     
                     <div>
-                      <p className="text-xs font-medium text-yellow-400">Why Special:</p>
+                      <p className="text-xs  text-yellow-400">Why Special:</p>
                       <p className="text-xs text-muted-foreground">{comic.whySpecial}</p>
                     </div>
                     
                     <div>
-                      <p className="text-xs font-medium">Historical Significance:</p>
+                      <p className="text-xs ">Historical Significance:</p>
                       <p className="text-xs text-muted-foreground">{comic.historicalSignificance}</p>
                     </div>
                     
                     {comic.keyCreators && comic.keyCreators.length > 0 && (
                       <div>
-                        <p className="text-xs font-medium">Key Creators:</p>
+                        <p className="text-xs ">Key Creators:</p>
                         <p className="text-xs text-muted-foreground">
                           {comic.keyCreators.join(', ')}
                         </p>

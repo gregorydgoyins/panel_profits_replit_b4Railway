@@ -81,7 +81,7 @@ export default function HouseCompetition() {
       case 1: return <Trophy className="h-5 w-5 text-yellow-500" />;
       case 2: return <Medal className="h-5 w-5 text-gray-400" />;
       case 3: return <Award className="h-5 w-5 text-amber-600" />;
-      default: return <span className="w-5 h-5 flex items-center justify-center text-sm font-bold">#{rank}</span>;
+      default: return <span className="w-5 h-5 flex items-center justify-center text-sm ">#{rank}</span>;
     }
   };
 
@@ -105,7 +105,7 @@ export default function HouseCompetition() {
     <div className="container mx-auto p-6 space-y-8">
       {/* Header */}
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold">Inter-House Competition</h1>
+        <h1 className="text-4xl ">Inter-House Competition</h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           See how all houses stack up against each other in trading performance, 
           member growth, and community achievements.
@@ -125,25 +125,25 @@ export default function HouseCompetition() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-primary">
+                <div className="text-2xl  text-primary">
                   #{userHouseData.competitionRank}
                 </div>
                 <div className="text-sm text-muted-foreground">Overall Rank</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold">
+                <div className="text-2xl ">
                   {userHouseData.totalKarma.toLocaleString()}
                 </div>
                 <div className="text-sm text-muted-foreground">Total Karma</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold">
+                <div className="text-2xl ">
                   {userHouseData.totalMembers.toLocaleString()}
                 </div>
                 <div className="text-sm text-muted-foreground">Members</div>
               </div>
               <div className="text-center">
-                <div className="flex items-center justify-center gap-1 text-2xl font-bold">
+                <div className="flex items-center justify-center gap-1 text-2xl ">
                   {getGrowthIcon(userHouseData.weeklyGrowth)}
                   {userHouseData.weeklyGrowth.toFixed(1)}%
                 </div>
@@ -227,7 +227,7 @@ export default function HouseCompetition() {
                         
                         <div>
                           <div className="flex items-center gap-2">
-                            <h3 className="text-lg font-semibold">{house.name}</h3>
+                            <h3 className="text-lg ">{house.name}</h3>
                             {isUserHouse && (
                               <Badge variant="outline" className="text-xs">Your House</Badge>
                             )}
@@ -237,7 +237,7 @@ export default function HouseCompetition() {
                       </div>
 
                       <div className="text-right space-y-2">
-                        <div className="text-2xl font-bold">
+                        <div className="text-2xl ">
                           {getMetricValue(house, selectedMetric)}
                         </div>
                         
@@ -288,19 +288,19 @@ export default function HouseCompetition() {
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div>
                         <div className="text-muted-foreground">Total Karma</div>
-                        <div className="font-bold">{houseData.totalKarma.toLocaleString()}</div>
+                        <div className="">{houseData.totalKarma.toLocaleString()}</div>
                       </div>
                       <div>
                         <div className="text-muted-foreground">Members</div>
-                        <div className="font-bold">{houseData.totalMembers.toLocaleString()}</div>
+                        <div className="">{houseData.totalMembers.toLocaleString()}</div>
                       </div>
                       <div>
                         <div className="text-muted-foreground">Avg. Karma</div>
-                        <div className="font-bold">{houseData.avgKarmaPerMember}</div>
+                        <div className="">{houseData.avgKarmaPerMember}</div>
                       </div>
                       <div>
                         <div className="text-muted-foreground">Growth</div>
-                        <div className="flex items-center gap-1 font-bold">
+                        <div className="flex items-center gap-1 ">
                           {getGrowthIcon(houseData.weeklyGrowth)}
                           {houseData.weeklyGrowth.toFixed(1)}%
                         </div>
@@ -308,7 +308,7 @@ export default function HouseCompetition() {
                     </div>
                     
                     <div className="space-y-2">
-                      <div className="text-sm font-medium">Performance vs. Average</div>
+                      <div className="text-sm ">Performance vs. Average</div>
                       <Progress 
                         value={Math.min(100, (houseData.totalKarma / 30000) * 100)} 
                         className="h-2"
@@ -334,33 +334,33 @@ export default function HouseCompetition() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div>
-                    <h4 className="font-medium">Weekly Trading Challenge</h4>
+                    <h4 className="">Weekly Trading Challenge</h4>
                     <p className="text-sm text-muted-foreground">Compete for the highest trading volume</p>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold">3 days left</div>
+                    <div className="">3 days left</div>
                     <div className="text-sm text-muted-foreground">Ends Sunday</div>
                   </div>
                 </div>
                 
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div>
-                    <h4 className="font-medium">Karma Growth Contest</h4>
+                    <h4 className="">Karma Growth Contest</h4>
                     <p className="text-sm text-muted-foreground">Which house gains the most karma this month?</p>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold">12 days left</div>
+                    <div className="">12 days left</div>
                     <div className="text-sm text-muted-foreground">Monthly event</div>
                   </div>
                 </div>
                 
                 <div className="flex items-center justify-between p-4 border rounded-lg opacity-60">
                   <div>
-                    <h4 className="font-medium">House Unity Tournament</h4>
+                    <h4 className="">House Unity Tournament</h4>
                     <p className="text-sm text-muted-foreground">Team-based trading competition</p>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold">Coming Soon</div>
+                    <div className="">Coming Soon</div>
                     <div className="text-sm text-muted-foreground">Next season</div>
                   </div>
                 </div>

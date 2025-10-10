@@ -36,7 +36,7 @@ export function NewsTicker() {
     return (
       <div className="bg-card/80 border-b border-border overflow-hidden">
         <div className="flex items-center h-12">
-          <div className="bg-primary px-4 h-full flex items-center font-semibold text-sm text-primary-foreground shrink-0">
+          <div className="bg-primary px-4 h-full flex items-center  text-sm text-primary-foreground shrink-0">
             BREAKING NEWS
           </div>
           <div className="flex-1 flex items-center justify-center">

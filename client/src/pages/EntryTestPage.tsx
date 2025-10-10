@@ -77,12 +77,12 @@ export default function EntryTestPage() {
             <Card className="border-2" style={{ borderColor: primaryHouse?.color }}>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-muted-foreground">Primary Trading Style</span>
+                  <span className="text-sm  text-muted-foreground">Primary Trading Style</span>
                   <Shield className="w-5 h-5" style={{ color: primaryHouse?.color }} />
                 </div>
               </CardHeader>
               <CardContent>
-                <h3 className="text-2xl font-bold mb-2" style={{ color: primaryHouse?.color }}>
+                <h3 className="text-2xl  mb-2" style={{ color: primaryHouse?.color }}>
                   {primaryHouse?.name}
                 </h3>
                 <p className="text-muted-foreground mb-3">{primaryHouse?.description}</p>
@@ -96,12 +96,12 @@ export default function EntryTestPage() {
             <Card className="border opacity-75">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-muted-foreground">Alternative Style</span>
+                  <span className="text-sm  text-muted-foreground">Alternative Style</span>
                   <Users className="w-4 h-4 text-muted-foreground" />
                 </div>
               </CardHeader>
               <CardContent>
-                <h4 className="text-lg font-semibold mb-1">{secondaryHouse?.name}</h4>
+                <h4 className="text-lg  mb-1">{secondaryHouse?.name}</h4>
                 <p className="text-sm text-muted-foreground">
                   You also show traits aligned with this trading philosophy
                 </p>
@@ -111,7 +111,7 @@ export default function EntryTestPage() {
             {/* What This Means */}
             <Card className="bg-muted/50 border-muted">
               <CardContent className="pt-6">
-                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                <h4 className=" mb-3 flex items-center gap-2">
                   <Brain className="w-5 h-5 text-primary" />
                   What This Means For Your Trading
                 </h4>

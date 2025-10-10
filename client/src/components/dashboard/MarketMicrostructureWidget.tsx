@@ -45,7 +45,7 @@ export default function MarketMicrostructureWidget() {
             <Microscope className="w-4 h-4 text-teal-400" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-gray-100">Market Microstructure Analyzer</h3>
+            <h3 className="text-sm  text-gray-100">Market Microstructure Analyzer</h3>
             <p className="text-xs text-gray-500">Deep order flow & mechanics analysis</p>
           </div>
         </div>

@@ -173,7 +173,7 @@ export function TradingBalance() {
             {isLoading ? (
               <div className="animate-pulse bg-muted rounded h-8 w-32 mx-auto"></div>
             ) : (
-              <p className="text-3xl font-bold text-foreground" data-testid="text-virtual-balance">
+              <p className="text-3xl  text-foreground" data-testid="text-virtual-balance">
                 {formatCurrency(displayBalanceData.virtualBalance)}
               </p>
             )}
@@ -186,7 +186,7 @@ export function TradingBalance() {
             <div className="text-center p-3 border rounded-lg">
               <DollarSign className="w-6 h-6 text-green-500 mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">Available Cash</p>
-              <p className="text-lg font-bold" data-testid="text-available-cash">
+              <p className="text-lg " data-testid="text-available-cash">
                 {formatCurrency(displayBalanceData.availableCash)}
               </p>
             </div>
@@ -194,7 +194,7 @@ export function TradingBalance() {
             <div className="text-center p-3 border rounded-lg">
               <BarChart3 className="w-6 h-6 text-blue-500 mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">Invested</p>
-              <p className="text-lg font-bold" data-testid="text-invested-amount">
+              <p className="text-lg " data-testid="text-invested-amount">
                 {formatCurrency(displayBalanceData.investedAmount)}
               </p>
             </div>
@@ -206,7 +206,7 @@ export function TradingBalance() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Daily Trading Limit</span>
+              <span className="text-sm ">Daily Trading Limit</span>
             </div>
             <span className="text-sm text-muted-foreground">
               {formatCurrency(displayBalanceData.dailyTradingUsed)} / {formatCurrency(displayBalanceData.dailyTradingLimit)}
@@ -226,7 +226,7 @@ export function TradingBalance() {
         {/* Risk Management */}
         <div className="space-y-3" data-testid="risk-management">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Risk Profile</span>
+            <span className="text-sm ">Risk Profile</span>
             <div className="flex items-center gap-2">
               {getRiskToleranceIcon(displayBalanceData.riskTolerance)}
               <span className={`text-sm capitalize ${getRiskToleranceColor(displayBalanceData.riskTolerance)}`}>
@@ -238,7 +238,7 @@ export function TradingBalance() {
           <div className="p-3 border rounded-lg space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Max Position Size</span>
-              <span className="font-medium" data-testid="text-max-position">
+              <span className="" data-testid="text-max-position">
                 {formatCurrency(displayBalanceData.maxPositionSize)}
               </span>
             </div>
@@ -246,7 +246,7 @@ export function TradingBalance() {
               <span className="text-muted-foreground">Trading Streak</span>
               <div className="flex items-center gap-1">
                 <TrendingUp className="w-3 h-3 text-green-500" />
-                <span className="font-medium text-green-500" data-testid="text-trading-streak">
+                <span className=" text-green-500" data-testid="text-trading-streak">
                   {displayBalanceData.tradingStreak} wins
                 </span>
               </div>
@@ -256,19 +256,19 @@ export function TradingBalance() {
 
         {/* Trading Statistics */}
         <div className="space-y-3" data-testid="trading-statistics">
-          <h4 className="text-sm font-medium">Trading Performance</h4>
+          <h4 className="text-sm ">Trading Performance</h4>
           
           <div className="grid grid-cols-2 gap-3">
             <div className="text-center p-3 border rounded-lg">
               <p className="text-sm text-muted-foreground">Total Trades</p>
-              <p className="text-xl font-bold" data-testid="text-total-trades">
+              <p className="text-xl " data-testid="text-total-trades">
                 {displayBalanceData.totalTrades}
               </p>
             </div>
             
             <div className="text-center p-3 border rounded-lg">
               <p className="text-sm text-muted-foreground">Win Rate</p>
-              <p className="text-xl font-bold text-green-500" data-testid="text-win-rate">
+              <p className="text-xl  text-green-500" data-testid="text-win-rate">
                 {getWinRate().toFixed(1)}%
               </p>
             </div>
@@ -277,14 +277,14 @@ export function TradingBalance() {
           <div className="grid grid-cols-2 gap-3">
             <div className="text-center p-2 border rounded-lg">
               <p className="text-xs text-muted-foreground">Avg Win</p>
-              <p className="text-sm font-medium text-green-500" data-testid="text-avg-win">
+              <p className="text-sm  text-green-500" data-testid="text-avg-win">
                 {formatCurrency(displayBalanceData.averageWin)}
               </p>
             </div>
             
             <div className="text-center p-2 border rounded-lg">
               <p className="text-xs text-muted-foreground">Avg Loss</p>
-              <p className="text-sm font-medium text-red-500" data-testid="text-avg-loss">
+              <p className="text-sm  text-red-500" data-testid="text-avg-loss">
                 {formatCurrency(displayBalanceData.averageLoss)}
               </p>
             </div>
@@ -292,7 +292,7 @@ export function TradingBalance() {
 
           <div className="text-center p-3 border rounded-lg">
             <p className="text-sm text-muted-foreground">Profit Factor</p>
-            <p className={`text-lg font-bold ${displayBalanceData.profitFactor >= 1 ? 'text-green-500' : 'text-red-500'}`} data-testid="text-profit-factor">
+            <p className={`text-lg  ${displayBalanceData.profitFactor >= 1 ? 'text-green-500' : 'text-red-500'}`} data-testid="text-profit-factor">
               {displayBalanceData.profitFactor.toFixed(2)}
             </p>
           </div>
@@ -303,7 +303,7 @@ export function TradingBalance() {
           <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg" data-testid="trading-insights">
             <Info className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
             <div className="space-y-1">
-              <p className="text-sm font-medium">Trading Insights</p>
+              <p className="text-sm ">Trading Insights</p>
               <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• You're on a {displayBalanceData.tradingStreak}-trade winning streak</li>
                 <li>• {getDailyLimitUsage().toFixed(0)}% of daily limit used</li>

@@ -54,7 +54,7 @@ export default function HouseDashboard() {
         <Card>
           <CardContent className="text-center py-12">
             <Shield className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-lg font-medium mb-2">No House Membership</h3>
+            <h3 className="text-lg  mb-2">No House Membership</h3>
             <p className="text-muted-foreground mb-4">
               You haven't joined a house yet. Join one to access exclusive trading bonuses and features.
             </p>
@@ -121,7 +121,7 @@ export default function HouseDashboard() {
             variant="solid"
           />
           <div>
-            <h1 className="text-3xl font-bold">{house.name}</h1>
+            <h1 className="text-3xl ">{house.name}</h1>
             <div className="flex items-center gap-2 text-muted-foreground">
               <SpecIcon className="h-4 w-4" />
               <span>{house.specialization}</span>
@@ -130,7 +130,7 @@ export default function HouseDashboard() {
         </div>
         
         <div className="text-right">
-          <div className="text-2xl font-bold">#{house.userRank}</div>
+          <div className="text-2xl ">#{house.userRank}</div>
           <div className="text-sm text-muted-foreground">Your Rank</div>
         </div>
       </div>
@@ -144,7 +144,7 @@ export default function HouseDashboard() {
                 <Trophy className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <div className="text-2xl font-bold">{house.userKarma}</div>
+                <div className="text-2xl ">{house.userKarma}</div>
                 <div className="text-sm text-muted-foreground">Your Karma</div>
               </div>
             </div>
@@ -158,7 +158,7 @@ export default function HouseDashboard() {
                 <TrendingUp className="h-5 w-5 text-green-500" />
               </div>
               <div>
-                <div className="text-2xl font-bold">{house.karmaMultiplier}x</div>
+                <div className="text-2xl ">{house.karmaMultiplier}x</div>
                 <div className="text-sm text-muted-foreground">Karma Multiplier</div>
               </div>
             </div>
@@ -172,7 +172,7 @@ export default function HouseDashboard() {
                 <Users className="h-5 w-5 text-blue-500" />
               </div>
               <div>
-                <div className="text-2xl font-bold">{houseMembers?.memberCount || 0}</div>
+                <div className="text-2xl ">{houseMembers?.memberCount || 0}</div>
                 <div className="text-sm text-muted-foreground">House Members</div>
               </div>
             </div>
@@ -186,7 +186,7 @@ export default function HouseDashboard() {
                 <Award className="h-5 w-5 text-purple-500" />
               </div>
               <div>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl ">
                   {currentUser?.tradingStreakDays || 0}
                 </div>
                 <div className="text-sm text-muted-foreground">Day Streak</div>
@@ -230,7 +230,7 @@ export default function HouseDashboard() {
                       data-testid={`bonus-${key}`}
                     >
                       <div>
-                        <div className="font-medium capitalize">
+                        <div className=" capitalize">
                           {key.replace(/([A-Z])/g, ' $1').trim()}
                         </div>
                         <div className="text-sm text-muted-foreground">
@@ -255,19 +255,19 @@ export default function HouseDashboard() {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                   <div className="p-4 bg-primary/10 rounded-lg">
-                    <div className="text-2xl font-bold text-primary">
+                    <div className="text-2xl  text-primary">
                       {houseBonuses?.userKarma || house.userKarma}
                     </div>
                     <div className="text-sm text-muted-foreground">Base Karma</div>
                   </div>
                   <div className="p-4 bg-green-500/10 rounded-lg">
-                    <div className="text-2xl font-bold text-green-500">
+                    <div className="text-2xl  text-green-500">
                       {house.karmaMultiplier}x
                     </div>
                     <div className="text-sm text-muted-foreground">House Multiplier</div>
                   </div>
                   <div className="p-4 bg-blue-500/10 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-500">
+                    <div className="text-2xl  text-blue-500">
                       {Math.round((houseBonuses?.userKarma || house.userKarma) * house.karmaMultiplier)}
                     </div>
                     <div className="text-sm text-muted-foreground">Total Karma Power</div>
@@ -321,10 +321,10 @@ export default function HouseDashboard() {
                     >
                       <div className="flex items-center gap-4">
                         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted">
-                          <span className="font-bold text-sm">#{member.rank}</span>
+                          <span className=" text-sm">#{member.rank}</span>
                         </div>
                         <div>
-                          <div className="font-medium">{member.name}</div>
+                          <div className="">{member.name}</div>
                           <div className="text-sm text-muted-foreground">
                             {member.tradingStreakDays} day streak
                           </div>
@@ -332,7 +332,7 @@ export default function HouseDashboard() {
                       </div>
                       
                       <div className="text-right">
-                        <div className="font-bold">{member.karma} karma</div>
+                        <div className="">{member.karma} karma</div>
                         <div className="text-sm text-muted-foreground">
                           ${member.totalTradingProfit.toLocaleString()} profit
                         </div>
@@ -356,7 +356,7 @@ export default function HouseDashboard() {
                 <div className="flex items-center justify-between">
                   <span>Total Profit</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold">
+                    <span className="">
                       ${currentUser?.totalTradingProfit.toLocaleString() || 0}
                     </span>
                     {getPerformanceIcon(5.2)}
@@ -366,7 +366,7 @@ export default function HouseDashboard() {
                 <div className="flex items-center justify-between">
                   <span>Current Streak</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold">
+                    <span className="">
                       {currentUser?.tradingStreakDays || 0} days
                     </span>
                     <Timer className="h-3 w-3 text-primary" />
@@ -375,7 +375,7 @@ export default function HouseDashboard() {
                 
                 <div className="flex items-center justify-between">
                   <span>House Rank</span>
-                  <span className="font-bold">#{house.userRank}</span>
+                  <span className="">#{house.userRank}</span>
                 </div>
               </CardContent>
             </Card>
@@ -387,12 +387,12 @@ export default function HouseDashboard() {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span>Total Members</span>
-                  <span className="font-bold">{houseMembers?.memberCount || 0}</span>
+                  <span className="">{houseMembers?.memberCount || 0}</span>
                 </div>
                 
                 <div className="flex items-center justify-between">
                   <span>Avg. Member Karma</span>
-                  <span className="font-bold">
+                  <span className="">
                     {houseMembers?.members.length 
                       ? Math.round(houseMembers.members.reduce((sum, m) => sum + m.karma, 0) / houseMembers.members.length)
                       : 0

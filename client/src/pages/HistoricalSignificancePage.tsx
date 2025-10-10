@@ -107,7 +107,7 @@ export default function HistoricalSignificancePage() {
                 <Badge className="mb-3 bg-yellow-500 text-black">
                   {comic.significance}
                 </Badge>
-                <CardTitle className="text-3xl font-bold mb-3">{comic.title}</CardTitle>
+                <CardTitle className="text-3xl  mb-3">{comic.title}</CardTitle>
                 <p className="text-lg text-muted-foreground mb-3">
                   {comic.series} #{comic.issueNumber}
                 </p>
@@ -134,7 +134,7 @@ export default function HistoricalSignificancePage() {
           <CardContent className="space-y-8">
             {/* Historical Context */}
             <section>
-              <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+              <h2 className="text-2xl  mb-4 flex items-center gap-2">
                 <BookOpen className="w-6 h-6 text-primary" />
                 Historical Context
               </h2>
@@ -146,7 +146,7 @@ export default function HistoricalSignificancePage() {
             {/* Full Analysis */}
             {comic.fullAnalysis && (
               <section>
-                <h2 className="text-2xl font-bold mb-4">In-Depth Analysis</h2>
+                <h2 className="text-2xl  mb-4">In-Depth Analysis</h2>
                 <div className="prose prose-invert max-w-none">
                   <p className="text-foreground/80 leading-relaxed text-lg whitespace-pre-line">
                     {comic.fullAnalysis}
@@ -158,7 +158,7 @@ export default function HistoricalSignificancePage() {
             {/* Cultural Impact */}
             {comic.culturalImpact && (
               <section className="bg-primary/10 border border-primary/20 rounded-lg p-6">
-                <h2 className="text-2xl font-bold mb-4 text-primary">Cultural Impact</h2>
+                <h2 className="text-2xl  mb-4 text-primary">Cultural Impact</h2>
                 <p className="text-foreground/80 leading-relaxed text-lg">
                   {comic.culturalImpact}
                 </p>
@@ -168,7 +168,7 @@ export default function HistoricalSignificancePage() {
             {/* Market Importance */}
             {comic.marketImportance && (
               <section className="bg-green-500/10 border border-green-500/20 rounded-lg p-6">
-                <h2 className="text-2xl font-bold mb-4 text-green-500">Market Importance</h2>
+                <h2 className="text-2xl  mb-4 text-green-500">Market Importance</h2>
                 <p className="text-foreground/80 leading-relaxed text-lg">
                   {comic.marketImportance}
                 </p>
@@ -178,7 +178,7 @@ export default function HistoricalSignificancePage() {
             {/* Key Points */}
             {comic.keyPoints && comic.keyPoints.length > 0 && (
               <section>
-                <h2 className="text-2xl font-bold mb-4">Key Takeaways</h2>
+                <h2 className="text-2xl  mb-4">Key Takeaways</h2>
                 <ul className="space-y-3">
                   {comic.keyPoints.map((point, idx) => (
                     <li key={idx} className="flex items-start gap-3">
@@ -193,7 +193,7 @@ export default function HistoricalSignificancePage() {
             {/* Recommendation */}
             {comic.recommendation && (
               <section className="bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-6">
-                <h2 className="text-2xl font-bold mb-4 text-indigo-400">Why This Comic Matters</h2>
+                <h2 className="text-2xl  mb-4 text-indigo-400">Why This Comic Matters</h2>
                 <p className="text-foreground/80 leading-relaxed text-lg">
                   {comic.recommendation}
                 </p>
@@ -202,21 +202,21 @@ export default function HistoricalSignificancePage() {
 
             {/* Investment Summary */}
             <section className="border-t border-border pt-6">
-              <h2 className="text-2xl font-bold mb-4">Investment Overview</h2>
+              <h2 className="text-2xl  mb-4">Investment Overview</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-muted/50 rounded-lg p-4">
                   <p className="text-sm text-muted-foreground mb-1">Original Print Price</p>
-                  <p className="text-2xl font-bold text-foreground">${comic.printPrice.toFixed(2)}</p>
+                  <p className="text-2xl  text-foreground">${comic.printPrice.toFixed(2)}</p>
                 </div>
                 <div className="bg-muted/50 rounded-lg p-4">
                   <p className="text-sm text-muted-foreground mb-1">Current Market Value</p>
-                  <p className="text-2xl font-bold text-green-500">
+                  <p className="text-2xl  text-green-500">
                     ${comic.estimatedValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
                 <div className="bg-muted/50 rounded-lg p-4">
                   <p className="text-sm text-muted-foreground mb-1">Value Appreciation</p>
-                  <p className="text-2xl font-bold text-yellow-500">
+                  <p className="text-2xl  text-yellow-500">
                     +{priceChangePercent.toFixed(0)}%
                   </p>
                 </div>

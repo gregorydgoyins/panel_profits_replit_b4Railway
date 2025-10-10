@@ -107,7 +107,7 @@ export default function SeriesDetailPage() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div>
-                    <CardTitle className="text-3xl font-bold mb-2">{series.seriesName}</CardTitle>
+                    <CardTitle className="text-3xl  mb-2">{series.seriesName}</CardTitle>
                     <div className="flex items-center gap-3 flex-wrap">
                       <Badge variant="outline" className="text-base">
                         <Building2 className="w-4 h-4 mr-2" />
@@ -258,10 +258,10 @@ export default function SeriesDetailPage() {
                       <div key={asset.id} className="border border-border rounded-lg p-3 hover-elevate cursor-pointer" data-testid={`asset-${asset.id}`}>
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="font-semibold text-foreground text-sm">{asset.symbol}</p>
+                            <p className=" text-foreground text-sm">{asset.symbol}</p>
                             <p className="text-xs text-muted-foreground">{asset.name}</p>
                           </div>
-                          <p className="text-lg font-bold text-green-500">
+                          <p className="text-lg  text-green-500">
                             ${asset.currentPrice.toFixed(2)}
                           </p>
                         </div>

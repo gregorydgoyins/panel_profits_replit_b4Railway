@@ -140,7 +140,7 @@ export default function InvestmentClubDetailPage() {
     <div className="space-y-6" data-testid="club-detail-page">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold font-serif tracking-tight" data-testid="club-detail-name">
+          <h1 className="text-3xl  font-serif tracking-tight" data-testid="club-detail-name">
             {club.name}
           </h1>
           <p className="text-muted-foreground mt-1">{club.description}</p>
@@ -158,7 +158,7 @@ export default function InvestmentClubDetailPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Total Value</p>
-              <p className="text-2xl font-bold" data-testid="club-total-value">
+              <p className="text-2xl " data-testid="club-total-value">
                 ${parseFloat(club.totalValue || '0').toLocaleString()}
               </p>
             </div>
@@ -170,7 +170,7 @@ export default function InvestmentClubDetailPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Members</p>
-              <p className="text-2xl font-bold" data-testid="club-member-count">
+              <p className="text-2xl " data-testid="club-member-count">
                 {club.members?.length || 0}
               </p>
             </div>
@@ -182,7 +182,7 @@ export default function InvestmentClubDetailPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Monthly Return</p>
-              <p className={`text-2xl font-bold ${isPositive ? 'text-green-500' : 'text-red-500'}`} data-testid="club-monthly-return">
+              <p className={`text-2xl  ${isPositive ? 'text-green-500' : 'text-red-500'}`} data-testid="club-monthly-return">
                 {isPositive ? '+' : ''}{latestReturn}%
               </p>
             </div>
@@ -213,15 +213,15 @@ export default function InvestmentClubDetailPage() {
         <TabsContent value="portfolio" className="space-y-4">
           <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Cash Balance</h3>
-              <p className="text-2xl font-bold" data-testid="club-cash-balance">
+              <h3 className="text-lg ">Cash Balance</h3>
+              <p className="text-2xl " data-testid="club-cash-balance">
                 ${parseFloat(club.portfolio?.cashBalance || '0').toLocaleString()}
               </p>
             </div>
           </Card>
 
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Holdings</h3>
+            <h3 className="text-lg  mb-4">Holdings</h3>
             <div className="space-y-2">
               {club.portfolio?.holdings?.map((holding) => (
                 <div 
@@ -230,11 +230,11 @@ export default function InvestmentClubDetailPage() {
                   data-testid={`holding-${holding.assetId}`}
                 >
                   <div>
-                    <p className="font-semibold">{holding.symbol}</p>
+                    <p className="">{holding.symbol}</p>
                     <p className="text-sm text-muted-foreground">{holding.assetName}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold">{holding.quantity} shares</p>
+                    <p className="">{holding.quantity} shares</p>
                     <p className="text-sm text-muted-foreground">
                       ${parseFloat(holding.totalValue).toLocaleString()}
                     </p>
@@ -281,7 +281,7 @@ export default function InvestmentClubDetailPage() {
 
         <TabsContent value="members" className="space-y-4">
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Club Members</h3>
+            <h3 className="text-lg  mb-4">Club Members</h3>
             <div className="space-y-2">
               {club.members?.map((member) => (
                 <div 
@@ -292,12 +292,12 @@ export default function InvestmentClubDetailPage() {
                   <div className="flex items-center gap-3">
                     {getRoleIcon(member.role)}
                     <div>
-                      <p className="font-semibold">{member.username}</p>
+                      <p className="">{member.username}</p>
                       {getRoleBadge(member.role)}
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold" data-testid={`member-share-${member.userId}`}>
+                    <p className="" data-testid={`member-share-${member.userId}`}>
                       {parseFloat(member.sharePercentage).toFixed(1)}%
                     </p>
                     <p className="text-sm text-muted-foreground">
@@ -312,7 +312,7 @@ export default function InvestmentClubDetailPage() {
 
         <TabsContent value="activity" className="space-y-4">
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Activity Log</h3>
+            <h3 className="text-lg  mb-4">Activity Log</h3>
             <ScrollArea className="h-[400px]">
               <div className="space-y-3">
                 {club.activities?.map((activity) => (
@@ -324,7 +324,7 @@ export default function InvestmentClubDetailPage() {
                     <Activity className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
                     <div className="flex-1">
                       <p className="text-sm">
-                        <span className="font-semibold">{activity.username}</span>{' '}
+                        <span className="">{activity.username}</span>{' '}
                         {activity.actionType.replace(/_/g, ' ')}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">

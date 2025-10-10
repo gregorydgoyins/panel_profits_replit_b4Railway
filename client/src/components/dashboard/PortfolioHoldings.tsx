@@ -221,7 +221,7 @@ export function PortfolioHoldings() {
           <div className="flex items-center gap-2">
             <div className="text-right">
               <p className="text-sm text-muted-foreground">Total P&L</p>
-              <p className={`text-sm font-medium ${getPerformanceColor(totalUnrealizedPnL)}`} data-testid="text-total-pnl">
+              <p className={`text-sm  ${getPerformanceColor(totalUnrealizedPnL)}`} data-testid="text-total-pnl">
                 {totalUnrealizedPnL >= 0 ? '+' : ''}{formatCurrency(totalUnrealizedPnL)} ({totalUnrealizedPnLPercent >= 0 ? '+' : ''}{totalUnrealizedPnLPercent.toFixed(2)}%)
               </p>
             </div>
@@ -245,14 +245,14 @@ export function PortfolioHoldings() {
               {/* Asset Info */}
               <div className="flex items-center gap-3 flex-1">
                 <Avatar className="h-10 w-10">
-                  <AvatarFallback className={`${getTypeColor(holding.type)} font-semibold`}>
+                  <AvatarFallback className={`${getTypeColor(holding.type)} `}>
                     {getTypeIcon(holding.type)}
                   </AvatarFallback>
                 </Avatar>
                 
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-semibold text-sm">{holding.name}</h4>
+                    <h4 className=" text-sm">{holding.name}</h4>
                     <Badge variant="outline" className="text-xs">
                       {holding.symbol}
                     </Badge>
@@ -271,7 +271,7 @@ export function PortfolioHoldings() {
               {/* Performance */}
               <div className="text-right space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium" data-testid={`value-${holding.symbol.toLowerCase()}`}>
+                  <span className="text-sm " data-testid={`value-${holding.symbol.toLowerCase()}`}>
                     {formatCurrency(holding.totalValue)}
                   </span>
                   <div className={`flex items-center gap-1 text-xs ${getPerformanceColor(holding.dayChange)}`}>
@@ -327,7 +327,7 @@ export function PortfolioHoldings() {
         {displayHoldings.length === 0 && !isLoading && (
           <div className="text-center py-8" data-testid="empty-holdings">
             <BarChart3 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No Holdings Yet</h3>
+            <h3 className="text-lg  mb-2">No Holdings Yet</h3>
             <p className="text-sm text-muted-foreground mb-4">
               Start building your portfolio by purchasing your first comic assets
             </p>

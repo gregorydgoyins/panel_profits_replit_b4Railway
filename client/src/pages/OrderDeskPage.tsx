@@ -140,7 +140,7 @@ export default function OrderDeskPage() {
                   {/* Asset Details */}
                   <div className="flex-1">
                     <Badge className="mb-2">{asset.symbol}</Badge>
-                    <CardTitle className="text-3xl font-bold mb-2">{asset.title}</CardTitle>
+                    <CardTitle className="text-3xl  mb-2">{asset.title}</CardTitle>
                     <p className="text-lg text-muted-foreground mb-4">
                       {asset.series} #{asset.issueNumber}
                     </p>
@@ -149,14 +149,14 @@ export default function OrderDeskPage() {
                     <div className="flex items-center gap-6">
                       <div>
                         <p className="text-sm text-muted-foreground">Current Price</p>
-                        <p className="text-3xl font-bold text-foreground">
+                        <p className="text-3xl  text-foreground">
                           ${asset.currentPrice.toFixed(2)}
                         </p>
                       </div>
                       <div className={priceChange >= 0 ? 'text-green-500' : 'text-red-500'}>
                         <div className="flex items-center gap-1">
                           <TrendingUp className="w-4 h-4" />
-                          <span className="text-sm font-semibold">
+                          <span className="text-sm ">
                             {priceChange >= 0 ? '+' : ''}{priceChangePercent.toFixed(2)}%
                           </span>
                         </div>
@@ -181,25 +181,25 @@ export default function OrderDeskPage() {
               <CardContent>
                 <div className="space-y-4">
                   <div className="border-l-4 border-blue-500 pl-4">
-                    <h3 className="font-bold text-foreground mb-1">Standard Shares</h3>
+                    <h3 className=" text-foreground mb-1">Standard Shares</h3>
                     <p className="text-sm text-muted-foreground">
                       Direct ownership of comic asset shares. Trade instantly at market price.
                     </p>
                   </div>
                   <div className="border-l-4 border-green-500 pl-4">
-                    <h3 className="font-bold text-foreground mb-1">Fractional Shares</h3>
+                    <h3 className=" text-foreground mb-1">Fractional Shares</h3>
                     <p className="text-sm text-muted-foreground">
                       Own portions of high-value issues. Perfect for building diverse portfolios.
                     </p>
                   </div>
                   <div className="border-l-4 border-purple-500 pl-4">
-                    <h3 className="font-bold text-foreground mb-1">Options Contracts</h3>
+                    <h3 className=" text-foreground mb-1">Options Contracts</h3>
                     <p className="text-sm text-muted-foreground">
                       Advanced trading with calls and puts. Leverage your position with limited risk.
                     </p>
                   </div>
                   <div className="border-l-4 border-yellow-500 pl-4">
-                    <h3 className="font-bold text-foreground mb-1">Comic Bonds</h3>
+                    <h3 className=" text-foreground mb-1">Comic Bonds</h3>
                     <p className="text-sm text-muted-foreground">
                       Fixed-income instruments backed by comic assets. Stable returns with predictable yields.
                     </p>
@@ -217,17 +217,17 @@ export default function OrderDeskPage() {
                 <div className="grid grid-cols-3 gap-4">
                   <div className="bg-muted/30 rounded-lg p-4">
                     <p className="text-sm text-muted-foreground mb-1">Print Price</p>
-                    <p className="text-xl font-bold text-foreground">${asset.printPrice.toFixed(2)}</p>
+                    <p className="text-xl  text-foreground">${asset.printPrice.toFixed(2)}</p>
                   </div>
                   <div className="bg-muted/30 rounded-lg p-4">
                     <p className="text-sm text-muted-foreground mb-1">Estimated Value</p>
-                    <p className="text-xl font-bold text-green-500">
+                    <p className="text-xl  text-green-500">
                       ${asset.estimatedValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
                   </div>
                   <div className="bg-muted/30 rounded-lg p-4">
                     <p className="text-sm text-muted-foreground mb-1">Daily Volume</p>
-                    <p className="text-xl font-bold text-foreground">1,247</p>
+                    <p className="text-xl  text-foreground">1,247</p>
                   </div>
                 </div>
               </CardContent>
@@ -318,15 +318,15 @@ export default function OrderDeskPage() {
                 <div className="border-t border-border pt-4 space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Shares</span>
-                    <span className="text-foreground font-semibold">{quantity || 0}</span>
+                    <span className="text-foreground ">{quantity || 0}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Price per Share</span>
-                    <span className="text-foreground font-semibold">
+                    <span className="text-foreground ">
                       ${orderType === 'limit' ? (limitPrice || '0.00') : asset.currentPrice.toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex justify-between text-lg font-bold border-t border-border pt-3">
+                  <div className="flex justify-between text-lg  border-t border-border pt-3">
                     <span className="text-foreground">Total</span>
                     <span className="text-primary">${calculateTotal().toFixed(2)}</span>
                   </div>

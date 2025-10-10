@@ -52,7 +52,7 @@ export function OrderBookWidget() {
       <CardContent>
         {/* Asks (Sell Orders) */}
         <div className="space-y-1">
-          <p className="text-xs font-semibold text-red-500 mb-2">ASKS (SELL)</p>
+          <p className="text-xs  text-red-500 mb-2">ASKS (SELL)</p>
           {[...asks].reverse().map((ask, idx) => (
             <div
               key={idx}
@@ -64,7 +64,7 @@ export function OrderBookWidget() {
                 style={{ width: `${(ask.total / maxTotal) * 100}%` }}
               />
               <div className="relative grid grid-cols-3 gap-2 py-1 px-2 text-xs font-mono">
-                <span className="text-red-500 font-bold">${ask.price.toFixed(2)}</span>
+                <span className="text-red-500 ">${ask.price.toFixed(2)}</span>
                 <span className="text-center">{ask.size}</span>
                 <span className="text-right text-muted-foreground">{ask.total}</span>
               </div>
@@ -76,14 +76,14 @@ export function OrderBookWidget() {
         <div className="my-3 py-2 px-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Mid Price:</span>
-            <span className="font-bold text-yellow-500">${midPrice.toFixed(2)}</span>
+            <span className=" text-yellow-500">${midPrice.toFixed(2)}</span>
             <span className="text-muted-foreground">Spread: ${spread.toFixed(2)}</span>
           </div>
         </div>
 
         {/* Bids (Buy Orders) */}
         <div className="space-y-1">
-          <p className="text-xs font-semibold text-green-500 mb-2">BIDS (BUY)</p>
+          <p className="text-xs  text-green-500 mb-2">BIDS (BUY)</p>
           {bids.map((bid, idx) => (
             <div
               key={idx}
@@ -95,7 +95,7 @@ export function OrderBookWidget() {
                 style={{ width: `${(bid.total / maxTotal) * 100}%` }}
               />
               <div className="relative grid grid-cols-3 gap-2 py-1 px-2 text-xs font-mono">
-                <span className="text-green-500 font-bold">${bid.price.toFixed(2)}</span>
+                <span className="text-green-500 ">${bid.price.toFixed(2)}</span>
                 <span className="text-center">{bid.size}</span>
                 <span className="text-right text-muted-foreground">{bid.total}</span>
               </div>

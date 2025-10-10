@@ -80,7 +80,7 @@ export function PublisherBondsWidget() {
             >
               <div className="flex items-start justify-between mb-2">
                 <div>
-                  <p className="font-semibold text-sm">{bond.publisher}</p>
+                  <p className=" text-sm">{bond.publisher}</p>
                   <div className="flex items-center gap-2 mt-1">
                     <Badge variant="outline" className={`text-xs ${getRatingColor(bond.rating)}`}>
                       {bond.rating}
@@ -91,7 +91,7 @@ export function PublisherBondsWidget() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-lg font-bold">${bond.price}</p>
+                  <p className="text-lg ">${bond.price}</p>
                   <p className="text-xs text-muted-foreground">Price</p>
                 </div>
               </div>
@@ -99,11 +99,11 @@ export function PublisherBondsWidget() {
               <div className="flex items-center justify-between pt-2 border-t">
                 <div className="text-xs">
                   <span className="text-muted-foreground">Coupon Rate:</span>{' '}
-                  <span className="font-semibold">{bond.coupon}%</span>
+                  <span className="">{bond.coupon}%</span>
                 </div>
                 <div className="text-xs">
                   <span className="text-muted-foreground">Yield:</span>{' '}
-                  <span className="font-semibold text-green-500">{bond.yield}%</span>
+                  <span className=" text-green-500">{bond.yield}%</span>
                 </div>
               </div>
             </div>
@@ -114,13 +114,13 @@ export function PublisherBondsWidget() {
         <div className="mt-4 pt-4 border-t grid grid-cols-2 gap-3">
           <div className="p-2 rounded-lg bg-muted">
             <p className="text-xs text-muted-foreground">Avg Yield</p>
-            <p className="text-lg font-bold text-green-500">
+            <p className="text-lg  text-green-500">
               {(bonds.reduce((sum, b) => sum + b.yield, 0) / bonds.length).toFixed(2)}%
             </p>
           </div>
           <div className="p-2 rounded-lg bg-muted">
             <p className="text-xs text-muted-foreground">Portfolio Value</p>
-            <p className="text-lg font-bold">
+            <p className="text-lg ">
               ${(bonds.reduce((sum, b) => sum + b.price, 0) * 1000).toLocaleString()}
             </p>
           </div>
@@ -131,7 +131,7 @@ export function PublisherBondsWidget() {
           <div className="flex items-start gap-2">
             <TrendingUp className="w-4 h-4 text-green-500 mt-0.5" />
             <div className="text-xs">
-              <p className="font-semibold text-green-500">Fixed Income</p>
+              <p className=" text-green-500">Fixed Income</p>
               <p className="text-muted-foreground mt-1">
                 Publisher bonds provide stable returns with lower volatility. 
                 Average credit rating: A+ with yields ranging 4.6% to 6.8%.

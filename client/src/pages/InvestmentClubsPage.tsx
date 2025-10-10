@@ -68,7 +68,7 @@ export default function InvestmentClubsPage() {
     <div className="space-y-6" data-testid="investment-clubs-page">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold font-serif tracking-tight">Investment Clubs</h1>
+          <h1 className="text-3xl  font-serif tracking-tight">Investment Clubs</h1>
           <p className="text-muted-foreground mt-1">Collaborative trading syndicate operations</p>
         </div>
         <Button 
@@ -86,7 +86,7 @@ export default function InvestmentClubsPage() {
           <div className="flex gap-3">
             <AlertTriangle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-semibold text-warning">Office Manager Access Required</h3>
+              <h3 className=" text-warning">Office Manager Access Required</h3>
               <p className="text-sm text-muted-foreground mt-1">
                 Investment Clubs are restricted to Office Manager (Pro) tier and above. 
                 Upgrade your subscription to create and manage collaborative trading syndicates.
@@ -100,7 +100,7 @@ export default function InvestmentClubsPage() {
         <Card className="p-12" data-testid="empty-clubs">
           <div className="text-center">
             <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No Investment Clubs</h3>
+            <h3 className="text-lg  mb-2">No Investment Clubs</h3>
             <p className="text-muted-foreground mb-4">
               You are not a member of any investment clubs. Create one to start collaborative trading.
             </p>
@@ -123,7 +123,7 @@ export default function InvestmentClubsPage() {
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold font-serif mb-1" data-testid={`club-name-${club.id}`}>
+                      <h3 className="text-lg  font-serif mb-1" data-testid={`club-name-${club.id}`}>
                         {club.name}
                       </h3>
                       <p className="text-sm text-muted-foreground line-clamp-2">
@@ -144,14 +144,14 @@ export default function InvestmentClubsPage() {
                         <Users className="h-4 w-4" />
                         <span data-testid={`club-members-${club.id}`}>{club.memberCount} members</span>
                       </div>
-                      <div className="text-sm font-medium" data-testid={`club-value-${club.id}`}>
+                      <div className="text-sm " data-testid={`club-value-${club.id}`}>
                         ${parseFloat(club.totalValue || '0').toLocaleString()}
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between">
                       <div className="text-sm text-muted-foreground">Monthly Return</div>
-                      <div className={`flex items-center gap-1 font-semibold ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
+                      <div className={`flex items-center gap-1  ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
                         {isPositive ? (
                           <TrendingUp className="h-4 w-4" />
                         ) : (

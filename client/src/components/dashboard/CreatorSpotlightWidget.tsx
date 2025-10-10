@@ -60,7 +60,7 @@ export default function CreatorSpotlightWidget() {
   return (
     <Card className="bg-gradient-to-br from-slate-950/95 via-indigo-950/30 to-purple-950/20 border-indigo-900/30" data-testid="widget-creator-spotlight">
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-base font-semibold text-indigo-50">
+        <CardTitle className="flex items-center gap-2 text-base  text-indigo-50">
           <Pen className="h-4 w-4 text-indigo-400" />
           CREATOR SPOTLIGHT
         </CardTitle>
@@ -112,7 +112,7 @@ export default function CreatorSpotlightWidget() {
                   )}
                   
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm text-indigo-50 truncate" data-testid={`text-name-${creator.symbol}`}>
+                    <div className=" text-sm text-indigo-50 truncate" data-testid={`text-name-${creator.symbol}`}>
                       {creator.name}
                     </div>
                     <div className="text-xs text-indigo-400/70 font-mono truncate" data-testid={`text-role-${creator.symbol}`}>
@@ -126,7 +126,7 @@ export default function CreatorSpotlightWidget() {
                   </div>
                   
                   <div className="flex flex-col items-end gap-0.5">
-                    <div className="text-sm font-mono font-semibold text-indigo-50" data-testid={`text-price-${creator.symbol}`}>
+                    <div className="text-sm font-mono  text-indigo-50" data-testid={`text-price-${creator.symbol}`}>
                       {formatPrice(creator.price)}
                     </div>
                     <div data-testid={`text-change-${creator.symbol}`}>

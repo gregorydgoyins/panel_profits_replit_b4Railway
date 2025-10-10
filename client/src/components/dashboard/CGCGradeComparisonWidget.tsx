@@ -117,7 +117,7 @@ export function CGCGradeComparisonWidget({ assetId }: CGCGradeComparisonWidgetPr
         ) : error ? (
           <div className="text-center py-8">
             <Award className="w-8 h-8 text-destructive mx-auto mb-2" />
-            <p className="font-medium text-destructive">Failed to load grading data</p>
+            <p className=" text-destructive">Failed to load grading data</p>
             <p className="text-sm text-muted-foreground mt-1">
               {error instanceof Error ? error.message : 'Unknown error'}
             </p>
@@ -148,7 +148,7 @@ export function CGCGradeComparisonWidget({ assetId }: CGCGradeComparisonWidgetPr
                       {gradeLabels[grade] || grade}
                     </Badge>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-lg" data-testid={`price-${grade}`}>
+                      <span className=" text-lg" data-testid={`price-${grade}`}>
                         ${price.toLocaleString()}
                       </span>
                       {grade !== 'ungraded' && multiplier > 1 && (
@@ -173,7 +173,7 @@ export function CGCGradeComparisonWidget({ assetId }: CGCGradeComparisonWidgetPr
               {ungradedPrice > 0 && maxPrice > 0 ? (
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Grading Premium Range</span>
-                  <span className="font-medium">
+                  <span className="">
                     {((maxPrice / ungradedPrice) - 1).toFixed(0)}% increase
                   </span>
                 </div>

@@ -26,7 +26,7 @@ export default function TrendingCharactersWidget() {
     return (
       <Card className="bg-black/40 border-indigo-900/30" data-testid="card-trending-characters-loading">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium text-indigo-100 uppercase tracking-wider">
+          <CardTitle className="text-sm  text-indigo-100 uppercase tracking-wider">
             Trending Characters
           </CardTitle>
         </CardHeader>
@@ -64,7 +64,7 @@ export default function TrendingCharactersWidget() {
   return (
     <Card className="bg-black/40 border-indigo-900/30 backdrop-blur-sm" data-testid="card-trending-characters">
       <CardHeader className="pb-3 border-b border-indigo-900/30">
-        <CardTitle className="text-sm font-medium text-indigo-100 uppercase tracking-wider flex items-center gap-2">
+        <CardTitle className="text-sm  text-indigo-100 uppercase tracking-wider flex items-center gap-2">
           <User2 className="h-4 w-4" />
           Trending Characters
         </CardTitle>
@@ -98,7 +98,7 @@ export default function TrendingCharactersWidget() {
                   )}
                   
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm text-indigo-50 truncate" data-testid={`text-name-${character.symbol}`}>
+                    <div className=" text-sm text-indigo-50 truncate" data-testid={`text-name-${character.symbol}`}>
                       {character.name}
                     </div>
                     <div className="text-xs text-indigo-400 font-mono" data-testid={`text-symbol-${character.symbol}`}>
@@ -107,7 +107,7 @@ export default function TrendingCharactersWidget() {
                   </div>
                   
                   <div className="text-right">
-                    <div className="text-sm font-medium text-indigo-100 font-mono" data-testid={`text-price-${character.symbol}`}>
+                    <div className="text-sm  text-indigo-100 font-mono" data-testid={`text-price-${character.symbol}`}>
                       {formatPrice(character.price)}
                     </div>
                     {changeData && (

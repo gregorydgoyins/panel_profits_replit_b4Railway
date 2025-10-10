@@ -30,7 +30,7 @@ import { GadgetsMemorabiliaWidget } from '@/components/dashboard/GadgetsMemorabi
 import { VillainsHenchmenWidget } from '@/components/dashboard/VillainsHenchmenWidget';
 import { SidekicksSuperheroesWidget } from '@/components/dashboard/SidekicksSuperheroesWidget';
 import { LocationsGadgetsWidget } from '@/components/dashboard/LocationsGadgetsWidget';
-import { CoverGalleryWidget, CharacterPortraitWidget, ComicPanelTimelineWidget, CreatorShowcaseWidget, StoryArcExplorerWidget, NarrativeMilestonesWidget, AppearanceTrackerWidget, RelationshipWebWidget } from '@/components/widgets';
+import { CoverGalleryWidget, CharacterPortraitWidget, ComicPanelTimelineWidget, CreatorShowcaseWidget, StoryArcExplorerWidget, NarrativeMilestonesWidget, AppearanceTrackerWidget, RelationshipWebWidget, CreatorCollaborationsWidget } from '@/components/widgets';
 
 interface Asset {
   id: string;
@@ -673,20 +673,20 @@ export default function DashboardPage() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-xl font-bold text-gray-600">
+                      <div className="w-full h-full flex items-center justify-center text-xl  text-gray-600">
                         {asset.symbol.slice(0, 2)}
                       </div>
                     )}
                   </div>
                   <p 
-                    className="text-sm font-medium text-white truncate mb-1"
+                    className="text-sm  text-white truncate mb-1"
                     style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                   >
                     {asset.symbol}
                   </p>
                   <div className="flex items-center justify-between">
                     <span 
-                      className="text-sm font-bold text-white"
+                      className="text-sm  text-white"
                       style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                     >
                       ${asset.currentPrice?.toFixed(2) ?? '0.00'}
@@ -796,6 +796,11 @@ export default function DashboardPage() {
       {/* Relationship Web - Full Width */}
       <div className="bg-slate-800/20 p-3 rounded-lg">
         <RelationshipWebWidget />
+      </div>
+
+      {/* Creator Collaborations - Full Width */}
+      <div className="bg-slate-800/20 p-3 rounded-lg">
+        <CreatorCollaborationsWidget />
       </div>
 
       <div className="bg-slate-800/20 p-3 rounded-lg">

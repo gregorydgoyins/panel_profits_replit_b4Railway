@@ -303,7 +303,7 @@ function ComicActionPanel({
           </div>
           {house && (
             <div 
-              className="px-3 py-1 rounded-full text-white text-sm font-bold"
+              className="px-3 py-1 rounded-full text-white text-sm "
               style={{ backgroundColor: house.color }}
             >
               {house.icon} {house.name}
@@ -317,7 +317,7 @@ function ComicActionPanel({
             ${event.price.toFixed(2)}
           </div>
           <div className={cn(
-            "flex items-center gap-1 text-2xl font-bold",
+            "flex items-center gap-1 text-2xl ",
             event.change > 0 ? "text-green-400" : "text-red-400"
           )}>
             {event.change > 0 ? <ArrowUp className="h-6 w-6" /> : <ArrowDown className="h-6 w-6" />}
@@ -511,7 +511,7 @@ export default function MarketActionPage() {
               {marketEvents.length === 0 ? (
                 <Card className="p-12 text-center bg-gray-900/50 border-gray-800">
                   <Skull className="h-16 w-16 mx-auto text-gray-600 mb-4" />
-                  <h3 className="text-xl font-bold text-gray-400">Waiting for Market Action...</h3>
+                  <h3 className="text-xl  text-gray-400">Waiting for Market Action...</h3>
                   <p className="text-sm text-gray-500 mt-2">The battle will begin soon</p>
                 </Card>
               ) : (
@@ -532,7 +532,7 @@ export default function MarketActionPage() {
         <div className="space-y-6">
           {/* Comic Chart */}
           <Card className="p-4 bg-gray-900/80 border-gray-800">
-            <h3 className="text-lg font-bold text-white mb-4">Battle Chart</h3>
+            <h3 className="text-lg  text-white mb-4">Battle Chart</h3>
             <ComicChart
               data={marketEvents}
               height={300}
@@ -541,7 +541,7 @@ export default function MarketActionPage() {
           
           {/* House Involvement */}
           <Card className="p-4 bg-gray-900/80 border-gray-800">
-            <h3 className="text-lg font-bold text-white mb-4">House Activity</h3>
+            <h3 className="text-lg  text-white mb-4">House Activity</h3>
             <div className="space-y-2">
               {SEVEN_HOUSES.map(house => {
                 const houseEvents = marketEvents.filter(e => e.house === house.id);
@@ -573,7 +573,7 @@ export default function MarketActionPage() {
           
           {/* Market Mood */}
           <Card className="p-4 bg-gray-900/80 border-gray-800">
-            <h3 className="text-lg font-bold text-white mb-4">Market Mood</h3>
+            <h3 className="text-lg  text-white mb-4">Market Mood</h3>
             <div className="space-y-3">
               {(() => {
                 const bullish = marketEvents.filter(e => 

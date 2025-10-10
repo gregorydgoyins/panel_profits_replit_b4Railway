@@ -126,7 +126,7 @@ export function GadgetsMemorabiliaWidget() {
   return (
     <Card className="h-full" data-testid="card-gadgets-memorabilia">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Gadgets & Memorabilia</CardTitle>
+        <CardTitle className="text-sm ">Gadgets & Memorabilia</CardTitle>
         <Sparkles className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
@@ -146,7 +146,7 @@ export function GadgetsMemorabiliaWidget() {
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-semibold text-sm truncate">{item.name}</h4>
+                    <h4 className=" text-sm truncate">{item.name}</h4>
                     <Badge variant="outline" className={`text-xs py-0 px-1.5 ${getRarityColor(item.rarity)}`}>
                       {item.rarity}
                     </Badge>
@@ -158,7 +158,7 @@ export function GadgetsMemorabiliaWidget() {
                     <span className="text-xs text-muted-foreground truncate">{item.origin}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="font-semibold text-sm">
+                    <span className=" text-sm">
                       ${item.currentPrice.toLocaleString()}
                     </span>
                     <div
@@ -171,7 +171,7 @@ export function GadgetsMemorabiliaWidget() {
                       ) : (
                         <TrendingDown className="h-3 w-3" />
                       )}
-                      <span className="font-semibold">
+                      <span className="">
                         {item.dayChange >= 0 ? '+' : ''}
                         {item.dayChange.toFixed(1)}%
                       </span>
@@ -187,7 +187,7 @@ export function GadgetsMemorabiliaWidget() {
                         style={{ width: `${item.ownerDemand}%` }}
                       />
                     </div>
-                    <span className="text-xs font-semibold">{item.ownerDemand}%</span>
+                    <span className="text-xs ">{item.ownerDemand}%</span>
                   </div>
                 </div>
               </div>

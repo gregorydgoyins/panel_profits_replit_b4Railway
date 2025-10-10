@@ -73,7 +73,7 @@ export function VolatilitySurfaceWidget() {
             <tbody>
               {strikes.map((strike) => (
                 <tr key={strike} className="border-b">
-                  <td className="py-2 px-3 font-semibold">${strike}</td>
+                  <td className="py-2 px-3 ">${strike}</td>
                   {expiries.map((expiry) => {
                     const point = volData.find(v => v.strike === strike && v.expiry === expiry);
                     if (!point) return <td key={expiry} />;
@@ -81,7 +81,7 @@ export function VolatilitySurfaceWidget() {
                     return (
                       <td key={expiry} className="text-center py-2 px-3">
                         <div className={`inline-block px-3 py-1 rounded ${getVolColor(point.iv)}`}>
-                          <span className="font-bold text-white">{point.iv.toFixed(1)}%</span>
+                          <span className=" text-white">{point.iv.toFixed(1)}%</span>
                         </div>
                       </td>
                     );

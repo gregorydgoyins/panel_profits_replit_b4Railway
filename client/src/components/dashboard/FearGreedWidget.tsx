@@ -64,9 +64,9 @@ export function FearGreedWidget() {
             {/* Score Display */}
             <div className="flex-1">
               <div className="text-center mb-4">
-                <p className={`text-6xl font-bold ${color}`} data-testid="text-fear-greed-score">{fearGreedScore}</p>
+                <p className={`text-6xl  ${color}`} data-testid="text-fear-greed-score">{fearGreedScore}</p>
                 <p className="text-sm text-muted-foreground mt-1">out of 100</p>
-                <p className={`mt-2 text-xl font-semibold ${color}`}>{sentiment}</p>
+                <p className={`mt-2 text-xl  ${color}`}>{sentiment}</p>
               </div>
               
               {/* Scale labels */}
@@ -97,7 +97,7 @@ export function FearGreedWidget() {
 
           {/* Indicators */}
           <div className="pt-4 border-t space-y-2">
-            <p className="text-sm font-semibold mb-3">Contributing Indicators</p>
+            <p className="text-sm  mb-3">Contributing Indicators</p>
             {indicators.map((ind) => (
               <div key={ind.name} className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
@@ -106,7 +106,7 @@ export function FearGreedWidget() {
                   {ind.trend === 'neutral' && <Minus className="w-3 h-3 text-muted-foreground" />}
                   <span className="text-muted-foreground">{ind.name}</span>
                 </div>
-                <span className="font-semibold">{ind.value}</span>
+                <span className="">{ind.value}</span>
               </div>
             ))}
           </div>

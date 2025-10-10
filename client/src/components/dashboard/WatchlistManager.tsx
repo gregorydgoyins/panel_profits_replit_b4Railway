@@ -260,7 +260,7 @@ export function WatchlistManager() {
           {filteredAssets.length === 0 ? (
             <div className="text-center py-8" data-testid="empty-watchlist">
               <Eye className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">
+              <h3 className="text-lg  mb-2">
                 {searchTerm ? 'No assets found' : 'No assets in watchlist'}
               </h3>
               <p className="text-sm text-muted-foreground mb-4">
@@ -293,7 +293,7 @@ export function WatchlistManager() {
                   
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <h4 className="font-medium text-sm">{asset.name}</h4>
+                      <h4 className=" text-sm">{asset.name}</h4>
                       <Badge variant="outline" className="text-xs">
                         {asset.symbol}
                       </Badge>
@@ -316,7 +316,7 @@ export function WatchlistManager() {
                 {/* Price & Performance */}
                 <div className="text-right space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium" data-testid={`price-${asset.symbol.toLowerCase()}`}>
+                    <span className="text-sm " data-testid={`price-${asset.symbol.toLowerCase()}`}>
                       {formatCurrency(asset.currentPrice)}
                     </span>
                     <div className={`flex items-center gap-1 text-xs ${getPerformanceColor(asset.dayChange)}`}>
@@ -382,19 +382,19 @@ export function WatchlistManager() {
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
                 <p className="text-sm text-muted-foreground">Gainers</p>
-                <p className="text-lg font-bold text-green-500" data-testid="text-gainers-count">
+                <p className="text-lg  text-green-500" data-testid="text-gainers-count">
                   {filteredAssets.filter((a: any) => a.dayChange > 0).length}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Unchanged</p>
-                <p className="text-lg font-bold text-muted-foreground" data-testid="text-unchanged-count">
+                <p className="text-lg  text-muted-foreground" data-testid="text-unchanged-count">
                   {filteredAssets.filter((a: any) => a.dayChange === 0).length}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Losers</p>
-                <p className="text-lg font-bold text-red-500" data-testid="text-losers-count">
+                <p className="text-lg  text-red-500" data-testid="text-losers-count">
                   {filteredAssets.filter((a: any) => a.dayChange < 0).length}
                 </p>
               </div>

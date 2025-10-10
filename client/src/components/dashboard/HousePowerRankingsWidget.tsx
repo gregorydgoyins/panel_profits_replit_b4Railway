@@ -61,7 +61,7 @@ export function HousePowerRankingsWidget() {
               {/* House Info */}
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <p className="font-bold">{house.name}</p>
+                  <p className="">{house.name}</p>
                   {house.trend === 'up' && <TrendingUp className="w-3 h-3 text-green-500" />}
                   {house.trend === 'down' && <TrendingDown className="w-3 h-3 text-red-500" />}
                 </div>
@@ -70,7 +70,7 @@ export function HousePowerRankingsWidget() {
 
               {/* Performance */}
               <div className="text-right">
-                <p className={`font-bold ${house.performance >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                <p className={` ${house.performance >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                   {house.performance >= 0 ? '+' : ''}{house.performance}%
                 </p>
                 <p className="text-xs text-muted-foreground">

@@ -208,7 +208,7 @@ export function FooterClocksWidget() {
             
             <div className="flex flex-col gap-0">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-foreground font-medium" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>{market.name}</span>
+                <span className="text-xs text-foreground " style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>{market.name}</span>
                 {getStatusBadge(market.status)}
               </div>
               <span className="text-xs text-muted-foreground" style={{ fontFamily: 'Hind, sans-serif', fontWeight: '300' }}>

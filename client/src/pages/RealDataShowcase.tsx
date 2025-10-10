@@ -56,7 +56,7 @@ export function RealDataShowcase() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-blue-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-display font-bold text-white mb-2">Loading Real Comic Data</h2>
+          <h2 className="text-2xl font-display  text-white mb-2">Loading Real Comic Data</h2>
           <p className="text-slate-400">Fetching authentic Marvel characters, comics, and creators...</p>
         </div>
       </div>
@@ -68,7 +68,7 @@ export function RealDataShowcase() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center max-w-md">
           <Database className="w-12 h-12 text-red-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-display font-bold text-white mb-2">Connection Error</h2>
+          <h2 className="text-2xl font-display  text-white mb-2">Connection Error</h2>
           <p className="text-slate-400 mb-4">
             Unable to fetch real comic data. This might be due to API rate limits or connectivity issues.
           </p>
@@ -90,7 +90,7 @@ export function RealDataShowcase() {
           <div className="text-center">
             <div className="flex items-center justify-center space-x-3 mb-4">
               <Database className="w-8 h-8 text-green-400" />
-              <h1 className="text-4xl font-display font-bold text-white">
+              <h1 className="text-4xl font-display  text-white">
                 Real Comic Data Integration
               </h1>
               <Sparkles className="w-8 h-8 text-cyan-400" />
@@ -137,7 +137,7 @@ export function RealDataShowcase() {
       {/* Asset Selection */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="mb-8">
-          <h2 className="text-2xl font-display font-bold text-white mb-4">Select Trading Asset</h2>
+          <h2 className="text-2xl font-display  text-white mb-4">Select Trading Asset</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-h-64 overflow-y-auto">
             {assets.map((asset) => (
               <div
@@ -164,13 +164,13 @@ export function RealDataShowcase() {
                     />
                   ) : (
                     <div className="w-10 h-10 rounded bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">
+                      <span className="text-white  text-sm">
                         {asset.symbol.charAt(0)}
                       </span>
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-white truncate">{asset.symbol}</h3>
+                    <h3 className=" text-white truncate">{asset.symbol}</h3>
                     <p className="text-sm text-slate-400 truncate">{asset.name}</p>
                     <div className="flex items-center space-x-2">
                       <span className="text-xs px-2 py-1 rounded bg-slate-700 text-slate-300">
@@ -197,7 +197,7 @@ export function RealDataShowcase() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Holographic Price Display */}
               <div className="bg-slate-900/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50">
-                <h3 className="text-xl font-display font-bold text-white mb-4 flex items-center space-x-2">
+                <h3 className="text-xl font-display  text-white mb-4 flex items-center space-x-2">
                   <Sparkles className="w-5 h-5 text-cyan-400" />
                   <span>Holographic Price Display</span>
                 </h3>
@@ -213,7 +213,7 @@ export function RealDataShowcase() {
 
               {/* Animated Trading Card */}
               <div className="bg-slate-900/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50">
-                <h3 className="text-xl font-display font-bold text-white mb-4 flex items-center space-x-2">
+                <h3 className="text-xl font-display  text-white mb-4 flex items-center space-x-2">
                   <TrendingUp className="w-5 h-5 text-purple-400" />
                   <span>Animated Trading Card</span>
                 </h3>
@@ -228,7 +228,7 @@ export function RealDataShowcase() {
 
             {/* Market Sentiment Orb */}
             <div className="bg-slate-900/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50">
-              <h3 className="text-xl font-display font-bold text-white mb-4 flex items-center space-x-2">
+              <h3 className="text-xl font-display  text-white mb-4 flex items-center space-x-2">
                 <Brain className="w-5 h-5 text-blue-400" />
                 <span>AI Market Sentiment Analysis</span>
               </h3>
@@ -239,7 +239,7 @@ export function RealDataShowcase() {
 
             {/* Portfolio 3D Globe */}
             <div className="bg-slate-900/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50">
-              <h3 className="text-xl font-display font-bold text-white mb-4 flex items-center space-x-2">
+              <h3 className="text-xl font-display  text-white mb-4 flex items-center space-x-2">
                 <Globe className="w-5 h-5 text-green-400" />
                 <span>Portfolio 3D Globe Visualization</span>
               </h3>
@@ -254,7 +254,7 @@ export function RealDataShowcase() {
 
             {/* Quantum Market Dashboard */}
             <div className="bg-slate-900/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50">
-              <h3 className="text-xl font-display font-bold text-white mb-6 flex items-center space-x-2">
+              <h3 className="text-xl font-display  text-white mb-6 flex items-center space-x-2">
                 <Database className="w-5 h-5 text-yellow-400" />
                 <span>Quantum Market Dashboard</span>
               </h3>
@@ -263,10 +263,10 @@ export function RealDataShowcase() {
 
             {/* Real Data Metadata */}
             <div className="bg-slate-900/50 backdrop-blur-xl rounded-2xl p-6 border border-slate-700/50">
-              <h3 className="text-xl font-display font-bold text-white mb-4">Real Data Source</h3>
+              <h3 className="text-xl font-display  text-white mb-4">Real Data Source</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="text-lg font-semibold text-white mb-2">Asset Metadata</h4>
+                  <h4 className="text-lg  text-white mb-2">Asset Metadata</h4>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-slate-400">Marvel ID:</span>
@@ -293,7 +293,7 @@ export function RealDataShowcase() {
                 
                 {selectedAsset.metadata.powerStats && (
                   <div>
-                    <h4 className="text-lg font-semibold text-white mb-2">Power Statistics</h4>
+                    <h4 className="text-lg  text-white mb-2">Power Statistics</h4>
                     <div className="space-y-2 text-sm">
                       {Object.entries(selectedAsset.metadata.powerStats).map(([stat, value]) => (
                         <div key={stat} className="flex justify-between">

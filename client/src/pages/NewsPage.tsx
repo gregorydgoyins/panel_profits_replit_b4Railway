@@ -120,7 +120,7 @@ The convention also saw unprecedented participation from institutional investors
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 
-            className="text-4xl font-bold text-white mb-2"
+            className="text-4xl  text-white mb-2"
             style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
           >
             Comic Market News
@@ -189,7 +189,7 @@ The convention also saw unprecedented participation from institutional investors
   if (!article) {
     return (
       <div className="max-w-4xl mx-auto text-center py-12">
-        <h1 className="text-2xl font-bold text-white mb-4">Article Not Found</h1>
+        <h1 className="text-2xl  text-white mb-4">Article Not Found</h1>
         <Button asChild>
           <Link href="/news">
             <a>
@@ -217,7 +217,7 @@ The convention also saw unprecedented participation from institutional investors
         <div className="mb-6">
           <Badge variant="secondary" className="mb-4">{article.category}</Badge>
           <h1 
-            className="text-4xl font-bold text-white mb-4"
+            className="text-4xl  text-white mb-4"
             style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
             data-testid="text-article-title"
           >
