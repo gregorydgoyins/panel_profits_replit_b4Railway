@@ -85,7 +85,7 @@ export default function TrendingCharactersWidget() {
                     <img
                       src={character.imageUrl}
                       alt={character.name}
-                      className="h-12 w-12 rounded-md object-cover border border-indigo-900/30"
+                      className="h-12 w-12 rounded-md object-contain border border-indigo-900/30"
                       data-testid={`img-character-${character.symbol}`}
                     />
                   ) : (
