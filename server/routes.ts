@@ -1221,6 +1221,142 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Narrative Milestones - Character evolution timeline
+  app.get("/api/narrative/milestones", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      
+      // Sample seed data showcasing major character evolution moments
+      const sampleMilestones = [
+        {
+          id: "1",
+          characterName: "Jean Grey",
+          characterImageUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop",
+          milestoneType: "death",
+          title: "Death of Phoenix",
+          description: "Jean Grey sacrifices herself on the Moon to save the universe from Dark Phoenix. She chooses death over becoming a threat to all existence, making the ultimate heroic choice.",
+          issueReference: "Uncanny X-Men #137",
+          year: "1980",
+          impact: "Established death as meaningful in comics. Led to decades of Phoenix resurrection storylines.",
+          reversible: true
+        },
+        {
+          id: "2",
+          characterName: "Spider-Man",
+          characterImageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop",
+          milestoneType: "costume_change",
+          title: "Black Suit Acquisition",
+          description: "Peter Parker bonds with an alien symbiote on Battleworld during Secret Wars, gaining a sentient black costume that amplifies his powers but also his aggression. This costume would later become Venom.",
+          issueReference: "Amazing Spider-Man #252",
+          year: "1984",
+          impact: "Created one of Marvel's most iconic villains. Introduced the symbiote concept to the Marvel Universe.",
+          reversible: true
+        },
+        {
+          id: "3",
+          characterName: "Superman",
+          characterImageUrl: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=200&h=200&fit=crop",
+          milestoneType: "death",
+          title: "Death at Doomsday's Hands",
+          description: "Superman fights Doomsday to the death in the streets of Metropolis. Both combatants die from their injuries. The world mourns the loss of its greatest hero.",
+          issueReference: "Superman #75",
+          year: "1992",
+          impact: "Best-selling comic of all time. Proved Superman's importance to the world. Led to four replacement Supermen.",
+          reversible: true
+        },
+        {
+          id: "4",
+          characterName: "Captain America",
+          characterImageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+          milestoneType: "identity_change",
+          title: "Becomes Nomad",
+          description: "Disillusioned with the American government after the Secret Empire scandal, Steve Rogers abandons the Captain America identity. He becomes Nomad, the man without a country.",
+          issueReference: "Captain America #180",
+          year: "1974",
+          impact: "Explored Cap's idealism vs. reality. Showed that the symbol can exist independent of government.",
+          reversible: true
+        },
+        {
+          id: "5",
+          characterName: "Thor",
+          characterImageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop",
+          milestoneType: "power_evolution",
+          title: "Becomes Unworthy",
+          description: "After Nick Fury whispers a terrible secret, Thor finds himself unable to lift Mjolnir. He loses his godly powers and becomes unworthy, watching as others wield his hammer.",
+          issueReference: "Original Sin #7",
+          year: "2014",
+          impact: "Led to Jane Foster becoming Thor. Explored what makes someone worthy beyond strength.",
+          reversible: true
+        },
+        {
+          id: "6",
+          characterName: "Gwen Stacy",
+          characterImageUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop",
+          milestoneType: "death",
+          title: "The Night Gwen Stacy Died",
+          description: "The Green Goblin throws Gwen from the George Washington Bridge. Spider-Man's webbing catches her, but the whiplash snaps her neck. Peter Parker's first love dies in his arms.",
+          issueReference: "Amazing Spider-Man #121",
+          year: "1973",
+          impact: "Ended the Silver Age. Proved that heroes can't save everyone. Made death permanent and meaningful.",
+          reversible: false
+        },
+        {
+          id: "7",
+          characterName: "Hal Jordan",
+          characterImageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop",
+          milestoneType: "identity_change",
+          title: "Fall to Parallax",
+          description: "Driven mad by Coast City's destruction, Hal Jordan absorbs the Central Power Battery and becomes Parallax. The greatest Green Lantern becomes the universe's greatest threat.",
+          issueReference: "Green Lantern #50",
+          year: "1994",
+          impact: "Introduced fear as a power source. Retconned years later as possession by fear entity Parallax.",
+          reversible: true
+        },
+        {
+          id: "8",
+          characterName: "Barry Allen",
+          characterImageUrl: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=200&h=200&fit=crop",
+          milestoneType: "resurrection",
+          title: "Return from Speed Force",
+          description: "After 23 years dead, Barry Allen races back from the Speed Force. His return heralds the Rebirth era and restores hope to the DC Universe.",
+          issueReference: "Final Crisis #2",
+          year: "2008",
+          impact: "Launched DC Rebirth. Proved even the most permanent deaths can be undone with good storytelling.",
+          reversible: false
+        },
+        {
+          id: "9",
+          characterName: "Bucky Barnes",
+          characterImageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+          milestoneType: "resurrection",
+          title: "Revealed as Winter Soldier",
+          description: "Captain America's supposedly dead sidekick Bucky Barnes is revealed to be alive, brainwashed as a Soviet assassin called the Winter Soldier. Cap's greatest failure becomes his greatest challenge.",
+          issueReference: "Captain America #1",
+          year: "2005",
+          impact: "Retconned a 'permanent' Golden Age death. Created one of Marvel's best redemption arcs.",
+          reversible: false
+        },
+        {
+          id: "10",
+          characterName: "Carol Danvers",
+          characterImageUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop",
+          milestoneType: "power_evolution",
+          title: "Ascends to Captain Marvel",
+          description: "Carol Danvers leaves behind the Ms. Marvel identity to assume the mantle of Captain Marvel, honoring her mentor Mar-Vell while stepping into her own as one of Earth's mightiest heroes.",
+          issueReference: "Avenging Spider-Man #9",
+          year: "2012",
+          impact: "Established Carol as a flagship Marvel character. Led to MCU prominence and inspired a generation.",
+          reversible: false
+        }
+      ];
+      
+      res.json(sampleMilestones.slice(0, limit));
+    } catch (error) {
+      console.error('Error fetching narrative milestones:', error);
+      res.status(500).json({ error: "Failed to fetch narrative milestones" });
+    }
+  });
+
   app.post("/api/assets", async (req, res) => {
     try {
       const validatedData = insertAssetSchema.parse(req.body);
