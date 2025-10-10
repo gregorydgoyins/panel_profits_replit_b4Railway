@@ -949,6 +949,150 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Creator Showcase - Visual showcase with iconic covers
+  app.get("/api/creators/showcase", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 6;
+      
+      // Sample seed data showcasing famous creators with their iconic covers
+      const sampleCreators = [
+        {
+          id: "1",
+          name: "Stan Lee",
+          role: "Writer, Editor, Publisher",
+          imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop",
+          bio: "The legendary co-creator of Spider-Man, X-Men, Iron Man, and countless Marvel heroes. Revolutionized comic storytelling with human, flawed characters.",
+          iconicCovers: [
+            {
+              id: "c1",
+              title: "Amazing Fantasy #15",
+              coverUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=300&h=450&fit=crop",
+              year: "1962",
+              publisher: "Marvel"
+            },
+            {
+              id: "c2",
+              title: "Fantastic Four #1",
+              coverUrl: "https://images.unsplash.com/photo-1608889335941-32ac5f2041b9?w=300&h=450&fit=crop",
+              year: "1961",
+              publisher: "Marvel"
+            },
+            {
+              id: "c3",
+              title: "X-Men #1",
+              coverUrl: "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=300&h=450&fit=crop",
+              year: "1963",
+              publisher: "Marvel"
+            }
+          ],
+          awards: ["Eisner Award", "Inkpot Award", "National Medal of Arts"],
+          notableWorks: ["Spider-Man", "X-Men", "Fantastic Four", "Avengers"]
+        },
+        {
+          id: "2",
+          name: "Jack Kirby",
+          role: "Artist, Writer",
+          imageUrl: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&h=600&fit=crop",
+          bio: "The King of Comics. Co-created Captain America, Fantastic Four, X-Men, and the visual language of superhero comics. Master of dynamic action and cosmic scope.",
+          iconicCovers: [
+            {
+              id: "c4",
+              title: "Captain America Comics #1",
+              coverUrl: "https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?w=300&h=450&fit=crop",
+              year: "1941",
+              publisher: "Timely"
+            },
+            {
+              id: "c5",
+              title: "New Gods #1",
+              coverUrl: "https://images.unsplash.com/photo-1608889476561-6242cfdbf622?w=300&h=450&fit=crop",
+              year: "1971",
+              publisher: "DC"
+            },
+            {
+              id: "c6",
+              title: "Fantastic Four #1",
+              coverUrl: "https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=300&h=450&fit=crop",
+              year: "1961",
+              publisher: "Marvel"
+            }
+          ],
+          awards: ["Eisner Hall of Fame", "Kirby Award (named after him)"],
+          notableWorks: ["Fantastic Four", "New Gods", "Captain America", "Thor"]
+        },
+        {
+          id: "3",
+          name: "Alan Moore",
+          role: "Writer",
+          imageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=600&fit=crop",
+          bio: "Deconstructed superhero mythology with Watchmen. Created sophisticated, layered narratives that elevated comics to literature.",
+          iconicCovers: [
+            {
+              id: "c7",
+              title: "Watchmen #1",
+              coverUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=300&h=450&fit=crop",
+              year: "1986",
+              publisher: "DC"
+            },
+            {
+              id: "c8",
+              title: "V for Vendetta #1",
+              coverUrl: "https://images.unsplash.com/photo-1608889335941-32ac5f2041b9?w=300&h=450&fit=crop",
+              year: "1982",
+              publisher: "DC"
+            },
+            {
+              id: "c9",
+              title: "Swamp Thing #21",
+              coverUrl: "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=300&h=450&fit=crop",
+              year: "1984",
+              publisher: "DC"
+            }
+          ],
+          awards: ["Hugo Award", "Eisner Award (multiple)", "British Fantasy Award"],
+          notableWorks: ["Watchmen", "V for Vendetta", "Swamp Thing", "From Hell"]
+        },
+        {
+          id: "4",
+          name: "Frank Miller",
+          role: "Writer, Artist",
+          imageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=600&fit=crop",
+          bio: "Revolutionized Batman with The Dark Knight Returns. Brought noir sensibility and mature themes to mainstream comics.",
+          iconicCovers: [
+            {
+              id: "c10",
+              title: "The Dark Knight Returns #1",
+              coverUrl: "https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?w=300&h=450&fit=crop",
+              year: "1986",
+              publisher: "DC"
+            },
+            {
+              id: "c11",
+              title: "Daredevil #181",
+              coverUrl: "https://images.unsplash.com/photo-1608889476561-6242cfdbf622?w=300&h=450&fit=crop",
+              year: "1982",
+              publisher: "Marvel"
+            },
+            {
+              id: "c12",
+              title: "Sin City #1",
+              coverUrl: "https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=300&h=450&fit=crop",
+              year: "1991",
+              publisher: "Dark Horse"
+            }
+          ],
+          awards: ["Eisner Award (multiple)", "Harvey Award", "Inkpot Award"],
+          notableWorks: ["Dark Knight Returns", "Batman: Year One", "Sin City", "Daredevil"]
+        }
+      ];
+      
+      res.json(sampleCreators.slice(0, limit));
+    } catch (error) {
+      console.error('Error fetching creator showcase:', error);
+      res.status(500).json({ error: "Failed to fetch creator showcase" });
+    }
+  });
+
   app.post("/api/assets", async (req, res) => {
     try {
       const validatedData = insertAssetSchema.parse(req.body);

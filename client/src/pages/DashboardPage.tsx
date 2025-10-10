@@ -30,7 +30,7 @@ import { GadgetsMemorabiliaWidget } from '@/components/dashboard/GadgetsMemorabi
 import { VillainsHenchmenWidget } from '@/components/dashboard/VillainsHenchmenWidget';
 import { SidekicksSuperheroesWidget } from '@/components/dashboard/SidekicksSuperheroesWidget';
 import { LocationsGadgetsWidget } from '@/components/dashboard/LocationsGadgetsWidget';
-import { CoverGalleryWidget, CharacterPortraitWidget, ComicPanelTimelineWidget } from '@/components/widgets';
+import { CoverGalleryWidget, CharacterPortraitWidget, ComicPanelTimelineWidget, CreatorShowcaseWidget } from '@/components/widgets';
 
 interface Asset {
   id: string;
@@ -771,6 +771,11 @@ export default function DashboardPage() {
       {/* Timeline Widget - Full Width */}
       <div className="bg-slate-800/20 p-3 rounded-lg">
         <ComicPanelTimelineWidget />
+      </div>
+
+      {/* Creator Showcase - Full Width */}
+      <div className="bg-slate-800/20 p-3 rounded-lg">
+        <CreatorShowcaseWidget />
       </div>
 
       <div className="bg-slate-800/20 p-3 rounded-lg">
