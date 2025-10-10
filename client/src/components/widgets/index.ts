@@ -7,3 +7,4 @@
 
 export { CoverGalleryWidget, type CoverImage } from './CoverGalleryWidget';
 export { CharacterPortraitWidget } from './CharacterPortraitWidget';
+export { default as ComicPanelTimelineWidget } from './ComicPanelTimelineWidget';

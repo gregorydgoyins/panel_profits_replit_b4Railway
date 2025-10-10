@@ -844,6 +844,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Timeline Key Moments - Visual timeline of major narrative milestones
+  app.get("/api/timeline/key-moments", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 12;
+      
+      // Sample seed data to demonstrate widget functionality
+      // In future (Task 39), this will query entityNarrativeMilestones table
+      const sampleMoments = [
+        {
+          id: "1",
+          title: "Spider-Man Gets Black Suit",
+          description: "Peter Parker obtains the alien symbiote suit during the Secret Wars",
+          date: "1984",
+          imageUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400&h=600&fit=crop",
+          issue: "Secret Wars #8",
+          significance: "Introduction of the symbiote that would become Venom",
+          entityName: "Spider-Man",
+          entityType: "character"
+        },
+        {
+          id: "2",
+          title: "Death of Superman",
+          description: "Superman dies fighting Doomsday in epic battle over Metropolis",
+          date: "1992",
+          imageUrl: "https://images.unsplash.com/photo-1608889335941-32ac5f2041b9?w=400&h=600&fit=crop",
+          issue: "Superman #75",
+          significance: "One of the best-selling comic books of all time",
+          entityName: "Superman",
+          entityType: "character"
+        },
+        {
+          id: "3",
+          title: "Batman Breaks His Back",
+          description: "Bane breaks Batman's back, leaving Bruce Wayne paralyzed",
+          date: "1993",
+          imageUrl: "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=400&h=600&fit=crop",
+          issue: "Batman #497",
+          significance: "Led to the Knightfall saga and Azrael as Batman",
+          entityName: "Batman",
+          entityType: "character"
+        },
+        {
+          id: "4",
+          title: "Gwen Stacy Dies",
+          description: "Green Goblin kills Gwen Stacy, ending the Silver Age innocence",
+          date: "1973",
+          imageUrl: "https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=400&h=600&fit=crop",
+          issue: "Amazing Spider-Man #121",
+          significance: "Marked the end of the Silver Age and introduced lasting consequences",
+          entityName: "Spider-Man",
+          entityType: "character"
+        },
+        {
+          id: "5",
+          title: "Wolverine First Appearance",
+          description: "Logan debuts as Canadian government agent fighting the Hulk",
+          date: "1974",
+          imageUrl: "https://images.unsplash.com/photo-1608889476561-6242cfdbf622?w=400&h=600&fit=crop",
+          issue: "Incredible Hulk #181",
+          significance: "Introduction of one of Marvel's most popular characters",
+          entityName: "Wolverine",
+          entityType: "character"
+        },
+        {
+          id: "6",
+          title: "Dark Phoenix Saga",
+          description: "Jean Grey becomes the Dark Phoenix, threatening the universe",
+          date: "1980",
+          imageUrl: "https://images.unsplash.com/photo-1612036782180-6f0b6cd846fe?w=400&h=600&fit=crop",
+          issue: "X-Men #137",
+          significance: "One of the greatest X-Men stories ever told",
+          entityName: "Jean Grey",
+          entityType: "character"
+        },
+        {
+          id: "7",
+          title: "Captain America Frozen",
+          description: "Steve Rogers frozen in ice at the end of World War II",
+          date: "1964",
+          imageUrl: "https://images.unsplash.com/photo-1608889825103-eb5ed706fc64?w=400&h=600&fit=crop",
+          issue: "Avengers #4",
+          significance: "Brought Cap into the modern Marvel Age",
+          entityName: "Captain America",
+          entityType: "character"
+        },
+        {
+          id: "8",
+          title: "Civil War Begins",
+          description: "Superhero Registration Act divides heroes into two factions",
+          date: "2006",
+          imageUrl: "https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=400&h=600&fit=crop",
+          issue: "Civil War #1",
+          significance: "Major crossover event that reshaped the Marvel Universe",
+          entityName: "Marvel Universe",
+          entityType: "event"
+        }
+      ];
+      
+      res.json(sampleMoments.slice(0, limit));
+    } catch (error) {
+      console.error('Error fetching timeline key moments:', error);
+      res.status(500).json({ error: "Failed to fetch timeline key moments" });
+    }
+  });
+
   app.post("/api/assets", async (req, res) => {
     try {
       const validatedData = insertAssetSchema.parse(req.body);
