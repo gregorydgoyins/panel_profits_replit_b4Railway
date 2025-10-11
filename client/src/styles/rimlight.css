@@ -20,3 +20,11 @@
 
 .hover-elevate { transition: transform .15s ease, box-shadow .2s ease; }
 .hover-elevate:hover { transform: translateY(-1px); }
+
+/* custom: gold rimlight #d3a625 */
+.gold-rimlight-hover       { transition: box-shadow .2s, border-color .2s; border: 1px solid transparent; }
+.gold-rimlight-hover:hover { 
+  /* #d3a625 -> rgb(211,166,37) */
+  box-shadow: 0 0 0 1px rgba(211,166,37,var(--rim-alpha)), 0 0 18px rgba(211,166,37,var(--glow-alpha)); 
+  border-color: rgba(211,166,37,var(--rim-alpha)); 
+}

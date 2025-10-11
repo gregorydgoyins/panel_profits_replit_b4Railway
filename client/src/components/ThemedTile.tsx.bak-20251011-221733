@@ -7,8 +7,6 @@ import { routeThemeFromPath, type ThemeColor } from '@/hooks/useRouteTheme';
 import '@/styles/rimlight.css';
 
 type TileProps = {
-  bgClass?: string;
-  outerRim?: any;
   to?: string;
   title?: string;
   className?: string;
@@ -19,15 +17,6 @@ type TileProps = {
 };
 
 function rimClass(theme: ThemeColor) {
-  return `${theme}-rimlight-hover`;
-}
-
-function rimOuterClass(outer: any) {
-  const name = outer ?? "white";
-  return `${name}-rimlight-hover`;
-}
-
-
   return `${theme}-rimlight-hover`;
 }
 
