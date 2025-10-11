@@ -1,3 +1,5 @@
+import { ThemedTile, ThemedCTA } from '@/components/ThemedTile';
+import { useRouteTheme } from '@/hooks/useRouteTheme';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';

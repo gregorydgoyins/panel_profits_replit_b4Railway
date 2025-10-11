@@ -4853,7 +4853,7 @@ Respond with valid JSON in this exact format:
   /*
   // Setup WebSocket for real-time market data
   // Try simple server mode with path - client monkey-patch is now disabled
-  const wss = new WebSocketServer({ 
+// WS_DISABLED:   const wss = new WebSocketServer({ 
     server: httpServer,
     path: '/ws/market-data',
     perMessageDeflate: false // Disable compression to avoid frame issues

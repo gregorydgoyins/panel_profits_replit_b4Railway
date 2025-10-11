@@ -1,6 +1,6 @@
 import { storage } from '../storage';
 import { NarrativeEvent, InsertNarrativeEvent, Asset, MarketData } from '@shared/schema';
-import { WebSocketServer } from 'ws';
+// WS_DISABLED: import { WebSocketServer } from 'ws';
 
 // Event configuration constants
 const EVENT_GENERATION_INTERVAL = { min: 30000, max: 60000 }; // 30-60 seconds

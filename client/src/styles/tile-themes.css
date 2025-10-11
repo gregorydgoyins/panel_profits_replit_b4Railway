@@ -1,0 +1,38 @@
+/* Base inner tile look */
+[data-theme] .tile {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px;
+}
+[data-theme] .tile-icon { color: #fff; }
+
+/* Theme vars */
+[data-theme="white"]  { --acc:#fff;     --acc-weak:rgba(255,255,255,.35);  --acc-bg:rgba(255,255,255,.06); }
+[data-theme="cyan"]   { --acc:#22D3EE;  --acc-weak:rgba(34,211,238,.35);   --acc-bg:rgba(34,211,238,.08); }
+[data-theme="purple"] { --acc:#A855F7;  --acc-weak:rgba(168,85,247,.35);   --acc-bg:rgba(168,85,247,.08); }
+[data-theme="green"]  { --acc:#10B981;  --acc-weak:rgba(16,185,129,.35);   --acc-bg:rgba(16,185,129,.08); }
+[data-theme="blue"]   { --acc:#3B82F6;  --acc-weak:rgba(59,130,246,.35);   --acc-bg:rgba(59,130,246,.08); }
+[data-theme="pink"]   { --acc:#EC4899;  --acc-weak:rgba(236,72,153,.35);   --acc-bg:rgba(236,72,153,.08); }
+[data-theme="orange"] { --acc:#F97316;  --acc-weak:rgba(249,115,22,.35);   --acc-bg:rgba(249,115,22,.08); }
+
+/* Apply theme */
+[data-theme] .tile { background: var(--acc-bg); border-color: var(--acc-weak); }
+[data-theme] .tile-icon { color: var(--acc); }
+
+/* Optional single-tile highlight */
+.rimlight-inner { box-shadow: 0 0 0 1px var(--acc-weak), 0 0 12px 0 var(--acc-weak); }
+
+/* CTA buttons that match theme */
+.cta {
+  border: 1px solid var(--acc-weak);
+  color: var(--acc);
+  background: transparent;
+  border-radius: 8px;
+  padding: 6px 10px;
+  transition: transform .15s, box-shadow .15s, background-color .15s;
+}
+.cta:hover {
+  background: var(--acc-bg);
+  box-shadow: 0 0 18px 0 var(--acc-weak);
+  transform: translateY(-1px);
+}

@@ -1,3 +1,4 @@
+import "@/styles/tile-themes.css";
 import "./vite-hmr-fix"; // MUST be first - fixes WebSocket localhost:undefined issue
 import "@fontsource/space-grotesk/300.css";
 import "@fontsource/space-grotesk/400.css";

@@ -7,7 +7,7 @@ import type {
   Asset, AssetCurrentPrice, Order, User
 } from '@shared/schema.js';
 // WebSocket support disabled - using polling instead
-// import { WebSocketServer, WebSocket as WSWebSocket } from 'ws';
+// WS_DISABLED: // import { WebSocketServer, WebSocket as WSWebSocket } from 'ws';
 // import { safeWebSocketClose, WebSocketCloseCodes } from '../utils/websocketSanitizer.js';
 // import { wsNotificationService } from './websocketNotificationService.js';
 
