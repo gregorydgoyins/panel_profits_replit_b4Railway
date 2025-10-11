@@ -1,9 +1,21 @@
-import { useLocation } from 'wouter';
-import { THEME_COLORS, themeForPath, ThemeKey } from '@/theme';
+// client/src/hooks/useRouteTheme.ts
+export type ThemeColor =
+  | 'white' | 'purple' | 'blue' | 'orange' | 'pink' | 'cyan' | 'green' | 'yellow';
 
-export function useRouteTheme(pathOverride?: string) {
-  const [loc] = useLocation();
-  const key: ThemeKey = themeForPath(pathOverride ?? loc);
-  const { css, rim } = THEME_COLORS[key];
-  return { key, css, rim };
+export const ROUTE_THEME_MAP: Record<string, ThemeColor> = {
+  '/dashboard': 'white',
+  '/portfolio': 'yellow',
+  '/trading': 'blue',
+  '/terminal': 'blue',
+  '/analytics': 'green',
+  '/news': 'orange',
+  '/learn': 'cyan',
+  '/research': 'pink',
+  '/assets': 'purple',
+};
+
+export function routeThemeFromPath(path?: string, fallback: ThemeColor = 'white'): ThemeColor {
+  if (!path) return fallback;
+  const first = '/' + path.split('/').filter(Boolean)[0];
+  return ROUTE_THEME_MAP[first] ?? fallback;
 }
