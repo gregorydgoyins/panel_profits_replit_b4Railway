@@ -340,7 +340,7 @@ export default function TradingPage() {
       style: {
         color: '#00ff00',
         fontSize: '24px',
-        fontWeight: 'bold',
+        fontWeight: '300',
         textShadow: '0 0 20px #00ff00'
       }
     },

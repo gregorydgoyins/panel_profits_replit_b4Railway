@@ -282,7 +282,7 @@ function ComicActionPanel({
               textShadow: '3px 3px 0 #000, -3px -3px 0 #000',
               fontFamily: 'Impact, sans-serif',
               fontSize: '3rem',
-              fontWeight: 'bold',
+              fontWeight: '300',
               transform: `rotate(${event.type === 'volatility' ? '10deg' : '-5deg'})`
             }}
           >

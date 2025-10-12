@@ -88,7 +88,7 @@ export function ComicMarketSplashPage({ assetId }: { assetId: string }) {
         text: splashData.narrativeArc.title,
         style: {
           fontSize: '32px',
-          fontWeight: 'bold',
+          fontWeight: '300',
           color: colors[0],
           textTransform: 'uppercase',
           letterSpacing: '2px',
@@ -114,7 +114,7 @@ export function ComicMarketSplashPage({ assetId }: { assetId: string }) {
           style: {
             color: colors[1],
             fontSize: '12px',
-            fontWeight: 'bold'
+            fontWeight: '300'
           }
         },
         plotBands: splashData.keyMoments.map((moment, idx) => ({
@@ -138,7 +138,7 @@ export function ComicMarketSplashPage({ assetId }: { assetId: string }) {
           style: {
             color: colors[0],
             fontSize: '16px',
-            fontWeight: 'bold',
+            fontWeight: '300',
             letterSpacing: '1px'
           }
         },
@@ -151,7 +151,7 @@ export function ComicMarketSplashPage({ assetId }: { assetId: string }) {
           style: {
             color: colors[1],
             fontSize: '12px',
-            fontWeight: 'bold'
+            fontWeight: '300'
           },
           formatter: function() {
             return '$' + this.value;
@@ -221,7 +221,7 @@ export function ComicMarketSplashPage({ assetId }: { assetId: string }) {
         style: {
           color: '#ffffff',
           fontSize: '14px',
-          fontWeight: 'bold'
+          fontWeight: '300'
         },
         formatter: function() {
           const point = this.point as any;

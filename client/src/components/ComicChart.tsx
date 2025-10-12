@@ -116,7 +116,7 @@ export const ComicChart = memo(({
           text: 'PRICE',
           style: {
             color: '#F3F4F6',
-            fontWeight: 'bold',
+            fontWeight: '300',
             fontSize: '12px'
           }
         },
@@ -143,7 +143,7 @@ export const ComicChart = memo(({
               text: 'DANGER ZONE',
               style: {
                 color: '#EF4444',
-                fontWeight: 'bold'
+                fontWeight: '300'
               }
             }
           },
@@ -155,7 +155,7 @@ export const ComicChart = memo(({
               text: 'VICTORY ZONE',
               style: {
                 color: '#10B981',
-                fontWeight: 'bold'
+                fontWeight: '300'
               }
             }
           }
@@ -166,7 +166,7 @@ export const ComicChart = memo(({
           text: 'VOLUME',
           style: {
             color: '#F3F4F6',
-            fontWeight: 'bold',
+            fontWeight: '300',
             fontSize: '12px'
           }
         },
@@ -229,7 +229,7 @@ export const ComicChart = memo(({
           enabled: true,
           style: {
             fontSize: '14px',
-            fontWeight: 'bold',
+            fontWeight: '300',
             textShadow: '2px 2px 0 #000'
           }
         },
@@ -284,7 +284,7 @@ export const ComicChart = memo(({
       style: {
         color: '#FFF',
         fontSize: '12px',
-        fontWeight: 'bold'
+        fontWeight: '300'
       },
       formatter: function() {
         const point = this.point as any;
@@ -305,7 +305,7 @@ export const ComicChart = memo(({
       verticalAlign: 'top',
       itemStyle: {
         color: '#F3F4F6',
-        fontWeight: 'bold',
+        fontWeight: '300',
         fontSize: '11px'
       },
       itemHoverStyle: {

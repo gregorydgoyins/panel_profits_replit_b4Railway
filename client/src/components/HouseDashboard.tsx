@@ -156,7 +156,7 @@ function HousePanel({
               textShadow: '2px 2px 0 #000, -2px -2px 0 #000',
               fontFamily: 'Impact, sans-serif',
               fontSize: '2rem',
-              fontWeight: 'bold'
+              fontWeight: '300'
             }}
           >
             {house.soundEffect}
