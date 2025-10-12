@@ -157,83 +157,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Market Ticker - Returns top movers for ticker display
+  // Era-Based Market Ticker - Prioritizes older eras (smaller float, higher volatility)
   app.get('/api/market/ticker', async (req: any, res) => {
     try {
-      // Get diverse assets - mix of comics, characters, creators, franchises, series, collectibles
-      const topMovers = await db
-        .select({
-          assetId: assetsTable.id,
-          symbol: assetsTable.symbol,
-          name: assetsTable.name,
-          type: assetsTable.type,
-          currentPrice: assetCurrentPrices.currentPrice,
-          change: assetCurrentPrices.dayChange,
-          changePercent: assetCurrentPrices.dayChangePercent,
-        })
-        .from(assetsTable)
-        .innerJoin(assetCurrentPrices, eq(assetsTable.id, assetCurrentPrices.assetId))
-        .where(sql`
-          ${assetCurrentPrices.currentPrice} IS NOT NULL 
-          AND ${assetsTable.type} IN ('comic', 'character', 'creator', 'franchise', 'series', 'collectible')
-        `)
-        .orderBy(sql`RANDOM()`)
-        .limit(100);
+      const { eraBasedTickerService } = await import('./services/eraBasedTickerService.js');
+      const limit = req.query.limit ? parseInt(req.query.limit) : 30;
       
-      // Calculate 5-minute trend for each asset
-      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+      const tickerAssets = await eraBasedTickerService.getTickerAssets(limit);
       
-      // Format symbols using ticker nomenclature and calculate trends
-      const { formatTickerSymbol } = await import('./utils/tickerFormatter.js');
-      const formattedMovers = await Promise.all(topMovers.map(async asset => {
-        const currentPrice = parseFloat(asset.currentPrice);
-        let trend: 'up' | 'down' | 'neutral' = 'neutral';
-        
-        // Query 5-minute market data to get price from 5 minutes ago
-        const fiveMinData = await db
-          .select({
-            close: marketData.close,
-          })
-          .from(marketData)
-          .where(sql`
-            ${marketData.assetId} = ${asset.assetId}
-            AND ${marketData.timeframe} = '5m'
-            AND ${marketData.periodStart} <= ${fiveMinutesAgo}
-          `)
-          .orderBy(sql`${marketData.periodStart} DESC`)
-          .limit(1);
-        
-        // Calculate trend
-        if (fiveMinData.length > 0) {
-          const previousPrice = parseFloat(fiveMinData[0].close);
-          const threshold = previousPrice * 0.001; // 0.1% threshold for neutral
-          
-          if (currentPrice > previousPrice + threshold) {
-            trend = 'up';
-          } else if (currentPrice < previousPrice - threshold) {
-            trend = 'down';
-          }
-        } else {
-          // Fallback: use dayChange if no 5-minute data
-          const change = parseFloat(asset.change || '0');
-          if (change > 0.1) trend = 'up';
-          else if (change < -0.1) trend = 'down';
-        }
-        
-        return {
-          symbol: formatTickerSymbol(asset.symbol, asset.name),
-          name: asset.name,
-          currentPrice,
-          change: parseFloat(asset.change || '0'),
-          changePercent: parseFloat(asset.changePercent || '0'),
-          trend,
-        };
-      }));
-      
-      res.json(formattedMovers);
+      res.json(tickerAssets);
     } catch (error) {
       console.error("Error fetching ticker data:", error);
       res.status(500).json({ message: "Failed to fetch ticker data" });
+    }
+  });
+
+  // Era Distribution - Get market breakdown by comic book era
+  app.get('/api/market/era-distribution', async (req: any, res) => {
+    try {
+      const { eraBasedTickerService } = await import('./services/eraBasedTickerService.js');
+      const distribution = await eraBasedTickerService.getEraDistribution();
+      res.json(distribution);
+    } catch (error) {
+      console.error("Error fetching era distribution:", error);
+      res.status(500).json({ message: "Failed to fetch era distribution" });
+    }
+  });
+
+  // Era Assets - Get assets from a specific era
+  app.get('/api/market/era/:era', async (req: any, res) => {
+    try {
+      const { eraBasedTickerService } = await import('./services/eraBasedTickerService.js');
+      const limit = req.query.limit ? parseInt(req.query.limit) : 20;
+      const assets = await eraBasedTickerService.getEraAssets(req.params.era, limit);
+      res.json(assets);
+    } catch (error) {
+      console.error(`Error fetching ${req.params.era} assets:`, error);
+      res.status(500).json({ message: "Failed to fetch era assets" });
     }
   });
 

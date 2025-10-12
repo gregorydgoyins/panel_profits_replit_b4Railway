@@ -8,6 +8,9 @@ interface TickerAsset {
   currentPrice: number;
   change: number;
   changePercent: number;
+  era?: string;
+  float?: number;
+  volume24h?: number;
 }
 
 export function StockTicker() {
@@ -61,6 +64,12 @@ export function StockTicker() {
             {duplicatedItems.map((item, index) => {
               const isPositive = item.change >= 0;
               
+              const eraTag = item.era === 'Golden Age' ? 'GOLDEN' : 
+                           item.era === 'Silver Age' ? 'SILVER' :
+                           item.era === 'Bronze Age' ? 'BRONZE' : null;
+              
+              const floatDisplay = item.float ? `${(item.float / 1000).toFixed(0)}K` : null;
+              
               return (
                 <div
                   key={`${item.symbol}-${index}`}
@@ -68,7 +77,12 @@ export function StockTicker() {
                   style={{ fontFamily: 'Hind, sans-serif', fontWeight: 300 }}
                   data-testid={`ticker-item-${item.symbol}`}
                 >
-                  <span className=" text-foreground transition-colors duration-500">{item.symbol}</span>
+                  <span className="text-foreground transition-colors duration-500">{item.symbol}</span>
+                  {eraTag && (
+                    <span className="px-1 py-0.5 text-[10px] bg-primary/20 text-primary rounded transition-all duration-500">
+                      {eraTag}
+                    </span>
+                  )}
                   <span className="text-muted-foreground transition-all duration-500">${item.currentPrice.toFixed(2)}</span>
                   <span className={`flex items-center gap-0.5 transition-colors duration-500 ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
                     {isPositive ? (
@@ -78,6 +92,11 @@ export function StockTicker() {
                     )}
                     {isPositive ? '+' : ''}{item.changePercent.toFixed(2)}%
                   </span>
+                  {floatDisplay && (
+                    <span className="text-[10px] text-muted-foreground/60 transition-all duration-500">
+                      {floatDisplay} float
+                    </span>
+                  )}
                   <span className="text-border">|</span>
                 </div>
               );
