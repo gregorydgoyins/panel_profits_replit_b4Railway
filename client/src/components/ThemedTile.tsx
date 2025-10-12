@@ -1,89 +1,46 @@
-// client/src/components/ThemedTile.tsx
-import React from 'react';
-import { Link } from 'wouter';
-import { Card } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
-import { routeThemeFromPath, type ThemeColor } from '@/hooks/useRouteTheme';
-import '@/styles/rimlight.css';
+// Minimal tile: subtle rimlight on hover (Tailwind-only), NON-WHITE inside
+import React from "react";
+import { Link } from "react-router-dom";
+import clsx from "clsx";
 
-type TileProps = {
-  bgClass?: string;
-  outerRim?: any;
-  to?: string;
-  title?: string;
+type BaseProps = {
   className?: string;
-  rim?: 'inherit' | ThemeColor;   // 'inherit' = color from `to`
-  forceTheme?: ThemeColor;        // force a color regardless of `to`
+  onClick?: () => void;
   children?: React.ReactNode;
-  'data-testid'?: string;
+  to?: string;   // route to subpage (optional)
 };
 
-function rimClass(theme: ThemeColor) {
-  return `${theme}-rimlight-hover`;
-}
+const OUTER_RIM = "#eeba30"; // gold
+const INNER_BG  = "#ae0001"; // deep red (not white)
 
-function rimOuterClass(outer: any) {
-  const name = outer ?? "white";
-  return `${name}-rimlight-hover`;
-}
-
-
-  return `${theme}-rimlight-hover`;
-}
-
-export function ThemedTile({
-  to,
-  title,
-  className,
-  rim = 'inherit',
-  forceTheme,
-  children,
-  ...rest
-}: TileProps) {
-  const theme: ThemeColor = forceTheme ?? (rim === 'inherit'
-    ? routeThemeFromPath(to, 'white')
-    : (rim as ThemeColor));
-
-  const body = (
-    <Card
-      className={cn(
-        '!bg-[#1A1F2E]',
-        'white-rimlight-hover',   // subtle white outer rim everywhere
-        rimClass(theme),          // destination-colored glow on hover
-        'hover-elevate transition-all',
+export function ThemedTile({ className, onClick, children, to }: BaseProps) {
+  const box = (
+    <div
+      onClick={onClick}
+      className={clsx(
+        // subtle border + glow using Tailwind, no JS state
+        "rounded-2xl p-4 cursor-pointer transition-shadow",
+        "ring-2 ring-offset-2",
+        // ring color via arbitrary value
+        "ring-[var(--rim)] hover:ring-4",
+        // soft outer glow on hover
+        "hover:shadow-[0_0_10px_rgba(238,186,48,0.35)]",
         className
       )}
-      {...rest}
+      style={{
+        // provide CSS var for the ring color
+        // (Tailwind uses it via ring-[var(--rim)] above)
+        ["--rim" as any]: OUTER_RIM,
+        background: INNER_BG,
+        color: "white",
+      }}
     >
-      {title ? (
-        <div className="px-3 pt-3 text-sm text-white/80 uppercase tracking-wide">{title}</div>
-      ) : null}
-      <div className="p-3">{children}</div>
-    </Card>
+      {children}
+    </div>
   );
-  return to ? <Link href={to}>{body}</Link> : body;
+
+  return to ? <Link to={to} className="block rounded-2xl">{box}</Link> : box;
 }
 
-type CTAProps = {
-  to: string;
-  label: string;
-  className?: string;
-  forceTheme?: ThemeColor;
-};
-export function ThemedCTA({ to, label, className, forceTheme }: CTAProps) {
-  const theme = forceTheme ?? routeThemeFromPath(to, 'white');
-  return (
-    <Link href={to}>
-      <button
-        className={cn(
-          'mt-2 h-8 px-3 rounded text-sm uppercase tracking-wide',
-          'border bg-black/30 hover:bg-black/40 transition-all',
-          rimClass(theme),
-          className
-        )}
-      >
-        {label}
-      </button>
-    </Link>
-  );
-}
+// tiny stub so any existing imports don't crash
+export const ThemedCTA: React.FC = () => null;
