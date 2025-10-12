@@ -12,12 +12,12 @@ import {
   type InsertEntityDataSource,
 } from '@shared/schema';
 import type { BaseEntityScraper, EntityData, ScraperResult } from './BaseEntityScraper';
-import { MetronScraper } from './MetronScraper';
-import { MarvelScraper } from './MarvelScraper';
-import { SuperHeroScraper } from './SuperHeroScraper';
-import { createMarvelWikiScraper, createDCWikiScraper } from './WikiScraper';
+import { WikidataScraper } from './WikidataScraper';
+import { FandomWikiScraper } from './FandomWikiScraper';
+import { GCDScraper } from './GCDScraper';
 import { ComicVineScraper } from './ComicVineScraper';
-import { AniListScraper } from './AniListScraper';
+import { MyComicShopScraper } from './MyComicShopScraper';
+import { LeagueOfGeeksScraper } from './LeagueOfGeeksScraper';
 import { normalizationService } from './NormalizationService';
 
 export interface OrchestratorConfig {
@@ -48,9 +48,9 @@ export class ScraperOrchestrator {
   
   constructor(config?: Partial<OrchestratorConfig>) {
     this.config = {
-      enabledSources: ['metron', 'marvel', 'superhero-api', 'marvel-wiki', 'dc-wiki', 'comic-vine', 'anilist'], // All 7 active sources (5 original + 2 new)
-      consensusThreshold: 2, // Realistic threshold with current scrapers (will increase when more sources added)
-      concurrentScrapers: 7,
+      enabledSources: ['wikidata', 'fandom', 'gcd', 'comic-vine', 'mycomicshop', 'league-of-geeks'], // The 6 priority scrapers
+      consensusThreshold: 2, // Minimum 2 sources to verify data
+      concurrentScrapers: 6, // All 6 run in parallel
       batchSize: 100,
       ...config,
     };
@@ -64,25 +64,42 @@ export class ScraperOrchestrator {
   }
   
   /**
-   * Initialize all enabled scrapers
+   * Initialize all enabled scrapers - THE 6 PRIORITY SCRAPERS
    */
   private initializeScrapers(): void {
     const scraperMap: Record<string, () => BaseEntityScraper | null> = {
-      metron: () => new MetronScraper(),
-      marvel: () => new MarvelScraper(),
-      'superhero-api': () => new SuperHeroScraper(),
-      'marvel-wiki': () => createMarvelWikiScraper(),
-      'dc-wiki': () => createDCWikiScraper(),
+      'wikidata': () => {
+        console.log('🔮 Initializing Wikidata SPARQL scraper (reliability: 0.90)');
+        return new WikidataScraper();
+      },
+      'fandom': () => {
+        console.log('📚 Initializing Fandom Wiki scraper (Dark Horse, Image, IDW, Valiant, Boom)');
+        return new FandomWikiScraper('dark_horse', 0.75);
+      },
+      'gcd': () => {
+        console.log('📖 Initializing Grand Comics Database scraper (reliability: 0.88)');
+        return new GCDScraper();
+      },
       'comic-vine': () => {
         const apiKey = process.env.COMIC_VINE_API_KEY;
         if (!apiKey) {
-          console.warn('COMIC_VINE_API_KEY not found, skipping Comic Vine scraper');
+          console.warn('⚠️ COMIC_VINE_API_KEY not found, skipping Comic Vine scraper');
           return null;
         }
+        console.log('🎬 Initializing Comic Vine API scraper (reliability: 0.92)');
         return new ComicVineScraper(apiKey);
       },
-      'anilist': () => new AniListScraper(),
+      'mycomicshop': () => {
+        console.log('💰 Initializing MyComicShop pricing scraper (reliability: 0.90)');
+        return new MyComicShopScraper();
+      },
+      'league-of-geeks': () => {
+        console.log('🎮 Initializing League of Comic Geeks scraper (600K+ comics, reliability: 0.88)');
+        return new LeagueOfGeeksScraper();
+      },
     };
+    
+    console.log('\n🚀 Activating 6 priority scrapers in parallel...\n');
     
     for (const sourceName of this.config.enabledSources) {
       const scraperFactory = scraperMap[sourceName];
@@ -93,6 +110,10 @@ export class ScraperOrchestrator {
         }
       }
     }
+    
+    console.log(`\n✅ Activated ${this.scrapers.size} scrapers: ${Array.from(this.scrapers.keys()).join(', ')}`);
+    console.log(`⚙️ Consensus threshold: ${this.config.consensusThreshold} sources`);
+    console.log(`⚡ Max concurrent: ${this.config.concurrentScrapers} scrapers\n`);
   }
   
   /**
