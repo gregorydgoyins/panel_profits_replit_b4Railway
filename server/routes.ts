@@ -36,6 +36,7 @@ import characterAttributesRoutes from "./routes/characterAttributesRoutes.js";
 import datasetExpansionRoutes from "./routes/datasetExpansionRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 import symbolGenerationRoutes from "./routes/symbolGeneration.js";
+import youtubeRoutes from "./routes/youtube.js";
 import { marketSimulation, orderMatching } from "./marketSimulation.js";
 import { leaderboardService } from "./leaderboardService.js";
 import { narrativeEventService } from "./services/narrativeEventService.js";
@@ -3528,6 +3529,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Symbol Generation routes
   app.use("/api/symbols", symbolGenerationRoutes);
+  
+  // YouTube Video Content - ComicGirl19 & NerdSync
+  app.use("/api/youtube", youtubeRoutes);
 
   // ================================
   // EXTERNAL SCRAPER ROUTES

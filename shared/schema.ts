@@ -4343,6 +4343,36 @@ export const newsArticles = pgTable("news_articles", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Video Content - YouTube and other video sources
+export const videoContent = pgTable("video_content", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Video Identification
+  videoId: text("video_id").notNull().unique(),
+  title: text("title").notNull(),
+  description: text("description"),
+  // Channel Information
+  channelName: text("channel_name").notNull(),
+  channelId: text("channel_id").notNull(),
+  // Publication
+  publishDate: timestamp("publish_date").notNull(),
+  duration: integer("duration"), // Duration in seconds
+  // Media URLs
+  thumbnailUrl: text("thumbnail_url"),
+  url: text("url").notNull(),
+  // Content Analysis
+  tags: text("tags").array(),
+  transcript: text("transcript"), // Full video transcript
+  // Engagement Metrics
+  viewCount: integer("view_count").default(0),
+  likeCount: integer("like_count").default(0),
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_video_content_channel").on(table.channelName),
+  index("idx_video_content_publish_date").on(table.publishDate),
+]);
+
 // Phase 1 Insert Schemas
 export const insertImfVaultSettingsSchema = createInsertSchema(imfVaultSettings).omit({
   id: true,
@@ -4398,6 +4428,12 @@ export const insertNewsArticleSchema = createInsertSchema(newsArticles).omit({
   updatedAt: true,
 });
 
+export const insertVideoContentSchema = createInsertSchema(videoContent).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Phase 1 TypeScript Types
 export type ImfVaultSettings = typeof imfVaultSettings.$inferSelect;
 export type InsertImfVaultSettings = z.infer<typeof insertImfVaultSettingsSchema>;
@@ -4425,6 +4461,9 @@ export type InsertInformationTier = z.infer<typeof insertInformationTierSchema>;
 
 export type NewsArticle = typeof newsArticles.$inferSelect;
 export type InsertNewsArticle = z.infer<typeof insertNewsArticleSchema>;
+
+export type VideoContent = typeof videoContent.$inferSelect;
+export type InsertVideoContent = z.infer<typeof insertVideoContentSchema>;
 
 // ============================================================================
 // PHASE 2: HIGH-VOLUME NARRATIVE DATASET INGESTION SYSTEM

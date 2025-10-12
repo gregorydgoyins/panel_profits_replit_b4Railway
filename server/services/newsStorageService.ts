@@ -60,9 +60,14 @@ const RSS_FEEDS: RSSFeed[] = [
   { name: 'Comic Vine', url: 'https://comicvine.gamespot.com/feeds/news/' },
   { name: 'Comics Continuum', url: 'http://www.comicscontinuum.com/rss.xml' },
   
-  // YouTube/Video (many have RSS)
+  // YouTube/Video (many have RSS) - HIGH PRIORITY: ComicGirl19 & NerdSync
+  { name: 'ComicGirl19', url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCCyTmNW8vJdGKXjL76eSDxA' },
+  { name: 'NerdSync', url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UC3L_XqkuCG9m0HJWx8c2Z1A' },
   { name: 'ComicPOP', url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCXMQWGhex2AgoN7pJW6G1sQ' },
   { name: 'Comics Explained', url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCKxQmKgrkUv4S7P5w0pLayw' },
+  { name: 'ComicTom101', url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UC9zC40MvM2mKTkmI3Fzgwfw' },
+  { name: 'Nerdy By Nature', url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCsI1Cc-Yp8jOpDRh-qHwO5A' },
+  { name: 'Comic Book Herald', url: 'https://www.youtube.com/feeds/videos.xml?channel_id=UCOlFZxj7ijVH5fBAP8qORdw' },
   
   // Trade Publications
   { name: 'Diamond Comic Distributors', url: 'https://www.diamondcomics.com/Home/1/1/3/237?rss=1' },
