@@ -1,6 +1,6 @@
 // Minimal tile: subtle rimlight on hover (Tailwind-only), NON-WHITE inside
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 import clsx from "clsx";
 
 type BaseProps = {

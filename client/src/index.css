@@ -1,5 +1,6 @@
 /* INSTITUTIONAL TRADING PLATFORM DESIGN SYSTEM - RESTRAINED & PROFESSIONAL */
 @import url('https://fonts.googleapis.com/css2?family=Hind:wght@300&display=swap');
+@import "@/styles/tile-themes.css";
 
 @tailwind base;
 @tailwind components;
@@ -1130,5 +1131,3 @@
   0% { transform: translateY(-100%); }
   100% { transform: translateY(100%); }
 }
-
-@import "@/styles/tile-themes.css";
