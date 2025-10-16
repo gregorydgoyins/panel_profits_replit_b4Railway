@@ -1,0 +1,41 @@
+import "cross-fetch/polyfill";
+import { supabase, logErr } from "./_supabaseClient.mjs";
+
+/** Replace SOURCES with your actual feeds later if needed */
+const SOURCES = [
+  "https://www.cbr.com/feed/",
+  "https://bleedingcool.com/comics/feed/",
+  "https://www.marvel.com/feed",
+];
+
+import Parser from "rss-parser"; const parser = new Parser();
+
+async function upsertItem(x){
+  const guid = x.guid || x.link;
+  const { error } = await supabase
+    .from("rss_items")
+    .upsert({
+      guid,
+      title: x.title || null,
+      url: x.link || null,
+      source: x.source || null,
+      author: x.creator || x.author || null,
+      summary: x.contentSnippet || x.content || null,
+      published_at: x.isoDate ? new Date(x.isoDate).toISOString() : null,
+    }, { onConflict: "guid" });
+  if (error) logErr("rss upsert", error);
+}
+
+async function run(){
+  for (const src of SOURCES){
+    try{
+      const feed = await parser.parseURL(src);
+      for (const item of feed.items||[]){
+        await upsertItem({ ...item, source: feed?.title || src });
+      }
+    }catch(e){ logErr("rss fetch", e); }
+  }
+  console.log("✓ rss cycle complete");
+}
+
+run().catch(e=>{ logErr("rss fatal", e); process.exit(1); });

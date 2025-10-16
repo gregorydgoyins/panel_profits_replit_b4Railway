@@ -1,0 +1,50 @@
+import "cross-fetch/polyfill";
+import { supabase, logErr } from "./_supabaseClient.mjs";
+
+const KEY = process.env.YT_API_KEY || "";
+if (!KEY){
+  console.log("⏭️  No YT_API_KEY — skipping.");
+  process.exit(0);
+}
+
+/** Update channels as needed */
+const CHANNELS = [
+  "UCi8e0iOVk1fEOogdfu4YgfA", // example
+];
+
+async function fetchChannelUploads(channelId){
+  const list = await fetch(`https://www.googleapis.com/youtube/v3/search?key=${KEY}&channelId=${channelId}&part=snippet,id&order=date&maxResults=10`).then(r=>r.json());
+  return (list.items||[]).map(i=>({
+    vid: (i.id||{}).videoId,
+    title: (i.snippet||{}).title,
+    url: `https://www.youtube.com/watch?v=${(i.id||{}).videoId}`,
+    channel: (i.snippet||{}).channelTitle,
+    published_at: (i.snippet||{}).publishedAt
+  })).filter(v=>v.vid);
+}
+
+async function upsertVideo(v){
+  const { error } = await supabase
+    .from("video_items")
+    .upsert({
+      vid: v.vid,
+      title: v.title || null,
+      url: v.url || null,
+      channel: v.channel || null,
+      published_at: v.published_at ? new Date(v.published_at).toISOString() : null,
+      description: null
+    }, { onConflict: "vid" });
+  if (error) logErr("video upsert", error);
+}
+
+async function run(){
+  for (const ch of CHANNELS){
+    try{
+      const vids = await fetchChannelUploads(ch);
+      for (const v of vids) await upsertVideo(v);
+    }catch(e){ logErr("yt fetch", e); }
+  }
+  console.log("✓ youtube cycle complete");
+}
+
+run().catch(e=>{ logErr("yt fatal", e); process.exit(1); });

@@ -1,0 +1,252 @@
+{
+  "https://www.darkhorse.com:80/Blog/RSS": {
+    "fail_streak": 3,
+    "last_err": "Request timed out after 20000ms"
+  },
+  "https://www.theguardian.com/feed": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.tfaw.com/rss": {
+    "fail_streak": 3,
+    "last_err": "Unexpected close tag\nLine: 14\nColumn: 7\nChar: >"
+  },
+  "https://www.boom-studios.com/archives/feed/": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.tfaw.com/feed": {
+    "fail_streak": 3,
+    "last_err": "Feed not recognized as RSS 1 or 2."
+  },
+  "https://www.darkhorse.com/rss": {
+    "fail_streak": 3,
+    "last_err": "err"
+  },
+  "https://bleedingcool.com/feed": {
+    "fail_streak": 0,
+    "title": "Bleeding Cool News",
+    "count": 15,
+    "last_ok": 1760533355064
+  },
+  "https://variety.com/v/comics/feed/": {
+    "fail_streak": 3,
+    "last_err": "err"
+  },
+  "https://www.tfaw.com/blog/feed/": {
+    "fail_streak": 3,
+    "last_err": "Unexpected close tag\nLine: 14\nColumn: 7\nChar: >"
+  },
+  "https://www.boom-studios.com/feed/": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.marvel.com/articles.rss": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.theguardian.com/feed/": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.cgccomics.com/feed": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.darkhorse.com/Blog/RSS/Comics": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.gamesradar.com/newsarama/rss": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.ign.com/rss/comics.xml": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.boom-studios.com/rss": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.hollywoodreporter.com/feed/rss/": {
+    "fail_streak": 0,
+    "title": "The Hollywood Reporter",
+    "count": 10,
+    "last_ok": 1760533350782
+  },
+  "https://bleedingcool.com/comics/feed/": {
+    "fail_streak": 0,
+    "title": "Comics",
+    "count": 30,
+    "last_ok": 1760533350782
+  },
+  "https://comics.ha.com/rss/auction/weekly": {
+    "fail_streak": 3,
+    "last_err": "Status code 403"
+  },
+  "https://www.cbr.com/feed/": {
+    "fail_streak": 0,
+    "title": " CBR ",
+    "count": 10,
+    "last_ok": 1760533354824
+  },
+  "https://www.boom-studios.com/feed": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://icv2.com/feed/": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.darkhorse.com/feed": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.comicsbeat.com/comments/feed/": {
+    "fail_streak": 0,
+    "title": "\n\tComments for The Beat\t",
+    "count": 12,
+    "last_ok": 1760533354824
+  },
+  "https://www.darkhorse.com:80/RSS": {
+    "fail_streak": 3,
+    "last_err": "Request timed out after 20000ms"
+  },
+  "https://www.idwpublishing.com/feed/": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.theguardian.com/books/comics/rss": {
+    "fail_streak": 0,
+    "title": "Comics and graphic novels | The Guardian",
+    "count": 20,
+    "last_ok": 1760533350781
+  },
+  "https://www.polygon.com/rss/comics": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.idwpublishing.com/feed": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.darkhorse.com/feed/": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.hollywoodreporter.com/feed": {
+    "fail_streak": 0,
+    "title": "The Hollywood Reporter",
+    "count": 10,
+    "last_ok": 1760533354824
+  },
+  "https://icv2.com/rss": {
+    "fail_streak": 0,
+    "title": "ICv2 RSS Web Feed",
+    "count": 12,
+    "last_ok": 1760533354824
+  },
+  "https://www.cgccomics.com/rss": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://blog.midtowncomics.com/feed/": {
+    "fail_streak": 3,
+    "last_err": "Status code 522"
+  },
+  "https://www.hollywoodreporter.com/feed/": {
+    "fail_streak": 0,
+    "title": "The Hollywood Reporter",
+    "count": 10,
+    "last_ok": 1760533350781
+  },
+  "https://www.cgccomics.com/feed/": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.hollywoodreporter.com/rss": {
+    "fail_streak": 0,
+    "title": "The Hollywood Reporter",
+    "count": 10,
+    "last_ok": 1760533354823
+  },
+  "https://screenrant.com/feed/tag/comics/": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://bleedingcool.com/feed/": {
+    "fail_streak": 0,
+    "title": "Bleeding Cool News",
+    "count": 15,
+    "last_ok": 1760533354824
+  },
+  "https://www.comicsbeat.com/feed/": {
+    "fail_streak": 0,
+    "title": "The Beat",
+    "count": 12,
+    "last_ok": 1760533354824
+  },
+  "https://www.comicsbeat.com/feed": {
+    "fail_streak": 0,
+    "title": "The Beat",
+    "count": 12,
+    "last_ok": 1760533354824
+  },
+  "https://bleedingcool.com/rss": {
+    "fail_streak": 0,
+    "title": "Bleeding Cool News",
+    "count": 15,
+    "last_ok": 1760533350782
+  },
+  "https://www.idwpublishing.com/rss": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.mycomicshop.com/blog/feed/": {
+    "fail_streak": 3,
+    "last_err": "Status code 410"
+  },
+  "https://www.avclub.com/rss/tag/comics": {
+    "fail_streak": 3,
+    "last_err": "Attribute without value\nLine: 1\nColumn: 30\nChar: i"
+  },
+  "https://www.tfaw.com/feed/": {
+    "fail_streak": 3,
+    "last_err": "Unexpected close tag\nLine: 14\nColumn: 7\nChar: >"
+  },
+  "https://www.cgccomics.com/news/rss/": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.idwpublishing.com/category/news/feed/": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.comicsbeat.com/rss": {
+    "fail_streak": 0,
+    "title": "The Beat",
+    "count": 12,
+    "last_ok": 1760533350781
+  },
+  "https://icv2.com/feed": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.hollywoodreporter.com/t/comics/feed/": {
+    "fail_streak": 0,
+    "title": "Comics",
+    "count": 10,
+    "last_ok": 1760533350781
+  },
+  "https://www.theguardian.com/rss": {
+    "fail_streak": 0,
+    "title": "The Guardian",
+    "count": 50,
+    "last_ok": 1760533350782
+  },
+  "https://www.dc.com/news/rss": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  }
+}

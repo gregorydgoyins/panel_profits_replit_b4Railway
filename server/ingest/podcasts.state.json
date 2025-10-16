@@ -1,0 +1,660 @@
+{
+  "https://comicsinhell.libsyn.com/rss": {
+    "fail_streak": 0,
+    "title": "Comic Books Are Burning In Hell",
+    "count": 50,
+    "last_ok": 1760514190798
+  },
+  "https://rss.art19.com/word-balloon": {
+    "fail_streak": 1,
+    "last_err": "Status code 404"
+  },
+  "https://feed.podbean.com/thirdimpactanimepodcast/feed.xml": {
+    "fail_streak": 0,
+    "title": "Third Impact Anime Podcast",
+    "count": 50,
+    "last_ok": 1760514190798
+  },
+  "https://feed.podbean.com/theglorioblog/feed.xml": {
+    "fail_streak": 0,
+    "title": "The GLORIO Chat Anime Podcast",
+    "count": 50,
+    "last_ok": 1760514190798
+  },
+  "https://anchor.fm/s/6ea70724/podcast/rss": {
+    "fail_streak": 0,
+    "title": "Anime Pattern Podcast",
+    "count": 43,
+    "last_ok": 1760514190798
+  },
+  "https://feeds.simplecast.com/F7kdWDQD": {
+    "fail_streak": 0,
+    "title": "AIPT Comics",
+    "count": 50,
+    "last_ok": 1760514190798
+  },
+  "https://postshowrecaps.com/feed/the-walking-dead-live-post-show-recap/": {
+    "fail_streak": 0,
+    "title": "The Walking Dead LIVE: Post Show Recaps",
+    "count": 50,
+    "last_ok": 1760514190798
+  },
+  "https://feeds.megaphone.fm/ADV6507722082": {
+    "fail_streak": 1,
+    "last_err": "Status code 404"
+  },
+  "https://feeds.simplecast.com/xLVsntCQ": {
+    "fail_streak": 0,
+    "title": "The After Show from Anime News Network",
+    "count": 50,
+    "last_ok": 1760514191638
+  },
+  "https://anchor.fm/s/5bf8bbf4/podcast/rss": {
+    "fail_streak": 0,
+    "title": "Across the Bifrost: Marvel’s Mighty Thor",
+    "count": 50,
+    "last_ok": 1760514191638
+  },
+  "https://marvelstarwarsexplorers.com/rss": {
+    "fail_streak": 0,
+    "title": "Marvel Star Wars Explorers",
+    "count": 50,
+    "last_ok": 1760514191638
+  },
+  "https://feeds.captivate.fm/sakura-society/": {
+    "fail_streak": 0,
+    "title": "Sakura Society | An Anime Appreciation Podcast",
+    "count": 50,
+    "last_ok": 1760514191638
+  },
+  "https://rss.pdrl.fm/412b92/feeds.megaphone.fm/citycastdc": {
+    "fail_streak": 0,
+    "title": "City Cast DC",
+    "count": 50,
+    "last_ok": 1760514191638
+  },
+  "https://feeds.simplecast.com/XXE2teq5": {
+    "fail_streak": 0,
+    "title": "The History of Marvel Comics: Black Panther",
+    "count": 8,
+    "last_ok": 1760514191639
+  },
+  "https://www.spreaker.com/show/1989778/episodes/feed": {
+    "fail_streak": 0,
+    "title": "Comic Book of the Day Podcast",
+    "count": 28,
+    "last_ok": 1760514191639
+  },
+  "http://comicbooktimemachine.com/feed/podcast/": {
+    "fail_streak": 0,
+    "title": "Comic Book Time Machine",
+    "count": 50,
+    "last_ok": 1760514191639
+  },
+  "https://erichatesdbz.libsyn.com/rss": {
+    "fail_streak": 0,
+    "title": "Eric Hates Dragon Ball Z",
+    "count": 50,
+    "last_ok": 1760514192642
+  },
+  "https://www.daizex.com/general/podcast/podcast.xml": {
+    "fail_streak": 0,
+    "title": "Kanzenshuu - The Original Dragon Ball Podcast",
+    "count": 50,
+    "last_ok": 1760514192643
+  },
+  "https://feeds.redcircle.com/698fd32d-dd42-49d7-a38c-8316756f50fe": {
+    "fail_streak": 0,
+    "title": "Friends From Work: An Unofficial Marvel Podcast",
+    "count": 50,
+    "last_ok": 1760514192643
+  },
+  "https://anchor.fm/s/9161a01c/podcast/rss": {
+    "fail_streak": 0,
+    "title": "Alphabet Flight: A Marvel Encyclopedic Adventure",
+    "count": 50,
+    "last_ok": 1760514192643
+  },
+  "https://anchor.fm/s/fce2f69c/podcast/rss": {
+    "fail_streak": 0,
+    "title": "Rivals Assemble: A Marvel Rivals Podcast",
+    "count": 45,
+    "last_ok": 1760514192643
+  },
+  "https://feed.podbean.com/onlycomics/feed.xml": {
+    "fail_streak": 0,
+    "title": "Only Comics Podcast",
+    "count": 26,
+    "last_ok": 1760514192643
+  },
+  "https://rss.art19.com/multiversity-manga-club": {
+    "fail_streak": 0,
+    "title": "Multiversity Manga Club",
+    "count": 50,
+    "last_ok": 1760514192643
+  },
+  "https://feeds.simplecast.com/Sy1390dr": {
+    "fail_streak": 0,
+    "title": "Marvel/Method with Method Man",
+    "count": 8,
+    "last_ok": 1760514192643
+  },
+  "https://anchor.fm/s/f528d890/podcast/rss": {
+    "fail_streak": 0,
+    "title": "Marvel Rivals Showdown",
+    "count": 2,
+    "last_ok": 1760514194443
+  },
+  "http://feeds.feedburner.com/PillarDC": {
+    "fail_streak": 0,
+    "title": "Pillar Church of Washington, DC",
+    "count": 10,
+    "last_ok": 1760514194443
+  },
+  "https://feed.podbean.com/afterthematch/feed.xml": {
+    "fail_streak": 0,
+    "title": "Anime Pass Or Fail",
+    "count": 50,
+    "last_ok": 1760514194443
+  },
+  "https://feeds.redcircle.com/039a442b-50c4-41f7-9565-27f5f6465f34": {
+    "fail_streak": 0,
+    "title": "Who Would Win",
+    "count": 50,
+    "last_ok": 1760514194443
+  },
+  "https://comicbooks.libsyn.com/rss": {
+    "fail_streak": 0,
+    "title": "Comics Who Love Comic Books",
+    "count": 50,
+    "last_ok": 1760514194443
+  },
+  "https://feed.cdnstream1.com/zjb/feed/download/d2/cf/b2/d2cfb249-7ab2-403e-8378-45b6c156bf32.xml": {
+    "fail_streak": 0,
+    "title": "Trading Cards & Collectibles Podcast",
+    "count": 15,
+    "last_ok": 1760514194443
+  },
+  "https://feeds.soundcloud.com/users/soundcloud:users:513769071/sounds.rss": {
+    "fail_streak": 0,
+    "title": "DCRADIO.GOV",
+    "count": 50,
+    "last_ok": 1760514194443
+  },
+  "https://feed.podbean.com/weirdsciencedccomics/feed.xml": {
+    "fail_streak": 0,
+    "title": "Weird Science DC Comics Podcast",
+    "count": 50,
+    "last_ok": 1760514194443
+  },
+  "https://anchor.fm/s/f964d684/podcast/rss": {
+    "fail_streak": 0,
+    "title": "Collectibles.com Unscripted",
+    "count": 15,
+    "last_ok": 1760514194906
+  },
+  "https://anchor.fm/s/ce4e6aa0/podcast/rss": {
+    "fail_streak": 0,
+    "title": "Anime Plummet Podcast",
+    "count": 50,
+    "last_ok": 1760514194907
+  },
+  "https://feeds.megaphone.fm/comicsexperiment": {
+    "fail_streak": 0,
+    "title": "Comics Experiment",
+    "count": 50,
+    "last_ok": 1760514194907
+  },
+  "https://media.rss.com/tworiverstwotakes/feed.xml": {
+    "fail_streak": 0,
+    "title": "X-Factor Files: Investigating the Marvel Universe- Alpha Flight and Marvel's Star Trek!",
+    "count": 50,
+    "last_ok": 1760514194907
+  },
+  "https://anchor.fm/s/8f0683a0/podcast/rss": {
+    "fail_streak": 0,
+    "title": "Creative Weirdos - Conversations with fellow weirdos about art, the paranormal, comic books &amp; more! ",
+    "count": 50,
+    "last_ok": 1760514194907
+  },
+  "https://anchor.fm/s/68e6d51c/podcast/rss": {
+    "fail_streak": 0,
+    "title": "Freestyle Anime Podcast ",
+    "count": 50,
+    "last_ok": 1760514194907
+  },
+  "https://anchor.fm/s/e2d4c76c/podcast/rss": {
+    "fail_streak": 0,
+    "title": "Otaku Spirit Anime",
+    "count": 50,
+    "last_ok": 1760514194907
+  },
+  "https://anchor.fm/s/48032ddc/podcast/rss": {
+    "fail_streak": 0,
+    "title": "Videojuegos Con reseña , asmr Y anime",
+    "count": 4,
+    "last_ok": 1760514194907
+  },
+  "https://feed.podbean.com/paneloids/feed.xml": {
+    "fail_streak": 0,
+    "title": "Paneloids Comic Books & More",
+    "count": 50,
+    "last_ok": 1760514196482
+  },
+  "http://feeds.hubbardpodcasts.com/dc/founding-dc": {
+    "fail_streak": 0,
+    "title": "Founding DC",
+    "count": 9,
+    "last_ok": 1760514196482
+  },
+  "https://anchor.fm/s/ef191050/podcast/rss": {
+    "fail_streak": 0,
+    "title": "Beyond the Ink - Comic Book Podcast",
+    "count": 20,
+    "last_ok": 1760514196482
+  },
+  "https://feeds.simplecast.com/ul2LFlnp": {
+    "fail_streak": 0,
+    "title": "Passion City Church DC Podcast",
+    "count": 50,
+    "last_ok": 1760514196482
+  },
+  "https://feeds.redcircle.com/69eeff35-55c5-4f10-bb8e-50068e4bd7ab": {
+    "fail_streak": 0,
+    "title": "DCArts Beat",
+    "count": 4,
+    "last_ok": 1760514196482
+  },
+  "https://feeds.redcircle.com/581ff61a-65b8-4773-9424-793a216b5616": {
+    "fail_streak": 0,
+    "title": "Cartoon Boom",
+    "count": 50,
+    "last_ok": 1760514196482
+  },
+  "https://www.xplainthexmen.com/feed/podcast/": {
+    "fail_streak": 0,
+    "title": "Jay & Miles X-Plain the X-Men",
+    "count": 50,
+    "last_ok": 1760514196482
+  },
+  "https://feeds.buzzsprout.com/1325291.rss": {
+    "fail_streak": 1,
+    "last_err": "Status code 404"
+  },
+  "https://rss.pdrl.fm/bf6ed9/feeds.libsyn.com/192398/rss/?redirect=false": {
+    "fail_streak": 0,
+    "title": "Mic Check, Waifu, Waifu!",
+    "count": 50,
+    "last_ok": 1760514197483
+  },
+  "https://www.spreaker.com/show/6729926/episodes/feed": {
+    "fail_streak": 0,
+    "title": "Dinner with the Heelers - A Bluey Podcast",
+    "count": 50,
+    "last_ok": 1760514197483
+  },
+  "https://feeds.acast.com/public/shows/68374f9a998551779fb7fc77": {
+    "fail_streak": 0,
+    "title": "Standig Room Only: A show about the Washington Commanders and D.C. sports",
+    "count": 50,
+    "last_ok": 1760514197483
+  },
+  "https://feeds.simplecast.com/rn_r66Ri": {
+    "fail_streak": 0,
+    "title": "Marvel’s Wastelanders: Wolverine",
+    "count": 11,
+    "last_ok": 1760514197483
+  },
+  "https://feeds.libsyn.com/453225/rss": {
+    "fail_streak": 0,
+    "title": "AGELESS HEALTH® with Dr. Tom Roselle, DC",
+    "count": 50,
+    "last_ok": 1760514197483
+  },
+  "https://shonenflop.libsyn.com/rss": {
+    "fail_streak": 0,
+    "title": "Shonen Flop",
+    "count": 50,
+    "last_ok": 1760514197483
+  },
+  "https://feeds.feedburner.com/AnimeNostalgiaPodcast": {
+    "fail_streak": 0,
+    "title": "The Anime Nostalgia Podcast",
+    "count": 50,
+    "last_ok": 1760514197483
+  },
+  "https://anchor.fm/s/57d6426c/podcast/rss": {
+    "fail_streak": 0,
+    "title": "Inside Animation",
+    "count": 50,
+    "last_ok": 1760514197483
+  },
+  "https://anchor.fm/s/f19475a4/podcast/rss": {
+    "fail_streak": 0,
+    "title": "Mickey Marvel and More",
+    "count": 43,
+    "last_ok": 1760514198970
+  },
+  "https://anchor.fm/s/47a39b10/podcast/rss": {
+    "fail_streak": 0,
+    "title": "The DCAU Review: A DC Comics Animation Podcast",
+    "count": 50,
+    "last_ok": 1760514198970
+  },
+  "https://anchor.fm/s/ebe58274/podcast/rss": {
+    "fail_streak": 0,
+    "title": "Dr. Jana Joshu Grimm, DC: Christ-Centered Holistic Health",
+    "count": 27,
+    "last_ok": 1760514198970
+  },
+  "https://anchor.fm/s/1d360570/podcast/rss": {
+    "fail_streak": 0,
+    "title": "iDOL DAYS: The Show About Idol Anime!",
+    "count": 50,
+    "last_ok": 1760514198970
+  },
+  "https://feeds.simplecast.com/5L8uU5Qk": {
+    "fail_streak": 1,
+    "last_err": "Status code 404"
+  },
+  "https://thestooshie.podbean.com/feed.xml": {
+    "fail_streak": 0,
+    "title": "The Stooshie: the politics podcast from DC Thomson",
+    "count": 50,
+    "last_ok": 1760514198970
+  },
+  "https://thatmightbecool-gfe4.squarespace.com/tmbc?format=rss": {
+    "fail_streak": 0,
+    "title": "That Might Be Cool! Discussing Marvel, DC, Star Wars & More",
+    "count": 50,
+    "last_ok": 1760514198970
+  },
+  "https://ragingbullets.libsyn.com/rss": {
+    "fail_streak": 0,
+    "title": "Raging Bullets : A DC Comics Fan Podcast",
+    "count": 50,
+    "last_ok": 1760514198970
+  },
+  "https://feed.podbean.com/shadowofthecast/feed.xml": {
+    "fail_streak": 0,
+    "title": "Shadow of the Cast: A Marvel Champions Podcast",
+    "count": 26,
+    "last_ok": 1760514199827
+  },
+  "https://www.spreaker.com/show/3414609/episodes/feed": {
+    "fail_streak": 0,
+    "title": "DC on SCREEN | DC Studios News/Review",
+    "count": 50,
+    "last_ok": 1760514199827
+  },
+  "https://www.omnycontent.com/d/playlist/e73c998e-6e60-432f-8610-ae210140c5b1/22554c7c-336b-4dab-8602-ae3900375f03/f00b6583-9098-41fa-b61b-ae3900375f11/podcast.rss": {
+    "fail_streak": 0,
+    "title": "Amazing Wildlife: A San Diego Zoo Podcast",
+    "count": 50,
+    "last_ok": 1760514199827
+  },
+  "https://feeds.simplecast.com/TfzwpjPl": {
+    "fail_streak": 0,
+    "title": "Comic Book Podcast | Talking Comics",
+    "count": 50,
+    "last_ok": 1760514199827
+  },
+  "https://feeds.buzzsprout.com/1854034.rss": {
+    "fail_streak": 0,
+    "title": "The Comics That We Love",
+    "count": 3,
+    "last_ok": 1760514199827
+  },
+  "https://www.spreaker.com/show/4574069/episodes/feed": {
+    "fail_streak": 0,
+    "title": "The Dragon Ball Virgin",
+    "count": 42,
+    "last_ok": 1760514199827
+  },
+  "https://api.substack.com/feed/podcast/2771651/s/136361.rss": {
+    "fail_streak": 0,
+    "title": "Marked Out Radio",
+    "count": 50,
+    "last_ok": 1760514199827
+  },
+  "https://countdowntoinfinity.libsyn.com/rss": {
+    "fail_streak": 0,
+    "title": "Countdown to Infinity: a Marvel Avengers Podcast",
+    "count": 50,
+    "last_ok": 1760514199827
+  },
+  "https://feeds.simplecast.com/XNCsnHAc": {
+    "fail_streak": 0,
+    "title": "Marvel’s Squirrel Girl: The Unbeatable Radio Show!",
+    "count": 7,
+    "last_ok": 1760514201546
+  },
+  "https://feeds.soundcloud.com/users/soundcloud:users:153122602/sounds.rss": {
+    "fail_streak": 0,
+    "title": "Collecting Weekly",
+    "count": 50,
+    "last_ok": 1760514201546
+  },
+  "https://anchor.fm/s/bb95a374/podcast/rss": {
+    "fail_streak": 0,
+    "title": "Manga Mavericks",
+    "count": 50,
+    "last_ok": 1760514201546
+  },
+  "https://feed.podbean.com/thetablechurch/feed.xml": {
+    "fail_streak": 0,
+    "title": "The Table Church DC",
+    "count": 50,
+    "last_ok": 1760514201546
+  },
+  "https://feed.podbean.com/beyondthethunder/feed.xml": {
+    "fail_streak": 0,
+    "title": "AC/DC: Beyond The Thunder",
+    "count": 44,
+    "last_ok": 1760514201546
+  },
+  "https://majorspoilers.com//media/majorspoilerspodcast.xml": {
+    "fail_streak": 0,
+    "title": "Major Spoilers Comic Book Podcast",
+    "count": 50,
+    "last_ok": 1760514201546
+  },
+  "https://feeds.redcircle.com/12dfabfe-c2e9-45f0-8085-049a0359c421": {
+    "fail_streak": 0,
+    "title": "The Stack",
+    "count": 50,
+    "last_ok": 1760514201546
+  },
+  "https://creatoratlarge.libsyn.com/rss": {
+    "fail_streak": 0,
+    "title": "Creator At Large | The Business of Comic Books",
+    "count": 50,
+    "last_ok": 1760514201546
+  },
+  "https://feeds.libsyn.com/226433/rss": {
+    "fail_streak": 0,
+    "title": "Planes, Trains and Comic Books",
+    "count": 50,
+    "last_ok": 1760514202016
+  },
+  "https://anchor.fm/s/104f4ff4c/podcast/rss": {
+    "fail_streak": 0,
+    "title": "Modern Marvels",
+    "count": 4,
+    "last_ok": 1760514202017
+  },
+  "https://loreolympod.libsyn.com/rss": {
+    "fail_streak": 0,
+    "title": "Lore OlymPOD",
+    "count": 50,
+    "last_ok": 1760514202017
+  },
+  "https://dcrainmaker.libsyn.com/rss": {
+    "fail_streak": 0,
+    "title": "The FIT File with DC Rainmaker and DesFit",
+    "count": 50,
+    "last_ok": 1760514202017
+  },
+  "https://audioboom.com/channels/5133450.rss": {
+    "fail_streak": 0,
+    "title": "Anime Cvlt",
+    "count": 9,
+    "last_ok": 1760514202017
+  },
+  "https://feeds.simplecast.com/SP39CghG": {
+    "fail_streak": 0,
+    "title": "Marvel's Wastelanders: Star-Lord",
+    "count": 13,
+    "last_ok": 1760514202017
+  },
+  "https://feeds.buzzsprout.com/2132254.rss": {
+    "fail_streak": 0,
+    "title": "Circle Up D.C.",
+    "count": 5,
+    "last_ok": 1760514202018
+  },
+  "https://anchor.fm/s/e6ba2f5c/podcast/rss": {
+    "fail_streak": 0,
+    "title": "AnimEighties - A Retro Anime Podcast",
+    "count": 50,
+    "last_ok": 1760514202018
+  },
+  "https://feeds.acast.com/public/shows/66a015848eb1dacc5fcb0b92": {
+    "fail_streak": 0,
+    "title": "Escape the Mojoverse: An X-Men Comics Podcast",
+    "count": 50,
+    "last_ok": 1760514204571
+  },
+  "https://www.omnycontent.com/d/playlist/e73c998e-6e60-432f-8610-ae210140c5b1/c4d5247b-874a-40bb-a201-b12500ec6f12/743baaf0-fd7c-49ce-b056-b12500ec6f46/podcast.rss": {
+    "fail_streak": 0,
+    "title": "X-Ray Vision",
+    "count": 50,
+    "last_ok": 1760514204571
+  },
+  "https://feeds.simplecast.com/o3EW0h_r": {
+    "fail_streak": 0,
+    "title": "MARVELS",
+    "count": 12,
+    "last_ok": 1760514204571
+  },
+  "https://www.spreaker.com/show/5713334/episodes/feed": {
+    "fail_streak": 0,
+    "title": "DC Draino",
+    "count": 3,
+    "last_ok": 1760514204571
+  },
+  "https://rss.acast.com/the-stack": {
+    "fail_streak": 1,
+    "last_err": "Status code 410"
+  },
+  "https://tomvsjla.libsyn.com/rss": {
+    "fail_streak": 0,
+    "title": "Tom vs. Comics",
+    "count": 50,
+    "last_ok": 1760514204571
+  },
+  "https://proxy.wavpub.com/blyz.xml": {
+    "fail_streak": 0,
+    "title": "菠萝油子丨成年人听的动漫播客",
+    "count": 50,
+    "last_ok": 1760514204571
+  },
+  "https://feeds.megaphone.fm/comicbooknation": {
+    "fail_streak": 0,
+    "title": "ComicBook Nation",
+    "count": 50,
+    "last_ok": 1760514204571
+  },
+  "https://feed.podbean.com/unmaskedsdpodcast/feed.xml": {
+    "fail_streak": 0,
+    "title": "Unmasked History of Scooby-Doo",
+    "count": 40,
+    "last_ok": 1760514205396
+  },
+  "https://feeds.megaphone.fm/BLU6379003893": {
+    "fail_streak": 1,
+    "last_err": "Status code 404"
+  },
+  "https://feeds.megaphone.fm/ESP8525147054": {
+    "fail_streak": 0,
+    "title": "This Week in Marvel",
+    "count": 50,
+    "last_ok": 1760514205396
+  },
+  "https://anchor.fm/s/bd7f3c90/podcast/rss": {
+    "fail_streak": 0,
+    "title": "Marvel Snapcast",
+    "count": 50,
+    "last_ok": 1760514205396
+  },
+  "https://www.omnycontent.com/d/playlist/e73c998e-6e60-432f-8610-ae210140c5b1/f9126fa1-47a9-4cbf-b57a-ae320081e18a/9db16dd1-e986-4f61-a134-ae320081e193/podcast.rss": {
+    "fail_streak": 0,
+    "title": "Monster: DC Sniper",
+    "count": 20,
+    "last_ok": 1760514205397
+  },
+  "https://feeds.megaphone.fm/TCP6464651487": {
+    "fail_streak": 0,
+    "title": "Animal Spirits Podcast",
+    "count": 50,
+    "last_ok": 1760514205397
+  },
+  "https://anchor.fm/s/a7fb884c/podcast/rss": {
+    "fail_streak": 0,
+    "title": "Melbourne Marvels",
+    "count": 18,
+    "last_ok": 1760514205397
+  },
+  "https://feeds.acast.com/public/shows/66f5eb0facfe1ec5ec53ec91": {
+    "fail_streak": 0,
+    "title": "Relax With Animal Facts",
+    "count": 50,
+    "last_ok": 1760514205397
+  },
+  "https://feeds.fireside.fm/collectededition/rss": {
+    "fail_streak": 1,
+    "last_err": "Status code 404"
+  },
+  "https://www.spreaker.com/show/5428409/episodes/feed": {
+    "fail_streak": 0,
+    "title": "The Source Material Comics Podcast",
+    "count": 50,
+    "last_ok": 1760514206463
+  },
+  "https://nowplayingpodcast.com/nppdc.xml": {
+    "fail_streak": 0,
+    "title": "Now Playing Presents:  The DC Comics Movie Retrospective Series",
+    "count": 34,
+    "last_ok": 1760514206463
+  },
+  "https://bullpenbulletins.libsyn.com/rss": {
+    "fail_streak": 0,
+    "title": "11 O'Clock Comics Podcast",
+    "count": 50,
+    "last_ok": 1760514206463
+  },
+  "https://www.spreaker.com/show/4855496/episodes/feed": {
+    "fail_streak": 0,
+    "title": "GeekVerse Retrospective",
+    "count": 50,
+    "last_ok": 1760514206463
+  },
+  "https://anchor.fm/s/77974b3c/podcast/rss": {
+    "fail_streak": 0,
+    "title": "None Of My Friends Like Comics Podcast",
+    "count": 50,
+    "last_ok": 1760514206463
+  },
+  "https://anchor.fm/s/102217458/podcast/rss": {
+    "fail_streak": 0,
+    "title": "Stunned and Confused: A Marvel Champions Podcast",
+    "count": 30,
+    "last_ok": 1760514206463
+  },
+  "https://media.rss.com/friends-and-rivals/feed.xml": {
+    "fail_streak": 0,
+    "title": "Friends & Rivals: A Marvel Rivals Podcast",
+    "count": 36,
+    "last_ok": 1760514206463
+  }
+}

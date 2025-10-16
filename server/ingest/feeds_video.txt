@@ -1,0 +1,10 @@
+https://www.youtube.com/feeds/videos.xml?channel_id=UCvC4D8onUfXzvjTOM-dBfEA  # Marvel Entertainment
+https://www.youtube.com/feeds/videos.xml?channel_id=UCiifkYAs_bq1pt_zbNAzYGg  # DC
+https://www.youtube.com/feeds/videos.xml?channel_id=UCm4Zo8jgfQUPIB8e9DdzlIg  # Cartoonist Kayfabe
+https://www.youtube.com/feeds/videos.xml?channel_id=UCE2D6gJBTmX8h4fRrH4C0og  # ComicTom101
+https://www.youtube.com/feeds/videos.xml?channel_id=UCYdZXIGa5MhwjR6dsjmS5lQ  # Gem Mint Collectibles
+https://www.youtube.com/feeds/videos.xml?channel_id=UC3NfJ9XGMJwGk2R2xXvYhHg  # Near Mint Condition
+https://www.youtube.com/feeds/videos.xml?channel_id=UCM4u6rZ07zN8YI5VxjCDHVw  # Reggie Collects
+https://www.youtube.com/feeds/videos.xml?channel_id=UCDQ9CylrZ2ZC1EZoWwYQFpw  # Popverse
+https://www.youtube.com/feeds/videos.xml?channel_id=UCkR0r4y1qAoZq5nT-3o4QkA  # Comics Explained
+https://www.youtube.com/feeds/videos.xml?channel_id=UCOZC4xZ1Z2Ue1Y9fZ7Z8O4g  # Key Collector Comics

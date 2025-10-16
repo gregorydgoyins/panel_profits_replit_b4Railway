@@ -1,0 +1,248 @@
+{
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCM4u6rZ07zN8YI5VxjCDHVw": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCRHkGJPD7W82dManIeZDV4Q": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCiUId0Eaehiw1qjlAf-_5Kg": {
+    "fail_streak": 0,
+    "title": "Near Mint Collective",
+    "count": 15,
+    "last_ok": 1760533346855
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCDQ9CylrZ2ZC1EZoWwYQFpw": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCUA1qzGQK7t7n2LZbB6h8lg": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UClgRkhTL3_hImCAmdLfDE4g": {
+    "fail_streak": 3,
+    "last_err": "err"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCvC4D8onUfXzvjTOM-dBfEA": {
+    "fail_streak": 0,
+    "title": "Marvel Entertainment",
+    "count": 15,
+    "last_ok": 1760533346682
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCm4Zo8jgfQUPIB8e9DdzlIg": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCZFMm1mMw0F81Z37aaEzTUA": {
+    "fail_streak": 0,
+    "title": "NDTV",
+    "count": 15,
+    "last_ok": 1760533346682
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCYdZXIGa5MhwjR6dsjmS5lQ": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCxwitsUVNzwS5XBSC5UQV8Q": {
+    "fail_streak": 0,
+    "title": "Marvel HQ",
+    "count": 15,
+    "last_ok": 1760533346682
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCkR0r4y1qAoZq5nT-3o4QkA": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCw4R5u6G1jPz8yXbFYyZpPA": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCiifkYAs_bq1pt_zbNAzYGg": {
+    "fail_streak": 0,
+    "title": "DC",
+    "count": 15,
+    "last_ok": 1760533346682
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCpGZK8Z2y7xg7gHn0uTgVxA": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCxq2I3j8bE_pFjVb0Sg7fbg": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCcR0V4tG3E6C2gQpQpIe2cQ": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCuTaETsuCOkJ0H_GAztWt0Q": {
+    "fail_streak": 0,
+    "title": "Global Cycling Network",
+    "count": 15,
+    "last_ok": 1760533346281
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UC3XjZ2o8aRBP6jG3Y6V3Qjg": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UC3NfJ9XGMJwGk2R2xXvYhHg": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCDqau170byfm1ksTQ0jYNpg": {
+    "fail_streak": 0,
+    "title": "PolygonGuides",
+    "count": 15,
+    "last_ok": 1760533346282
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCQ5P2JQG1V2x8FqOeVuo1dw": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCNQ0mGQqV_3s0xQ3G6S88Bg": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCYEz6m7mM1W7x8Yq3m0Uq5w": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCkT1u65YS49EZa8f6jXy78w": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCk3VJrWUE9sG2lH_B8l9Qhg": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UC2B4a8N2sQglZgQ0nWf9o1w": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCNKRJBAHTjnK3y0ThOg1uNw": {
+    "fail_streak": 0,
+    "title": "Sidão do Game",
+    "count": 15,
+    "last_ok": 1760533346682
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCsvazZczN674P0aG0R6oWAw": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCIRYBXDze5krPDzAEOxFGVA": {
+    "fail_streak": 0,
+    "title": "Guardian News",
+    "count": 15,
+    "last_ok": 1760533346526
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCtH1Jr8q6N1k8nVZb7x3QIg": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCQFzvxr2q1f7WQy5H9y-jyQ": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UC_khmceHbe6u0HD5qwmgWHQ": {
+    "fail_streak": 0,
+    "title": "Fire Guy Ryan",
+    "count": 15,
+    "last_ok": 1760533346281
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCE2D6gJBTmX8h4fRrH4C0og": {
+    "fail_streak": 3,
+    "last_err": "Status code 404"
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCKxQmKgrkUv4S7P5w0pLayw": {
+    "fail_streak": 0,
+    "title": "Comics Explained",
+    "count": 15,
+    "last_ok": 1760533346682
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UC9Kq-yEt1iYsbUzNOoIRK0g": {
+    "fail_streak": 0,
+    "title": "Pitch Meeting",
+    "count": 15,
+    "last_ok": 1760533346281
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UC1mkSWkfROiGaglKqtaPBng": {
+    "fail_streak": 0,
+    "title": "Van Life with Bueller",
+    "count": 12,
+    "last_ok": 1760533346682
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCFLpAEe-1KINb2Vm7i8eDAQ": {
+    "fail_streak": 0,
+    "title": "The Weekly Planet",
+    "count": 15,
+    "last_ok": 1760533346526
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCWUD-xMvRGKQ1UCW5kWYzEA": {
+    "fail_streak": 0,
+    "title": "Charlie Streams",
+    "count": 15,
+    "last_ok": 1760533346281
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCDe7m0POuwkL1gwnQ-FVhMw": {
+    "fail_streak": 0,
+    "title": "Star Wars Kids",
+    "count": 15,
+    "last_ok": 1760533346682
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UC4kjDjhexSVuC8JWk4ZanFw": {
+    "fail_streak": 0,
+    "title": "Variant Comics",
+    "count": 15,
+    "last_ok": 1760533346526
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCzBE5RBYGoADEJ4k1BMMikg": {
+    "fail_streak": 0,
+    "title": "The Deep Dive",
+    "count": 15,
+    "last_ok": 1760533346282
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCg1la89F2H7B0SJ0uwyaw9g": {
+    "fail_streak": 0,
+    "title": "Breakdown Channel Universe",
+    "count": 15,
+    "last_ok": 1760533346526
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCZjj5-xpSmwKwxkIOtV013Q": {
+    "fail_streak": 0,
+    "title": "BTTMembers",
+    "count": 15,
+    "last_ok": 1760533346526
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UC_V8ZzLtzDS4NeCaRaRj93g": {
+    "fail_streak": 0,
+    "title": "Skybound",
+    "count": 15,
+    "last_ok": 1760533346527
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCuju5K7RVyqTZ0xVPbb3Zvg": {
+    "fail_streak": 0,
+    "title": "DC Kids Français",
+    "count": 15,
+    "last_ok": 1760533346282
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UC_-U9awQQm_GMJtR2mBhJPg": {
+    "fail_streak": 0,
+    "title": "Invincible",
+    "count": 15,
+    "last_ok": 1760533346526
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UCWWLftQdK0A9oC_EElU7NHw": {
+    "fail_streak": 0,
+    "title": "Cosmic Warren",
+    "count": 15,
+    "last_ok": 1760533346282
+  },
+  "https://www.youtube.com/feeds/videos.xml?channel_id=UClU81klqCHuqoVIRVc4TK3w": {
+    "fail_streak": 0,
+    "title": "Comic Book Club",
+    "count": 15,
+    "last_ok": 1760533346526
+  }
+}

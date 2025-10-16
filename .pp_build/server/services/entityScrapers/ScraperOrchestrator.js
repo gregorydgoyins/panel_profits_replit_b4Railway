@@ -1,0 +1,456 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ScraperOrchestrator = void 0;
+const databaseStorage_1 = require("../../databaseStorage");
+const schema_1 = require("@shared/schema");
+const WikidataScraper_1 = require("./WikidataScraper");
+const FandomWikiScraper_1 = require("./FandomWikiScraper");
+const GCDScraper_1 = require("./GCDScraper");
+const ComicVineScraper_1 = require("./ComicVineScraper");
+const MyComicShopScraper_1 = require("./MyComicShopScraper");
+const LeagueOfGeeksScraper_1 = require("./LeagueOfGeeksScraper");
+const NormalizationService_1 = require("./NormalizationService");
+/**
+ * Scraper Orchestrator - Manages multiple scrapers, deduplication, and consensus validation
+ */
+class ScraperOrchestrator {
+    constructor(config) {
+        this.scrapers = new Map();
+        this.config = {
+            enabledSources: ['wikidata', 'fandom', 'gcd', 'comic-vine', 'mycomicshop', 'league-of-geeks'], // The 6 priority scrapers
+            consensusThreshold: 2, // Minimum 2 sources to verify data
+            concurrentScrapers: 6, // All 6 run in parallel
+            batchSize: 100,
+            ...config,
+        };
+        // Adjust consensus threshold if fewer sources enabled
+        if (this.config.enabledSources.length < this.config.consensusThreshold) {
+            this.config.consensusThreshold = Math.max(1, this.config.enabledSources.length);
+        }
+        this.initializeScrapers();
+    }
+    /**
+     * Initialize all enabled scrapers - THE 6 PRIORITY SCRAPERS
+     */
+    initializeScrapers() {
+        const scraperMap = {
+            'wikidata': () => {
+                console.log('🔮 Initializing Wikidata SPARQL scraper (reliability: 0.90)');
+                return new WikidataScraper_1.WikidataScraper();
+            },
+            'fandom': () => {
+                console.log('📚 Initializing Fandom Wiki scraper (Dark Horse, Image, IDW, Valiant, Boom)');
+                return new FandomWikiScraper_1.FandomWikiScraper('dark_horse', 0.75);
+            },
+            'gcd': () => {
+                console.log('📖 Initializing Grand Comics Database scraper (reliability: 0.88)');
+                return new GCDScraper_1.GCDScraper();
+            },
+            'comic-vine': () => {
+                const apiKey = process.env.COMIC_VINE_API_KEY;
+                if (!apiKey) {
+                    console.warn('⚠️ COMIC_VINE_API_KEY not found, skipping Comic Vine scraper');
+                    return null;
+                }
+                console.log('🎬 Initializing Comic Vine API scraper (reliability: 0.92)');
+                return new ComicVineScraper_1.ComicVineScraper(apiKey);
+            },
+            'mycomicshop': () => {
+                console.log('💰 Initializing MyComicShop pricing scraper (reliability: 0.90)');
+                return new MyComicShopScraper_1.MyComicShopScraper();
+            },
+            'league-of-geeks': () => {
+                console.log('🎮 Initializing League of Comic Geeks scraper (600K+ comics, reliability: 0.88)');
+                return new LeagueOfGeeksScraper_1.LeagueOfGeeksScraper();
+            },
+        };
+        console.log('\n🚀 Activating 6 priority scrapers in parallel...\n');
+        for (const sourceName of this.config.enabledSources) {
+            const scraperFactory = scraperMap[sourceName];
+            if (scraperFactory) {
+                const scraper = scraperFactory();
+                if (scraper) {
+                    this.scrapers.set(sourceName, scraper);
+                }
+            }
+        }
+        console.log(`\n✅ Activated ${this.scrapers.size} scrapers: ${Array.from(this.scrapers.keys()).join(', ')}`);
+        console.log(`⚙️ Consensus threshold: ${this.config.consensusThreshold} sources`);
+        console.log(`⚡ Max concurrent: ${this.config.concurrentScrapers} scrapers\n`);
+    }
+    /**
+     * Main orchestration method - scrapes entities from all sources
+     */
+    async scrapeAndAggregate(query) {
+        const startTime = Date.now();
+        const result = {
+            totalEntitiesProcessed: 0,
+            totalSourcesQueried: this.scrapers.size,
+            consensusVerified: 0,
+            firstAppearancesAdded: 0,
+            attributesAdded: 0,
+            relationshipsAdded: 0,
+            appearancesAdded: 0,
+            errors: [],
+            duration: 0,
+        };
+        try {
+            // Run all scrapers in parallel
+            const scraperPromises = Array.from(this.scrapers.entries()).map(async ([sourceName, scraper]) => {
+                try {
+                    return await scraper.scrapeEntities(query);
+                }
+                catch (error) {
+                    result.errors.push({
+                        source: sourceName,
+                        message: error instanceof Error ? error.message : 'Unknown error',
+                    });
+                    return [];
+                }
+            });
+            const allScraperResults = await Promise.all(scraperPromises);
+            // Flatten all entity data from all sources
+            const allEntityData = allScraperResults.flat();
+            // Group entities by normalized name for deduplication
+            const entityGroups = this.groupEntitiesByName(allEntityData);
+            // Process each entity group (merge data from multiple sources)
+            for (const [entityKey, entityDataList] of entityGroups.entries()) {
+                try {
+                    const aggregatedEntity = await this.aggregateEntityData(entityDataList);
+                    await this.saveEntityData(aggregatedEntity, entityDataList);
+                    result.totalEntitiesProcessed++;
+                    if (aggregatedEntity.isVerified) {
+                        result.consensusVerified++;
+                    }
+                    if (aggregatedEntity.firstAppearance) {
+                        result.firstAppearancesAdded++;
+                    }
+                    result.attributesAdded += aggregatedEntity.attributes?.length || 0;
+                    result.relationshipsAdded += aggregatedEntity.relationships?.length || 0;
+                    result.appearancesAdded += aggregatedEntity.appearances?.length || 0;
+                }
+                catch (error) {
+                    result.errors.push({
+                        source: 'aggregation',
+                        message: `Failed to process ${entityKey}: ${error}`,
+                    });
+                }
+            }
+        }
+        catch (error) {
+            result.errors.push({
+                source: 'orchestrator',
+                message: error instanceof Error ? error.message : 'Unknown error',
+            });
+        }
+        result.duration = Date.now() - startTime;
+        return result;
+    }
+    /**
+     * Group entities by fuzzy matching for intelligent deduplication
+     * Uses normalization service with Levenshtein distance fuzzy matching
+     */
+    groupEntitiesByName(entities) {
+        const groups = new Map();
+        // Use normalization service for fuzzy grouping
+        const entityGroups = NormalizationService_1.normalizationService.groupSimilarEntities(entities.map(e => ({
+            entityName: e.entityName,
+            entityType: e.entityType,
+            publisher: e.publisher,
+            original: e,
+        })), 0.85 // 85% similarity threshold
+        );
+        // Convert to Map with best name as key
+        for (const group of entityGroups) {
+            const names = group.map(g => g.entityName);
+            const bestName = NormalizationService_1.normalizationService.selectBestName(names);
+            const key = this.normalizeEntityKey(bestName, group[0].entityType);
+            groups.set(key, group.map(g => g.original));
+        }
+        return groups;
+    }
+    /**
+     * Normalize entity key for matching across sources
+     * Now delegates to normalization service
+     */
+    normalizeEntityKey(name, type) {
+        return `${type}:${NormalizationService_1.normalizationService.canonicalizeName(name)}`;
+    }
+    /**
+     * Aggregate entity data from multiple sources using consensus
+     */
+    async aggregateEntityData(entityDataList) {
+        if (entityDataList.length === 0) {
+            throw new Error('No entity data to aggregate');
+        }
+        // Use first entity as base
+        const base = entityDataList[0];
+        const sourceCount = entityDataList.length;
+        const isVerified = sourceCount >= this.config.consensusThreshold;
+        // Merge first appearance data and track contributor count
+        const firstAppearanceResult = this.mergeFirstAppearances(entityDataList.map(e => e.firstAppearance).filter(Boolean));
+        // Merge attributes (deduplicate by name)
+        const attributes = this.mergeAttributes(entityDataList.flatMap(e => e.attributes || []));
+        // Merge relationships (deduplicate by target)
+        const relationships = this.mergeRelationships(entityDataList.flatMap(e => e.relationships || []));
+        // Merge appearances (deduplicate by comic title)
+        const appearances = this.mergeAppearances(entityDataList.flatMap(e => e.appearances || []));
+        return {
+            ...base,
+            firstAppearance: firstAppearanceResult?.value,
+            firstAppearanceSourceCount: firstAppearanceResult?.sourceCount,
+            attributes,
+            relationships,
+            appearances,
+            isVerified,
+            sourceCount,
+        };
+    }
+    /**
+     * Merge first appearance data - REQUIRES sources to AGREE on same comic
+     * Field-level consensus: sources must agree on the same first appearance
+     * Returns both the value AND the number of sources that contributed
+     */
+    mergeFirstAppearances(firstAppearances) {
+        if (firstAppearances.length === 0)
+            return undefined;
+        // Group by normalized comic title to find consensus
+        const grouped = new Map();
+        for (const fa of firstAppearances) {
+            // Normalize comic title for matching
+            const key = NormalizationService_1.normalizationService.canonicalizeName(fa.comicTitle);
+            const group = grouped.get(key) || [];
+            group.push(fa);
+            grouped.set(key, group);
+        }
+        // Find group with most sources (consensus)
+        let consensusGroup = [];
+        let maxSources = 0;
+        for (const group of grouped.values()) {
+            if (group.length > maxSources) {
+                maxSources = group.length;
+                consensusGroup = group;
+            }
+        }
+        // Only return if consensus threshold met
+        if (maxSources < this.config.consensusThreshold) {
+            return undefined; // Sources disagree or insufficient consensus
+        }
+        // Return most complete entry from consensus group WITH source count
+        const mostComplete = consensusGroup.sort((a, b) => {
+            const scoreA = Object.values(a).filter(v => v !== null && v !== undefined).length;
+            const scoreB = Object.values(b).filter(v => v !== null && v !== undefined).length;
+            return scoreB - scoreA;
+        })[0];
+        return {
+            value: mostComplete,
+            sourceCount: maxSources, // Actual number of sources that agreed
+        };
+    }
+    /**
+     * Merge attributes - deduplicate by name
+     */
+    mergeAttributes(attributes) {
+        const uniqueAttrs = new Map();
+        for (const attr of attributes) {
+            const key = `${attr.category}:${attr.name.toLowerCase()}`;
+            if (!uniqueAttrs.has(key)) {
+                uniqueAttrs.set(key, attr);
+            }
+        }
+        return Array.from(uniqueAttrs.values());
+    }
+    /**
+     * Merge relationships - deduplicate by target
+     */
+    mergeRelationships(relationships) {
+        const uniqueRels = new Map();
+        for (const rel of relationships) {
+            const key = `${rel.relationshipType}:${rel.targetEntityName.toLowerCase()}`;
+            if (!uniqueRels.has(key)) {
+                uniqueRels.set(key, rel);
+            }
+        }
+        return Array.from(uniqueRels.values());
+    }
+    /**
+     * Merge appearances - deduplicate by comic title
+     */
+    mergeAppearances(appearances) {
+        const uniqueApps = new Map();
+        for (const app of appearances) {
+            const key = app.comicTitle.toLowerCase();
+            if (!uniqueApps.has(key)) {
+                uniqueApps.set(key, app);
+            }
+        }
+        return Array.from(uniqueApps.values());
+    }
+    /**
+     * Save aggregated entity data to database
+     */
+    async saveEntityData(aggregatedEntity, sourceDataList) {
+        // Save entity data sources
+        for (const sourceData of sourceDataList) {
+            const dataSource = {
+                entityId: aggregatedEntity.entityId,
+                entityName: aggregatedEntity.entityName,
+                entityType: aggregatedEntity.entityType,
+                sourceName: sourceData.sourceData?.sourceName || 'unknown',
+                sourceEntityId: sourceData.sourceEntityId,
+                sourceUrl: sourceData.sourceUrl || null,
+                hasFirstAppearance: !!sourceData.firstAppearance,
+                hasAttributes: (sourceData.attributes?.length || 0) > 0,
+                hasRelationships: (sourceData.relationships?.length || 0) > 0,
+                hasAppearances: (sourceData.appearances?.length || 0) > 0,
+                hasImages: !!sourceData.firstAppearance?.coverUrl,
+                hasBiography: !!sourceData.sourceData?.biography,
+                dataCompleteness: this.calculateCompleteness(sourceData),
+                dataFreshness: new Date(),
+                sourceReliability: String(sourceData.sourceData?.sourceReliability || 0.80),
+                sourceData: sourceData.sourceData,
+                lastSyncedAt: new Date(),
+                nextSyncScheduled: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+                syncStatus: 'synced',
+                syncErrorMessage: null,
+            };
+            await databaseStorage_1.db.insert(schema_1.entityDataSources).values(dataSource).onConflictDoNothing();
+        }
+        // Save first appearance (only if consensus achieved)
+        if (aggregatedEntity.firstAppearance && aggregatedEntity.firstAppearanceSourceCount) {
+            const faSourceCount = aggregatedEntity.firstAppearanceSourceCount;
+            const faIsVerified = faSourceCount >= this.config.consensusThreshold;
+            const firstAppearance = {
+                entityId: aggregatedEntity.entityId,
+                entityName: aggregatedEntity.entityName,
+                entityType: aggregatedEntity.entityType,
+                firstAppearanceTitle: aggregatedEntity.firstAppearance.comicTitle,
+                firstAppearanceIssue: aggregatedEntity.firstAppearance.issue || null,
+                firstAppearanceYear: aggregatedEntity.firstAppearance.year || null,
+                firstAppearanceMonth: aggregatedEntity.firstAppearance.month || null,
+                firstAppearanceCoverUrl: aggregatedEntity.firstAppearance.coverUrl || null,
+                publisher: aggregatedEntity.publisher || null,
+                franchise: aggregatedEntity.firstAppearance.franchise || null,
+                universe: aggregatedEntity.firstAppearance.universe || null,
+                primarySource: sourceDataList[0].sourceData?.sourceName || 'metron',
+                sourceConsensusCount: faSourceCount, // Actual FA contributor count
+                sourceIds: sourceDataList.reduce((acc, src) => ({
+                    ...acc,
+                    [src.sourceData?.sourceName || 'unknown']: src.sourceEntityId,
+                }), {}),
+                isVerified: faIsVerified, // Based on FA consensus
+                verifiedAt: faIsVerified ? new Date() : null,
+                verificationNotes: faIsVerified
+                    ? `First appearance verified by ${faSourceCount} agreeing sources`
+                    : null,
+            };
+            await databaseStorage_1.db.insert(schema_1.entityFirstAppearances).values(firstAppearance).onConflictDoNothing();
+        }
+        // Save attributes (bulk insert)
+        if (aggregatedEntity.attributes && aggregatedEntity.attributes.length > 0) {
+            const attrs = aggregatedEntity.attributes.map(attr => ({
+                entityId: aggregatedEntity.entityId,
+                entityName: aggregatedEntity.entityName,
+                entityType: aggregatedEntity.entityType,
+                attributeCategory: attr.category,
+                attributeName: attr.name,
+                attributeDescription: attr.description || null,
+                attributeLevel: attr.level || null,
+                isActive: attr.isActive !== undefined ? attr.isActive : true,
+                firstMentionedIn: attr.firstMentionedIn || null,
+                keyAppearances: [],
+                originType: attr.originType || null,
+                originDescription: null,
+                deathDate: null,
+                resurrectionDate: null,
+                permanenceStatus: null,
+                primarySource: sourceDataList[0].sourceData?.sourceName || 'metron',
+                sourceConsensusCount: 1,
+                sourceIds: {},
+                isVerified: false,
+                verifiedAt: null,
+            }));
+            await databaseStorage_1.db.insert(schema_1.entityAttributes).values(attrs).onConflictDoNothing();
+        }
+        // Save relationships (bulk insert)
+        if (aggregatedEntity.relationships && aggregatedEntity.relationships.length > 0) {
+            const rels = aggregatedEntity.relationships.map(rel => ({
+                sourceEntityId: aggregatedEntity.entityId,
+                sourceEntityName: aggregatedEntity.entityName,
+                sourceEntityType: aggregatedEntity.entityType,
+                targetEntityId: rel.targetEntityId,
+                targetEntityName: rel.targetEntityName,
+                targetEntityType: rel.targetEntityType,
+                relationshipType: rel.relationshipType,
+                relationshipSubtype: rel.relationshipSubtype || null,
+                relationshipStrength: String(rel.strength || 0.50),
+                isActive: rel.isActive !== undefined ? rel.isActive : true,
+                firstEstablishedIn: rel.firstEstablishedIn || null,
+                firstEstablishedComicId: null,
+                keyMoments: [],
+                relationshipNotes: null,
+                publisher: aggregatedEntity.publisher || null,
+                universe: null,
+                primarySource: sourceDataList[0].sourceData?.sourceName || 'metron',
+                sourceConsensusCount: 1,
+                sourceIds: {},
+                isVerified: false,
+                verifiedAt: null,
+            }));
+            await databaseStorage_1.db.insert(schema_1.entityRelationships).values(rels).onConflictDoNothing();
+        }
+        // Save appearances (bulk insert)
+        if (aggregatedEntity.appearances && aggregatedEntity.appearances.length > 0) {
+            const apps = aggregatedEntity.appearances.map(app => ({
+                entityId: aggregatedEntity.entityId,
+                entityName: aggregatedEntity.entityName,
+                entityType: aggregatedEntity.entityType,
+                comicId: null,
+                comicTitle: app.comicTitle,
+                issueNumber: app.issueNumber || null,
+                publicationYear: app.publicationYear || null,
+                publicationMonth: app.publicationMonth || null,
+                publisher: aggregatedEntity.publisher || null,
+                appearanceType: app.appearanceType || null,
+                appearanceSignificance: null,
+                pageCount: null,
+                isOnCover: app.isOnCover || false,
+                coverImageUrl: app.coverImageUrl || null,
+                primarySource: sourceDataList[0].sourceData?.sourceName || 'metron',
+                sourceIds: {},
+            }));
+            await databaseStorage_1.db.insert(schema_1.entityAppearances).values(apps).onConflictDoNothing();
+        }
+    }
+    /**
+     * Calculate data completeness score
+     */
+    calculateCompleteness(entityData) {
+        let score = 0;
+        let maxScore = 6;
+        if (entityData.firstAppearance)
+            score += 1;
+        if (entityData.attributes && entityData.attributes.length > 0)
+            score += 1;
+        if (entityData.relationships && entityData.relationships.length > 0)
+            score += 1;
+        if (entityData.appearances && entityData.appearances.length > 0)
+            score += 1;
+        if (entityData.firstAppearance?.coverUrl)
+            score += 1;
+        if (entityData.sourceData?.biography)
+            score += 1;
+        return (score / maxScore).toFixed(2);
+    }
+    /**
+     * Get scraper statistics
+     */
+    getStats() {
+        return {
+            enabledScrapers: Array.from(this.scrapers.keys()),
+            totalScrapers: this.scrapers.size,
+            config: this.config,
+        };
+    }
+}
+exports.ScraperOrchestrator = ScraperOrchestrator;
