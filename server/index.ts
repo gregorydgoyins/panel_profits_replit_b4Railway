@@ -1,136 +1,17 @@
-import { phase1Services } from "./phase1ScheduledServices";
-import http from "http";
-import express, { type Request, Response, NextFunction } from "express";
-// disabled broken registerRoutes import
-import { setupVite, serveStatic, log } from "./vite";
-import { initializeWebSocketProtocolOverride, applyEmergencyProtocolOverride } from "./utils/webSocketProtocolOverride.js";
-// temporarily disabled broken await phase1Services import
-import { phase2Services } from "./phase2ScheduledServices.js";
-import { pineconeService } from "./services/pineconeService";
-import { openaiService } from "./services/openaiService";
-import { workerOrchestrator } from "./queue/workerOrchestrator";
-
+import express from "express";
+import cors from "cors";
+import compression from "compression";
+import { createProxyMiddleware } from "http-proxy-middleware";
 
 const app = express();
-const server = http.createServer(app);
+app.use(cors());
+app.use(compression());
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
 
-app.use((req, res, next) => {
-  const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+const VITE_URL = "http://127.0.0.1:5173";
+const PORT = Number(process.env.PORT || 5000);
 
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
+app.get("/__health",(_,r)=>r.json({ok:true,port:PORT,vite:VITE_URL,time:new Date().toISOString()}));
+app.use("/",createProxyMiddleware({target:VITE_URL,changeOrigin:true,ws:true,secure:false}));
 
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
-      log(logLine);
-    }
-  });
-
-  next();
-});
-
-(async () => {
-  // Initialize critical WebSocket protocol override BEFORE any WebSocket servers start
-  // TEMPORARILY DISABLED: WebSocket overrides are causing Vite HMR frame errors
-  // console.log('🔒 Pre-initializing WebSocket protocol override for Vite HMR...');
-  // initializeWebSocketProtocolOverride();
-  // applyEmergencyProtocolOverride();
-  
-// registerRoutes(app) disabled
-
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-
-    res.status(status).json({ message });
-    throw err;
-  });
-
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  
-  // EMERGENCY FIX: Use Vite development mode to bypass corrupted production bundle
-  // The production build is corrupted, so we'll use Vite dev mode instead
-  if (process.env.NODE_ENV === "development") {
-    const { setupVite } = await import("./vite.js");
-// setupVite temporarily disabled — missing server object
-  } else {
-    serveStatic(app);
-  }
-
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, async () => {
-    log(`serving on port ${port}`);
-    console.log('=== SERVER STARTUP SEQUENCE BEGINNING ===');
-    
-    // PINECONE INTEGRATION: Connect to vector database
-    console.log('🔗 About to initialize Pinecone...');
-    try {
-      const result = await pineconeService.init();
-      console.log('✅ Pinecone initialization complete, result:', result ? 'success' : 'skipped/failed');
-    } catch (error) {
-      console.error('❌ Failed to initialize Pinecone:', error);
-      console.error('Error stack:', error instanceof Error ? error.stack : 'no stack');
-    }
-
-    // OPENAI INTEGRATION: Initialize embedding service
-    try {
-      await openaiService.init();
-      console.log('✅ OpenAI service initialized');
-    } catch (error) {
-      console.error('❌ Failed to initialize OpenAI:', error);
-    }
-    
-    // PHASE 1 INTEGRATION: Start all scheduled services for living financial simulation
-    try {
-      await await phase1Services();
-      log('🚀 Phase 1 Core Trading Foundation: All engines are now LIVE and operational!');
-    } catch (error) {
-      console.error('Failed to start Phase 1 scheduled services:', error);
-    }
-    
-    // PHASE 2 INTEGRATION: Start narrative-driven trading features
-    try {
-      await phase2Services.start();
-      log('📖 Phase 2 Narrative Trading: Storytelling engines are now LIVE!');
-    } catch (error) {
-      console.error('Failed to start Phase 2 scheduled services:', error);
-    }
-
-    // QUEUE SYSTEM: Start BullMQ workers for async processing
-    // Queue workers re-enabled - Upstash upgraded!
-    try {
-      await workerOrchestrator.start();
-      log('⚙️  Queue System: Workers ready for async verification pipeline!');
-    } catch (error) {
-      console.error('❌ Failed to start queue workers:', error);
-      console.error('Error stack:', error instanceof Error ? error.stack : 'no stack');
-    }
-  });
-})();
+app.listen(PORT,"0.0.0.0",()=>console.log(`✅ Server on ${PORT}, proxy→5173`));
