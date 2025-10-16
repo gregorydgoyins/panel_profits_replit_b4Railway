@@ -1,10 +1,5 @@
 {
   "version": 2,
-  "framework": null,
-  "installCommand": "npm ci --prefix ..",
-  "buildCommand": "npm run build --prefix .. -- --outDir client/dist --emptyOutDir",
   "outputDirectory": "dist",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }

@@ -1,1 +1,9 @@
-{ "name": "panel-profits-client-root-proxy", "private": true }
+{
+  "name": "panel-profits-client-shim",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm ci --prefix ..",
+    "build": "npm run build --prefix .. -- --outDir client/dist --emptyOutDir",
+    "vercel-build": "npm run build"
+  }
+}
