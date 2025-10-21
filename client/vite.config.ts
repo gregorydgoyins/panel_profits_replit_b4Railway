@@ -1,10 +1,24 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import path from "node:path";
+
 export default defineConfig({
-  plugins:[react()],
-  resolve:{ alias:{ "@": path.resolve(__dirname, "./src") } },
-  server:{ host:true, port:5173, strictPort:true },
-  preview:{ host:true, port:4173, strictPort:true },
-  build:{ sourcemap:true }
+  plugins: [react()],
+  server: {
+    host: true, // allow external access (for Replit, Render, etc.)
+    port: 3000,
+    strictPort: true,
+    allowedHosts: true, // fixes Replit “blocked host” error
+    hmr: {
+      protocol: "wss", // secure WebSocket for Replit preview
+      clientPort: 443, // match HTTPS port
+    },
+    watch: {
+      usePolling: true, // prevents ENOSPC file watcher crash
+      interval: 300,
+    },
+  },
+  preview: {
+    port: 4173,
+    strictPort: true,
+  },
 });

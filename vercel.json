@@ -1,16 +1,9 @@
 {
   "version": 2,
-  "framework": null,
   "builds": [
     { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "dist" } }
   ],
-  "buildCommand": "npm run build",
-  "installCommand": "npm ci",
-  "outputDirectory": "dist",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ],
-  "env": {
-    "VITE_PUBLIC_API_BASE": "https://panel-profits-replit-b4railway.onrender.com"
-  }
+  "routes": [
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
 }

@@ -10,3 +10,4 @@ vite.config.ts.*
 client/.env*
 server/.env*
 ops/env/
+.vercel
